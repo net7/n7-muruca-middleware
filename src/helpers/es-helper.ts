@@ -46,4 +46,60 @@ export default class ESHelper {
             })
         })
     }
+    buildQuery(data, conf) {
+      let { searchId, sort } = data
+      // QUERY ELASTICSEARCH
+      let main_query: any = {
+          query: {
+              bool: {
+                  must: [
+                      { match: { type: searchId } }
+                  ]
+              }
+          },
+          sort: sort ? { "title.keyword": sort = sort.split("_")[2] } : [ "_score" ],
+          aggregations: {}
+      };
+
+      let query_facets = conf[searchId]["facets-aggs"].aggregations;
+      for (const key in data) {
+          let query_key = conf[searchId].filters[key];
+          if (query_key) {
+              switch (query_key.type) {
+                  case "fulltext":
+                      const ft_query = {
+                          query_string: {
+                              query: query_key.addStar ? "*" + data.query + "*" : data,
+                              fields: query_key.field
+                          }
+                      }
+                      main_query.query.bool.must.push(ft_query)
+                      break;
+                  case "multivalue":
+                      data[key].map((value) => {
+                          main_query.query.bool.must.push({
+                              match: {
+                                  [query_key.field]: value
+                              }
+                          })
+                      });
+                      break;
+
+                  default:
+                      break;
+              }
+          }
+      }
+      //facets aggregations
+      query_facets.map((f) => {
+          for (const key in f) {
+              main_query.aggregations[key] = {
+                  terms: {
+                      field: f[key]
+                  }
+              }
+          }
+      })
+      return main_query;
+  }
 }
