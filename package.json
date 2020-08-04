@@ -14,6 +14,7 @@
     "dist"
   ],
   "dependencies": {
+    "request": "^2.88.2",
     "typescript": "^3.9.7"
   }
 }
