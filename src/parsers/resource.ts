@@ -1,42 +1,71 @@
-import Parser from "../interfaces/parser";
+import Parser, { Input } from "../interfaces/parser";
+
+interface PreviewParent {
+  title: string;
+  description: string;
+  image: any;
+  classes: string;
+  link: string;
+}
+
+interface Author {
+  role: string;
+  author: {
+    [a: string]: {
+      name: string;
+    };
+  };
+}
+
+interface ParsedData {
+  title: string;
+  sections: any;
+}
 
 export default class ResourceParser implements Parser {
-  parse({ page, data, conf }) {
-    let obj = {
+  parse({ page, data, conf }: Input) {
+
+    const parsed: ParsedData = {
       title: '',
       sections: {}
     };
-    for (const key in conf) {
-      switch (key) {
+
+    for (const block in conf) {
+      switch (block) {
+
+
         case 'title':
-          conf[key].fields.map((field) => {
-            obj.title = data[field];
+          conf[block].fields.map((field: string) => {
+            parsed.title = data[field];
           })
           break;
 
+
         case 'header':
-          obj.sections[key] = {};
-          let t = conf[key].fields;
-          obj.sections[key][t[0]] = data[t[0]]; // title
-          obj.sections[key][t[1]] = data[t[1]]; // description
+          parsed.sections[block] = {};
+          let t = conf[block].fields;
+          parsed.sections[block][t[0]] = data[t[0]]; // title
+          parsed.sections[block][t[1]] = data[t[1]]; // description
           break;
+
 
         case 'image-viewer':
-          obj.sections[key] = {};
+          parsed.sections[block] = {};
           let v = { images: [], thumbs: [] };
-          let gallery = conf[key].fields[0]; // "gallery"
-          v.images = data[gallery].map(g => ({ type: 'image', url: g.image, description: g.description }))
+          let gallery = conf[block].fields[0]; // "gallery"
+          v.images = data[gallery].map((g: any) => ({ type: 'image', url: g.image, description: g.description }))
           v.thumbs = v.images;
-          obj.sections[key] = v;
+          parsed.sections[block] = v;
           break;
 
+
         case 'metadata':
-          obj.sections[key] = {};
+          parsed.sections[block] = {};
           const m = {
             group: [{
               title: 'Metadata',
-              items: conf[key].fields
-                .map((field) => {
+              items: conf[block].fields
+                .map((field: string) => {
                   if (data[field]) {
                     const filter = [
                       "date",
@@ -59,82 +88,93 @@ export default class ResourceParser implements Parser {
                 }).flat()
             }]
           };
-          m.group[0].items = m.group[0].items.filter(n => n)
-          obj.sections[key] = { ...m };
+          m.group[0].items = m.group[0].items.filter((n: any) => n)
+          parsed.sections[block] = { ...m };
           break;
 
+
         case "collection-keywords":
-          obj.sections[key] = {};
+          parsed.sections[block] = {};
           const keywords = {
             header: { title: "Kewords collegate" },
             items: []
           }
-          conf[key].fields.map((field) => {
+          conf[block].fields.forEach((field: string) => {
             if (data[field]) {
-              data[field].map(f => {
-                keywords.items.push({ title: f.title, link: `/${page}/${f.id}/${f.slug}`, type: field })
-              })
+              keywords.items = data[field].map((f: any) => ({
+                title: f.title,
+                link: `/${page}/${f.id}/${f.slug}`,
+                type: field
+              }));
             }
           })
-          obj.sections[key] = keywords; // keywords
+          parsed.sections[block] = keywords; // keywords
           break;
+
+
         case "collection-toponyms":
-          obj.sections[key] = {};
+          parsed.sections[block] = {};
           const toponyms = {
             header: { title: "Toponimi collegati" },
             items: []
           }
-          conf[key].fields.map((field) => {
+          conf[block].fields.map((field: string) => {
             if (data[field]) {
-              data[field].map(f => {
-                toponyms.items.push({ title: f.title, link: "/" + page + "/" + f.id + "/" + f.slug, type: field })
-              })
+              toponyms.items = data[field].map((f: any) => ({
+                title: f.title,
+                link: "/" + page + "/" + f.id + "/" + f.slug,
+                type: field
+              }));
             }
           })
-          obj.sections[key] = toponyms; //toponyms
+          parsed.sections[block] = toponyms; //toponyms
           break;
 
+
         case "metadata-size":
-          obj.sections[key] = {};
+          parsed.sections[block] = {};
           const m_2 = {
             group: [{
               title: 'Dimensioni',
-              items: conf[key].fields // dimension
-                .map((field) => {
-                  return (
-                    Object.keys(data[field]).map(f => ({ label: f, value: f === "image" ? "<img src='" + data[field][f] + "'>" : data[field][f] }))
-                  )
-                }).flat()
+              items: conf[block].fields // dimension
+                .map((field: string) => Object.keys(data[field])
+                  .map(f => ({
+                    label: f,
+                    value: f === "image" ? "<img src='" + data[field][f] + "'>" : data[field][f]
+                  }))
+                ).flat()
             }]
           };
-          obj.sections[key] = { ...m_2 };
+          parsed.sections[block] = { ...m_2 };
           break;
 
+
         case "metadata-description":
-          obj.sections[key] = {};
+          parsed.sections[block] = {};
           const m_3 = {
             group: [{
               title: 'Descrizione',
-              items: conf[key].fields //descriprion
-                .map((field) => {
+              items: conf[block].fields // description
+                .map((field: string) => {
                   return (
                     { label: field, value: data[field] }
                   )
                 })
             }]
           }
-          obj.sections[key] = { ...m_3 };
+          parsed.sections[block] = { ...m_3 };
           break;
 
+
         case "collection-works":
-          obj.sections[key] = {};
-          const c_2 = {
+          parsed.sections[block] = {};
+          const c_2: any = {
             header: {
               title: 'Bibliografia',
             },
             items: []
           }
-          conf[key].fields.map((field, i) => { // work collection
+          conf[block].fields.forEach((field: string, i: number) => { // work collection
             if (data[field]) {
               c_2.items.push(
                 {
@@ -153,35 +193,41 @@ export default class ResourceParser implements Parser {
                   }]
                 }
               )
+              parsed.sections[block] = { ...c_2 };
             }
           })
-          obj.sections[key] = { ...c_2 };
           break;
-        case "preview-parent":
-          obj.sections[key] = {};
-          const p_p = {}
-          conf[key].fields.map(field => { // preview parent
-            if (data[field]) {
-              data[field].map(f => {
-                p_p["title"] = f.title;
-                p_p["description"] = f.description;
-                p_p["image"] = f.image;
-                p_p["link"] = "/" + page + "/" + f.id + "/" + f.slug;
-                p_p["classes"] = 'is-fullwidth';
-              })
-            }
 
+
+        case "preview-parent":
+          parsed.sections[block] = {};
+          conf[block].fields.map((field: string) => { // preview parent
+            if (data[field]) {
+              const previewItem = data[field].map((f: { title: string; description: string; image: any; id: string; slug: string; }) => ({
+                title: f.title,
+                description: f.description,
+                image: f.image,
+                link: `/${page}/${f.id}/${f.slug}`,
+                classes: 'is-fullwidth'
+              }))
+              parsed.sections[block] = { ...previewItem };
+            }
           })
-          obj.sections[key] = { ...p_p };
           break;
+
+
         default:
           break;
       }
     }
-    return obj
+    return parsed
   }
-  // FILTERS
-  filter(data, field) {
+
+
+  /**
+   * Data filters 
+   */
+  filter(data: any, field: string) {
     let filter;
     if (/date/.test(field)) {
       filter = { label: "Date", value: data[field].year + "-" + data[field]["end_year"] }
@@ -189,7 +235,7 @@ export default class ResourceParser implements Parser {
 
     if (/authors/.test(field)) {
       filter = []
-      data[field].map(auth => {
+      data[field].map((auth: Author) => {
         filter.push(
           {
             label: auth.role,
@@ -206,9 +252,7 @@ export default class ResourceParser implements Parser {
 
     if (/loan/.test(field)) {
       filter = {
-        label: field, value: data[field].map(l =>
-          l
-        ).join(', ')
+        label: field, value: data[field].map((l: any) => l).join(', ')
       }
     }
 

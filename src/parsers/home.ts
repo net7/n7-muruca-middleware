@@ -8,7 +8,7 @@ export default class HeaderParser implements Parser {
     let parsedData: any = {};
 
     for (const block in conf) {
-      // for each configured block, "f" contains the 
+      // for each configured block, "field" contains the 
       // field of the WordPress data object, where
       // the corresponding data is stored.
       const field = conf[block].field
