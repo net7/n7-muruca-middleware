@@ -1,5 +1,5 @@
 {
-  "name": "n7-serverless",
+  "name": "@n7-frontend/serverless",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
