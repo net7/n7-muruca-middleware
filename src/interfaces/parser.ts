@@ -1,3 +1,3 @@
 export default interface Parser {
-  parse: (input: any) => any;
+  parse: (input: { order: any, data: any, config?: any }) => any;
 }
