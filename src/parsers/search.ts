@@ -1,27 +1,26 @@
-import Parser from "../interfaces/parser";
+import Parser, { Input } from "../interfaces/parser";
 
 export default class SearchParser implements Parser {
-  parse({ type, searchId, options, data, order, config }) {
+  parse({ type, searchId, options, data, keyOrder, conf }: Input) {
     return type === "results"
-      ? this.parseResults({ searchId, options, data, config })
-      : this.parseFacets({ order, data });
+      ? this.parseResults({ searchId, options, data, conf })
+      : this.parseFacets({ keyOrder, data });
   }
 
-  protected parseResults({ searchId, options, data, config }) {
+  protected parseResults({ searchId, options, data, conf }: Input) {
     let search_result = {
       ...options,
       results: []
     };
-    let res = {}
+    let res: any = {}
 
-    data.map(hit => {
-      res = {}
+    data.map((hit: any) => {
       const source = hit._source;
       // FIXME: generalizzare
       // questo è un controllo collegato al progetto totus
       switch (searchId) {
         case "map":
-          config.results.map((val) => {
+          conf.results.map((val: { label: string; field: any; }) => {
             switch (val.label) {
               case "title":
                 res[val.label] = source[val.field];
@@ -46,7 +45,7 @@ export default class SearchParser implements Parser {
           break;
 
         case "work":
-          config.results.map((val) => {
+          conf.results.map((val: { label: string; field: any; }) => {
             switch (val.label) {
               case "title":
                 res[val.label] = source[val.field];
@@ -79,16 +78,16 @@ export default class SearchParser implements Parser {
     return search_result;
   }
 
-  protected parseFacets({ order, data }) {
-    const agg_res = {
+  protected parseFacets({ keyOrder, data }: Input) {
+    const agg_res: any = {
       headers: {},
       inputs: {}
     }
     //header and inputs
     for (const key in data) {
       let sum = 0;
-      let inputs = []
-      data[key].buckets.map((agg) => {
+      let inputs: any[] = []
+      data[key].buckets.map((agg: { key: string; doc_count: number; }) => {
         inputs.push({
           text: agg.key,
           counter: agg.doc_count,
@@ -99,11 +98,14 @@ export default class SearchParser implements Parser {
       agg_res.inputs[key] = inputs
       agg_res.headers["header-" + key] = sum;
     }
-    let ord_parse = {};
-    order.map(ord => {
-      ord_parse[ord] = agg_res.inputs[ord];
-    })
-    agg_res.inputs = ord_parse;
+
+    if (keyOrder) {
+      let ordered: any = {};
+      keyOrder.forEach(key => {
+        ordered[key] = agg_res.inputs[key];
+      })
+      agg_res.inputs = ordered;
+    }
     return agg_res;
   }
 }

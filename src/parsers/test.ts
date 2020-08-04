@@ -1,7 +1,7 @@
 import Parser from "../interfaces/parser";
 
 export default class TestParser implements Parser {
-  parse(input) {
+  parse(input: any) {
     return input;
   }
 }
