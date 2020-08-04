@@ -1,6 +1,6 @@
 import * as request from 'request';
 
-export default class HTTPHelper {
+export default {
     returnOkResponse(data, headerData) {
         let response = {
             statusCode: 200,
@@ -20,7 +20,7 @@ export default class HTTPHelper {
         }
         response["headers"] = headers;
         return response;
-    }
+    },
     returnErrorResponse(message, code) {
         let response = {
             statusCode: code,
@@ -36,7 +36,7 @@ export default class HTTPHelper {
         };
         response["headers"] = headers;
         return response;
-    }
+    },
     doRequest(url) {
         return new Promise(function (resolve, reject) {
             request(url, function (error, res, body) {

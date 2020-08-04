@@ -1,4 +1,4 @@
-export default class ESHelper {
+export default {
     bulkIndex(response, index, Client, ELASTIC_URI) { // client = const { Client } = require('@elastic/elasticsearch')
         const client = new Client({ node: ELASTIC_URI }) // ELASTIC_URI  =  serverless "process.env.ELASTIC_URI"
 
@@ -31,7 +31,7 @@ export default class ESHelper {
                 return response;
             }
         )
-    }
+    },
     makeSearch(index, body, Client, ELASTIC_URI) {
         return new Promise(function (resolve, reject) {
             const client = new Client({
@@ -45,7 +45,7 @@ export default class ESHelper {
                 resolve(body);
             })
         })
-    }
+    },
     buildQuery(data, conf) {
       let { searchId, sort } = data
       // QUERY ELASTICSEARCH
