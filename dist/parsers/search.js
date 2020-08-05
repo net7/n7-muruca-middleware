@@ -6,7 +6,9 @@ export class SearchParser {
             : this.parseFacets({ data, options });
     }
     parseResults({ data, options }) {
-        const { searchId, conf, limit, page, sort, total_count } = options;
+        if (options && "limit" in options) {
+            var { searchId, conf, limit, page, sort, total_count } = options;
+        }
         const search_result = {
             limit,
             page,

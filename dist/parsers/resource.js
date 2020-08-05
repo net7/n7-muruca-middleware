@@ -1,6 +1,6 @@
 export class ResourceParser {
     parse({ data, options }) {
-        if (options) {
+        if (options && "page" in options) {
             var { conf, page } = options;
         }
         const parsed = {

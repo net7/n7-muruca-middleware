@@ -2,7 +2,7 @@ export class HomeParser {
     parse(input) {
         var _a;
         const { data, options } = input;
-        if (options) {
+        if (options && "keyOrder" in options) {
             var { keyOrder, conf } = options;
         }
         let parsedData = {};
