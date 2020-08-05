@@ -1,12 +1,11 @@
 import * as request from 'request';
+import { HTTPHeaders, HTTPResponse } from "../interfaces/helper";
 
 export default {
-    returnOkResponse(data, headerData) {
-        let response = {
-            statusCode: 200,
-            body: JSON.stringify(data)
-        };
-        let headers = {
+
+
+    returnOkResponse(data: string, headerData: HTTPHeaders): HTTPResponse {
+        let headers: HTTPHeaders = {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Credentials": true,
             "Access-Control-Allow-Methods":
@@ -18,15 +17,17 @@ export default {
         } else {
             headers["Content-Type"] = "application/json";
         }
-        response["headers"] = headers;
+        let response: HTTPResponse = {
+            statusCode: 200,
+            body: JSON.stringify(data),
+            headers
+        };
         return response;
     },
-    returnErrorResponse(message, code) {
-        let response = {
-            statusCode: code,
-            body: message
-        };
-        let headers = {
+
+
+    returnErrorResponse(message: string, code: number): HTTPResponse {
+        const headers: HTTPHeaders = {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Credentials": true,
             "Content-Type": "application/json",
@@ -34,10 +35,16 @@ export default {
                 "GET, POST, OPTIONS, PUT, PATCH, DELETE",
             "Access-Control-Allow-Headers": "X-Requested-With,content-type"
         };
-        response["headers"] = headers;
+        const response: HTTPResponse = {
+            statusCode: code,
+            body: message,
+            headers
+        };
         return response;
     },
-    doRequest(url) {
+
+
+    doRequest(url: string) {
         return new Promise(function (resolve, reject) {
             request(url, function (error, res, body) {
                 if (!error && res.statusCode == 200) {
@@ -48,4 +55,6 @@ export default {
             });
         });
     }
+
+
 }
