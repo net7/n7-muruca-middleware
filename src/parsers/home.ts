@@ -1,7 +1,7 @@
 import Parser, { Input, HomeOptions } from "../interfaces/parser";
 import { HeroData, CollectionData } from "../interfaces/parser-data/home";
 
-export class HeaderParser implements Parser {
+export class HomeParser implements Parser {
   parse(input: Input): object {
 
     const { data, options } = input;
