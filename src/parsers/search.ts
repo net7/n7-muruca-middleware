@@ -1,6 +1,6 @@
 import Parser, { Input, SearchOptions } from "../interfaces/parser";
 
-export default class SearchParser implements Parser {
+export class SearchParser implements Parser {
   parse({ data, options }: Input) {
     const { type } = options as SearchOptions;
     return type === 'results'

@@ -1,7 +1,7 @@
 import Parser, { Input, ResourceOptions } from "../interfaces/parser";
 import { ParsedData, Author } from "../interfaces/parser-data/resource";
 
-export default class ResourceParser implements Parser {
+export class ResourceParser implements Parser {
   parse({ data, options }: Input) {
 
     if (options) {
