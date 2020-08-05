@@ -1,4 +1,4 @@
 import Parser from "../interfaces/parser";
-export default class TestParser implements Parser {
+export declare class TestParser implements Parser {
     parse(input: any): any;
 }

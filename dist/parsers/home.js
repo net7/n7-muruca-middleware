@@ -1,4 +1,4 @@
-export default class HeaderParser {
+export class HeaderParser {
     parse(input) {
         var _a;
         const { data, options } = input;

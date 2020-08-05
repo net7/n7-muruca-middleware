@@ -1,4 +1,4 @@
-export default class MenuParser {
+export class MenuParser {
     parse(data) {
         return data;
     }

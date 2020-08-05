@@ -1,4 +1,4 @@
-export default class ResourceParser {
+export class ResourceParser {
     parse({ data, options }) {
         if (options) {
             var { conf, page } = options;

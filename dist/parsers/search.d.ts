@@ -1,5 +1,5 @@
 import Parser, { Input } from "../interfaces/parser";
-export default class SearchParser implements Parser {
+export declare class SearchParser implements Parser {
     parse({ data, options }: Input): any;
     protected parseResults({ data, options }: Input): {
         limit: number;

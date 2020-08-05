@@ -1,4 +1,4 @@
-export default class SearchParser {
+export class SearchParser {
     parse({ data, options }) {
         const { type } = options;
         return type === 'results'
