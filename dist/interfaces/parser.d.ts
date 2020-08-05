@@ -7,6 +7,7 @@ export interface SearchOptions {
     sort: string;
     total_count: number;
     type: string;
+    facets: string[];
 }
 export interface HomeOptions {
     conf: any;
@@ -14,12 +15,13 @@ export interface HomeOptions {
 }
 export interface ResourceOptions {
     conf: any;
+    type: string;
     page?: number;
 }
 export interface Input {
     /** Data array from the Wordpress endpoint */
     data: any;
-    options?: (HomeOptions | ResourceOptions);
+    options?: (HomeOptions | ResourceOptions | SearchOptions);
 }
 export default interface Parser {
     parse: (input: Input) => object;
