@@ -1,10 +1,6 @@
 import * as request from 'request';
-export default {
+export const HttpHelper = {
     returnOkResponse(data, headerData) {
-        let response = {
-            statusCode: 200,
-            body: JSON.stringify(data)
-        };
         let headers = {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Credentials": true,
@@ -17,22 +13,26 @@ export default {
         else {
             headers["Content-Type"] = "application/json";
         }
-        response["headers"] = headers;
+        let response = {
+            statusCode: 200,
+            body: JSON.stringify(data),
+            headers
+        };
         return response;
     },
     returnErrorResponse(message, code) {
-        let response = {
-            statusCode: code,
-            body: message
-        };
-        let headers = {
+        const headers = {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Credentials": true,
             "Content-Type": "application/json",
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
             "Access-Control-Allow-Headers": "X-Requested-With,content-type"
         };
-        response["headers"] = headers;
+        const response = {
+            statusCode: code,
+            body: message,
+            headers
+        };
         return response;
     },
     doRequest(url) {

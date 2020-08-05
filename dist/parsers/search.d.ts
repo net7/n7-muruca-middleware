@@ -1,24 +1,18 @@
-import Parser from "../interfaces/parser";
+import Parser, { Input } from "../interfaces/parser";
 export default class SearchParser implements Parser {
-    parse({ type, searchId, options, data, order, config }: {
-        type: any;
-        searchId: any;
-        options: any;
-        data: any;
-        order: any;
-        config: any;
-    }): any;
-    protected parseResults({ searchId, options, data, config }: {
-        searchId: any;
-        options: any;
-        data: any;
-        config: any;
-    }): any;
-    protected parseFacets({ order, data }: {
-        order: any;
-        data: any;
-    }): {
-        headers: {};
-        inputs: {};
+    parse({ data, options }: Input): any;
+    protected parseResults({ data, options }: Input): {
+        limit: number;
+        page: number;
+        sort: string;
+        total_count: number;
+        results: {
+            title?: string | undefined;
+            text?: string | undefined;
+            image?: string | null | undefined;
+            link?: string | undefined;
+            id?: string | number | undefined;
+        }[];
     };
+    protected parseFacets({ data, options }: Input): any;
 }

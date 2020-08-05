@@ -27,7 +27,7 @@ export interface CollectionData {
     /** InnerTitle data */
     header: {
         title: string;
-        subtitle: string;
+        subtitle?: string;
         button?: {
             title?: string;
             text: string;

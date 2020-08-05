@@ -1,4 +1,4 @@
-import Parser from "../interfaces/parser";
+import Parser, { Input } from "../interfaces/parser";
 export default class HeaderParser implements Parser {
-    parse(input: any): {};
+    parse(input: Input): object;
 }

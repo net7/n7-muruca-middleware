@@ -1,4 +1,4 @@
-export default {
+export const ESHelper = {
     bulkIndex(response, index, Client, ELASTIC_URI) {
         const client = new Client({ node: ELASTIC_URI }); // ELASTIC_URI  =  serverless "process.env.ELASTIC_URI"
         if (index != "") {
@@ -13,7 +13,7 @@ export default {
         }
         let body = [];
         const dataset = JSON.parse(response);
-        dataset.forEach(element => {
+        dataset.forEach((element) => {
             body.push({ index: { _index: index } });
             body.push(element);
         });

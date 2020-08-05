@@ -1,37 +1,39 @@
 export default class ResourceParser {
-    ;
-    parse({ page, data, conf }) {
-        let obj = {
+    parse({ data, options }) {
+        if (options) {
+            var { conf, page } = options;
+        }
+        const parsed = {
             title: '',
             sections: {}
         };
-        for (const key in conf) {
-            switch (key) {
+        for (const block in conf) {
+            switch (block) {
                 case 'title':
-                    conf[key].fields.map((field) => {
-                        obj.title = data[field];
+                    conf[block].fields.map((field) => {
+                        parsed.title = data[field];
                     });
                     break;
                 case 'header':
-                    obj.sections[key] = {};
-                    let t = conf[key].fields;
-                    obj.sections[key][t[0]] = data[t[0]]; // title
-                    obj.sections[key][t[1]] = data[t[1]]; // description
+                    parsed.sections[block] = {};
+                    let t = conf[block].fields;
+                    parsed.sections[block][t[0]] = data[t[0]]; // title
+                    parsed.sections[block][t[1]] = data[t[1]]; // description
                     break;
                 case 'image-viewer':
-                    obj.sections[key] = {};
+                    parsed.sections[block] = {};
                     let v = { images: [], thumbs: [] };
-                    let gallery = conf[key].fields[0]; // "gallery"
-                    v.images = data[gallery].map(g => ({ type: 'image', url: g.image, description: g.description }));
+                    let gallery = conf[block].fields[0]; // "gallery"
+                    v.images = data[gallery].map((g) => ({ type: 'image', url: g.image, description: g.description }));
                     v.thumbs = v.images;
-                    obj.sections[key] = v;
+                    parsed.sections[block] = v;
                     break;
                 case 'metadata':
-                    obj.sections[key] = {};
+                    parsed.sections[block] = {};
                     const m = {
                         group: [{
                                 title: 'Metadata',
-                                items: conf[key].fields
+                                items: conf[block].fields
                                     .map((field) => {
                                     if (data[field]) {
                                         const filter = [
@@ -56,74 +58,80 @@ export default class ResourceParser {
                                 }).flat()
                             }]
                     };
-                    m.group[0].items = m.group[0].items.filter(n => n);
-                    obj.sections[key] = Object.assign({}, m);
+                    m.group[0].items = m.group[0].items.filter((n) => n);
+                    parsed.sections[block] = Object.assign({}, m);
                     break;
                 case "collection-keywords":
-                    obj.sections[key] = {};
+                    parsed.sections[block] = {};
                     const keywords = {
                         header: { title: "Kewords collegate" },
                         items: []
                     };
-                    conf[key].fields.map((field) => {
+                    conf[block].fields.forEach((field) => {
                         if (data[field]) {
-                            data[field].map(f => {
-                                keywords.items.push({ title: f.title, link: `/${page}/${f.id}/${f.slug}`, type: field });
-                            });
+                            keywords.items = data[field].map((f) => ({
+                                title: f.title,
+                                link: `/${page}/${f.id}/${f.slug}`,
+                                type: field
+                            }));
                         }
                     });
-                    obj.sections[key] = keywords; // keywords
+                    parsed.sections[block] = keywords; // keywords
                     break;
                 case "collection-toponyms":
-                    obj.sections[key] = {};
+                    parsed.sections[block] = {};
                     const toponyms = {
                         header: { title: "Toponimi collegati" },
                         items: []
                     };
-                    conf[key].fields.map((field) => {
+                    conf[block].fields.map((field) => {
                         if (data[field]) {
-                            data[field].map(f => {
-                                toponyms.items.push({ title: f.title, link: "/" + page + "/" + f.id + "/" + f.slug, type: field });
-                            });
+                            toponyms.items = data[field].map((f) => ({
+                                title: f.title,
+                                link: "/" + page + "/" + f.id + "/" + f.slug,
+                                type: field
+                            }));
                         }
                     });
-                    obj.sections[key] = toponyms; //toponyms
+                    parsed.sections[block] = toponyms; //toponyms
                     break;
                 case "metadata-size":
-                    obj.sections[key] = {};
+                    parsed.sections[block] = {};
                     const m_2 = {
                         group: [{
                                 title: 'Dimensioni',
-                                items: conf[key].fields // dimension
-                                    .map((field) => {
-                                    return (Object.keys(data[field]).map(f => ({ label: f, value: f === "image" ? "<img src='" + data[field][f] + "'>" : data[field][f] })));
-                                }).flat()
+                                items: conf[block].fields // dimension
+                                    .map((field) => Object.keys(data[field])
+                                    .map(f => ({
+                                    label: f,
+                                    value: f === "image" ? "<img src='" + data[field][f] + "'>" : data[field][f]
+                                }))).flat()
                             }]
                     };
-                    obj.sections[key] = Object.assign({}, m_2);
+                    parsed.sections[block] = Object.assign({}, m_2);
                     break;
                 case "metadata-description":
-                    obj.sections[key] = {};
+                    parsed.sections[block] = {};
                     const m_3 = {
                         group: [{
                                 title: 'Descrizione',
-                                items: conf[key].fields //descriprion
+                                items: conf[block].fields // description
                                     .map((field) => {
                                     return ({ label: field, value: data[field] });
                                 })
                             }]
                     };
-                    obj.sections[key] = Object.assign({}, m_3);
+                    parsed.sections[block] = Object.assign({}, m_3);
                     break;
                 case "collection-works":
-                    obj.sections[key] = {};
+                    parsed.sections[block] = {};
                     const c_2 = {
                         header: {
                             title: 'Bibliografia',
                         },
                         items: []
                     };
-                    conf[key].fields.map((field, i) => {
+                    conf[block].fields.forEach((field, i) => {
                         if (data[field]) {
                             c_2.items.push({
                                 image: data[field][i].gallery[0].image,
@@ -140,33 +148,34 @@ export default class ResourceParser {
                                         ]
                                     }]
                             });
+                            parsed.sections[block] = Object.assign({}, c_2);
                         }
                     });
-                    obj.sections[key] = Object.assign({}, c_2);
                     break;
                 case "preview-parent":
-                    obj.sections[key] = {};
-                    const p_p = {};
-                    conf[key].fields.map(field => {
+                    parsed.sections[block] = {};
+                    conf[block].fields.map((field) => {
                         if (data[field]) {
-                            data[field].map(f => {
-                                p_p["title"] = f.title;
-                                p_p["description"] = f.description;
-                                p_p["image"] = f.image;
-                                p_p["link"] = "/" + page + "/" + f.id + "/" + f.slug;
-                                p_p["classes"] = 'is-fullwidth';
-                            });
+                            const previewItem = data[field].map((f) => ({
+                                title: f.title,
+                                description: f.description,
+                                image: f.image,
+                                link: `/${page}/${f.id}/${f.slug}`,
+                                classes: 'is-fullwidth'
+                            }));
+                            parsed.sections[block] = Object.assign({}, previewItem);
                         }
                     });
-                    obj.sections[key] = Object.assign({}, p_p);
                     break;
                 default:
                     break;
             }
         }
-        return obj;
+        return parsed;
     }
-    // FILTERS
+    /**
+     * Data filters
+     */
     filter(data, field) {
         let filter;
         if (/date/.test(field)) {
@@ -174,7 +183,7 @@ export default class ResourceParser {
         }
         if (/authors/.test(field)) {
             filter = [];
-            data[field].map(auth => {
+            data[field].map((auth) => {
                 filter.push({
                     label: auth.role,
                     value: Object.keys(auth.author)
@@ -188,7 +197,8 @@ export default class ResourceParser {
         }
         if (/loan/.test(field)) {
             filter = {
-                label: field, value: data[field].map(l => l).join(', ')
+                label: field,
+                value: data[field].map((l) => l).join(', ')
             };
         }
         if (/graphic_variant|morphological_variant|modern_language_equivalence|synonyms/.test(field)) {

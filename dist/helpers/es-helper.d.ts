@@ -1,6 +1,6 @@
-declare const _default: {
-    bulkIndex(response: any, index: any, Client: any, ELASTIC_URI: any): void;
-    makeSearch(index: any, body: any, Client: any, ELASTIC_URI: any): Promise<unknown>;
-    buildQuery(data: any, conf: any): any;
+import { DataType } from "../interfaces/helper";
+export declare const ESHelper: {
+    bulkIndex(response: string, index: string, Client: any, ELASTIC_URI: string): void;
+    makeSearch(index: string, body: string, Client: any, ELASTIC_URI: string): Promise<unknown>;
+    buildQuery(data: DataType, conf: any): any;
 };
-export default _default;

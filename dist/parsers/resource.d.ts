@@ -1,12 +1,12 @@
-import Parser from "../interfaces/parser";
+import Parser, { Input } from "../interfaces/parser";
+import { ParsedData } from "../interfaces/parser-data/resource";
 export default class ResourceParser implements Parser {
-    parse({ page, data, conf }: {
-        page: any;
-        data: any;
-        conf: any;
-    }): {
-        title: string;
-        sections: {};
-    };
-    filter(data: any, field: any): any;
+    parse({ data, options }: Input): ParsedData;
+    /**
+     * Data filters
+     */
+    filter(data: any, field: string): any[] | {
+        label: string;
+        value: any;
+    } | undefined;
 }

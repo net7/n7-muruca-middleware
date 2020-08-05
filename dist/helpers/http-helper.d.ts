@@ -1,12 +1,6 @@
-declare const _default: {
-    returnOkResponse(data: any, headerData: any): {
-        statusCode: number;
-        body: string;
-    };
-    returnErrorResponse(message: any, code: any): {
-        statusCode: any;
-        body: any;
-    };
-    doRequest(url: any): Promise<unknown>;
+import { HTTPHeaders, HTTPResponse } from "../interfaces/helper";
+export declare const HttpHelper: {
+    returnOkResponse(data: string, headerData: HTTPHeaders): HTTPResponse;
+    returnErrorResponse(message: string, code: number): HTTPResponse;
+    doRequest(url: string): Promise<unknown>;
 };
-export default _default;

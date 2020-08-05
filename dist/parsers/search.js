@@ -1,20 +1,27 @@
 export default class SearchParser {
-    parse({ type, searchId, options, data, order, config }) {
-        return type === "results"
-            ? this.parseResults({ searchId, options, data, config })
-            : this.parseFacets({ order, data });
+    parse({ data, options }) {
+        const { type } = options;
+        return type === 'results'
+            ? this.parseResults({ data, options })
+            : this.parseFacets({ data, options });
     }
-    parseResults({ searchId, options, data, config }) {
-        let search_result = Object.assign(Object.assign({}, options), { results: [] });
-        let res = {};
-        data.map(hit => {
-            res = {};
+    parseResults({ data, options }) {
+        const { searchId, conf, limit, page, sort, total_count } = options;
+        const search_result = {
+            limit,
+            page,
+            sort,
+            total_count,
+            results: []
+        };
+        data.map((hit) => {
             const source = hit._source;
             // FIXME: generalizzare
             // questo è un controllo collegato al progetto totus
             switch (searchId) {
-                case "map":
-                    config.results.map((val) => {
+                case "map": {
+                    const res = {};
+                    conf.results.map((val) => {
                         switch (val.label) {
                             case "title":
                                 res[val.label] = source[val.field];
@@ -37,8 +44,10 @@ export default class SearchParser {
                     });
                     search_result.results.push(res);
                     break;
-                case "work":
-                    config.results.map((val) => {
+                }
+                case "work": {
+                    const res = {};
+                    conf.results.map((val) => {
                         switch (val.label) {
                             case "title":
                                 res[val.label] = source[val.field];
@@ -61,15 +70,17 @@ export default class SearchParser {
                     });
                     search_result.results.push(res);
                     break;
+                }
                 default:
                     break;
             }
         });
         //pagination
-        search_result.results = search_result.results.slice((options.page - 1) * options.limit, options.page * options.limit);
+        search_result.results = search_result.results.slice((page - 1) * limit, page * limit);
         return search_result;
     }
-    parseFacets({ order, data }) {
+    parseFacets({ data, options }) {
+        const { keyOrder } = options;
         const agg_res = {
             headers: {},
             inputs: {}
@@ -89,11 +100,13 @@ export default class SearchParser {
             agg_res.inputs[key] = inputs;
             agg_res.headers["header-" + key] = sum;
         }
-        let ord_parse = {};
-        order.map(ord => {
-            ord_parse[ord] = agg_res.inputs[ord];
-        });
-        agg_res.inputs = ord_parse;
+        if (keyOrder) {
+            let ordered = {};
+            keyOrder.forEach((key) => {
+                ordered[key] = agg_res.inputs[key];
+            });
+            agg_res.inputs = ordered;
+        }
         return agg_res;
     }
 }
