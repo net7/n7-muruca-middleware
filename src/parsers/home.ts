@@ -4,7 +4,11 @@ import { HeroData, CollectionData } from "../interfaces/parser-data/home";
 export default class HeaderParser implements Parser {
   parse(input: Input): object {
 
-    const { keyOrder, data, conf } = input;
+    const { data, options } = input;
+    if (options) {
+      var { keyOrder, conf } = options;
+    }
+
     let parsedData: any = {};
 
     for (const block in conf) {
@@ -80,7 +84,7 @@ export default class HeaderParser implements Parser {
     // the provided order
     if (keyOrder) {
       let ordered: any = {};
-      keyOrder.map(key => {
+      keyOrder.map((key: string) => {
         ordered[key] = parsedData[key];
       })
       parsedData = ordered;

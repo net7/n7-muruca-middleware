@@ -1,29 +1,12 @@
 import Parser, { Input } from "../interfaces/parser";
-
-interface PreviewParent {
-  title: string;
-  description: string;
-  image: any;
-  classes: string;
-  link: string;
-}
-
-interface Author {
-  role: string;
-  author: {
-    [a: string]: {
-      name: string;
-    };
-  };
-}
-
-interface ParsedData {
-  title: string;
-  sections: any;
-}
+import { ParsedData, Author } from "../interfaces/parser-data/resource";
 
 export default class ResourceParser implements Parser {
-  parse({ page, data, conf }: Input) {
+  parse({ data, options }: Input) {
+
+    if (options) {
+      var { conf, page } = options;
+    }
 
     const parsed: ParsedData = {
       title: '',
