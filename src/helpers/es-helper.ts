@@ -1,6 +1,6 @@
 import { DataType } from "../interfaces/helper";
 
-export default {
+export const ESHelper = {
     bulkIndex(response: string, index: string, Client: any, ELASTIC_URI: string) { // client = const { Client } = require('@elastic/elasticsearch')
         const client = new Client({ node: ELASTIC_URI }) // ELASTIC_URI  =  serverless "process.env.ELASTIC_URI"
 
