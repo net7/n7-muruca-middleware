@@ -1,5 +1,5 @@
 import { DataType } from "../interfaces/helper";
-import { ESQuery } from "../interfaces/elastic-search";
+import { SearchResponse } from "elasticsearch";
 
 export const ESHelper = {
   bulkIndex(response: string, index: string, Client: any, ELASTIC_URI: string) { // client = const { Client } = require('@elastic/elasticsearch')
@@ -34,7 +34,7 @@ export const ESHelper = {
       }
     )
   },
-  makeSearch(index: string, body: string, Client: any, ELASTIC_URI: string): Promise<ESQuery> {
+  makeSearch(index: string, body: string, Client: any, ELASTIC_URI: string): Promise<SearchResponse<any>> {
     return new Promise(function (resolve, reject) {
       const client = new Client({
         node: ELASTIC_URI,
