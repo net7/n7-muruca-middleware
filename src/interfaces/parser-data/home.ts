@@ -28,7 +28,7 @@ export interface CollectionData {
   /** InnerTitle data */
   header: {
     title: string;
-    subtitle: string;
+    subtitle?: string;
     button?: {
       title?: string; // FIXME: Useless key?
       text: string;

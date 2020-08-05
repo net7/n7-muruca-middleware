@@ -1,88 +1,92 @@
-import Parser from "../interfaces/parser";
+import Parser, { Input } from "../interfaces/parser";
 import { HeroData, CollectionData } from "../interfaces/parser-data/home";
 
-class Hero implements HeroData {
-  title: null;
-  text: null;
-  image: null;
-  button: {
-    title: null;
-    text: null;
-    link: null;
-  }
-}
-
-class Collection implements CollectionData {
-  header: {
-    title: null;
-    subtitle: null;
-  };
-  items: []
-}
-
 export default class HeaderParser implements Parser {
-  parse(input) {
-    const { order, data, config } = input;
-    let parsedData = {};
-    let orderedParsedData = {};
-    for (const key in config) {
-      const f = config[key].field
-      if (/hero-.+/.test(key)) {
-        const hero: HeroData = new Hero();
-        hero.title = data[f].title || null
-        hero.text = data[f].text || null
-        hero.image = data[f].image || null
-        hero.button = data[f].button.anchor === ''
-          ? null
-          : {
-            title: data[f].button.title,
-            text: data[f].button.text || null,
-            link: data[f].button.anchor
-          }
-        parsedData[key] = { ...hero }
-      }
-      if (/collection-.+/.test(key)) {
-        let collection: CollectionData = new Collection();
-        //header
-        collection.header.title = data[f].title || null
-        collection.header.subtitle = data[f].subtitle || null
-        collection.header.button =
-          data[f].button.anchor === ''
-            ? null
-            : {
-              title: data[f].button.title,
-              text: data[f].button.text || null,
-              link: data[f].button.anchor
+  parse(input: Input): object {
+
+    const { keyOrder, data, conf } = input;
+    let parsedData: any = {};
+
+    for (const block in conf) {
+      // for each configured block, "field" contains the 
+      // field of the WordPress data object, where
+      // the corresponding data is stored.
+      const field = conf[block].field
+
+      // compiling data for the hero blocks
+      if (/hero-\w+/i.test(block)) {
+        const { title, text, image, button } = data[field];
+        let hero: HeroData = {
+          title, // the title must exist.
+          // add additional properties only if they exist in Wordpress data
+          ...text && { text },
+          ...image && { image },
+          ...(button && button?.anchor !== '') && {
+            button: {
+              title: button.title,
+              text: button.text,
+              link: button.anchor
             }
-        // items
-        if (/collection-works/.test(key)) { // FIXME: Remove project-scoped code
-          data[f].items.map(item => {
+          }
+        };
+        parsedData[block] = { ...hero }
+      }
+
+      // compiling data for the collection block
+      if (/collection-\w+/i.test(block)) {
+        let collection: CollectionData = {
+          header: { title: '' },
+          items: []
+        };
+        // collection header
+        collection.header.title = data[field].title || null
+        collection.header.subtitle = data[field].subtitle || null
+        if (data[field].button?.anchor !== '') { // if there is a button
+          collection.header.button = {
+            title: data[field].button.title,
+            text: data[field].button.text,
+            link: data[field].button.anchor
+          }
+        }
+        // collection items
+        if (/collection-works/.test(block)) { // FIXME: Remove project-scoped code
+          data[field].items.map((d: any) => {
             collection.items.push(
               {
-                title: item.item[0].title || null,
-                text: item.item[0].description || null,
-                link: `/${item.item[0].type}/${item.item[0].id}/${item.item[0].slug}` || null
+                title: d.item[0].title,
+                text: d.item[0].description,
+                link: `/${d.item[0].type}/${d.item[0].id}/${d.item[0].slug}`
               }
             )
           })
         } else { // FIXME: Remove project-scoped code
-          data[f].items.map(item => {
+          data[field].items.map((d: any) => {
             collection.items.push(
               {
-                title: Object.keys(item.item).map(m => item.item[m].name).join() || null,
-                text: item.text || null,
-                image: item.image || null,
-                link: `/maps?continents=${Object.keys(item.item).map(m => item.item[m].key).join() || null}`
+                title: Object.keys(d.item).map(m => d.item[m].name).join(),
+                text: d.text,
+                image: d.image,
+                link: `/maps?continents=${Object.keys(d.item).map(m => d.item[m].key).join()}`
               }
             )
           })
         }
-        parsedData[key] = { ...collection }
+        parsedData[block] = { ...collection }
       }
     }
-    order.map(ord => {
-      orderedParsedData[ord] = parsedData[ord];
-    })
-    return orderedParsedData;
+
+    // if a sorting array was provided,
+    // sort the final object by keys, following
+    // the provided order
+    if (keyOrder) {
+      let ordered: any = {};
+      keyOrder.map(key => {
+        ordered[key] = parsedData[key];
+      })
+      parsedData = ordered;
+    }
+
+    return parsedData;
+
   }
 }
