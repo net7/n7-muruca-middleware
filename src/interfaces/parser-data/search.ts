@@ -6,17 +6,14 @@ export interface SearchResultsData {
     sort: string;
     limit: number;
     total_count: number;
-    results: ResultsData[];
+    results: {
+        title: string;
+        text?: string;
+        image?: string;
+        id: number;
+        link: string;
+    }[];
 }
-
-export interface ResultsData {
-    title: string;
-    text?: string;
-    image?: string;
-    id: number;
-    link: string;
-}
-
 /**
  * Interface for the Search Facets component
  */
@@ -30,11 +27,9 @@ export interface FacetsHeader {
 }
 
 export interface FacetsInputs {
-    [key: string]: Facets[];
-}
-
-export interface Facets {
-    tesx: string;
-    counter: number;
-    payload?: string;
+    [key: string]: {
+        text: string;
+        counter: number;
+        payload?: string;
+    }[];
 }
