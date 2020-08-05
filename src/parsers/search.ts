@@ -1,41 +1,52 @@
 import Parser, { Input } from "../interfaces/parser";
 
 export default class SearchParser implements Parser {
-  parse({ type, searchId, options, data, keyOrder, conf }: Input) {
-    return type === "results"
-      ? this.parseResults({ searchId, options, data, conf })
-      : this.parseFacets({ keyOrder, data });
+  parse({ data, options }: Input) {
+    const { type } = options;
+    return type === 'results'
+      ? this.parseResults({ data, options })
+      : this.parseFacets({ data, options });
   }
 
-  protected parseResults({ searchId, options, data, conf }: Input) {
-    let search_result = {
-      ...options,
-      results: []
+  protected parseResults({ data, options }: Input) {
+    const { searchId, conf, limit, page, sort, total_count } = options;
+    const search_result = {
+      limit,
+      page,
+      sort,
+      total_count,
+      results: <{
+        title?: string;
+        text?: string; 
+        image?: string | null; 
+        link?: string;
+        id?: string | number;
+      }[]>[]
     };
-    let res: any = {}
 
     data.map((hit: any) => {
       const source = hit._source;
       // FIXME: generalizzare
       // questo è un controllo collegato al progetto totus
       switch (searchId) {
-        case "map":
+        case "map": {
+          const res = {} as any;
           conf.results.map((val: { label: string; field: any; }) => {
             switch (val.label) {
               case "title":
                 res[val.label] = source[val.field];
                 break;
               case "text":
-                res[val.label] = source[val.field]
+                res[val.label] = source[val.field];
                 break;
               case "image":
-                res[val.label] = source[val.field] || null
+                res[val.label] = source[val.field] || null;
                 break;
               case "link":
-                res[val.label] = `/map/${source[val.field[0]]}/${source[val.field[1]]}`
+                res[val.label] = `/map/${source[val.field[0]]}/${source[val.field[1]]}`;
                 break;
               case "id":
-                res[val.label] = source.id
+                res[val.label] = source.id;
                 break;
               default:
                 break;
@@ -43,8 +54,10 @@ export default class SearchParser implements Parser {
           })
           search_result.results.push(res);
           break;
+        }
 
-        case "work":
+        case "work": {
+          const res = {} as any;
           conf.results.map((val: { label: string; field: any; }) => {
             switch (val.label) {
               case "title":
@@ -68,17 +81,19 @@ export default class SearchParser implements Parser {
           })
           search_result.results.push(res);
           break;
+        }
 
         default:
           break;
       }
     })
     //pagination
-    search_result.results = search_result.results.slice((options.page - 1) * options.limit, options.page * options.limit)
+    search_result.results = search_result.results.slice((page - 1) * limit, page * limit)
     return search_result;
   }
 
-  protected parseFacets({ keyOrder, data }: Input) {
+  protected parseFacets({ data, options }: Input) {
+    const { keyOrder } = options;
     const agg_res: any = {
       headers: {},
       inputs: {}
@@ -101,7 +116,7 @@ export default class SearchParser implements Parser {
 
     if (keyOrder) {
       let ordered: any = {};
-      keyOrder.forEach(key => {
+      keyOrder.forEach((key: string) => {
         ordered[key] = agg_res.inputs[key];
       })
       agg_res.inputs = ordered;
