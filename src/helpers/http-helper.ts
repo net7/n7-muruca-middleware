@@ -2,7 +2,7 @@ import * as request from 'request';
 import { HTTPHeaders, HTTPResponse } from "../interfaces/helper";
 
 export const HttpHelper = {
-  returnOkResponse(data: string, headerData: HTTPHeaders): HTTPResponse {
+  returnOkResponse(data: object, headerData?: HTTPHeaders): HTTPResponse {
     let headers: HTTPHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Credentials": true,
@@ -42,7 +42,7 @@ export const HttpHelper = {
   },
 
 
-  doRequest(url: string) {
+  doRequest(url: string): Promise<string> {
     return new Promise(function (resolve, reject) {
       request(url, function (error, res, body) {
         if (!error && res.statusCode == 200) {
