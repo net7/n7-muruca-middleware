@@ -1,7 +1,7 @@
 export interface Input {
   /** Data array from the Wordpress endpoint */
   data: any;
-  options?: object;
+  options?: any;
 };
 
 export default interface Parser {
