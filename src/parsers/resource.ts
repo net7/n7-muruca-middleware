@@ -1,11 +1,11 @@
-import Parser, { Input } from "../interfaces/parser";
+import Parser, { Input, ResourceOptions } from "../interfaces/parser";
 import { ParsedData, Author } from "../interfaces/parser-data/resource";
 
 export default class ResourceParser implements Parser {
   parse({ data, options }: Input) {
 
     if (options) {
-      var { conf, page } = options;
+      var { conf, page } = options as ResourceOptions;
     }
 
     const parsed: ParsedData = {

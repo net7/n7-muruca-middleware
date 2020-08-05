@@ -1,15 +1,15 @@
-import Parser, { Input } from "../interfaces/parser";
+import Parser, { Input, SearchOptions } from "../interfaces/parser";
 
 export default class SearchParser implements Parser {
   parse({ data, options }: Input) {
-    const { type } = options;
+    const { type } = options as SearchOptions;
     return type === 'results'
       ? this.parseResults({ data, options })
       : this.parseFacets({ data, options });
   }
 
   protected parseResults({ data, options }: Input) {
-    const { searchId, conf, limit, page, sort, total_count } = options;
+    const { searchId, conf, limit, page, sort, total_count } = options as SearchOptions;
     const search_result = {
       limit,
       page,
@@ -93,7 +93,7 @@ export default class SearchParser implements Parser {
   }
 
   protected parseFacets({ data, options }: Input) {
-    const { keyOrder } = options;
+    const { keyOrder } = options as SearchOptions;
     const agg_res: any = {
       headers: {},
       inputs: {}

@@ -1,4 +1,4 @@
-import Parser, { Input } from "../interfaces/parser";
+import Parser, { Input, HomeOptions } from "../interfaces/parser";
 import { HeroData, CollectionData } from "../interfaces/parser-data/home";
 
 export default class HeaderParser implements Parser {
@@ -6,7 +6,7 @@ export default class HeaderParser implements Parser {
 
     const { data, options } = input;
     if (options) {
-      var { keyOrder, conf } = options;
+      var { keyOrder, conf } = options as HomeOptions;
     }
 
     let parsedData: any = {};
