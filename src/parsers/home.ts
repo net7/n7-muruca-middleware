@@ -1,5 +1,5 @@
 import Parser, { Input } from "../interfaces/parser";
-import { HeroData, CollectionData } from "../interfaces/parser-data/home";
+import { HeroData, CollectionData, CollectionHeaderData, CollectionItem } from "../interfaces/parser-data/home";
 
 export class HomeParser implements Parser {
   parse(input: Input): object {
@@ -19,41 +19,14 @@ export class HomeParser implements Parser {
 
       // compiling data for the hero blocks
       if (/hero-\w+/i.test(block)) {
-        const { title, text, image, button } = data[field];
-        let hero: HeroData = {
-          title, // the title must exist.
-          // add additional properties only if they exist in Wordpress data
-          ...text && { text },
-          ...image && { image },
-          ...(button && button?.anchor !== '') && {
-            button: {
-              title: button.title,
-              text: button.text,
-              link: button.anchor
-            }
-          }
-        };
-        parsedData[block] = { ...hero }
+        parsedData[block] = this.parseHero(data[field], block);
       }
 
       // compiling data for the collection block
       if (/collection-\w+/i.test(block)) {
-        let collection: CollectionData = {
-          header: { title: '' },
-          items: []
-        };
-        // collection header
-        collection.header.title = data[field].title || null
-        collection.header.subtitle = data[field].subtitle || null
-        if (data[field].button?.anchor !== '') { // if there is a button
-          collection.header.button = {
-            title: data[field].button.title,
-            text: data[field].button.text,
-            link: data[field].button.anchor
-          }
-        }
+        parsedData[block] = this.parseCollection(data[field], block);
         // collection items
-        if (/collection-works/.test(block)) { // FIXME: Remove project-scoped code
+        /* if (/collection-works/.test(block)) { // FIXME: Remove project-scoped code
           data[field].items.map((d: any) => {
             collection.items.push(
               {
@@ -74,8 +47,7 @@ export class HomeParser implements Parser {
               }
             )
           })
-        }
-        parsedData[block] = { ...collection }
+        } */
       }
     }
 
@@ -92,5 +64,50 @@ export class HomeParser implements Parser {
 
     return parsedData;
 
+  }
+
+  protected parseHero(data: any, _: string): HeroData {
+    const { title, text, image, button } = data;
+    return {
+      title, // the title must exist.
+      // add additional properties only if they exist in Wordpress data
+      ...text && { text },
+      ...image && { image },
+      ...(button && button?.anchor !== '') && {
+        button: {
+          title: button.title,
+          text: button.text,
+          link: button.anchor
+        }
+      }
+    };
+  }
+
+  protected parseCollection(data: any, block: string): CollectionData {
+    return {
+      header: this.parseCollectionHeader(data, block),
+      items: this.parseCollectionItems(data, block)
+    }
+  }
+
+  protected parseCollectionHeader(data: any, _: string): CollectionHeaderData {
+    const header = {
+      title: data.title || '',
+      subtitle: data.subtitle || ''
+    } as CollectionHeaderData;
+
+    if (data.button?.anchor) {
+      header.button = {
+        title: data.button.title,
+        text: data.button.text,
+        link: data.button.anchor
+      };
+    }
+
+    return header;
+  }
+
+  protected parseCollectionItems(data: any, _: string): CollectionItem[] {
+    return data.items;
   }
 }
