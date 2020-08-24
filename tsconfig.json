@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "target": "es2015",
+      "target": "es5",
       "module": "es2015",
       "moduleResolution": "node",
       "declaration": true,
@@ -9,7 +9,7 @@
       "skipLibCheck": true,
       "typeRoots": [ 
         "node_modules/@types", 
-        "node_modules/@n7-frontend/core"
+        "node_modules/@n7-frontend/serverless"
       ]
     }
   }
