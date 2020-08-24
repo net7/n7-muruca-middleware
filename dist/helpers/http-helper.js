@@ -1,7 +1,10 @@
-import * as request from 'request';
-export var HttpHelper = {
-    returnOkResponse: function (data, headerData) {
-        var headers = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HttpHelper = void 0;
+const request = require("request");
+exports.HttpHelper = {
+    returnOkResponse(data, headerData) {
+        let headers = {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Credentials": true,
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
@@ -13,29 +16,29 @@ export var HttpHelper = {
         else {
             headers["Content-Type"] = "application/json";
         }
-        var response = {
+        let response = {
             statusCode: 200,
             body: JSON.stringify(data),
-            headers: headers
+            headers
         };
         return response;
     },
-    returnErrorResponse: function (message, code) {
-        var headers = {
+    returnErrorResponse(message, code) {
+        const headers = {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Credentials": true,
             "Content-Type": "application/json",
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
             "Access-Control-Allow-Headers": "X-Requested-With,content-type"
         };
-        var response = {
+        const response = {
             statusCode: code,
             body: message,
-            headers: headers
+            headers
         };
         return response;
     },
-    doRequest: function (url) {
+    doRequest(url) {
         return new Promise(function (resolve, reject) {
             request(url, function (error, res, body) {
                 if (!error && res.statusCode == 200) {

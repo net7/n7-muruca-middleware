@@ -1,9 +1,8 @@
-var TestFilter = /** @class */ (function () {
-    function TestFilter() {
-    }
-    TestFilter.prototype.filter = function (input) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class TestFilter {
+    filter(input) {
         return input;
-    };
-    return TestFilter;
-}());
-export default TestFilter;
+    }
+}
+exports.default = TestFilter;

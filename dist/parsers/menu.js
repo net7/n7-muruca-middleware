@@ -1,9 +1,9 @@
-var MenuParser = /** @class */ (function () {
-    function MenuParser() {
-    }
-    MenuParser.prototype.parse = function (data) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MenuParser = void 0;
+class MenuParser {
+    parse(data) {
         return data;
-    };
-    return MenuParser;
-}());
-export { MenuParser };
+    }
+}
+exports.MenuParser = MenuParser;

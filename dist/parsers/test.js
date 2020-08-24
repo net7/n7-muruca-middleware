@@ -1,9 +1,9 @@
-var TestParser = /** @class */ (function () {
-    function TestParser() {
-    }
-    TestParser.prototype.parse = function (input) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TestParser = void 0;
+class TestParser {
+    parse(input) {
         return input;
-    };
-    return TestParser;
-}());
-export { TestParser };
+    }
+}
+exports.TestParser = TestParser;
