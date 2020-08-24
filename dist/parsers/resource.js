@@ -1,42 +1,57 @@
-export class ResourceParser {
-    parse({ data, options }) {
-        if (options && "page" in options) {
-            var { conf, page } = options;
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
         }
-        const parsed = {
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var ResourceParser = /** @class */ (function () {
+    function ResourceParser() {
+    }
+    ResourceParser.prototype.parse = function (_a) {
+        var _this = this;
+        var data = _a.data, options = _a.options;
+        if (options && "page" in options) {
+            var conf = options.conf, page = options.page;
+        }
+        var parsed = {
             title: '',
             sections: {}
         };
-        for (const block in conf) {
+        var _loop_1 = function (block) {
             switch (block) {
                 case 'title':
-                    conf[block].fields.map((field) => {
+                    conf[block].fields.map(function (field) {
                         parsed.title = data[field];
                     });
                     break;
                 case 'header':
                     parsed.sections[block] = {};
-                    let t = conf[block].fields;
+                    var t = conf[block].fields;
                     parsed.sections[block][t[0]] = data[t[0]]; // title
                     parsed.sections[block][t[1]] = data[t[1]]; // description
                     break;
                 case 'image-viewer':
                     parsed.sections[block] = {};
-                    let v = { images: [], thumbs: [] };
-                    let gallery = conf[block].fields[0]; // "gallery"
-                    v.images = data[gallery].map((g) => ({ type: 'image', url: g.image, description: g.description }));
+                    var v = { images: [], thumbs: [] };
+                    var gallery = conf[block].fields[0]; // "gallery"
+                    v.images = data[gallery].map(function (g) { return ({ type: 'image', url: g.image, description: g.description }); });
                     v.thumbs = v.images;
                     parsed.sections[block] = v;
                     break;
                 case 'metadata':
                     parsed.sections[block] = {};
-                    const m = {
+                    var m = {
                         group: [{
                                 title: 'Metadata',
                                 items: conf[block].fields
-                                    .map((field) => {
+                                    .map(function (field) {
                                     if (data[field]) {
-                                        const filter = [
+                                        var filter = [
                                             "date",
                                             "authors",
                                             "size",
@@ -49,7 +64,7 @@ export class ResourceParser {
                                             "loan"
                                         ];
                                         if (filter.indexOf(field) > -1) {
-                                            return (this.filter(data, field)); // metadata
+                                            return (_this.filter(data, field)); // metadata
                                         }
                                         else {
                                             return { label: field.replace(/_/g, " "), value: data[field] };
@@ -58,89 +73,89 @@ export class ResourceParser {
                                 }).flat()
                             }]
                     };
-                    m.group[0].items = m.group[0].items.filter((n) => n);
-                    parsed.sections[block] = Object.assign({}, m);
+                    m.group[0].items = m.group[0].items.filter(function (n) { return n; });
+                    parsed.sections[block] = __assign({}, m);
                     break;
                 case "collection-keywords":
                     parsed.sections[block] = {};
-                    const keywords = {
+                    var keywords_1 = {
                         header: { title: "Kewords collegate" },
                         items: []
                     };
-                    conf[block].fields.forEach((field) => {
+                    conf[block].fields.forEach(function (field) {
                         if (data[field]) {
-                            keywords.items = data[field].map((f) => ({
-                                title: f.title,
-                                link: `/${page}/${f.id}/${f.slug}`,
-                                type: field
-                            }));
-                        }
-                    });
-                    parsed.sections[block] = keywords; // keywords
-                    break;
-                case "collection-toponyms":
-                    parsed.sections[block] = {};
-                    const toponyms = {
-                        header: { title: "Toponimi collegati" },
-                        items: []
-                    };
-                    conf[block].fields.map((field) => {
-                        if (data[field]) {
-                            toponyms.items = data[field].map((f) => ({
+                            keywords_1.items = data[field].map(function (f) { return ({
                                 title: f.title,
                                 link: "/" + page + "/" + f.id + "/" + f.slug,
                                 type: field
-                            }));
+                            }); });
                         }
                     });
-                    parsed.sections[block] = toponyms; //toponyms
+                    parsed.sections[block] = keywords_1; // keywords
+                    break;
+                case "collection-toponyms":
+                    parsed.sections[block] = {};
+                    var toponyms_1 = {
+                        header: { title: "Toponimi collegati" },
+                        items: []
+                    };
+                    conf[block].fields.map(function (field) {
+                        if (data[field]) {
+                            toponyms_1.items = data[field].map(function (f) { return ({
+                                title: f.title,
+                                link: "/" + page + "/" + f.id + "/" + f.slug,
+                                type: field
+                            }); });
+                        }
+                    });
+                    parsed.sections[block] = toponyms_1; //toponyms
                     break;
                 case "metadata-size":
                     parsed.sections[block] = {};
-                    const m_2 = {
+                    var m_2 = {
                         group: [{
                                 title: 'Dimensioni',
                                 items: conf[block].fields // dimension
-                                    .map((field) => Object.keys(data[field])
-                                    .map(f => ({
+                                    .map(function (field) { return Object.keys(data[field])
+                                    .map(function (f) { return ({
                                     label: f,
                                     value: f === "image" ? "<img src='" + data[field][f] + "'>" : data[field][f]
-                                }))).flat()
+                                }); }); }).flat()
                             }]
                     };
-                    parsed.sections[block] = Object.assign({}, m_2);
+                    parsed.sections[block] = __assign({}, m_2);
                     break;
                 case "metadata-description":
                     parsed.sections[block] = {};
-                    const m_3 = {
+                    var m_3 = {
                         group: [{
                                 title: 'Descrizione',
                                 items: conf[block].fields // description
-                                    .map((field) => {
+                                    .map(function (field) {
                                     return ({ label: field, value: data[field] });
                                 })
                             }]
                     };
-                    parsed.sections[block] = Object.assign({}, m_3);
+                    parsed.sections[block] = __assign({}, m_3);
                     break;
                 case "collection-works":
                     parsed.sections[block] = {};
-                    const c_2 = {
+                    var c_2_1 = {
                         header: {
                             title: 'Bibliografia',
                         },
                         items: []
                     };
-                    conf[block].fields.forEach((field, i) => {
+                    conf[block].fields.forEach(function (field, i) {
                         if (data[field]) {
-                            c_2.items.push({
+                            c_2_1.items.push({
                                 image: data[field][i].gallery[0].image,
                                 title: data[field][i].title,
                                 text: data[field][i].description,
-                                link: `/${page}/${data[field][i].slug}`,
+                                link: "/" + page + "/" + data[field][i].slug,
                                 metadata: [{
                                         items: [
-                                            { label: 'Autore/i', value: Object.keys(data[field][i].authors).map(auth => (data[field][i].authors[auth]['name'])).join(', ') },
+                                            { label: 'Autore/i', value: Object.keys(data[field][i].authors).map(function (auth) { return (data[field][i].authors[auth]['name']); }).join(', ') },
                                             { label: 'Lingua', value: data[field][i].language },
                                             { label: 'Entry ID', value: data[field][i].id },
                                             { label: 'Livello bibliografico', value: data[field][i].bibliographic_level },
@@ -148,46 +163,49 @@ export class ResourceParser {
                                         ]
                                     }]
                             });
-                            parsed.sections[block] = Object.assign({}, c_2);
+                            parsed.sections[block] = __assign({}, c_2_1);
                         }
                     });
                     break;
                 case "preview-parent":
                     parsed.sections[block] = {};
-                    conf[block].fields.map((field) => {
+                    conf[block].fields.map(function (field) {
                         if (data[field]) {
-                            const previewItem = data[field].map((f) => ({
+                            var previewItem = data[field].map(function (f) { return ({
                                 title: f.title,
                                 description: f.description,
                                 image: f.image,
-                                link: `/${page}/${f.id}/${f.slug}`,
+                                link: "/" + page + "/" + f.id + "/" + f.slug,
                                 classes: 'is-fullwidth'
-                            }));
-                            parsed.sections[block] = Object.assign({}, previewItem);
+                            }); });
+                            parsed.sections[block] = __assign({}, previewItem);
                         }
                     });
                     break;
                 default:
                     break;
             }
+        };
+        for (var block in conf) {
+            _loop_1(block);
         }
         return parsed;
-    }
+    };
     /**
      * Data filters
      */
-    filter(data, field) {
-        let filter;
+    ResourceParser.prototype.filter = function (data, field) {
+        var filter;
         if (/date/.test(field)) {
             filter = { label: "Date", value: data[field].year + "-" + data[field]["end_year"] };
         }
         if (/authors/.test(field)) {
             filter = [];
-            data[field].map((auth) => {
+            data[field].map(function (auth) {
                 filter.push({
                     label: auth.role,
                     value: Object.keys(auth.author)
-                        .map(a => auth.author[a].name)
+                        .map(function (a) { return auth.author[a].name; })
                         .join(', ')
                 });
             });
@@ -198,25 +216,27 @@ export class ResourceParser {
         if (/loan/.test(field)) {
             filter = {
                 label: field,
-                value: data[field].map((l) => l).join(', ')
+                value: data[field].map(function (l) { return l; }).join(', ')
             };
         }
         if (/graphic_variant|morphological_variant|modern_language_equivalence|synonyms/.test(field)) {
             filter = {
                 label: field.replace(/_/g, " "),
-                value: Object.keys(data[field]).map(auth => (data[field][auth]["text"]
+                value: Object.keys(data[field]).map(function (auth) { return (data[field][auth]["text"]
                     ? data[field][auth]["text"]
                     : data[field][auth]["equivalence"]
                         ? data[field][auth]["equivalence"]
-                        : data[field][auth]["synonym"])).join(', ')
+                        : data[field][auth]["synonym"]); }).join(', ')
             };
         }
         if (/primary_sources|external_links/.test(field)) {
             filter = {
                 label: field.replace(/_/g, " "),
-                value: Object.keys(data[field]).map(auth => (data[field][auth]["link"])).join(', ')
+                value: Object.keys(data[field]).map(function (auth) { return (data[field][auth]["link"]); }).join(', ')
             };
         }
         return filter;
-    }
-}
+    };
+    return ResourceParser;
+}());
+export { ResourceParser };

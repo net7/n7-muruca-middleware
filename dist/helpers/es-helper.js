@@ -1,6 +1,6 @@
-export const ESHelper = {
-    bulkIndex(response, index, Client, ELASTIC_URI) {
-        const client = new Client({ node: ELASTIC_URI }); // ELASTIC_URI  =  serverless "process.env.ELASTIC_URI"
+export var ESHelper = {
+    bulkIndex: function (response, index, Client, ELASTIC_URI) {
+        var client = new Client({ node: ELASTIC_URI }); // ELASTIC_URI  =  serverless "process.env.ELASTIC_URI"
         if (index != "") {
             client.deleteByQuery({
                 index: index,
@@ -11,41 +11,43 @@ export const ESHelper = {
                 }
             });
         }
-        let body = [];
-        const dataset = JSON.parse(response);
-        dataset.forEach((element) => {
+        var body = [];
+        var dataset = JSON.parse(response);
+        dataset.forEach(function (element) {
             body.push({ index: { _index: index } });
             body.push(element);
         });
-        client.bulk({ refresh: true, body }, (err, { body }) => {
+        client.bulk({ refresh: true, body: body }, function (err, _a) {
+            var body = _a.body;
             if (err)
                 console.log(body.errors);
-            const response = {
+            var response = {
                 statusCode: 200,
                 body: JSON.stringify(body),
             };
             return response;
         });
     },
-    makeSearch(index, body, Client, ELASTIC_URI) {
+    makeSearch: function (index, body, Client, ELASTIC_URI) {
         return new Promise(function (resolve, reject) {
-            const client = new Client({
+            var client = new Client({
                 node: ELASTIC_URI,
             });
             client.search({
                 index: index,
                 body: body
-            }, (err, { body }) => {
+            }, function (err, _a) {
+                var body = _a.body;
                 if (err)
                     console.log(err);
                 resolve(body);
             });
         });
     },
-    buildQuery(data, conf) {
-        let { searchId, sort } = data;
+    buildQuery: function (data, conf) {
+        var searchId = data.searchId, sort = data.sort;
         // QUERY ELASTICSEARCH
-        let main_query = {
+        var main_query = {
             query: {
                 bool: {
                     must: [
@@ -56,13 +58,13 @@ export const ESHelper = {
             sort: sort ? { "title.keyword": sort = sort.split("_")[2] } : ["_score"],
             aggregations: {}
         };
-        let query_facets = conf[searchId]["facets-aggs"].aggregations;
-        for (const key in data) {
-            let query_key = conf[searchId].filters[key];
+        var query_facets = conf[searchId]["facets-aggs"].aggregations;
+        var _loop_1 = function (key) {
+            var query_key = conf[searchId].filters[key];
             if (query_key) {
                 switch (query_key.type) {
                     case "fulltext":
-                        const ft_query = {
+                        var ft_query = {
                             query_string: {
                                 query: query_key.addStar ? "*" + data.query + "*" : data,
                                 fields: query_key.field
@@ -71,11 +73,12 @@ export const ESHelper = {
                         main_query.query.bool.must.push(ft_query);
                         break;
                     case "multivalue":
-                        data[key].map((value) => {
+                        data[key].map(function (value) {
+                            var _a;
                             main_query.query.bool.must.push({
-                                match: {
-                                    [query_key.field]: value
-                                }
+                                match: (_a = {},
+                                    _a[query_key.field] = value,
+                                    _a)
                             });
                         });
                         break;
@@ -83,10 +86,13 @@ export const ESHelper = {
                         break;
                 }
             }
+        };
+        for (var key in data) {
+            _loop_1(key);
         }
         //facets aggregations
-        query_facets.map((f) => {
-            for (const key in f) {
+        query_facets.map(function (f) {
+            for (var key in f) {
                 main_query.aggregations[key] = {
                     terms: {
                         field: f[key]

@@ -1,5 +1,9 @@
-export class MenuParser {
-    parse(data) {
-        return data;
+var MenuParser = /** @class */ (function () {
+    function MenuParser() {
     }
-}
+    MenuParser.prototype.parse = function (data) {
+        return data;
+    };
+    return MenuParser;
+}());
+export { MenuParser };
