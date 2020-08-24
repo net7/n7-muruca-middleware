@@ -25,29 +25,6 @@ export class HomeParser implements Parser {
       // compiling data for the collection block
       if (/collection-\w+/i.test(block)) {
         parsedData[block] = this.parseCollection(data[field], block);
-        // collection items
-        /* if (/collection-works/.test(block)) { // FIXME: Remove project-scoped code
-          data[field].items.map((d: any) => {
-            collection.items.push(
-              {
-                title: d.item[0].title,
-                text: d.item[0].description,
-                link: `/${d.item[0].type}/${d.item[0].id}/${d.item[0].slug}`
-              }
-            )
-          })
-        } else { // FIXME: Remove project-scoped code
-          data[field].items.map((d: any) => {
-            collection.items.push(
-              {
-                title: Object.keys(d.item).map(m => d.item[m].name).join(),
-                text: d.text,
-                image: d.image,
-                link: `/maps?continents=${Object.keys(d.item).map(m => d.item[m].key).join()}`
-              }
-            )
-          })
-        } */
       }
     }
 
