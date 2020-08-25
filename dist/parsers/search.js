@@ -10,7 +10,7 @@ class SearchParser {
     }
     parseResults({ data, options }) {
         if (options && "limit" in options) {
-            var { searchId, conf, limit, page, sort, total_count } = options;
+            var { limit, page, sort, total_count } = options;
         }
         const search_result = {
             limit,
@@ -55,7 +55,7 @@ class SearchParser {
         return agg_res;
     }
     parseResultsItems(_a, _b) {
-        // project scope implementation
+        // to be implemented on project
         return [];
     }
 }

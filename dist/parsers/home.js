@@ -51,12 +51,12 @@ class HomeParser {
         };
     }
     parseCollectionHeader(data, _) {
-        var _a;
+        var _c;
         const header = {
             title: data.title || '',
             subtitle: data.subtitle || ''
         };
-        if ((_a = data.button) === null || _a === void 0 ? void 0 : _a.anchor) {
+        if ((_c = data.button) === null || _c === void 0 ? void 0 : _c.anchor) {
             header.button = {
                 title: data.button.title,
                 text: data.button.text,
@@ -65,8 +65,9 @@ class HomeParser {
         }
         return header;
     }
-    parseCollectionItems(data, _) {
-        return data.items;
+    parseCollectionItems(_a, _b) {
+        // to be implemented on project
+        return [];
     }
 }
 exports.HomeParser = HomeParser;
