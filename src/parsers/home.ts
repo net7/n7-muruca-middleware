@@ -84,7 +84,8 @@ export class HomeParser implements Parser {
     return header;
   }
 
-  protected parseCollectionItems(data: any, _: string): CollectionItem[] {
-    return data.items;
+  protected parseCollectionItems(_a: any, _b: string): CollectionItem[] {
+    // to be implemented on project
+    return [];
   }
 }
