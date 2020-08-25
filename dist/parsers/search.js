@@ -19,67 +19,7 @@ class SearchParser {
             total_count,
             results: []
         };
-        data.map((hit) => {
-            const source = hit._source;
-            // FIXME: generalizzare
-            // questo è un controllo collegato al progetto totus
-            switch (searchId) {
-                case "map": {
-                    const res = {};
-                    conf.results.map((val) => {
-                        switch (val.label) {
-                            case "title":
-                                res[val.label] = source[val.field];
-                                break;
-                            case "text":
-                                res[val.label] = source[val.field];
-                                break;
-                            case "image":
-                                res[val.label] = source[val.field] || null;
-                                break;
-                            case "link":
-                                res[val.label] = `/map/${source[val.field[0]]}/${source[val.field[1]]}`;
-                                break;
-                            case "id":
-                                res[val.label] = source.id;
-                                break;
-                            default:
-                                break;
-                        }
-                    });
-                    search_result.results.push(res);
-                    break;
-                }
-                case "work": {
-                    const res = {};
-                    conf.results.map((val) => {
-                        switch (val.label) {
-                            case "title":
-                                res[val.label] = source[val.field];
-                                break;
-                            case "text":
-                                res[val.label] = source[val.field];
-                                break;
-                            case "image":
-                                res[val.label] = source.gallery[0][val.field] || null;
-                                break;
-                            case "link":
-                                res[val.label] = `/work/${source[val.field[0]]}/${source[val.field[1]]}`;
-                                break;
-                            case "id":
-                                res[val.label] = source.id;
-                                break;
-                            default:
-                                break;
-                        }
-                    });
-                    search_result.results.push(res);
-                    break;
-                }
-                default:
-                    break;
-            }
-        });
+        search_result.results = this.parseResultsItems(data, options);
         //pagination
         search_result.results = search_result.results.slice((page - 1) * limit, page * limit);
         return search_result;
@@ -113,6 +53,10 @@ class SearchParser {
             agg_res.inputs = ordered;
         }
         return agg_res;
+    }
+    parseResultsItems(_a, _b) {
+        // project scope implementation
+        return [];
     }
 }
 exports.SearchParser = SearchParser;

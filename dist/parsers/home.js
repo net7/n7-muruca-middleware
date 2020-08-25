@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.HomeParser = void 0;
 class HomeParser {
     parse(input) {
-        var _a;
         const { data, options } = input;
         if (options && "keyOrder" in options) {
             var { keyOrder, conf } = options;
@@ -16,53 +15,11 @@ class HomeParser {
             const field = conf[block].field;
             // compiling data for the hero blocks
             if (/hero-\w+/i.test(block)) {
-                const { title, text, image, button } = data[field];
-                let hero = Object.assign(Object.assign(Object.assign({ title }, text && { text }), image && { image }), (button && (button === null || button === void 0 ? void 0 : button.anchor) !== '') && {
-                    button: {
-                        title: button.title,
-                        text: button.text,
-                        link: button.anchor
-                    }
-                });
-                parsedData[block] = Object.assign({}, hero);
+                parsedData[block] = this.parseHero(data[field], block);
             }
             // compiling data for the collection block
             if (/collection-\w+/i.test(block)) {
-                let collection = {
-                    header: { title: '' },
-                    items: []
-                };
-                // collection header
-                collection.header.title = data[field].title || null;
-                collection.header.subtitle = data[field].subtitle || null;
-                if (((_a = data[field].button) === null || _a === void 0 ? void 0 : _a.anchor) !== '') { // if there is a button
-                    collection.header.button = {
-                        title: data[field].button.title,
-                        text: data[field].button.text,
-                        link: data[field].button.anchor
-                    };
-                }
-                // collection items
-                if (/collection-works/.test(block)) { // FIXME: Remove project-scoped code
-                    data[field].items.map((d) => {
-                        collection.items.push({
-                            title: d.item[0].title,
-                            text: d.item[0].description,
-                            link: `/${d.item[0].type}/${d.item[0].id}/${d.item[0].slug}`
-                        });
-                    });
-                }
-                else { // FIXME: Remove project-scoped code
-                    data[field].items.map((d) => {
-                        collection.items.push({
-                            title: Object.keys(d.item).map(m => d.item[m].name).join(),
-                            text: d.text,
-                            image: d.image,
-                            link: `/maps?continents=${Object.keys(d.item).map(m => d.item[m].key).join()}`
-                        });
-                    });
-                }
-                parsedData[block] = Object.assign({}, collection);
+                parsedData[block] = this.parseCollection(data[field], block);
             }
         }
         // if a sorting array was provided,
@@ -76,6 +33,40 @@ class HomeParser {
             parsedData = ordered;
         }
         return parsedData;
+    }
+    parseHero(data, _) {
+        const { title, text, image, button } = data;
+        return Object.assign(Object.assign(Object.assign({ title }, text && { text }), image && { image }), (button && (button === null || button === void 0 ? void 0 : button.anchor) !== '') && {
+            button: {
+                title: button.title,
+                text: button.text,
+                link: button.anchor
+            }
+        });
+    }
+    parseCollection(data, block) {
+        return {
+            header: this.parseCollectionHeader(data, block),
+            items: this.parseCollectionItems(data, block)
+        };
+    }
+    parseCollectionHeader(data, _) {
+        var _a;
+        const header = {
+            title: data.title || '',
+            subtitle: data.subtitle || ''
+        };
+        if ((_a = data.button) === null || _a === void 0 ? void 0 : _a.anchor) {
+            header.button = {
+                title: data.button.title,
+                text: data.button.text,
+                link: data.button.anchor
+            };
+        }
+        return header;
+    }
+    parseCollectionItems(data, _) {
+        return data.items;
     }
 }
 exports.HomeParser = HomeParser;

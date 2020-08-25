@@ -1,18 +1,8 @@
 import Parser, { Input } from "../interfaces/parser";
+import { SearchResultsData, SearchResultsItemData } from "../interfaces/parser-data/search";
 export declare class SearchParser implements Parser {
     parse({ data, options }: Input): any;
-    protected parseResults({ data, options }: Input): {
-        limit: number;
-        page: number;
-        sort: string;
-        total_count: number;
-        results: {
-            title?: string | undefined;
-            text?: string | undefined;
-            image?: string | null | undefined;
-            link?: string | undefined;
-            id?: string | number | undefined;
-        }[];
-    };
+    protected parseResults({ data, options }: Input): SearchResultsData;
     protected parseFacets({ data, options }: Input): any;
+    protected parseResultsItems(_a: any, _b: any): SearchResultsItemData[];
 }

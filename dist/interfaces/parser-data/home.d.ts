@@ -13,6 +13,7 @@ export interface HeroData {
         title?: string;
         text: string;
         link?: any;
+        anchor?: string;
     };
     image?: string;
     backgroundImage?: string;
@@ -25,20 +26,22 @@ export interface HeroData {
  */
 export interface CollectionData {
     /** InnerTitle data */
-    header: {
-        title: string;
-        subtitle?: string;
-        button?: {
-            title?: string;
-            text: string;
-            link?: string;
-        };
-    };
+    header: CollectionHeaderData;
     /** ItemPreview data */
-    items: {
-        title: string;
+    items: CollectionItem[];
+}
+export interface CollectionHeaderData {
+    title: string;
+    subtitle?: string;
+    button?: {
+        title?: string;
         text: string;
-        image?: any;
-        link: string;
-    }[];
+        link?: string;
+    };
+}
+export interface CollectionItem {
+    title: string;
+    text: string;
+    image?: any;
+    link: string;
 }
