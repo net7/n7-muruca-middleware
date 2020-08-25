@@ -6,13 +6,17 @@ export interface SearchResultsData {
     sort: string;
     limit: number;
     total_count: number;
-    results: {
-        title: string;
-        text?: string;
-        image?: string;
-        id: number;
-        link: string;
-    }[];
+    results: SearchResultsItemData[];
+}
+/**
+ * Interface for the Search Results items
+ */
+export interface SearchResultsItemData {
+  title: string;
+  text?: string;
+  image?: string;
+  id: number;
+  link: string;
 }
 /**
  * Interface for the Search Facets component

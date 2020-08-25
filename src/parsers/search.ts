@@ -1,4 +1,5 @@
 import Parser, { Input, SearchOptions } from "../interfaces/parser";
+import { SearchResultsData, SearchResultsItemData } from "../interfaces/parser-data/search";
 
 export class SearchParser implements Parser {
   parse({ data, options }: Input) {
@@ -10,85 +11,18 @@ export class SearchParser implements Parser {
 
   protected parseResults({ data, options }: Input) {
     if (options && "limit" in options) {
-      var { searchId, conf, limit, page, sort, total_count } = options;
+      var { limit, page, sort, total_count } = options;
     }
-    const search_result = {
+    const search_result: SearchResultsData = {
       limit,
       page,
       sort,
       total_count,
-      results: <{
-        title?: string;
-        text?: string; 
-        image?: string | null; 
-        link?: string;
-        id?: string | number;
-      }[]>[]
+      results: []
     };
 
-    data.map((hit: any) => {
-      const source = hit._source;
-      // FIXME: generalizzare
-      // questo è un controllo collegato al progetto totus
-      switch (searchId) {
-        case "map": {
-          const res = {} as any;
-          conf.results.map((val: { label: string; field: any; }) => {
-            switch (val.label) {
-              case "title":
-                res[val.label] = source[val.field];
-                break;
-              case "text":
-                res[val.label] = source[val.field];
-                break;
-              case "image":
-                res[val.label] = source[val.field] || null;
-                break;
-              case "link":
-                res[val.label] = `/map/${source[val.field[0]]}/${source[val.field[1]]}`;
-                break;
-              case "id":
-                res[val.label] = source.id;
-                break;
-              default:
-                break;
-            }
-          })
-          search_result.results.push(res);
-          break;
-        }
+    search_result.results = this.parseResultsItems(data, options);
 
-        case "work": {
-          const res = {} as any;
-          conf.results.map((val: { label: string; field: any; }) => {
-            switch (val.label) {
-              case "title":
-                res[val.label] = source[val.field];
-                break;
-              case "text":
-                res[val.label] = source[val.field]
-                break;
-              case "image":
-                res[val.label] = source.gallery[0][val.field] || null
-                break;
-              case "link":
-                res[val.label] = `/work/${source[val.field[0]]}/${source[val.field[1]]}`
-                break;
-              case "id":
-                res[val.label] = source.id
-                break;
-              default:
-                break;
-            }
-          })
-          search_result.results.push(res);
-          break;
-        }
-
-        default:
-          break;
-      }
-    })
     //pagination
     search_result.results = search_result.results.slice((page - 1) * limit, page * limit)
     return search_result;
@@ -124,5 +58,10 @@ export class SearchParser implements Parser {
       agg_res.inputs = ordered;
     }
     return agg_res;
+  }
+
+  protected parseResultsItems(_a: any, _b: any): SearchResultsItemData[] {
+    // to be implemented on project
+    return [];
   }
 }
