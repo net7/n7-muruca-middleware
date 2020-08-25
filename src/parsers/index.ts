@@ -3,3 +3,4 @@ export * from './menu';
 export * from './search';
 export * from './resource';
 export * from './home';
+export * from './footer';
