@@ -18,10 +18,12 @@ export interface ResourceOptions {
     type: string;
     page?: number;
 }
+export interface StaticPageOptions {
+    slug: string;
+}
 export interface Input {
-    /** Data array from the Wordpress endpoint */
     data: any;
-    options?: (HomeOptions | ResourceOptions | SearchOptions);
+    options?: (HomeOptions | ResourceOptions | SearchOptions | StaticPageOptions);
 }
 export default interface Parser {
     parse: (input: Input) => object;

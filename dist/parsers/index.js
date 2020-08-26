@@ -13,6 +13,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./test"), exports);
 __exportStar(require("./menu"), exports);
 __exportStar(require("./search"), exports);
-__exportStar(require("./resource"), exports);
 __exportStar(require("./home"), exports);
 __exportStar(require("./footer"), exports);
+__exportStar(require("./static"), exports);
