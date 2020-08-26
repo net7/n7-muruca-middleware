@@ -6,7 +6,7 @@ class StaticPageParser {
         if (options && 'slug' in options) {
             if (Array.isArray(data)) {
                 return data
-                    .find(d => d.slug === options.slug)
+                    .filter(d => d.slug === options.slug)
                     .map((d) => ({
                     title: d.title.rendered,
                     date: d.date,
@@ -14,7 +14,7 @@ class StaticPageParser {
                     authors: d.author,
                     time_to_read: d.time_to_read,
                     slug: d.slug
-                }));
+                }))[0];
             }
         }
         return {};
