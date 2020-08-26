@@ -10,7 +10,7 @@ export class StaticPageParser implements Parser {
     if (options && 'slug' in options) {
       if (Array.isArray(data)) {
         return data
-          .find(d => d.slug === options.slug)
+          .filter(d => d.slug === options.slug)
           .map((d: any) => ({
             title: d.title.rendered,
             date: d.date,
@@ -18,7 +18,7 @@ export class StaticPageParser implements Parser {
             authors: d.author,
             time_to_read: d.time_to_read,
             slug: d.slug
-          }));
+          }))[0];
       }
     }
     return {};
