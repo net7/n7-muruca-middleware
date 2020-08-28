@@ -1,10 +1,5 @@
 import Parser, { Input } from "../interfaces/parser";
 
-interface staticData extends Input {
-  data: any[];
-  slug?: string;
-}
-
 export class StaticPageParser implements Parser {
   parse({ data, options }: Input) {
     if (options && 'slug' in options) {
