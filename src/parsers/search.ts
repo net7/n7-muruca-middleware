@@ -29,7 +29,7 @@ export class SearchParser implements Parser {
   }
 
   protected parseFacets({ data, options }: Input) {
-    const { keyOrder } = options as SearchOptions;
+    const { facets } = options as SearchOptions;
     const agg_res: any = {
       headers: {},
       inputs: {}
@@ -50,10 +50,10 @@ export class SearchParser implements Parser {
       agg_res.headers["header-" + key] = sum;
     }
 
-    if (keyOrder) {
+    if (facets) {
       let ordered: any = {};
-      keyOrder.forEach((key: string) => {
-        ordered[key] = agg_res.inputs[key];
+      facets.forEach((key: string) => {
+        ordered[key] = agg_res.inputs[key] || [];
       })
       agg_res.inputs = ordered;
     }
