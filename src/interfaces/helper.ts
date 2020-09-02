@@ -21,8 +21,21 @@ export interface HTTPResponse {
  */
 
 export interface DataType {
-  [x: string]: any[];
   query?: any;
+  facets: DataTypeFacets | any;
+  results: DataTypeResults | any;
   searchId?: any;
-  sort?: any;
+  [x: string]: any[];
 }
+
+export interface DataTypeResults {
+  limit:number;
+  offset: number;
+  sort: string;
+}
+
+export interface DataTypeFacets {
+  id:string;
+  limit:number;
+  offset: number;
+}[]

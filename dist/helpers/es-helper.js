@@ -45,8 +45,10 @@ exports.ESHelper = {
             });
         });
     },
+    // data = body 
     buildQuery(data, conf) {
-        let { searchId, sort } = data;
+        let { searchId } = data;
+        let sorter = data.results[sort];
         // QUERY ELASTICSEARCH
         let main_query = {
             query: {
@@ -56,12 +58,13 @@ exports.ESHelper = {
                     ]
                 }
             },
-            sort: sort ? { "title.keyword": sort = sort.split("_")[2] } : ["_score"],
+            sort: sorter ? { "title.keyword": sorter = sorter.split("_")[2] } : ["_score"],
             aggregations: {}
         };
         let query_facets = conf[searchId]["facets-aggs"].aggregations;
-        for (const key in data) {
-            let query_key = conf[searchId].filters[key];
+        data.facets.forEach(facet => {
+            const { id } = facet;
+            let query_key = conf[searchId].filters[id];
             if (query_key) {
                 switch (query_key.type) {
                     case "fulltext":
@@ -74,7 +77,7 @@ exports.ESHelper = {
                         main_query.query.bool.must.push(ft_query);
                         break;
                     case "multivalue":
-                        data[key].map((value) => {
+                        data[id].map((value) => {
                             main_query.query.bool.must.push({
                                 match: {
                                     [query_key.field]: value
@@ -86,7 +89,7 @@ exports.ESHelper = {
                         break;
                 }
             }
-        }
+        });
         //facets aggregations
         query_facets.map((f) => {
             for (const key in f) {
