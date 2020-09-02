@@ -48,7 +48,7 @@ exports.ESHelper = {
     // data = body 
     buildQuery(data, conf) {
         let { searchId } = data;
-        let sorter = data.results[sort];
+        let { sort } = data.results;
         // QUERY ELASTICSEARCH
         let main_query = {
             query: {
@@ -58,11 +58,11 @@ exports.ESHelper = {
                     ]
                 }
             },
-            sort: sorter ? { "title.keyword": sorter = sorter.split("_")[2] } : ["_score"],
+            sort: sort ? { "title.keyword": sort = sort.split("_")[2] } : ["_score"],
             aggregations: {}
         };
         let query_facets = conf[searchId]["facets-aggs"].aggregations;
-        data.facets.forEach(facet => {
+        data.facets.forEach((facet) => {
             const { id } = facet;
             let query_key = conf[searchId].filters[id];
             if (query_key) {
