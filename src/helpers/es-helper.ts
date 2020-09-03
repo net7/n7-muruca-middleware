@@ -60,7 +60,7 @@ export const ESHelper = {
         ]
       }
     },
-    sort: sort ? {"title.keyword": sort = sort} : ["_score"],
+    sort: sort ? {"title.keyword": sort.split("_")[1]} : ["_score"],
     aggregations: {}
   };
 
