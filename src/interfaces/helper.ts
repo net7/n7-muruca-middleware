@@ -25,13 +25,13 @@ export interface DataType {
   facets: DataTypeFacets | any;
   results: DataTypeResults | any;
   searchId?: any;
+  sort: any;
   [x: string]: any[];
 }
 
 export interface DataTypeResults {
   limit:number;
   offset: number;
-  sort: string;
 }
 
 export interface DataTypeFacets {
