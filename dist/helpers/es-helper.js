@@ -57,7 +57,7 @@ exports.ESHelper = {
                     ]
                 }
             },
-            sort: sort ? { "title.keyword": sort = sort } : ["_score"],
+            sort: sort ? { "title.keyword": sort.split("_")[1] } : ["_score"],
             aggregations: {}
         };
         let query_facets = conf[searchId]["facets-aggs"].aggregations;
