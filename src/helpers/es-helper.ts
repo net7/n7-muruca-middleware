@@ -50,51 +50,56 @@ export const ESHelper = {
   },
   // data = body 
   buildQuery(data: DataType, conf: any) {
-    let { searchId } = data
-    let { sort } = data.results
+    let { searchId, sort, facets } = data
     // QUERY ELASTICSEARCH
     let main_query: any = {
       query: {  
-        bool: {
-          must: [
-            { match: { type: searchId } }
-          ]
-        }
-      },
-      sort: sort? { "title.keyword": sort = sort.split("_")[2] } : ["_score"],
-      aggregations: {}
-    };
+      bool: {
+        must: [
+          { match: { type: searchId } }
+        ]
+      }
+    },
+    sort: sort ? {"title.keyword": sort = sort} : ["_score"],
+    aggregations: {}
+  };
 
     let query_facets = conf[searchId]["facets-aggs"].aggregations;
-    data.facets.forEach((facet: { id: string; }) => {
-      const { id } = facet;
-      let query_key = conf[searchId].filters[id];
-      if (query_key) {
-        switch (query_key.type) {
-          case "fulltext":
-            const ft_query = {
-              query_string: {
-                query: query_key.addStar ? "*" + data.query + "*" : data,
-                fields: query_key.field
-              }
-            }
-            main_query.query.bool.must.push(ft_query)
-            break;
-          case "multivalue":
-            data[id].map((value) => {
-              main_query.query.bool.must.push({
-                match: {
-                  [query_key.field]: value
+    if(facets){
+      facets.forEach((facet: { id: string; }) => {
+        const { id } = facet;
+        let query_key = conf[searchId].filters[id];
+        if (query_key) {
+          switch (query_key.type) {
+            case "fulltext":
+              const ft_query = {
+                query_string: {
+                  query: query_key.addStar ? "*" + data.query + "*" : data,
+                  fields: query_key.field
                 }
-              })
-            });
-            break;
+              }
+              main_query.query.bool.must.push(ft_query)
+              break;
+            case "multivalue":
+              if(data[id]){
+                data[id].map((value) => {
+                  main_query.query.bool.must.push({
+                    match: {
+                      [query_key.field]: value.id
+                    }
+                  })
+                });
+              }
+              break;
 
-          default:
-            break;
+            default:
+              break;
+          }
         }
-      }
-    });
+      });
+    }else{
+
+    }
     //facets aggregations
     query_facets.map((f: { [x: string]: any; }) => {
       for (const key in f) {
