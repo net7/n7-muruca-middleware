@@ -2,7 +2,7 @@
  * Interface for the Search Results component
  */
 export interface SearchResultsData {
-    page: number;
+    offset: number;
     sort: string;
     limit: number;
     total_count: number;

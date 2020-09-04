@@ -10,18 +10,19 @@ class SearchParser {
     }
     parseResults({ data, options }) {
         if (options && "limit" in options) {
-            var { limit, page, sort, total_count } = options;
+            var { sort, total_count } = options;
+            var { limit, offset } = options.results;
         }
         const search_result = {
             limit,
-            page,
+            offset,
             sort,
             total_count,
             results: []
         };
         search_result.results = this.parseResultsItems(data, options);
         //pagination
-        search_result.results = search_result.results.slice((page - 1) * limit, page * limit);
+        // search_result.results = search_result.results.slice((page - 1) * limit, page * limit)
         return search_result;
     }
     parseFacets({ data, options }) {
