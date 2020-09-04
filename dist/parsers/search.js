@@ -10,8 +10,7 @@ class SearchParser {
     }
     parseResults({ data, options }) {
         if (options && "limit" in options) {
-            var { sort, total_count } = options;
-            var { limit, offset } = options.results;
+            var { limit, offset, sort, total_count } = options;
         }
         const search_result = {
             limit,
