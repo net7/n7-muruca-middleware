@@ -10,54 +10,54 @@ export class SearchParser implements Parser {
       : this.parseFacets({ data, options });
   }
 
-  // protected parseResults({ data, options }: Input) {
-  //   if (options && "limit" in options) {
-  //     var { limit, offset, sort, total_count } = options;
-  //   }
-  //   const search_result: SearchResultsData = {
-  //     limit,
-  //     offset,
-  //     sort,
-  //     total_count,
-  //     results: []
-  //   };
+  protected parseResults({ data, options }: Input) {
+    if (options && "limit" in options) {
+      var { offset, limit, sort, total_count } = options;
+  }
+  const search_result: SearchResultsData = {
+      limit,
+      offset,
+      sort,
+      total_count,
+      results: []
+  };
+  search_result.results = this.parseResultsItems(data, options);
 
-  //   search_result.results = this.parseResultsItems(data, options);
+  return search_result;
 
-  //   //pagination
-  //   // search_result.results = search_result.results.slice((page - 1) * limit, page * limit)
-  //   return search_result;
-  // }
+  }
 
-  // protected parseFacets({ data, options }: Input) {
-  //   const { facets } = options as SearchOptions;
-  //   const agg_res: any = {
-  //     headers: {},
-  //     inputs: {}
-  //   }
-  //   //header and inputs
-  //   for (const key in data) {
-  //     let sum = 0;
-  //     let inputs: any[] = []
-  //     data[key].buckets.map((agg: { key: string; doc_count: number; }) => {
-  //       inputs.push({
-  //         text: agg.key,
-  //         counter: agg.doc_count,
-  //         payload: agg.key
-  //       })
-  //       sum = sum + agg.doc_count
-  //     })
-  //     agg_res.inputs[key] = inputs
-  //     agg_res.headers["header-" + key] = sum;
-  //   }
-
-  //   if (facets) {
-  //     let ordered: any = {};
-  //     facets.forEach((key: string) => {
-  //       ordered[key] = agg_res.inputs[key] || [];
-  //     })
-  //     agg_res.inputs = ordered;
-  //   }
-  //   return agg_res;
-  // }
+  protected parseFacets({ data, options }: Input) {
+    let global_sum = 0;
+    const { facets } = options as SearchOptions;
+    const agg_res: any = {
+        inputs: {
+            total_count: 0,
+            facets: {}
+        }
+    }
+    //header and inputs
+    for (const key in data) {
+        let sum = 0;
+        let values: any[] = [];
+        data[key].buckets.map((agg: { key: string; doc_count: number; }) => {
+            values.push({
+                text: agg.key,
+                counter: agg.doc_count,
+                payload: agg.key
+            });
+            sum = sum + 1;
+        });
+        global_sum = global_sum + sum
+        const facet = {
+            total_count: sum,
+            values,
+        }
+        agg_res.inputs.facets[key] = facet;
+        agg_res.inputs.total_count = global_sum;
+        console.log(agg_res);
+    }
+    return agg_res;
+  }
+  
 }
