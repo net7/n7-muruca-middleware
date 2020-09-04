@@ -2,6 +2,7 @@ import Parser, { Input, SearchOptions } from "../interfaces/parser";
 import { SearchResultsData, SearchResultsItemData } from "../interfaces/parser-data/search";
 
 export class SearchParser implements Parser {
+  [x: string]: any;
   parse({ data, options }: Input) {
     const { type } = options as SearchOptions;
     return type === 'results'
@@ -58,10 +59,5 @@ export class SearchParser implements Parser {
       agg_res.inputs = ordered;
     }
     return agg_res;
-  }
-
-  protected parseResultsItems(_a: any, _b: any): SearchResultsItemData[] {
-    // to be implemented on project
-    return [];
   }
 }
