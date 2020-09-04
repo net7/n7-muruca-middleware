@@ -1,4 +1,5 @@
 export interface SearchOptions {
+  results: { limit: number; offset: number; };
   keyOrder?: string[];
   searchId: string;
   conf: any;

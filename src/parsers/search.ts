@@ -12,11 +12,12 @@ export class SearchParser implements Parser {
 
   protected parseResults({ data, options }: Input) {
     if (options && "limit" in options) {
-      var { limit, page, sort, total_count } = options;
+      var { sort, total_count } = options;
+      var { limit, offset} = options.results
     }
     const search_result: SearchResultsData = {
       limit,
-      page,
+      offset,
       sort,
       total_count,
       results: []
@@ -25,7 +26,7 @@ export class SearchParser implements Parser {
     search_result.results = this.parseResultsItems(data, options);
 
     //pagination
-    search_result.results = search_result.results.slice((page - 1) * limit, page * limit)
+    // search_result.results = search_result.results.slice((page - 1) * limit, page * limit)
     return search_result;
   }
 
