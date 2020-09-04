@@ -54,9 +54,5 @@ class SearchParser {
         }
         return agg_res;
     }
-    parseResultsItems(_a, _b) {
-        // to be implemented on project
-        return [];
-    }
 }
 exports.SearchParser = SearchParser;
