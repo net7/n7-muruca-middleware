@@ -12,8 +12,7 @@ export class SearchParser implements Parser {
 
   protected parseResults({ data, options }: Input) {
     if (options && "limit" in options) {
-      var { sort, total_count } = options;
-      var { limit, offset} = options.results
+      var { limit, offset, sort, total_count } = options;
     }
     const search_result: SearchResultsData = {
       limit,

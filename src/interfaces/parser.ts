@@ -4,7 +4,7 @@ export interface SearchOptions {
   searchId: string;
   conf: any;
   limit: number;
-  page: number;
+  offset: number;
   sort: string;
   total_count: number;
   type: string;
