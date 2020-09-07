@@ -50,7 +50,6 @@ class SearchParser {
             };
             agg_res.inputs.facets[key] = facet;
             agg_res.inputs.total_count = global_sum;
-            console.log(agg_res);
         }
         return agg_res;
     }
