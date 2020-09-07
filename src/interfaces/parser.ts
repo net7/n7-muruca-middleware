@@ -8,7 +8,12 @@ export interface SearchOptions {
   sort: string;
   total_count: number;
   type: string;
-  facets: string[];
+  facets: {
+    id: string;
+    limit: number;
+    offset: number;
+    query: string;
+  }[];
 }
 
 export interface HomeOptions {
