@@ -51,6 +51,9 @@ class SearchParser {
             agg_res.inputs.facets[key] = facet;
             agg_res.inputs.total_count = global_sum;
         }
+        facets.forEach(facet => {
+            agg_res.inputs.facets[facet.id].values = agg_res.inputs.facets[facet.id].values.filter((o) => o.text.includes(facet.query));
+        });
         return agg_res;
     }
 }
