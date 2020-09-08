@@ -41,12 +41,20 @@ export class SearchParser implements Parser {
         let sum = 0;
         let values: any[] = [];
         data[key].buckets.map((agg: { key: string; doc_count: number; }) => {
-            values.push({
-                text: agg.key,
-                counter: agg.doc_count,
-                payload: agg.key
-            });
-            sum = sum + 1;
+          facets.forEach(facet => {
+            agg_res.inputs.facets[facet.id].values.filter(
+              (f: any) => {
+                if (f.text.includes(facet.query)){
+                  values.push({
+                    text: agg.key,
+                    counter: agg.doc_count,
+                    payload: agg.key
+                  });
+                  sum = sum + 1;
+                }
+              }
+            );
+          });
         });
         global_sum = global_sum + sum
         const facet = {
@@ -56,11 +64,11 @@ export class SearchParser implements Parser {
         agg_res.inputs.facets[key] = facet;
         agg_res.inputs.total_count = global_sum;
     }
-    facets.forEach(facet => {
-      agg_res.inputs.facets[facet.id].values = agg_res.inputs.facets[facet.id].values.filter(
-        (o: any) => o.text.includes(facet.query)
-      );
-    });
+    // facets.forEach(facet => {
+    //   agg_res.inputs.facets[facet.id].values = agg_res.inputs.facets[facet.id].values.filter(
+    //     (o: any) => o.text.includes(facet.query)
+    //   );
+    // });
     return agg_res;
   }
   
