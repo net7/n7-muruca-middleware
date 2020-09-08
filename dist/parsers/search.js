@@ -36,12 +36,18 @@ class SearchParser {
             let sum = 0;
             let values = [];
             data[key].buckets.map((agg) => {
-                values.push({
-                    text: agg.key,
-                    counter: agg.doc_count,
-                    payload: agg.key
+                facets.forEach(facet => {
+                    agg_res.inputs.facets[facet.id].values.filter((f) => {
+                        if (f.text.includes(facet.query)) {
+                            values.push({
+                                text: agg.key,
+                                counter: agg.doc_count,
+                                payload: agg.key
+                            });
+                            sum = sum + 1;
+                        }
+                    });
                 });
-                sum = sum + 1;
             });
             global_sum = global_sum + sum;
             const facet = {
@@ -51,9 +57,11 @@ class SearchParser {
             agg_res.inputs.facets[key] = facet;
             agg_res.inputs.total_count = global_sum;
         }
-        facets.forEach(facet => {
-            agg_res.inputs.facets[facet.id].values = agg_res.inputs.facets[facet.id].values.filter((o) => o.text.includes(facet.query));
-        });
+        // facets.forEach(facet => {
+        //   agg_res.inputs.facets[facet.id].values = agg_res.inputs.facets[facet.id].values.filter(
+        //     (o: any) => o.text.includes(facet.query)
+        //   );
+        // });
         return agg_res;
     }
 }
