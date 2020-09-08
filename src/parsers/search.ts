@@ -40,17 +40,17 @@ export class SearchParser implements Parser {
     for (const key in data) {
         let sum = 0;
         let values: any[] = [];
-        data[key].buckets.map((agg: { key: string; doc_count: number; }) => {
-          facets.forEach(facet => {
-              if (agg.key.includes(facet.query)){
-                values.push({
-                  text: agg.key,
-                  counter: agg.doc_count,
-                  payload: agg.key
-                });
-                sum = sum + 1;
-              }
-            });
+        facets.forEach(facet => {
+          data[key].buckets.map((agg: { key: string; doc_count: number; }) => {
+            if (agg.key.includes(facet.query) && key === facet.id){
+              values.push({
+                text: agg.key,
+                counter: agg.doc_count,
+                payload: agg.key
+              });
+              sum = sum + 1;
+            }
+          });
         });
         global_sum = global_sum + sum
         const facet = {
