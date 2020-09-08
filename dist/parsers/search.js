@@ -35,9 +35,9 @@ class SearchParser {
         for (const key in data) {
             let sum = 0;
             let values = [];
-            data[key].buckets.map((agg) => {
-                facets.forEach(facet => {
-                    if (agg.key.includes(facet.query)) {
+            facets.forEach(facet => {
+                data[key].buckets.map((agg) => {
+                    if (agg.key.includes(facet.query) && key === facet.id) {
                         values.push({
                             text: agg.key,
                             counter: agg.doc_count,
