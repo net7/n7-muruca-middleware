@@ -26,10 +26,8 @@ class SearchParser {
         let global_sum = 0;
         const { facets } = options;
         const agg_res = {
-            inputs: {
-                total_count: 0,
-                facets: {}
-            }
+            total_count: 0,
+            facets: {}
         };
         //header and inputs
         for (const key in data) {
@@ -52,11 +50,11 @@ class SearchParser {
                 total_count: sum,
                 values,
             };
-            agg_res.inputs.facets[key] = facet;
-            agg_res.inputs.total_count = global_sum;
+            agg_res.facets[key] = facet;
+            agg_res.total_count = global_sum;
         }
         facets.forEach(facet => {
-            agg_res.inputs.facets[facet.id].values = agg_res.inputs.facets[facet.id].values.slice((facet.offset - 1) * facet.limit, facet.limit * facet.offset);
+            agg_res.facets[facet.id].values = agg_res.facets[facet.id].values.slice((facet.offset - 1) * facet.limit, facet.limit * facet.offset);
         });
         return agg_res;
     }
