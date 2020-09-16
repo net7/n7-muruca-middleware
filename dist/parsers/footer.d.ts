@@ -1,4 +1,6 @@
 import Parser from "../interfaces/parser";
 export declare class FooterParser implements Parser {
-    parse(data: any): any;
+    parse(data: any): {
+        columns: any;
+    };
 }
