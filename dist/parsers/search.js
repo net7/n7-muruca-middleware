@@ -54,7 +54,7 @@ class SearchParser {
             agg_res.total_count = global_sum;
         }
         facets.forEach(facet => {
-            agg_res.facets[facet.id].values = agg_res.facets[facet.id].values.slice((facet.offset) * facet.limit, facet.limit * facet.offset);
+            agg_res.facets[facet.id].values = agg_res.facets[facet.id].values.slice((facet.offset + 1) * facet.limit, facet.limit * facet.offset);
         });
         return agg_res;
     }
