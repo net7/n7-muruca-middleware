@@ -61,40 +61,38 @@ exports.ESHelper = {
             aggregations: {}
         };
         let query_facets = conf[searchId]["facets-aggs"].aggregations;
-        if (facets) {
-            facets.forEach((facet) => {
-                const { id } = facet;
-                let query_key = conf[searchId].filters[id];
-                if (query_key) {
-                    switch (query_key.type) {
-                        case "fulltext":
-                            const ft_query = {
-                                query_string: {
-                                    query: query_key.addStar ? "*" + data.query + "*" : data,
-                                    fields: query_key.field
-                                }
-                            };
-                            main_query.query.bool.must.push(ft_query);
-                            break;
-                        case "multivalue":
-                            if (data[id]) {
-                                data[id].map((value) => {
-                                    main_query.query.bool.must.push({
-                                        match: {
-                                            [query_key.field]: value.id
-                                        }
-                                    });
-                                });
+        const dataKeys = Object.keys(data);
+        Object.keys(conf[searchId].filters)
+            .filter((facetId) => dataKeys.includes(facetId))
+            .forEach((facetId) => {
+            let query_key = conf[searchId].filters[facetId];
+            if (query_key) {
+                switch (query_key.type) {
+                    case "fulltext":
+                        const ft_query = {
+                            query_string: {
+                                query: query_key.addStar ? "*" + data.query + "*" : data,
+                                fields: query_key.field
                             }
-                            break;
-                        default:
-                            break;
-                    }
+                        };
+                        main_query.query.bool.must.push(ft_query);
+                        break;
+                    case "multivalue":
+                        if (data[facetId]) {
+                            data[facetId].map((value) => {
+                                main_query.query.bool.must.push({
+                                    match: {
+                                        [query_key.field]: value.id
+                                    }
+                                });
+                            });
+                        }
+                        break;
+                    default:
+                        break;
                 }
-            });
-        }
-        else {
-        }
+            }
+        });
         //facets aggregations
         query_facets.map((f) => {
             for (const key in f) {
