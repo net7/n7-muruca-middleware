@@ -50,7 +50,7 @@ export const ESHelper = {
   },
   // data = body 
   buildQuery(data: DataType, conf: any) {
-    let { searchId, sort, facets } = data
+    let { searchId, sort } = data
     // QUERY ELASTICSEARCH
     let main_query: any = {
       query: {  
@@ -86,7 +86,7 @@ export const ESHelper = {
               data[facetId].map((value) => {
                 main_query.query.bool.must.push({
                   match: {
-                    [query_key.field]: value.id
+                    [query_key.field]: value
                   }
                 })
               });
@@ -108,6 +108,7 @@ export const ESHelper = {
         }
       }
     })
+    console.log("hello");
     return main_query;
   }
 }

@@ -47,7 +47,7 @@ exports.ESHelper = {
     },
     // data = body 
     buildQuery(data, conf) {
-        let { searchId, sort, facets } = data;
+        let { searchId, sort } = data;
         // QUERY ELASTICSEARCH
         let main_query = {
             query: {
@@ -82,7 +82,7 @@ exports.ESHelper = {
                             data[facetId].map((value) => {
                                 main_query.query.bool.must.push({
                                     match: {
-                                        [query_key.field]: value.id
+                                        [query_key.field]: value
                                     }
                                 });
                             });
@@ -103,6 +103,7 @@ exports.ESHelper = {
                 };
             }
         });
+        console.log("hello");
         return main_query;
     }
 };
