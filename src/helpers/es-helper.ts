@@ -108,7 +108,6 @@ export const ESHelper = {
         }
       }
     })
-    console.log("hello");
     return main_query;
   }
 }
