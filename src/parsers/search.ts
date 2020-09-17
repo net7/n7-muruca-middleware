@@ -40,14 +40,16 @@ export class SearchParser implements Parser {
         let values: any[] = [];
         facets.forEach(facet => {
           data[key].buckets.map((agg: { key: string; doc_count: number; }) => {
-            if (agg.key.includes(facet.query) && key === facet.id){
+            const haystack = (agg.key || '').toLocaleLowerCase();
+            const needle = (facet.query || '').toLocaleLowerCase();
+            if (haystack.includes(needle) && key === facet.id){
               values.push({
                 text: agg.key,
                 counter: agg.doc_count,
                 payload: agg.key
               });
-              sum = sum + 1;
             }
+            sum = sum + 1;
           });
         });
         global_sum = global_sum + sum
