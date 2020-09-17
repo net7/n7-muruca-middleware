@@ -53,34 +53,8 @@ class SearchParser {
             };
             agg_res.total_count = global_sum;
         });
-        //header and inputs
-        /* for (const key in data) {
-            let sum = 0;
-            let values: any[] = [];
-            facets.forEach(facet => {
-              data[key].buckets.map((agg: { key: string; doc_count: number; }) => {
-                const haystack = (agg.key || '').toLocaleLowerCase();
-                const needle = (facet.query || '').toLocaleLowerCase();
-                if (haystack.includes(needle) && key === facet.id){
-                  values.push({
-                    text: agg.key,
-                    counter: agg.doc_count,
-                    payload: agg.key
-                  });
-                }
-                sum = sum + 1;
-              });
-            });
-            global_sum = global_sum + sum
-            const facet = {
-                total_count: sum,
-                values,
-            }
-            agg_res.facets[key] = facet;
-            agg_res.total_count = global_sum;
-        } */
+        // pagination chunk
         facets
-            // .filter(({ id }) => !!agg_res.facets[id])
             .forEach(facet => {
             agg_res.facets[facet.id].values = agg_res.facets[facet.id].values.slice((facet.offset) * facet.limit, (facet.limit * (facet.offset + 1)));
         });
