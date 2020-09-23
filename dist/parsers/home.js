@@ -14,11 +14,11 @@ class HomeParser {
             // the corresponding data is stored.
             const field = conf[block].field;
             // compiling data for the hero blocks
-            if (/hero-\w+/i.test(block)) {
+            if (/hero-?\w/i.test(block)) {
                 parsedData[block] = this.parseHero(data[field], block);
             }
             // compiling data for the collection block
-            if (/collection-\w+/i.test(block)) {
+            if (/collection-?\w+/i.test(block)) {
                 parsedData[block] = this.parseCollection(data[field], block);
             }
         }
