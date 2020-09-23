@@ -34,7 +34,7 @@ class SearchParser {
             let values = [];
             if (data[id] && data[id].buckets) {
                 data[id].buckets.forEach((agg) => {
-                    const haystack = (agg.key || '').toLocaleLowerCase();
+                    const haystack = (agg.key.split("|||")[0] || '').toLocaleLowerCase();
                     const needle = (query || '').toLocaleLowerCase();
                     if (haystack.includes(needle)) {
                         values.push({
