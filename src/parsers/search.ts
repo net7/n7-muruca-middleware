@@ -63,7 +63,7 @@ export class SearchParser implements Parser {
     // pagination chunk
     facets
       .forEach(facet => {
-      agg_res.facets[facet.id].values = agg_res.facets[facet.id].values.slice((facet.offset) * facet.limit, (facet.limit * (facet.offset + 1)))
+      agg_res.facets[facet.id].values = agg_res.facets[facet.id].values.slice(facet.offset, facet.offset + facet.limit)
     });
     return agg_res;
   }
