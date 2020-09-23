@@ -39,8 +39,8 @@ export class SearchParser implements Parser {
       let sum = 0;
       let values: any[] = [];
       if(data[id] && data[id].buckets) {
-        data[id].buckets.forEach((agg: { key: string; doc_count: number; }) => {
-          const haystack = (agg.key || '').toLocaleLowerCase();
+        data[id].buckets.forEach((agg: { key: string; doc_count: number }) => {
+          const haystack = (agg.key.split("|||")[0] || '').toLocaleLowerCase();
           const needle = (query || '').toLocaleLowerCase();
           if (haystack.includes(needle)){
             values.push({

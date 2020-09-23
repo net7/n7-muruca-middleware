@@ -101,9 +101,15 @@ export const ESHelper = {
     //facets aggregations
     query_facets.map((f: { [x: string]: any; }) => {
       for (const key in f) {
-        main_query.aggregations[key] = {
-          terms: {
-            field: f[key]
+        main_query.aggregations[key] ={
+          ...f.nasted ? { nasted: {path: key} } : null,
+          aggs: {
+            [key]: {
+              terms: {
+                script: "if(doc["+f[key].search+"].size() > 0 ) doc["+f[key].search +"|||' + doc["+f[key].title+"].value",
+                lang: "paintless"
+              }
+            }
           }
         }
       }
