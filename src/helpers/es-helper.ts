@@ -99,21 +99,19 @@ export const ESHelper = {
       }
     });
     //facets aggregations
-    query_facets.map((f: { [x: string]: any; }) => {
-      for (const key in f) {
+      for (const key in query_facets) {
         main_query.aggregations[key] ={
-          ...f.nasted ? { nasted: {path: key} } : null,
+          ...query_facets.nasted ? { nasted: {path: key} } : null,
           aggs: {
             [key]: {
               terms: {
-                script: "if(doc["+f[key].search+"].size() > 0 ) doc["+f[key].search +"|||' + doc["+f[key].title+"].value",
+                script: "if(doc['"+query_facets[key].search+"'].size() > 0 ) doc['"+query_facets[key].search+"'].value +'|||' + doc['"+query_facets[key].title+"'].value",
                 lang: "paintless"
               }
             }
           }
         }
       }
-    })
     return main_query;
   }
 }
