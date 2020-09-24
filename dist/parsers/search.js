@@ -19,7 +19,7 @@ class SearchParser {
             total_count,
             results: []
         };
-        search_result.results = this.parseResultsItems(data, options);
+        search_result.results = this.parseResultsItems({ data, options });
         return search_result;
     }
     parseFacets({ data, options }) {

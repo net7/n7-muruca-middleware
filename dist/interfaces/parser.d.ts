@@ -32,7 +32,7 @@ export interface StaticPageOptions {
 }
 export interface Input {
     data: any;
-    options?: (HomeOptions | ResourceOptions | SearchOptions | StaticPageOptions);
+    options?: HomeOptions | ResourceOptions | SearchOptions | StaticPageOptions;
 }
 export default interface Parser {
     parse: (input: Input) => object;
