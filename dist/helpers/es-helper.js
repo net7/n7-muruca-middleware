@@ -136,7 +136,6 @@ exports.ESHelper = {
                 };
             }
         }
-        console.log(JSON.stringify(main_query));
         return main_query;
     }
 };
