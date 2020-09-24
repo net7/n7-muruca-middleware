@@ -53,65 +53,79 @@ export const ESHelper = {
     let { searchId, sort } = data
     // QUERY ELASTICSEARCH
     let main_query: any = {
-      query: {  
-      bool: {
-        must: [
-          { match: { type: searchId } }
-        ]
-      }
-    },
-    sort: sort ? {"title.keyword": sort.split("_")[1]} : ["_score"],
-    aggregations: {}
-  };
+      query: {
+        bool: {
+          must: [
+            { match: { type: searchId } }
+          ]
+        }
+      },
+      sort: sort ? { "title.keyword": sort.split("_")[1] } : ["_score"],
+      aggregations: {}
+    };
 
     let query_facets = conf[searchId]["facets-aggs"].aggregations;
     const dataKeys = Object.keys(data);
     Object.keys(conf[searchId].filters)
       .filter((facetId) => dataKeys.includes(facetId))
       .forEach((facetId) => {
-      let query_key = conf[searchId].filters[facetId];
-      if (query_key) {
-        switch (query_key.type) {
-          case "fulltext":
-            const ft_query = {
-              query_string: {
-                query: query_key.addStar ? "*" + data.query + "*" : data,
-                fields: query_key.field
+        let query_key = conf[searchId].filters[facetId];
+        if (query_key) {
+          switch (query_key.type) {
+            case "fulltext":
+              const ft_query = {
+                query_string: {
+                  query: query_key.addStar ? "*" + data.query + "*" : data,
+                  fields: query_key.field
+                }
               }
-            }
-            main_query.query.bool.must.push(ft_query)
-            break;
-          case "multivalue":
-            if(data[facetId]){
-              data[facetId].map((value) => {
-                main_query.query.bool.must.push({
-                  match: {
-                    [query_key.field]: value
-                  }
-                })
-              });
-            }
-            break;
+              main_query.query.bool.must.push(ft_query)
+              break;
+            case "multivalue":
+              if (data[facetId]) {
+                data[facetId].map((value) => {
+                  main_query.query.bool.must.push({
+                    match: {
+                      [query_key.field]: value
+                    }
+                  })
+                });
+              }
+              break;
 
-          default:
-            break;
+            default:
+              break;
+          }
         }
-      }
-    });
+      });
     //facets aggregations
-      for (const key in query_facets) {
-        main_query.aggregations[key] ={
-          ...query_facets.nasted ? { nasted: {path: key} } : null,
+    for (const key in query_facets) {
+      const { nested } = query_facets[key];
+      if (nested) {
+        main_query.aggregations[key] = {
+          nested: { path: key },
           aggs: {
             [key]: {
               terms: {
-                script: "if(doc['"+query_facets[key].search+"'].size() > 0 ) doc['"+query_facets[key].search+"'].value +'|||' + doc['"+query_facets[key].title+"'].value",
-                lang: "paintless"
+                script: {
+                  source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value +'|||' + doc['${query_facets[key].title}'].value`,
+                  lang: "painless"
+                }
               }
             }
           }
         }
+      } else {
+        main_query.aggregations[key] = {
+          terms: {
+            script: {
+              source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value +'|||' + doc['${query_facets[key].title}'].value`,
+              lang: "painless"
+            }
+          }
+        }
       }
+    }
     return main_query;
   }
 }

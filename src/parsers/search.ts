@@ -37,16 +37,17 @@ export class SearchParser implements Parser {
 
     facets.forEach(({ id, query }) => {
       let sum = 0;
+      let buckets_data = data[id].buckets === undefined ? data[id][id] : data[id];
       let values: any[] = [];
-      if(data[id] && data[id].buckets) {
-        data[id].buckets.forEach((agg: { key: string; doc_count: number }) => {
+      if(buckets_data.buckets) {
+        buckets_data.buckets.forEach((agg: { key: string; doc_count: number }) => {
           const haystack = (agg.key.split("|||")[0] || '').toLocaleLowerCase();
           const needle = (query || '').toLocaleLowerCase();
           if (haystack.includes(needle)){
             values.push({
-              text: agg.key,
+              text: agg.key.split("|||")[1],
               counter: agg.doc_count,
-              payload: agg.key
+              payload: agg.key.split("|||")[0]
             });
           }
           sum = sum + 1;

@@ -31,16 +31,17 @@ class SearchParser {
         };
         facets.forEach(({ id, query }) => {
             let sum = 0;
+            let buckets_data = data[id].buckets === undefined ? data[id][id] : data[id];
             let values = [];
-            if (data[id] && data[id].buckets) {
-                data[id].buckets.forEach((agg) => {
+            if (buckets_data.buckets) {
+                buckets_data.buckets.forEach((agg) => {
                     const haystack = (agg.key.split("|||")[0] || '').toLocaleLowerCase();
                     const needle = (query || '').toLocaleLowerCase();
                     if (haystack.includes(needle)) {
                         values.push({
-                            text: agg.key,
+                            text: agg.key.split("|||")[1],
                             counter: agg.doc_count,
-                            payload: agg.key
+                            payload: agg.key.split("|||")[0]
                         });
                     }
                     sum = sum + 1;
