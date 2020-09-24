@@ -31,21 +31,23 @@ class SearchParser {
         };
         facets.forEach(({ id, query }) => {
             let sum = 0;
-            let buckets_data = data[id].buckets === undefined ? data[id][id] : data[id];
             let values = [];
-            if (buckets_data.buckets) {
-                buckets_data.buckets.forEach((agg) => {
-                    const haystack = (agg.key.split("|||")[0] || '').toLocaleLowerCase();
-                    const needle = (query || '').toLocaleLowerCase();
-                    if (haystack.includes(needle)) {
-                        values.push({
-                            text: agg.key.split("|||")[1],
-                            counter: agg.doc_count,
-                            payload: agg.key.split("|||")[0]
-                        });
-                    }
-                    sum = sum + 1;
-                });
+            if (data[id]) {
+                let buckets_data = data[id].buckets === undefined ? data[id][id] : data[id];
+                if (buckets_data.buckets) {
+                    buckets_data.buckets.forEach((agg) => {
+                        const haystack = (agg.key.split("|||")[0] || '').toLocaleLowerCase();
+                        const needle = (query || '').toLocaleLowerCase();
+                        if (haystack.includes(needle)) {
+                            values.push({
+                                text: agg.key.split("|||")[1],
+                                counter: agg.doc_count,
+                                payload: agg.key.split("|||")[0]
+                            });
+                        }
+                        sum = sum + 1;
+                    });
+                }
             }
             global_sum += sum;
             agg_res.facets[id] = {
