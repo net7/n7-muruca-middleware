@@ -1,8 +1,7 @@
 import Parser, { Input, SearchOptions } from "../interfaces/parser";
 import { SearchResultsData, SearchResultsItemData } from "../interfaces/parser-data/search";
 
-export class SearchParser implements Parser {
-  [x: string]: any;
+export abstract class SearchParser implements Parser {
   parse({ data, options }: Input) {
     const { type } = options as SearchOptions;
     return type === 'results'
@@ -10,20 +9,22 @@ export class SearchParser implements Parser {
       : this.parseFacets({ data, options });
   }
 
+  protected abstract parseResultsItems({ data, options }: Input): SearchResultsItemData[];
+
   protected parseResults({ data, options }: Input) {
     if (options && "limit" in options) {
       var { offset, limit, sort, total_count } = options;
-  }
-  const search_result: SearchResultsData = {
+    }
+    const search_result: SearchResultsData = {
       limit,
       offset,
       sort,
       total_count,
       results: []
-  };
-  search_result.results = this.parseResultsItems(data, options);
+    };
+    search_result.results = this.parseResultsItems({ data, options });
 
-  return search_result;
+    return search_result;
 
   }
 
@@ -40,11 +41,11 @@ export class SearchParser implements Parser {
       let values: any[] = [];
       if (data[id]) {
         let buckets_data = data[id].buckets === undefined ? data[id][id] : data[id];
-        if(buckets_data.buckets) {
+        if (buckets_data.buckets) {
           buckets_data.buckets.forEach((agg: { key: string; doc_count: number }) => {
             const haystack = (agg.key.split("|||")[0] || '').toLocaleLowerCase();
             const needle = (query || '').toLocaleLowerCase();
-            if (haystack.includes(needle)){
+            if (haystack.includes(needle)) {
               values.push({
                 text: agg.key.split("|||")[1],
                 counter: agg.doc_count,
@@ -66,9 +67,9 @@ export class SearchParser implements Parser {
     // pagination chunk
     facets
       .forEach(facet => {
-      agg_res.facets[facet.id].values = agg_res.facets[facet.id].values.slice(facet.offset, facet.offset + facet.limit)
-    });
+        agg_res.facets[facet.id].values = agg_res.facets[facet.id].values.slice(facet.offset, facet.offset + facet.limit)
+      });
     return agg_res;
   }
-  
+
 }
