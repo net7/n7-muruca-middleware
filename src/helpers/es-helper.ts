@@ -70,6 +70,7 @@ export const ESHelper = {
       .filter((facetId) => dataKeys.includes(facetId))
       .forEach((facetId) => {
         let query_key = conf[searchId].filters[facetId];
+        let query_nested = query_facets[facetId] ? query_facets[facetId].nested : false;
         if (query_key) {
           switch (query_key.type) {
             case "fulltext":
@@ -96,6 +97,19 @@ export const ESHelper = {
             default:
               break;
           }
+        }
+        if (query_nested) {
+          const nested = {
+            nested: {
+              path: facetId,
+              query: {
+                terms: {
+                  [query_facets[facetId].search]: data[facetId]
+                }
+              }
+            }
+          }
+          main_query.query.bool.must.push(nested)
         }
       });
     //facets aggregations

@@ -66,6 +66,7 @@ exports.ESHelper = {
             .filter((facetId) => dataKeys.includes(facetId))
             .forEach((facetId) => {
             let query_key = conf[searchId].filters[facetId];
+            let query_nested = query_facets[facetId] ? query_facets[facetId].nested : false;
             if (query_key) {
                 switch (query_key.type) {
                     case "fulltext":
@@ -78,7 +79,7 @@ exports.ESHelper = {
                         main_query.query.bool.must.push(ft_query);
                         break;
                     case "multivalue":
-                        if (data[facetId]) {
+                        if (data[facetId] && query_nested === false) {
                             data[facetId].map((value) => {
                                 main_query.query.bool.must.push({
                                     match: {
@@ -91,6 +92,19 @@ exports.ESHelper = {
                     default:
                         break;
                 }
+            }
+            if (query_nested) {
+                const nested = {
+                    nested: {
+                        path: facetId,
+                        query: {
+                            terms: {
+                                [query_facets[facetId].search]: data[facetId]
+                            }
+                        }
+                    }
+                };
+                main_query.query.bool.must.push(nested);
             }
         });
         //facets aggregations
@@ -122,6 +136,7 @@ exports.ESHelper = {
                 };
             }
         }
+        console.log(JSON.stringify(main_query));
         return main_query;
     }
 };
