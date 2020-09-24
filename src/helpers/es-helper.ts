@@ -50,9 +50,10 @@ export const ESHelper = {
   },
   // data = body 
   buildQuery(data: DataType, conf: any) {
-    let { searchId, sort } = data
+    const { searchId, sort, results } = data;
+    const { limit, offset } = results;
     // QUERY ELASTICSEARCH
-    let main_query: any = {
+    const main_query: any = {
       query: {
         bool: {
           must: [
@@ -64,13 +65,22 @@ export const ESHelper = {
       aggregations: {}
     };
 
-    let query_facets = conf[searchId]["facets-aggs"].aggregations;
+    // pagination params
+    if (limit) {
+      main_query.size = limit;
+    }
+
+    if (offset || offset === 0) {
+      main_query.from = offset;
+    }
+
+    const query_facets = conf[searchId]["facets-aggs"].aggregations;
     const dataKeys = Object.keys(data);
     Object.keys(conf[searchId].filters)
       .filter((facetId) => dataKeys.includes(facetId))
       .forEach((facetId) => {
-        let query_key = conf[searchId].filters[facetId];
-        let query_nested = query_facets[facetId] ? query_facets[facetId].nested : false;
+        const query_key = conf[searchId].filters[facetId];
+        const query_nested = query_facets[facetId] ? query_facets[facetId].nested : false;
         if (query_key) {
           switch (query_key.type) {
             case "fulltext":
