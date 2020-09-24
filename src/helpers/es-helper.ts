@@ -83,7 +83,7 @@ export const ESHelper = {
               main_query.query.bool.must.push(ft_query)
               break;
             case "multivalue":
-              if (data[facetId]) {
+              if (data[facetId] && query_nested === false) {
                 data[facetId].map((value) => {
                   main_query.query.bool.must.push({
                     match: {
