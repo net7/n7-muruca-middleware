@@ -38,6 +38,7 @@ export abstract class SearchParser implements Parser {
 
     facets.forEach(({ id, query }) => {
       let sum = 0;
+      let filteredTotal = 0;
       let values: any[] = [];
       if (data[id]) {
         let buckets_data = data[id].buckets === undefined ? data[id][id] : data[id];
@@ -51,6 +52,7 @@ export abstract class SearchParser implements Parser {
                 counter: agg.doc_count,
                 payload: agg.key.split("|||")[0]
               });
+              filteredTotal += 1;
             }
             sum = sum + 1;
           });
@@ -59,6 +61,7 @@ export abstract class SearchParser implements Parser {
       global_sum += sum;
       agg_res.facets[id] = {
         total_count: sum,
+        filtered_total_count: filteredTotal,
         values,
       };
       agg_res.total_count = global_sum;
