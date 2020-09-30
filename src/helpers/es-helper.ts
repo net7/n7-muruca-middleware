@@ -57,7 +57,7 @@ export const ESHelper = {
       query: {
         bool: {
           must: [
-            { match: { type: searchId } }
+            { match: { [conf[searchId].base_query.field]: searchId } }
           ]
         }
       },
