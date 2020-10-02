@@ -62,7 +62,7 @@ export const ESHelper = {
         }
       },
       sort: [
-        sort ? { "title.keyword": sort.split("_")[1] } : ["_score"],
+        sort ? { "title.keyword": sort.split("_")[1] } : null,
         "_score"
       ],
       aggregations: {}
