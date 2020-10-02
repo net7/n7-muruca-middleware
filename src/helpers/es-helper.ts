@@ -61,7 +61,10 @@ export const ESHelper = {
           ]
         }
       },
-      sort: sort ? { "title.keyword": sort.split("_")[1] } : ["_score"],
+      sort: [
+        sort ? { "title.keyword": sort.split("_")[1] } : ["_score"],
+        "_score"
+      ],
       aggregations: {}
     };
 
@@ -85,7 +88,7 @@ export const ESHelper = {
           switch (query_key.type) {
             case "fulltext":
               const ft_query = {
-                query_string: {
+                multi_match: {
                   query: query_key.addStar ? "*" + data.query + "*" : data,
                   fields: query_key.field
                 }
