@@ -58,10 +58,7 @@ exports.ESHelper = {
                     ]
                 }
             },
-            sort: [
-                sort ? { "title.keyword": sort.split("_")[1] } : null,
-                "_score"
-            ],
+            sort: sort ? [{ "title.keyword": sort.split("_")[1] }, "_score"] : ["_score"],
             aggregations: {}
         };
         // pagination params
