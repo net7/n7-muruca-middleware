@@ -51,7 +51,7 @@ export const ESHelper = {
   // data = body 
   buildQuery(data: DataType, conf: any) {
     const { searchId, results } = data;
-    const sort = data.sort || data.results.sort
+    const sort = results ? results.sort : (data.sort || undefined);
     const { limit, offset } = (results || {});
     // QUERY ELASTICSEARCH
     const main_query: any = {
