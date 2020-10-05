@@ -47,7 +47,8 @@ exports.ESHelper = {
     },
     // data = body 
     buildQuery(data, conf) {
-        const { searchId, sort, results } = data;
+        const { searchId, results } = data;
+        const sort = data.sort || data.results.sort;
         const { limit, offset } = (results || {});
         // QUERY ELASTICSEARCH
         const main_query = {
