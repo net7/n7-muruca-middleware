@@ -62,9 +62,18 @@ export const ESHelper = {
           ]
         }
       },
-      sort: sort === "_score" ? ["_score"] :  [{ "title.keyword": sort.split("_")[1] }, "_score"],
+      sort,
       aggregations: {}
     };
+    
+    //sorting
+    if (sort) {
+      sort === "_score"
+        ? main_query.sort = ["_score"]
+        : main_query.sort = [{ "title.keyword": sort.split("_")[1] }, "_score"]
+    } else {
+      main_query.sort = ["_score"]
+    }
 
     // pagination params
     if (limit) {
