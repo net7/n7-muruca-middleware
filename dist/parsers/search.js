@@ -37,9 +37,10 @@ class SearchParser {
                 let buckets_data = data[id].buckets === undefined ? data[id][id] : data[id];
                 if (buckets_data.buckets) {
                     buckets_data.buckets.forEach((agg) => {
-                        const haystack = (agg.key.split("|||")[0] || '').toLowerCase();
+                        const haystack_formatted = (agg.key.split("|||")[0] || '').toLowerCase();
+                        const haystack_notFormatted = (agg.key.split("|||")[1] || '').toLowerCase();
                         const needle = (query || '').toLowerCase();
-                        if (haystack.includes(needle)) {
+                        if (haystack_formatted.includes(needle) || haystack_notFormatted.includes(needle)) {
                             values.push({
                                 text: agg.key.split("|||")[1],
                                 counter: agg.doc_count,
