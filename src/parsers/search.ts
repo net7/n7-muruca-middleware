@@ -44,8 +44,8 @@ export abstract class SearchParser implements Parser {
         let buckets_data = data[id].buckets === undefined ? data[id][id] : data[id];
         if (buckets_data.buckets) {
           buckets_data.buckets.forEach((agg: { key: string; doc_count: number }) => {
-            const haystack = (agg.key.split("|||")[0] || '').toLocaleLowerCase();
-            const needle = (query || '').toLocaleLowerCase();
+            const haystack = (agg.key.split("|||")[0] || '').toLowerCase();
+            const needle = (query || '').toLowerCase();
             if (haystack.includes(needle)) {
               values.push({
                 text: agg.key.split("|||")[1],
