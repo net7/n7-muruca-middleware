@@ -95,7 +95,9 @@ export const ESHelper = {
           switch (query_key.type) {
             case "fulltext":
               const ft_query = {
-                multi_match: {
+                // FIXME: controllare ricerca con ideogrammi 
+                // multi_match: {
+                query_string: {
                   query: query_key.addStar ? "*" + data.query + "*" : data,
                   fields: query_key.field
                 }
