@@ -70,7 +70,7 @@ export const ESHelper = {
     if (sort) {
       sort === "_score"
         ? main_query.sort = ["_score"]
-        : main_query.sort = [{ "title.keyword": sort.split("_")[1] }, "_score"]
+        : main_query.sort = [{ "slug.keyword": sort.split("_")[1] }, "_score"]
     } else {
       main_query.sort = ["_score"]
     }
