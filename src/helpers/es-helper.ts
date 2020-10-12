@@ -98,7 +98,7 @@ export const ESHelper = {
                 // FIXME: controllare ricerca con ideogrammi 
                 // multi_match: {
                 query_string: {
-                  query: query_key.addStar ? "*" + data.query + "*" : data,
+                  query: query_key.addStar ? "*" + data.query + "*" : data.query,
                   fields: query_key.field
                 }
               }
