@@ -83,82 +83,79 @@ export const ESHelper = {
     if (offset || offset === 0) {
       main_query.from = offset;
     }
-    // aggregations
-    if(conf[searchId]["facets-aggs"]) {
-      const query_facets = conf[searchId]["facets-aggs"].aggregations;
-      const dataKeys = Object.keys(data);
-      Object.keys(conf[searchId].filters)
-        .filter((facetId) => dataKeys.includes(facetId))
-        .forEach((facetId) => {
-          const query_key = conf[searchId].filters[facetId];
-          const query_nested = query_facets[facetId] ? query_facets[facetId].nested : false;
-          if (query_key) {
-            switch (query_key.type) {
-              case "fulltext":
-                const ft_query = {
-                  // FIXME: controllare ricerca con ideogrammi 
-                  // multi_match: {
-                  query_string: {
-                    query: query_key.addStar ? "*" + data.query + "*" : data.query,
-                    fields: query_key.field
-                  }
+    // aggregations filters
+    const query_facets = conf[searchId]["facets-aggs"].aggregations;
+    const dataKeys = Object.keys(data);
+    Object.keys(conf[searchId].filters)
+      .filter((facetId) => dataKeys.includes(facetId))
+      .forEach((facetId) => {
+        const query_key = conf[searchId].filters[facetId];
+        const query_nested = query_facets[facetId] ? query_facets[facetId].nested : false;
+        if (query_key) {
+          switch (query_key.type) {
+            case "fulltext":
+              const ft_query = {
+                // multi_match: {
+                query_string: {
+                  query: query_key.addStar ? "*" + data.query + "*" : data.query,
+                  fields: query_key.field
                 }
-                main_query.query.bool.must.push(ft_query)
-                break;
-              case "multivalue":
-                if (data[facetId] && query_nested === false) {
-                  data[facetId].map((value) => {
-                    main_query.query.bool.must.push({
-                      match: {
-                        [query_key.field]: value
-                      }
-                    })
-                  });
-                }
-                break;
+              }
+              main_query.query.bool.must.push(ft_query)
+              break;
+            case "multivalue":
+              if (data[facetId] && query_nested === false) {
+                data[facetId].map((value) => {
+                  main_query.query.bool.must.push({
+                    match: {
+                      [query_key.field]: value
+                    }
+                  })
+                });
+              }
+              break;
 
-              default:
-                break;
-            }
+            default:
+              break;
           }
-          if (query_nested) {
-            const nested = {
-              nested: {
-                path: facetId,
-                query: {
-                  terms: {
-                    [query_facets[facetId].search]: data[facetId]
-                  }
-                }
-              }
-            }
-            main_query.query.bool.must.push(nested)
-          }
-        });
-      //facets aggregations
-      for (const key in query_facets) {
-        const { nested } = query_facets[key];
-        if (nested) {
-          main_query.aggregations[key] = {
-            nested: { path: key },
-            aggs: {
-              [key]: {
+        }
+        if (query_nested) {
+          const nested = {
+            nested: {
+              path: facetId,
+              query: {
                 terms: {
-                  script: {
-                    source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value +'|||' + doc['${query_facets[key].title}'].value`,
-                    lang: "painless"
-                  }
+                  [query_facets[facetId].search]: data[facetId]
                 }
               }
             }
           }
-        } else {
-          main_query.aggregations[key] = {
-            terms: {
-              script: {
-                source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value +'|||' + doc['${query_facets[key].title}'].value`,
-                lang: "painless"
+          main_query.query.bool.must.push(nested)
+        }
+      });
+    //facets aggregations
+    for (const key in query_facets) {
+      const { nested } = query_facets[key];
+      if (nested) {
+        main_query.aggregations[key] = {
+          nested: { path: key },
+          aggs: {
+            [key]: {
+              terms: {
+                script: {
+                  source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value +'|||' + doc['${query_facets[key].title}'].value`,
+                  lang: "painless"
+                }
               }
+            }
+          }
+        }
+      } else {
+        main_query.aggregations[key] = {
+          terms: {
+            script: {
+              source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value +'|||' + doc['${query_facets[key].title}'].value`,
+              lang: "painless"
             }
           }
         }
