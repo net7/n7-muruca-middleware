@@ -87,25 +87,25 @@ export const ESHelper = {
     const query_facets = conf[searchId]["facets-aggs"].aggregations;
     const dataKeys = Object.keys(data);
     Object.keys(conf[searchId].filters)
-      .filter((facetId) => dataKeys.includes(facetId))
-      .forEach((facetId) => {
-        const query_key = conf[searchId].filters[facetId];
-        const query_nested = query_facets[facetId] ? query_facets[facetId].nested : false;
+      .filter((filterId) => dataKeys.includes(filterId))
+      .forEach((filterId) => {
+        const query_key = conf[searchId].filters[filterId];
+        const query_nested = query_facets[filterId] ? query_facets[filterId].nested : false;
         if (query_key) {
           switch (query_key.type) {
             case "fulltext":
               const ft_query = {
                 // multi_match: {
                 query_string: {
-                  query: query_key.addStar ? "*" + data.query + "*" : data.query,
+                  query: query_key.addStar ? "*" + data[filterId] + "*" : data[filterId],
                   fields: query_key.field
                 }
               }
               main_query.query.bool.must.push(ft_query)
               break;
             case "multivalue":
-              if (data[facetId] && query_nested === false) {
-                data[facetId].map((value) => {
+              if (data[filterId] && query_nested === false) {
+                data[filterId].map((value) => {
                   main_query.query.bool.must.push({
                     match: {
                       [query_key.field]: value
@@ -122,10 +122,10 @@ export const ESHelper = {
         if (query_nested) {
           const nested = {
             nested: {
-              path: facetId,
+              path: filterId,
               query: {
                 terms: {
-                  [query_facets[facetId].search]: data[facetId]
+                  [query_facets[filterId].search]: data[filterId]
                 }
               }
             }
