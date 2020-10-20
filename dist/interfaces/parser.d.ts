@@ -30,9 +30,12 @@ export interface ResourceOptions {
 export interface StaticPageOptions {
     slug: string;
 }
+export interface TranslationOptions {
+    lang: string;
+}
 export interface Input {
     data: any;
-    options?: HomeOptions | ResourceOptions | SearchOptions | StaticPageOptions;
+    options?: HomeOptions | ResourceOptions | SearchOptions | StaticPageOptions | TranslationOptions;
 }
 export default interface Parser {
     parse: (input: Input) => object;
