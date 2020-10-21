@@ -1,4 +1,4 @@
-import Parser from "../interfaces/parser";
+import Parser, { Input } from "../interfaces/parser";
 export declare class MenuParser implements Parser {
-    parse(data: any): any;
+    parse({ data }: Input): any;
 }
