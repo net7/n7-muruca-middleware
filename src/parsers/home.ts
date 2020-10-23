@@ -48,8 +48,7 @@ export class HomeParser implements Parser {
   }
 
   protected parseContent(data:any, _:string) {
-    const { text } = data;
-    return { ...text }
+    return data
   }
 
   protected parseHero(data: any, _: string): HeroData {

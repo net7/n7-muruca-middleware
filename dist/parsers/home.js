@@ -38,8 +38,7 @@ class HomeParser {
         return parsedData;
     }
     parseContent(data, _) {
-        const { text } = data;
-        return Object.assign({}, text);
+        return data;
     }
     parseHero(data, _) {
         const { title, text, image, button } = data;
