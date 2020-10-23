@@ -21,7 +21,7 @@ class HomeParser {
             if (/collection-?\w*/i.test(block)) {
                 parsedData[block] = this.parseCollection(data[field], block);
             }
-            if (/content/i.test(block)) {
+            if (/content-?\w*/i.test(block)) {
                 parsedData[block] = this.parseContent(data[field], block);
             }
         }
