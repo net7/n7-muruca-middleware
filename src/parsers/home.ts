@@ -18,13 +18,17 @@ export class HomeParser implements Parser {
       const field = conf[block].field
 
       // compiling data for the hero blocks
-    if (/hero-?\w*/i.test(block)) {
-        parsedData[block] = this.parseHero(data[field], block);
+      if (/hero-?\w*/i.test(block)) {
+          parsedData[block] = this.parseHero(data[field], block);
       }
 
       // compiling data for the collection block
       if (/collection-?\w*/i.test(block)) {
         parsedData[block] = this.parseCollection(data[field], block);
+      }
+
+      if (/content/i.test(block)) {
+        parsedData[block] = this.parseContent(data[field], block);
       }
     }
 
@@ -41,6 +45,11 @@ export class HomeParser implements Parser {
 
     return parsedData;
 
+  }
+
+  protected parseContent(data:any, _:string) {
+    const { text } = data;
+    return { ...text }
   }
 
   protected parseHero(data: any, _: string): HeroData {

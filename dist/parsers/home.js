@@ -21,6 +21,9 @@ class HomeParser {
             if (/collection-?\w*/i.test(block)) {
                 parsedData[block] = this.parseCollection(data[field], block);
             }
+            if (/content/i.test(block)) {
+                parsedData[block] = this.parseContent(data[field], block);
+            }
         }
         // if a sorting array was provided,
         // sort the final object by keys, following
@@ -33,6 +36,10 @@ class HomeParser {
             parsedData = ordered;
         }
         return parsedData;
+    }
+    parseContent(data, _) {
+        const { text } = data;
+        return Object.assign({}, text);
     }
     parseHero(data, _) {
         const { title, text, image, button } = data;
