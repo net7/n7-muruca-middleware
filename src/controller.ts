@@ -4,7 +4,8 @@ import { SearchResponse } from "elasticsearch";
 import {
   HttpHelper,
   ESHelper
-} from '../helpers/index';
+} from './helpers/index';
+
 
 
 export class Controller {
@@ -66,8 +67,8 @@ export class Controller {
         conf: this.projectPath.configurations.resources[type]
       },
     });
-    const sect = sortObj(response.sections, sections); // body sections filters
-    response.sections = sect;
+    // const sect = sortObj(response.sections, sections); // body sections filters
+    // response.sections = sect;
     return HttpHelper.returnOkResponse(response);
   }
 
@@ -84,7 +85,7 @@ export class Controller {
     const parser = new this.projectPath.parsers.search();
     const { searchId, facets } = body;
     const { limit, offset, sort } = body.results ? body.results : "null";
-    const total_count = query_res.hits.total['value']; // this fix outdated elasticsearch interface 
+    const total_count = query_res.hits.total  //['value']; // this fix outdated elasticsearch interface 
     const response = parser.parse({
       data,
       options: {

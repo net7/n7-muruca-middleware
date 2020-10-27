@@ -14,3 +14,4 @@ __exportStar(require("./parsers"), exports);
 __exportStar(require("./filters"), exports);
 __exportStar(require("./interfaces"), exports);
 __exportStar(require("./helpers"), exports);
+__exportStar(require("./controller"), exports);
