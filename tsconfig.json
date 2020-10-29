@@ -4,7 +4,6 @@
       "module": "commonjs",
       "declaration": true,
       "outDir": "./dist",
-      "strict": true,
       "skipLibCheck": true,
       "typeRoots": [ 
         "node_modules/@types", 
