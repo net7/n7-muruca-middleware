@@ -99,7 +99,7 @@ export const ESHelper = {
                 query_string: {
                   query: query_key.addStar ? "*" + data[filterId] + "*" : data[filterId],
                   fields: query_key.field,
-                  default_operator: "AND"
+                  default_operator: 'AND'
                 }
               }
               main_query.query.bool.must.push(ft_query)
