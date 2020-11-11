@@ -3,7 +3,6 @@ provider:
   runtime: nodejs10.x
   stage: ${opt:stage, 'prod'}
   environment:
-    PROJECT_ID: ${file(${opt:stage, 'prod'}.yml):PROJECT_ID}
     PORT: ${file(${opt:stage, 'prod'}.yml):PORT}
     BASE_URL: ${file(${opt:stage, 'prod'}.yml):BASE_URL}
     PAGES: ${file(${opt:stage, 'prod'}.yml):PAGES}
