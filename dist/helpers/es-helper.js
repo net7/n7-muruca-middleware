@@ -3,15 +3,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ESHelper = void 0;
 exports.ESHelper = {
     bulkIndex(response, index, Client, ELASTIC_URI) {
+        // client = const { Client } = require('@elastic/elasticsearch')
         const client = new Client({ node: ELASTIC_URI }); // ELASTIC_URI  =  serverless "process.env.ELASTIC_URI"
-        if (index != "") {
+        if (index != '') {
             client.deleteByQuery({
                 index: index,
                 body: {
                     query: {
-                        match_all: {}
-                    }
-                }
+                        match_all: {},
+                    },
+                },
             });
         }
         let body = [];
@@ -37,7 +38,7 @@ exports.ESHelper = {
             });
             client.search({
                 index: index,
-                body: body
+                body: body,
             }, (err, { body }) => {
                 if (err)
                     console.log(err);
@@ -45,31 +46,39 @@ exports.ESHelper = {
             });
         });
     },
-    // data = body 
+    // data = body
     buildQuery(data, conf) {
         const { searchId, results } = data;
         const sort = results ? results.sort : data.sort;
-        const { limit, offset } = (results || {});
+        const { limit, offset } = results || {};
         // QUERY ELASTICSEARCH
         const main_query = {
             query: {
                 bool: {
-                    must: [
-                        { match: { [conf[searchId].base_query.field]: searchId } }
-                    ]
-                }
+                    must: [{ match: { [conf[searchId].base_query.field]: searchId } }],
+                },
             },
             sort,
-            aggregations: {}
+            aggregations: {},
         };
         //sorting
+        const sort_object = conf[searchId].sort.map((f) => {
+            let tmp;
+            if (typeof sort != 'undefined') {
+                tmp = sort.split('_')[1];
+                return { [f]: sort.split('_')[1] };
+            }
+            else {
+                return { [f]: tmp };
+            }
+        });
         if (sort) {
-            sort === "_score"
-                ? main_query.sort = ["_score"]
-                : main_query.sort = [{ "slug.keyword": sort.split("_")[1] }, "_score"];
+            sort === '_score'
+                ? (main_query.sort = ['_score'])
+                : (main_query.sort = sort_object);
         }
         else {
-            main_query.sort = ["_score"];
+            main_query.sort = sort_object;
         }
         // pagination params
         if (limit) {
@@ -79,33 +88,37 @@ exports.ESHelper = {
             main_query.from = offset;
         }
         // aggregations filters
-        const query_facets = conf[searchId]["facets-aggs"].aggregations;
+        const query_facets = conf[searchId]['facets-aggs'].aggregations;
         const dataKeys = Object.keys(data);
         Object.keys(conf[searchId].filters)
             .filter((filterId) => dataKeys.includes(filterId))
             .forEach((filterId) => {
             const query_key = conf[searchId].filters[filterId];
-            const query_nested = query_facets[filterId] ? query_facets[filterId].nested : false;
+            const query_nested = query_facets[filterId]
+                ? query_facets[filterId].nested
+                : false;
             if (query_key) {
                 switch (query_key.type) {
-                    case "fulltext":
+                    case 'fulltext':
                         const ft_query = {
                             // multi_match: {
                             query_string: {
-                                query: query_key.addStar ? "*" + data[filterId] + "*" : data[filterId],
+                                query: query_key.addStar
+                                    ? '*' + data[filterId] + '*'
+                                    : data[filterId],
                                 fields: query_key.field,
-                                default_operator: 'AND'
-                            }
+                                default_operator: 'AND',
+                            },
                         };
                         main_query.query.bool.must.push(ft_query);
                         break;
-                    case "multivalue":
+                    case 'multivalue':
                         if (data[filterId] && query_nested === false) {
                             data[filterId].map((value) => {
                                 main_query.query.bool.must.push({
                                     match: {
-                                        [query_key.field]: value
-                                    }
+                                        [query_key.field]: value,
+                                    },
                                 });
                             });
                         }
@@ -120,10 +133,10 @@ exports.ESHelper = {
                         path: filterId,
                         query: {
                             terms: {
-                                [query_facets[filterId].search]: data[filterId]
-                            }
-                        }
-                    }
+                                [query_facets[filterId].search]: data[filterId],
+                            },
+                        },
+                    },
                 };
                 main_query.query.bool.must.push(nested);
             }
@@ -139,11 +152,11 @@ exports.ESHelper = {
                             terms: {
                                 script: {
                                     source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value +'|||' + doc['${query_facets[key].title}'].value`,
-                                    lang: "painless"
-                                }
-                            }
-                        }
-                    }
+                                    lang: 'painless',
+                                },
+                            },
+                        },
+                    },
                 };
             }
             else {
@@ -151,12 +164,12 @@ exports.ESHelper = {
                     terms: {
                         script: {
                             source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value +'|||' + doc['${query_facets[key].title}'].value`,
-                            lang: "painless"
-                        }
-                    }
+                            lang: 'painless',
+                        },
+                    },
                 };
             }
         }
         return main_query;
-    }
+    },
 };
