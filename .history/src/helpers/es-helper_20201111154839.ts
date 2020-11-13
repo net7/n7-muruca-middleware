@@ -1,6 +1,5 @@
 import { DataType } from '../interfaces/helper';
 import { SearchResponse } from 'elasticsearch';
-import { validateLocaleAndSetLanguage } from 'typescript';
 
 export const ESHelper = {
   bulkIndex(response: string, index: string, Client: any, ELASTIC_URI: string) {
@@ -62,13 +61,10 @@ export const ESHelper = {
     const sort = results ? results.sort : data.sort;
     const { limit, offset } = results || {};
     // QUERY ELASTICSEARCH
-    const sort_field = conf[searchId].base_query.field
-      ? conf[searchId].base_query.field
-      : 'slug.keyword';
     const main_query: any = {
       query: {
         bool: {
-          must: [{ match: { [sort_field]: searchId } }],
+          must: [{ match: { [conf[searchId].base_query.field]: searchId } }],
         },
       },
       sort,
@@ -76,19 +72,16 @@ export const ESHelper = {
     };
 
     //sorting
-    let sort_object = ['slug.keyword'];
-    if (conf[searchId].sort) {
-      sort_object = conf[searchId].sort.map((f) => {
-        let tmp;
-        if (typeof sort != 'undefined') {
-          tmp = sort.split('_')[1];
-          return { [f]: sort.split('_')[1] };
-        } else {
-          return { [f]: tmp };
-        }
-      });
-    }
-
+    const sort_object = conf[searchId].sort.map((f) => {
+      let tmp;
+      if (typeof sort != 'undefined') {
+        tmp = sort.split('_')[1];
+        return { [f]: sort.split('_')[1] };
+      } else {
+        return { [f]: tmp };
+      }
+    });
+    
     if (sort) {
       sort === '_score'
         ? (main_query.sort = ['_score'])

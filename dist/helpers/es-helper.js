@@ -52,26 +52,32 @@ exports.ESHelper = {
         const sort = results ? results.sort : data.sort;
         const { limit, offset } = results || {};
         // QUERY ELASTICSEARCH
+        const sort_field = conf[searchId].base_query.field
+            ? conf[searchId].base_query.field
+            : 'slug.keyword';
         const main_query = {
             query: {
                 bool: {
-                    must: [{ match: { [conf[searchId].base_query.field]: searchId } }],
+                    must: [{ match: { [sort_field]: searchId } }],
                 },
             },
             sort,
             aggregations: {},
         };
         //sorting
-        const sort_object = conf[searchId].sort.map((f) => {
-            let tmp;
-            if (typeof sort != 'undefined') {
-                tmp = sort.split('_')[1];
-                return { [f]: sort.split('_')[1] };
-            }
-            else {
-                return { [f]: tmp };
-            }
-        });
+        let sort_object = ['slug.keyword'];
+        if (conf[searchId].sort) {
+            sort_object = conf[searchId].sort.map((f) => {
+                let tmp;
+                if (typeof sort != 'undefined') {
+                    tmp = sort.split('_')[1];
+                    return { [f]: sort.split('_')[1] };
+                }
+                else {
+                    return { [f]: tmp };
+                }
+            });
+        }
         if (sort) {
             sort === '_score'
                 ? (main_query.sort = ['_score'])

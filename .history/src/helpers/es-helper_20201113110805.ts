@@ -62,9 +62,8 @@ export const ESHelper = {
     const sort = results ? results.sort : data.sort;
     const { limit, offset } = results || {};
     // QUERY ELASTICSEARCH
-    const sort_field = conf[searchId].base_query.field
-      ? conf[searchId].base_query.field
-      : 'slug.keyword';
+    const sort_field = conf[searchId].base_query.field ? conf[searchId].base_query.field : "slug.keyword";
+    console.log(sort_field);
     const main_query: any = {
       query: {
         bool: {
@@ -75,20 +74,19 @@ export const ESHelper = {
       aggregations: {},
     };
 
-    //sorting
-    let sort_object = ['slug.keyword'];
-    if (conf[searchId].sort) {
-      sort_object = conf[searchId].sort.map((f) => {
-        let tmp;
-        if (typeof sort != 'undefined') {
-          tmp = sort.split('_')[1];
-          return { [f]: sort.split('_')[1] };
-        } else {
-          return { [f]: tmp };
-        }
-      });
-    }
+    
 
+    //sorting
+    const sort_object = conf[searchId].sort.map((f) => {
+      let tmp;
+      if (typeof sort != 'undefined') {
+        tmp = sort.split('_')[1];
+        return { [f]: sort.split('_')[1] };
+      } else {
+        return { [f]: tmp };
+      }
+    });
+    
     if (sort) {
       sort === '_score'
         ? (main_query.sort = ['_score'])
