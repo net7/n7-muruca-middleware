@@ -157,7 +157,7 @@ exports.ESHelper = {
                         [key]: {
                             terms: {
                                 script: {
-                                    source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value +'|||' + doc['${query_facets[key].title}'].value`,
+                                    source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
                                     lang: 'painless',
                                 },
                             },
@@ -169,7 +169,7 @@ exports.ESHelper = {
                 main_query.aggregations[key] = {
                     terms: {
                         script: {
-                            source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value +'|||' + doc['${query_facets[key].title}'].value`,
+                            source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
                             lang: 'painless',
                         },
                     },
