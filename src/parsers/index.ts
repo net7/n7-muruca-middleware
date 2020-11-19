@@ -4,4 +4,5 @@ export * from './search';
 export * from './home';
 export * from './footer';
 export * from './static';
-export * from './translation'
+export * from './search-description';
+export * from './translation';

@@ -16,4 +16,5 @@ __exportStar(require("./search"), exports);
 __exportStar(require("./home"), exports);
 __exportStar(require("./footer"), exports);
 __exportStar(require("./static"), exports);
+__exportStar(require("./search-description"), exports);
 __exportStar(require("./translation"), exports);
