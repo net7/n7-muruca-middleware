@@ -39,6 +39,12 @@ functions:
       - http:
           path: get_static/{slug}
           method: get
+  getSearchDescription:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getSearchDescription
+    events:
+      - http:
+          path: get_search_description/{searchId}
+          method: get
   getTranslation:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getTranslation
     events:

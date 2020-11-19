@@ -32,6 +32,15 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   }
 
+  getSearchDescription = async (event: any, _context: any, _callback: any) => {
+    const { baseUrl, parsers } = this.config;
+    const { searchId } = event.pathParameters;
+    const data = JSON.parse(await HttpHelper.doRequest(baseUrl + "layout/" + searchId));
+    const parser = new parsers.searchDescription();
+    const response = parser.parse({ data });
+    return HttpHelper.returnOkResponse(response);
+  }
+
   getResource = async (event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers, configurations } = this.config;
     // change id whit slug and no un parameters but in the boy request  in POST
@@ -118,6 +127,7 @@ export class Controller {
       getNavigation: this.getNavigation.bind(this),
       getFooter: this.getFooter.bind(this),
       getHomeLayout: this.getHomeLayout.bind(this),
+      getSearchDescription: this.getSearchDescription.bind(this),
       getResource: this.getResource.bind(this),
       search: this.search.bind(this),
       getTranslation: this.getTranslation.bind(this),

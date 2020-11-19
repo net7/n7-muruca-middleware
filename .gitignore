@@ -1,4 +1,6 @@
 node_modules
+.history/*
+.history
 
 # misc
 package-lock.json
