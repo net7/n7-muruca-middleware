@@ -1,5 +1,5 @@
 import Parser, { Input } from "../interfaces/parser";
-import { HeroData, CollectionData, CollectionHeaderData, CollectionItem } from "../interfaces/parser-data/home";
+import { HeroData, CollectionData, CollectionHeaderData, CollectionItem, SliderData, SliderItem } from "../interfaces/parser-data/home";
 
 export class HomeParser implements Parser {
   parse(input: Input): object {
@@ -25,6 +25,10 @@ export class HomeParser implements Parser {
       // compiling data for the collection block
       if (/collection-?\w*/i.test(block)) {
         parsedData[block] = this.parseCollection(data[field], block);
+      }
+
+      if (/slider-?\w*/i.test(block)) {
+        parsedData[block] = this.parseSlider(data[field], block);
       }
 
       if (/content-?\w*/i.test(block)) {
@@ -75,6 +79,12 @@ export class HomeParser implements Parser {
     }
   }
 
+  protected parseSlider(data: any, block: string): SliderData {
+    return {
+      slides: this.parseSliderItems(data, block)
+    }
+  }
+
   protected parseCollectionHeader(data: any, _: string): CollectionHeaderData {
     const header = {
       title: data.title || '',
@@ -93,6 +103,10 @@ export class HomeParser implements Parser {
   }
 
   protected parseCollectionItems(_a: any, _b: string): CollectionItem[] {
+    // to be implemented on project
+    return [];
+  }
+  protected parseSliderItems(_a: any, _b: string): SliderItem[] {
     // to be implemented on project
     return [];
   }

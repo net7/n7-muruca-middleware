@@ -21,6 +21,9 @@ class HomeParser {
             if (/collection-?\w*/i.test(block)) {
                 parsedData[block] = this.parseCollection(data[field], block);
             }
+            if (/slider-?\w*/i.test(block)) {
+                parsedData[block] = this.parseSlider(data[field], block);
+            }
             if (/content-?\w*/i.test(block)) {
                 parsedData[block] = this.parseContent(data[field], block);
             }
@@ -56,6 +59,11 @@ class HomeParser {
             items: this.parseCollectionItems(data, block)
         };
     }
+    parseSlider(data, block) {
+        return {
+            slides: this.parseSliderItems(data, block)
+        };
+    }
     parseCollectionHeader(data, _) {
         var _c;
         const header = {
@@ -72,6 +80,10 @@ class HomeParser {
         return header;
     }
     parseCollectionItems(_a, _b) {
+        // to be implemented on project
+        return [];
+    }
+    parseSliderItems(_a, _b) {
         // to be implemented on project
         return [];
     }

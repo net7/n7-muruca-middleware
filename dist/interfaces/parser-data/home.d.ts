@@ -30,6 +30,15 @@ export interface CollectionData {
     /** ItemPreview data */
     items: CollectionItem[];
 }
+/**
+ * Interface for a collection of
+ * Item-Preview components
+ */
+export interface SliderData {
+    /** InnerTitle data */
+    /** ItemPreview data */
+    slides: SliderItem[];
+}
 export interface CollectionHeaderData {
     title: string;
     subtitle?: string;
@@ -44,4 +53,9 @@ export interface CollectionItem {
     text: string;
     image?: any;
     link: string;
+}
+export interface SliderItem {
+    title: string;
+    text: string;
+    image?: any;
 }
