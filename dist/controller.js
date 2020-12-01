@@ -52,14 +52,6 @@ class Controller {
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
-        this.getTextViewer = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
-            const { baseUrl, parsers } = this.config;
-            const { id } = event.pathParameters;
-            // const data = JSON.parse(await HttpHelper.doRequest(baseUrl + "views/" + searchId));
-            const parser = new parsers.textViewer();
-            const response = parser.parse({}); // FIX ME WITH DATA
-            return helpers_1.HttpHelper.returnOkResponse(response);
-        });
         this.getResource = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers, configurations } = this.config;
             // change id whit slug and no un parameters but in the boy request  in POST
@@ -143,7 +135,6 @@ class Controller {
             getFooter: this.getFooter.bind(this),
             getHomeLayout: this.getHomeLayout.bind(this),
             getSearchDescription: this.getSearchDescription.bind(this),
-            getTextViewer: this.getTextViewer.bind(this),
             getTimeline: this.getTimeline.bind(this),
             getResource: this.getResource.bind(this),
             search: this.search.bind(this),
