@@ -7,4 +7,3 @@ export * from './static';
 export * from './timeline';
 export * from './search-description';
 export * from './translation';
-export * from './text-viewer';
