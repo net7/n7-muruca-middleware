@@ -46,15 +46,15 @@ class Controller {
         });
         this.getTimeline = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
-            const { searchId } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "views/" + searchId));
+            const { id } = event.pathParameters;
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "views/" + id));
             const parser = new parsers.timeline();
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.getTextViewer = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
-            const { searchId } = event.pathParameters;
+            const { id } = event.pathParameters;
             // const data = JSON.parse(await HttpHelper.doRequest(baseUrl + "views/" + searchId));
             const parser = new parsers.timeline();
             const response = parser.parse({}); // FIX ME WITH DATA

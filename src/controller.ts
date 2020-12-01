@@ -43,8 +43,8 @@ export class Controller {
 
   getTimeline = async (event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers } = this.config;
-    const { searchId } = event.pathParameters;
-    const data = JSON.parse(await HttpHelper.doRequest(baseUrl + "views/" + searchId));
+    const { id } = event.pathParameters;
+    const data = JSON.parse(await HttpHelper.doRequest(baseUrl + "views/" + id));
     const parser = new parsers.timeline();
     const response = parser.parse({ data });
     return HttpHelper.returnOkResponse(response);
@@ -52,7 +52,7 @@ export class Controller {
 
   getTextViewer = async (event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers } = this.config;
-    const { searchId } = event.pathParameters;
+    const { id } = event.pathParameters;
     // const data = JSON.parse(await HttpHelper.doRequest(baseUrl + "views/" + searchId));
     const parser = new parsers.timeline();
     const response = parser.parse({}); // FIX ME WITH DATA

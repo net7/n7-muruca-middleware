@@ -49,13 +49,13 @@ functions:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getTimeline
     events:
       - http:
-          path: get_timeline/{searchId}
+          path: get_timeline/{id}
           method: get
   getTextViewer:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getTextViewer
     events:
       - http:
-          path: get_text_viewer
+          path: get_text_viewer/{id}
           method: get
   getTranslation:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getTranslation
