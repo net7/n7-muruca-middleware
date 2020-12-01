@@ -14,3 +14,4 @@ __exportStar(require("./home"), exports);
 __exportStar(require("./menu"), exports);
 __exportStar(require("./resource"), exports);
 __exportStar(require("./search"), exports);
+__exportStar(require("./timeline"), exports);

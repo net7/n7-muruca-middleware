@@ -45,6 +45,12 @@ functions:
       - http:
           path: get_search_description/{searchId}
           method: get
+  getTimeline:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getTimeline
+    events:
+      - http:
+          path: get_timeline/{searchId}
+          method: get
   getTranslation:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getTranslation
     events:
