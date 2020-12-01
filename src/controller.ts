@@ -54,7 +54,7 @@ export class Controller {
     const { baseUrl, parsers } = this.config;
     const { id } = event.pathParameters;
     // const data = JSON.parse(await HttpHelper.doRequest(baseUrl + "views/" + searchId));
-    const parser = new parsers.timeline();
+    const parser = new parsers.textViewer();
     const response = parser.parse({}); // FIX ME WITH DATA
     return HttpHelper.returnOkResponse(response);
   }
