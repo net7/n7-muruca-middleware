@@ -68,7 +68,7 @@ export const ESHelper = {
     const main_query: any = {
       query: {
         bool: {
-          must: [{ match: { [sort_field]: searchId } }],
+          must: [{ match: { [sort_field]:  conf[searchId].base_query.value} }],
         },
       },
       sort,
