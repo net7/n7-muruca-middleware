@@ -10,6 +10,7 @@ export declare class Controller {
     getFooter: (_event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getTranslation: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getStaticPage: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
+    getStaticPost: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getSlsMethods(): {
         getNavigation: any;
         getFooter: any;
@@ -20,5 +21,6 @@ export declare class Controller {
         search: any;
         getTranslation: any;
         getStaticPage: any;
+        getStaticPost: any;
     };
 }
