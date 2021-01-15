@@ -123,9 +123,18 @@ export class Controller {
   }
 
   getStaticPage = async (event: any, _context: any, _callback: any) => {
-    const { parsers, pages } = this.config;
+    const { parsers, staticUrl } = this.config;
     const { slug } = event.pathParameters;
-    const data = JSON.parse(await HttpHelper.doRequest(pages));
+    const data = JSON.parse(await HttpHelper.doRequest(staticUrl + 'pages/'));
+    const parser = new parsers.static();
+    const response = parser.parse({ data, options: { slug }});
+    return HttpHelper.returnOkResponse(response);
+  }
+
+  getStaticPost = async (event: any, _context: any, _callback: any) => {
+    const { parsers, staticUrl } = this.config;
+    const { slug } = event.pathParameters;
+    const data = JSON.parse(await HttpHelper.doRequest(staticUrl + 'posts/'));
     const parser = new parsers.static();
     const response = parser.parse({ data, options: { slug }});
     return HttpHelper.returnOkResponse(response);
@@ -141,7 +150,8 @@ export class Controller {
       getResource: this.getResource.bind(this),
       search: this.search.bind(this),
       getTranslation: this.getTranslation.bind(this),
-      getStaticPage: this.getStaticPage.bind(this)
+      getStaticPage: this.getStaticPage.bind(this),
+      getStaticPost: this.getStaticPost.bind(this)
     }
   }
 }

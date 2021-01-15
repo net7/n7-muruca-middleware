@@ -120,9 +120,17 @@ class Controller {
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.getStaticPage = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
-            const { parsers, pages } = this.config;
+            const { parsers, staticUrl } = this.config;
             const { slug } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(pages));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'pages/'));
+            const parser = new parsers.static();
+            const response = parser.parse({ data, options: { slug } });
+            return helpers_1.HttpHelper.returnOkResponse(response);
+        });
+        this.getStaticPost = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            const { parsers, staticUrl } = this.config;
+            const { slug } = event.pathParameters;
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'posts/'));
             const parser = new parsers.static();
             const response = parser.parse({ data, options: { slug } });
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -139,7 +147,8 @@ class Controller {
             getResource: this.getResource.bind(this),
             search: this.search.bind(this),
             getTranslation: this.getTranslation.bind(this),
-            getStaticPage: this.getStaticPage.bind(this)
+            getStaticPage: this.getStaticPage.bind(this),
+            getStaticPost: this.getStaticPost.bind(this)
         };
     }
 }

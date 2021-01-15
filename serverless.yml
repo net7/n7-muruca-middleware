@@ -5,7 +5,7 @@ provider:
   environment:
     PORT: ${file(${opt:stage, 'prod'}.yml):PORT}
     BASE_URL: ${file(${opt:stage, 'prod'}.yml):BASE_URL}
-    PAGES: ${file(${opt:stage, 'prod'}.yml):PAGES}
+    STATIC_URL: ${file(${opt:stage, 'prod'}.yml):STATIC_URL}
     SEARCH_INDEX: ${file(${opt:stage, 'prod'}.yml):SEARCH_INDEX}
     ELASTIC_URI: ${file(${opt:stage, 'prod'}.yml):ELASTIC_URI}
 functions:
@@ -44,6 +44,12 @@ functions:
     events:
       - http:
           path: get_search_description/{searchId}
+          method: get
+  getStaticPost:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getStaticPost
+    events:
+      - http:
+          path: get_static_post/{slug}
           method: get
   getTimeline:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getTimeline
