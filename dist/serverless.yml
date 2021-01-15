@@ -69,5 +69,9 @@ functions:
       - http:
           path: search/{type}
           method: post
-
-        
+  advancedSearch:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.advancedSearch
+    events:
+      - http:
+          path: advanced_search
+          method: post

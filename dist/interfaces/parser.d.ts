@@ -5,6 +5,7 @@ export interface SearchOptions {
     };
     keyOrder?: string[];
     searchId: string;
+    searchGroup: any;
     conf: any;
     limit: number;
     offset: number;

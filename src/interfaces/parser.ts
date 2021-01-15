@@ -2,6 +2,7 @@ export interface SearchOptions {
   results: { limit: number; offset: number; };
   keyOrder?: string[];
   searchId: string;
+  searchGroup: any;
   conf: any;
   limit: number;
   offset: number;
