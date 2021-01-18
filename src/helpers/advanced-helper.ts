@@ -27,10 +27,11 @@ export const matchPhrase = (queryField: { fields: string, value: any, distance: 
 
 
 export const queryString = (queryField: { fields: any, value: string }, default_operator = "AND", boost:number = null):any => {
+  const fields = typeof queryField.fields == "string" ? queryField.fields.split(',') : queryField.fields;
 	const x = {
 		query_string: {
 			query: queryField.value,
-      fields: queryField.fields.split(','),
+      fields: fields,
       default_operator: default_operator,
       lenient: true,
       // "fuzziness": fuzziness FIXME

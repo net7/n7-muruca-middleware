@@ -18,9 +18,7 @@ export const buildAdvancedQuery = (data: DataType, conf: any) => {
   const { searchId, results } = data;
   const sort = results.sort;
   const { limit, offset } = results || {};
-  const sort_field = conf[searchId].base_query.field //record-type
-    ? conf[searchId].base_query.field
-    : 'slug.keyword';
+  const advanced_conf = conf['advanced_search'][searchId];   
   const adv_query: any = {
     query: {
     },
@@ -35,8 +33,8 @@ export const buildAdvancedQuery = (data: DataType, conf: any) => {
 
   //sorting
   let sort_object = ['slug.keyword'];
-  if (conf[searchId].sort) {
-    sort_object = conf[searchId].sort.map((f) => {
+  if (advanced_conf.sort) {
+    sort_object = advanced_conf.sort.map((f) => {
       // ad es. nella search_config.ts di theatheor abbiamo [ "sort_title.keyword", "slug.keyword" ]
       let tmp;
       if (typeof sort != 'undefined') {
@@ -59,8 +57,8 @@ export const buildAdvancedQuery = (data: DataType, conf: any) => {
   //BASE QUERY
   const must_array = [];
   const must_not = [];
-  if (conf[searchId].base_query) {
-    const base_query = ASHelper.queryTerm(conf[searchId].base_query.field, conf[searchId].base_query.value)
+  if (advanced_conf.base_query) {
+    const base_query = ASHelper.queryTerm(advanced_conf.base_query.field, advanced_conf.base_query.value)
     must_array.push(base_query);
   }
 
@@ -74,11 +72,11 @@ export const buildAdvancedQuery = (data: DataType, conf: any) => {
 
   //search groups
   const dataKeys = Object.keys(data); // ['searchId', 'results', 'query']
-  Object.keys(conf[searchId]['search_groups']) // [ 'query', 'types', 'authors', 'collocations', 'dates' ]
+  Object.keys(advanced_conf['search_groups']) // [ 'query', 'types', 'authors', 'collocations', 'dates' ]
     .filter((groupId) => dataKeys.includes(groupId)) // query
     .forEach((groupId) => {
       // query, types, authors etc.
-      const query_key = conf[searchId]['search_groups'][groupId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
+      const query_key = advanced_conf['search_groups'][groupId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
       if (query_key) {
         switch (
           query_key.type // fa uno switch su tutti i tipi di query
@@ -111,7 +109,7 @@ export const buildAdvancedQuery = (data: DataType, conf: any) => {
               stripDoubleQuotes: true,
             });
             const tv_query = ASHelper.queryString(
-              { fields: data[query_key.query_params.field], value: query_term },
+              { fields: query_key.field, value: query_term },
               'AND'
             );
             must_array.push(tv_query);

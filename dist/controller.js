@@ -111,7 +111,7 @@ class Controller {
             const { searchId } = body;
             const { limit, offset, sort } = body.results ? body.results : "null";
             let total_count = query_res.hits.total.value;
-            const response = parser.parse({
+            /*const response = parser.parse({
                 data,
                 options: {
                     offset,
@@ -121,8 +121,8 @@ class Controller {
                     searchId,
                     conf: configurations.search
                 }
-            });
-            return helpers_1.HttpHelper.returnOkResponse(response);
+            });*/
+            return helpers_1.HttpHelper.returnOkResponse(query_res);
         });
         this.getFooter = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers, configurations } = this.config;

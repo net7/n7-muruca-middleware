@@ -26,10 +26,13 @@ exports.matchPhrase = (queryField) => {
     return x;
 };
 exports.queryString = (queryField, default_operator = "AND", boost = null) => {
+
+    const fields = typeof queryField.fields == "string" ? queryField.fields.split(',') : queryField.fields;
+
     const x = {
         query_string: {
             query: queryField.value,
-            fields: queryField.fields.split(','),
+            fields: fields,
             default_operator: default_operator,
             lenient: true,
         }
