@@ -1,6 +1,7 @@
 import { Client } from '@elastic/elasticsearch';
 import * as sortObj from 'sort-object';
 import { HttpHelper, ESHelper } from './helpers';
+import { buildAdvancedQuery } from './parsers';
 
 export class Controller {
   private config: any;
@@ -73,9 +74,9 @@ export class Controller {
 
   search = async (event: any, _context: any, _callback: any) => {
     const { parsers, searchIndex, elasticUri, configurations } = this.config;
-    const body = JSON.parse(event.body)
+    const body = JSON.parse(event.body) // cf. SEARCH-RESULTS in Postman
     const { type } = event.pathParameters;
-    const params = ESHelper.buildQuery(body, configurations.search);
+    const params = ESHelper.buildQuery(body, configurations.search); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
     // make query
     const query_res: any = await ESHelper.makeSearch(searchIndex, params, Client, elasticUri);
     const data = type === 'results' ? query_res.hits.hits : query_res.aggregations;
@@ -93,6 +94,32 @@ export class Controller {
         total_count,
         searchId,
         facets,
+        conf: configurations.search
+      }
+    });
+    
+    return HttpHelper.returnOkResponse(response);
+  }
+
+  advancedSearch = async (event: any, _context: any, _callback: any) => {
+    const { parsers, searchIndex, elasticUri, configurations } = this.config;
+    const body = JSON.parse(event.body) // cf. SEARCH-RESULTS in Postman
+    const params = buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
+    // make query
+    const query_res: any = await ESHelper.makeSearch(searchIndex, params, Client, elasticUri);
+    const data = query_res.hits.hits;
+    const parser = new parsers.search();
+    const { searchId } = body;
+    const { limit, offset, sort } = body.results ? body.results : "null";
+    let total_count = query_res.hits.total.value; 
+    const response = parser.parse({
+      data,
+      options: {
+        offset,
+        sort,
+        limit,
+        total_count,
+        searchId,
         conf: configurations.search
       }
     });
@@ -149,6 +176,7 @@ export class Controller {
       getTimeline: this.getTimeline.bind(this),
       getResource: this.getResource.bind(this),
       search: this.search.bind(this),
+      advancedSearch: this.advancedSearch.bind(this),
       getTranslation: this.getTranslation.bind(this),
       getStaticPage: this.getStaticPage.bind(this),
       getStaticPost: this.getStaticPost.bind(this)

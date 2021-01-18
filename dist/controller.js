@@ -13,6 +13,7 @@ exports.Controller = void 0;
 const elasticsearch_1 = require("@elastic/elasticsearch");
 const sortObj = require("sort-object");
 const helpers_1 = require("./helpers");
+const parsers_1 = require("./parsers");
 class Controller {
     constructor(config) {
         this.getNavigation = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
@@ -74,9 +75,9 @@ class Controller {
         });
         this.search = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, searchIndex, elasticUri, configurations } = this.config;
-            const body = JSON.parse(event.body);
+            const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
             const { type } = event.pathParameters;
-            const params = helpers_1.ESHelper.buildQuery(body, configurations.search);
+            const params = helpers_1.ESHelper.buildQuery(body, configurations.search); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
             // make query
             const query_res = yield helpers_1.ESHelper.makeSearch(searchIndex, params, elasticsearch_1.Client, elasticUri);
             const data = type === 'results' ? query_res.hits.hits : query_res.aggregations;
@@ -94,6 +95,30 @@ class Controller {
                     total_count,
                     searchId,
                     facets,
+                    conf: configurations.search
+                }
+            });
+            return helpers_1.HttpHelper.returnOkResponse(response);
+        });
+        this.advancedSearch = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            const { parsers, searchIndex, elasticUri, configurations } = this.config;
+            const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
+            const params = parsers_1.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
+            // make query
+            const query_res = yield helpers_1.ESHelper.makeSearch(searchIndex, params, elasticsearch_1.Client, elasticUri);
+            const data = query_res.hits.hits;
+            const parser = new parsers.search();
+            const { searchId } = body;
+            const { limit, offset, sort } = body.results ? body.results : "null";
+            let total_count = query_res.hits.total.value;
+            const response = parser.parse({
+                data,
+                options: {
+                    offset,
+                    sort,
+                    limit,
+                    total_count,
+                    searchId,
                     conf: configurations.search
                 }
             });
@@ -146,6 +171,7 @@ class Controller {
             getTimeline: this.getTimeline.bind(this),
             getResource: this.getResource.bind(this),
             search: this.search.bind(this),
+            advancedSearch: this.advancedSearch.bind(this),
             getTranslation: this.getTranslation.bind(this),
             getStaticPage: this.getStaticPage.bind(this),
             getStaticPost: this.getStaticPost.bind(this)
