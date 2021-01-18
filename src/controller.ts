@@ -108,7 +108,7 @@ export class Controller {
     // make query
     const query_res: any = await ESHelper.makeSearch(searchIndex, params, Client, elasticUri);
     const data = query_res.hits.hits;
-    const parser = new parsers.search();
+   /* const parser = new parsers.search();
     const { searchId } = body;
     const { limit, offset, sort } = body.results ? body.results : "null";
     let total_count = query_res.hits.total.value; 
@@ -122,9 +122,9 @@ export class Controller {
         searchId,
         conf: configurations.search
       }
-    });
+    });*/
     
-    return HttpHelper.returnOkResponse(response);
+    return HttpHelper.returnOkResponse(query_res);
   }
 
   getFooter = async (_event: any, _context: any, _callback: any) => {
