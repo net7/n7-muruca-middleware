@@ -107,21 +107,21 @@ class Controller {
             // make query
             const query_res = yield helpers_1.ESHelper.makeSearch(searchIndex, params, elasticsearch_1.Client, elasticUri);
             const data = query_res.hits.hits;
-            const parser = new parsers.search();
-            const { searchId } = body;
-            const { limit, offset, sort } = body.results ? body.results : "null";
-            let total_count = query_res.hits.total.value;
-            /*const response = parser.parse({
-                data,
-                options: {
-                    offset,
-                    sort,
-                    limit,
-                    total_count,
-                    searchId,
-                    conf: configurations.search
-                }
-            });*/
+            /* const parser = new parsers.search();
+             const { searchId } = body;
+             const { limit, offset, sort } = body.results ? body.results : "null";
+             let total_count = query_res.hits.total.value;
+             const response = parser.parse({
+               data,
+               options: {
+                 offset,
+                 sort,
+                 limit,
+                 total_count,
+                 searchId,
+                 conf: configurations.search
+               }
+             });*/
             return helpers_1.HttpHelper.returnOkResponse(query_res);
         });
         this.getFooter = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {

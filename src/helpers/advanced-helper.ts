@@ -94,11 +94,9 @@ export const buildQueryString = (term: any, options: any = {}) => {
 
   export const queryExists = (termField: any) => {
     return {
-      query: {
         exists: {
           field: termField
         }
-      }
     }
   ​
   ​

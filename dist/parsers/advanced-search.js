@@ -18,7 +18,7 @@ exports.buildAdvancedQuery = (data, conf) => {
     const { searchId, results } = data;
     const sort = results.sort;
     const { limit, offset } = results || {};
-    const advanced_conf = conf['advanced_search'][searchId];   
+    const advanced_conf = conf['advanced_search'][searchId];
     const adv_query = {
         query: {},
         sort,
@@ -70,7 +70,6 @@ exports.buildAdvancedQuery = (data, conf) => {
     //search groups
     const dataKeys = Object.keys(data); // ['searchId', 'results', 'query']
     Object.keys(advanced_conf['search_groups']) // [ 'query', 'types', 'authors', 'collocations', 'dates' ]
-        .filter((groupId) => dataKeys.includes(groupId)) // query
         .forEach((groupId) => {
         // query, types, authors etc.
         const query_key = advanced_conf['search_groups'][groupId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
@@ -110,7 +109,7 @@ exports.buildAdvancedQuery = (data, conf) => {
                 case 'term_field_value':
                     if (!data[query_key.query_params.value])
                         break;
-                    const query_field_value = ASHelper.buildQueryString(data[groupId], {
+                    const query_field_value = ASHelper.buildQueryString(data[query_key.query_params.value], {
                         allowWildCard: query_key.addStar,
                         stripDoubleQuotes: true,
                     });

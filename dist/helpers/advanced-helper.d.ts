@@ -24,9 +24,7 @@ export declare const queryTerm: (termField: any, termValue: any) => {
     };
 };
 export declare const queryExists: (termField: any) => {
-    query: {
-        exists: {
-            field: any;
-        };
+    exists: {
+        field: any;
     };
 };

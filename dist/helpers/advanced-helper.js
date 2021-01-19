@@ -26,9 +26,7 @@ exports.matchPhrase = (queryField) => {
     return x;
 };
 exports.queryString = (queryField, default_operator = "AND", boost = null) => {
-
     const fields = typeof queryField.fields == "string" ? queryField.fields.split(',') : queryField.fields;
-
     const x = {
         query_string: {
             query: queryField.value,
@@ -76,10 +74,8 @@ exports.queryTerm = (termField, termValue) => {
 };
 exports.queryExists = (termField) => {
     return {
-        query: {
-            exists: {
-                field: termField
-            }
+        exists: {
+            field: termField
         }
     };
 };
