@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queryExists = exports.queryTerm = exports.buildQueryString = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
+exports.queryExists = exports.buildHighlights = exports.queryTerm = exports.buildQueryString = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
 exports.queryBool = (mustList = [], shouldList = [], filterList = [], notList = []) => {
     const x = {
         query: {
@@ -71,6 +71,14 @@ exports.queryTerm = (termField, termValue) => {
             [termField]: termValue
         }
     };
+};
+exports.buildHighlights = (queryField) => {
+    const fields = typeof queryField === "string" ? queryField.split(',') : queryField;
+    const highlight = {};
+    for (let f of fields) {
+        highlight[f] = {};
+    }
+    return highlight;
 };
 exports.queryExists = (termField) => {
     return {

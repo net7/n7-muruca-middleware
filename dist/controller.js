@@ -103,26 +103,28 @@ class Controller {
         this.advancedSearch = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, searchIndex, elasticUri, configurations } = this.config;
             const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
-            const params = parsers_1.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
+            const parser = new parsers_1.AdvancedSearchParser();
+            const params = parser.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
             // make query
             const query_res = yield helpers_1.ESHelper.makeSearch(searchIndex, params, elasticsearch_1.Client, elasticUri);
             const data = query_res.hits.hits;
-            /* const parser = new parsers.search();
-             const { searchId } = body;
-             const { limit, offset, sort } = body.results ? body.results : "null";
-             let total_count = query_res.hits.total.value;
-             const response = parser.parse({
-               data,
-               options: {
-                 offset,
-                 sort,
-                 limit,
-                 total_count,
-                 searchId,
-                 conf: configurations.search
-               }
-             });*/
-            return helpers_1.HttpHelper.returnOkResponse(query_res);
+            const { searchId } = body;
+            const { limit, offset, sort } = body.results ? body.results : "null";
+            let total_count = query_res.hits.total.value;
+            const addHighlight = true;
+            const response = parser.advancedParseResults({
+                data,
+                options: {
+                    offset,
+                    sort,
+                    limit,
+                    total_count,
+                    searchId,
+                    conf: configurations.advanced_search
+                }
+            }, addHighlight);
+            return helpers_1.HttpHelper.returnOkResponse(response);
+            // return HttpHelper.returnOkResponse(query_res);
         });
         this.getFooter = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers, configurations } = this.config;

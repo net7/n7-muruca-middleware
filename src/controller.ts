@@ -1,7 +1,7 @@
 import { Client } from '@elastic/elasticsearch';
 import * as sortObj from 'sort-object';
 import { HttpHelper, ESHelper } from './helpers';
-import { buildAdvancedQuery } from './parsers';
+import { AdvancedSearchParser } from './parsers';
 
 export class Controller {
   private config: any;
@@ -104,15 +104,16 @@ export class Controller {
   advancedSearch = async (event: any, _context: any, _callback: any) => {
     const { parsers, searchIndex, elasticUri, configurations } = this.config;
     const body = JSON.parse(event.body) // cf. SEARCH-RESULTS in Postman
-    const params = buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
+    const parser = new AdvancedSearchParser();
+    const params = parser.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
     // make query
     const query_res: any = await ESHelper.makeSearch(searchIndex, params, Client, elasticUri);
     const data = query_res.hits.hits;
-   /* const parser = new parsers.search();
     const { searchId } = body;
     const { limit, offset, sort } = body.results ? body.results : "null";
-    let total_count = query_res.hits.total.value; 
-    const response = parser.parse({
+    let total_count = query_res.hits.total.value;
+    const addHighlight = true;
+    const response = parser.advancedParseResults({
       data,
       options: {
         offset,
@@ -120,11 +121,13 @@ export class Controller {
         limit,
         total_count,
         searchId,
-        conf: configurations.search
+        conf: configurations.advanced_search
       }
-    });*/
+    }, addHighlight);
     
-    return HttpHelper.returnOkResponse(query_res);
+    return HttpHelper.returnOkResponse(response);
+    
+    // return HttpHelper.returnOkResponse(query_res);
   }
 
   getFooter = async (_event: any, _context: any, _callback: any) => {

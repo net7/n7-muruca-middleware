@@ -1,152 +1,368 @@
 import { DataType } from '../interfaces/helper';
 import * as ASHelper from '../helpers/advanced-helper';
+import Parser, { Input, SearchOptions } from "../interfaces/parser";
+import { SearchResultsData, SearchResultsItemData } from "../interfaces/parser-data/search";
 
-// searchGroup.forEach((group: any, groupId: any) => { //FIXME groupId + group
-//   if (data.group) {
-//   switch (group.type) { // FIXME group.type
-//     case "fulltext":
-//       const queryTerms = ESHelper.buildQueryString(data.value, options);
-// chiamo ES.buildquerystring passando stringa come arg (data.value) e poi le options
-// ritorna stringa con * e strip dei caratteri
-// puoi usarlo anche su query_string
-// avendo la stringa mi chiamo build query così da aver l'oggetto; pusho tutto in un array definito all'inizio (es. array dei must)
-// poi passi a build_query alla fine degli switch (infatti prende come parametro i must ecc.)
-// check su addStar, aggiungi * su data
+export class AdvancedSearchParser implements Parser {
+  
+  parse({ data, options }: Input) {
+    const { type } = options as SearchOptions;
+    return [];
+  }
 
-export const buildAdvancedQuery = (data: DataType, conf: any) => {
-  // prevedere valore search-type nel data?
-  const { searchId, results } = data;
-  const sort = results.sort;
-  const { limit, offset } = results || {};
-  const advanced_conf = conf['advanced_search'][searchId];   
-  const adv_query: any = {
-    query: {
-    },
-    sort,
-    highlight: {
-      fields: {
-        title: {},
-        note: {},
+  // protected parseResultsItems({ data, options }: Input): SearchResultsItemData[];
+
+  advancedParseResults({ data, options }: Input, addHighlight) {
+    //forEach dei resulsts, controlla se esiste data.valore di conf e costruisci l'oggetto
+    if (options && "limit" in options) {
+      var { offset, limit, sort, total_count } = options;
+    }
+    const search_result: SearchResultsData = {
+      limit,
+      offset,
+      sort,
+      total_count,
+      results: []
+    };
+    search_result.results = this.advancedParseResultsItems({ data, options }, addHighlight);
+
+    return search_result;
+
+  }
+
+  advancedParseResultsItems({ data, options }: Input, addHighlight): SearchResultsItemData[] {
+    var { searchId, conf } = options as SearchOptions;
+    let items = [];
+    data.forEach(({ _source: source }) => {
+        let itemResult = {} as SearchResultsItemData;
+        conf[searchId].results.forEach((val) => {
+          if (source.hasOwnProperty(val.field)) {
+              itemResult[val.label] = source[val.field];
+          }
+          else if (val.field) {
+              if (!Array.isArray(val.field)) { let obj = source;
+              let fieldArray = val.field.split('.'); // [author, name]
+              for (let i = 0; i < fieldArray.length; i++) {
+                  let prop = fieldArray[i];
+                  if (!obj || !obj.hasOwnProperty(prop)) {
+                      return false;
+                  }
+                  else {
+                      obj = obj[prop];
+                  }
+              }
+              itemResult[val.label] = obj;}
+              else {
+                  for (let e of val.field) {
+                      if(source.hasOwnProperty(e)) {
+                          itemResult[val.label] = source[val.field];
+                      }
+                  }
+              }
+          } 
+          else {
+              let fields = val.fields;
+              fields.forEach(item => {
+                  if(source.hasOwnProperty(item.field)) {
+                      itemResult[item.label] = source[item.field]
+                  }
+              })
+          }
+      });
+        items.push(itemResult);
+    });
+    return items;
+}
+
+  buildAdvancedQuery = (data: DataType, conf: any) => {
+    // prevedere valore search-type nel data?
+    const { searchId, results } = data;
+    const sort = results.sort;
+    const { limit, offset } = results || {};
+    const advanced_conf = conf['advanced_search'][searchId];   
+    const adv_query: any = {
+      query: {
       },
-    },
+      sort,
+      highlight: {
+        fields: {
+          // title: {},
+          // header: {},
+          // title: {},
+          // note: {},
+        },
+      },
+    };
+  
+    //sorting
+    let sort_object = ['slug.keyword'];
+    if (advanced_conf.sort) {
+      sort_object = advanced_conf.sort.map((f) => {
+        // ad es. nella search_config.ts di theatheor abbiamo [ "sort_title.keyword", "slug.keyword" ]
+        let tmp;
+        if (typeof sort != 'undefined') {
+          // es. "sort_DESC"
+          tmp = sort.split('_')[1];
+          return { [f]: sort.split('_')[1] }; // es. "title.keyword": "DESC"
+        } else {
+          return { [f]: tmp };
+        }
+      });
+    }
+  
+    if (sort) {
+      sort === '_score'
+        ? (adv_query.sort = ['_score'])
+        : (adv_query.sort = sort_object);
+    } else {
+      adv_query.sort = sort_object; // aggiorna il sort della main query con es. "title.keyword": "DESC"
+    }
+    //BASE QUERY
+    const must_array = [];
+    const must_not = [];
+    let highlight_fields = {};
+    if (advanced_conf.base_query) {
+      const base_query = ASHelper.queryTerm(advanced_conf.base_query.field, advanced_conf.base_query.value)
+      must_array.push(base_query);
+    }
+  
+    // pagination params
+    if (limit) {
+      adv_query.size = limit; // aggiunge proprietà "size" a adv_query con il valore di results.limit (e.g. 10)
+    }
+    if (offset || offset === 0) {
+      adv_query.from = offset; // vd. sopra, aggiunge proprietà "from"
+    }
+  
+    //search groups
+    const dataKeys = Object.keys(data); // ['searchId', 'results', 'query']
+    Object.keys(advanced_conf['search_groups']) // [ 'query', 'types', 'authors', 'collocations', 'dates' ]
+      .forEach((groupId) => {
+        // query, types, authors etc.
+        const query_key = advanced_conf['search_groups'][groupId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
+        if (query_key) {
+          switch (
+            query_key.type // fa uno switch su tutti i tipi di query
+          ) {
+            case 'fulltext':
+              if (!data[groupId]) break;
+              const query_string = ASHelper.buildQueryString(data[groupId], {
+                allowWildCard: query_key.addStar,
+                stripDoubleQuotes: true,
+              });
+              const ft_query = ASHelper.queryString(
+                { fields: query_key.field, value: query_string },
+                'AND'
+              );
+              highlight_fields = {...ASHelper.buildHighlights(query_key.field), ...highlight_fields};
+              must_array.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
+              break;
+            case 'proximity':
+              if (!data[query_key.query_params.value]) break;
+              const pt_query = ASHelper.matchPhrase({
+                fields: query_key.field,
+                value: data[query_key.query_params.value],
+                distance: +data[query_key.query_params.slop],
+              });
+              highlight_fields = {...ASHelper.buildHighlights(query_key.field), ...highlight_fields};
+              must_array.push(pt_query);
+              break;
+            case 'term_value':
+              if (!data[groupId]) break;
+              const query_term = ASHelper.buildQueryString(data[groupId], {
+                allowWildCard: query_key.addStar,
+                stripDoubleQuotes: true,
+              });
+              const tv_query = ASHelper.queryString(
+                { fields: query_key.field, value: query_term },
+                'AND'
+              );
+              highlight_fields = {...ASHelper.buildHighlights(query_key.field), ...highlight_fields};
+              must_array.push(tv_query);
+              break;
+            case 'term_field_value':
+              if (!data[query_key.query_params.value]) break;
+              const query_field_value = ASHelper.buildQueryString(data[query_key.query_params.value], {
+                allowWildCard: query_key.addStar,
+                stripDoubleQuotes: true,
+              });
+              const tf_query = ASHelper.queryString(
+                {
+                  fields: data[query_key.query_params.field],
+                  value: query_field_value,
+                },
+                'AND'
+              );
+              highlight_fields = {...ASHelper.buildHighlights(query_key.field), ...highlight_fields};
+              must_array.push(tf_query);
+              break;
+            case 'term_exists':
+              if (<any>data[groupId] === true) {
+                const te_query = ASHelper.queryExists(query_key.field);
+                highlight_fields = {...ASHelper.buildHighlights(query_key.field), ...highlight_fields};
+                must_array.push(te_query);
+              } else if (<any>data[groupId] === false) {
+                const te_query = ASHelper.queryExists(query_key.field);
+                highlight_fields = {...ASHelper.buildHighlights(query_key.field), ...highlight_fields};
+                must_not.push(te_query);
+              }
+              break;
+            case 'ternary':
+              break;
+  
+            default:
+              break;
+          }
+        }
+        
+      });
+    const bool_query = ASHelper.queryBool(must_array, [], [], must_not);
+    adv_query.query = bool_query.query;
+    adv_query.highlight.fields = highlight_fields;
+    return adv_query;
   };
 
-  //sorting
-  let sort_object = ['slug.keyword'];
-  if (advanced_conf.sort) {
-    sort_object = advanced_conf.sort.map((f) => {
-      // ad es. nella search_config.ts di theatheor abbiamo [ "sort_title.keyword", "slug.keyword" ]
-      let tmp;
-      if (typeof sort != 'undefined') {
-        // es. "sort_DESC"
-        tmp = sort.split('_')[1];
-        return { [f]: sort.split('_')[1] }; // es. "title.keyword": "DESC"
-      } else {
-        return { [f]: tmp };
-      }
-    });
-  }
+}
 
-  if (sort) {
-    sort === '_score'
-      ? (adv_query.sort = ['_score'])
-      : (adv_query.sort = sort_object);
-  } else {
-    adv_query.sort = sort_object; // aggiorna il sort della main query con es. "title.keyword": "DESC"
-  }
-  //BASE QUERY
-  const must_array = [];
-  const must_not = [];
-  if (advanced_conf.base_query) {
-    const base_query = ASHelper.queryTerm(advanced_conf.base_query.field, advanced_conf.base_query.value)
-    must_array.push(base_query);
-  }
+// export const buildAdvancedQuery = (data: DataType, conf: any) => {
+//   // prevedere valore search-type nel data?
+//   const highlight_fields: any = {}; // ci vanno i campi che stiamo utilizzando e che vogliamo evidenziare
+//   const { searchId, results } = data;
+//   const sort = results.sort;
+//   const { limit, offset } = results || {};
+//   const advanced_conf = conf['advanced_search'][searchId];   
+//   const adv_query: any = {
+//     query: {
+//     },
+//     sort,
+//     highlight: {
+//       fields: {
+//         // title: {},
+//         // header: {},
+//         // title: {},
+//         // note: {},
+//       },
+//     },
+//   };
 
-  // pagination params
-  if (limit) {
-    adv_query.size = limit; // aggiunge proprietà "size" a adv_query con il valore di results.limit (e.g. 10)
-  }
-  if (offset || offset === 0) {
-    adv_query.from = offset; // vd. sopra, aggiunge proprietà "from"
-  }
+//   //sorting
+//   let sort_object = ['slug.keyword'];
+//   if (advanced_conf.sort) {
+//     sort_object = advanced_conf.sort.map((f) => {
+//       // ad es. nella search_config.ts di theatheor abbiamo [ "sort_title.keyword", "slug.keyword" ]
+//       let tmp;
+//       if (typeof sort != 'undefined') {
+//         // es. "sort_DESC"
+//         tmp = sort.split('_')[1];
+//         return { [f]: sort.split('_')[1] }; // es. "title.keyword": "DESC"
+//       } else {
+//         return { [f]: tmp };
+//       }
+//     });
+//   }
 
-  //search groups
-  const dataKeys = Object.keys(data); // ['searchId', 'results', 'query']
-  Object.keys(advanced_conf['search_groups']) // [ 'query', 'types', 'authors', 'collocations', 'dates' ]
-    .forEach((groupId) => {
-      // query, types, authors etc.
-      const query_key = advanced_conf['search_groups'][groupId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
-      if (query_key) {
-        switch (
-          query_key.type // fa uno switch su tutti i tipi di query
-        ) {
-          case 'fulltext':
-            if (!data[groupId]) break;
-            const query_string = ASHelper.buildQueryString(data[groupId], {
-              allowWildCard: query_key.addStar,
-              stripDoubleQuotes: true,
-            });
-            const ft_query = ASHelper.queryString(
-              { fields: query_key.field, value: query_string },
-              'AND'
-            );
-            must_array.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
-            break;
-          case 'proximity':
-            if (!data[query_key.query_params.value]) break;
-            const pt_query = ASHelper.matchPhrase({
-              fields: query_key.field,
-              value: data[query_key.query_params.value],
-              distance: +data[query_key.query_params.slop],
-            });
-            must_array.push(pt_query);
-            break;
-          case 'term_value':
-            if (!data[groupId]) break;
-            const query_term = ASHelper.buildQueryString(data[groupId], {
-              allowWildCard: query_key.addStar,
-              stripDoubleQuotes: true,
-            });
-            const tv_query = ASHelper.queryString(
-              { fields: query_key.field, value: query_term },
-              'AND'
-            );
-            must_array.push(tv_query);
-            break;
-          case 'term_field_value':
-            if (!data[query_key.query_params.value]) break;
-            const query_field_value = ASHelper.buildQueryString(data[query_key.query_params.value], {
-              allowWildCard: query_key.addStar,
-              stripDoubleQuotes: true,
-            });
-            const tf_query = ASHelper.queryString(
-              {
-                fields: data[query_key.query_params.field],
-                value: query_field_value,
-              },
-              'AND'
-            );
-            must_array.push(tf_query);
-            break;
-          case 'term_exists':
-            if (<any>data[groupId] === true) {
-              const te_query = ASHelper.queryExists(query_key.field);
-              must_array.push(te_query);
-            } else if (<any>data[groupId] === false) {
-              const te_query = ASHelper.queryExists(query_key.field);
-              must_not.push(te_query);
-            }
-            break;
-          case 'ternary':
-            break;
+//   if (sort) {
+//     sort === '_score'
+//       ? (adv_query.sort = ['_score'])
+//       : (adv_query.sort = sort_object);
+//   } else {
+//     adv_query.sort = sort_object; // aggiorna il sort della main query con es. "title.keyword": "DESC"
+//   }
+//   //BASE QUERY
+//   const must_array = [];
+//   const must_not = [];
+//   if (advanced_conf.base_query) {
+//     const base_query = ASHelper.queryTerm(advanced_conf.base_query.field, advanced_conf.base_query.value)
+//     must_array.push(base_query);
+//   }
 
-          default:
-            break;
-        }
-      }
+//   // pagination params
+//   if (limit) {
+//     adv_query.size = limit; // aggiunge proprietà "size" a adv_query con il valore di results.limit (e.g. 10)
+//   }
+//   if (offset || offset === 0) {
+//     adv_query.from = offset; // vd. sopra, aggiunge proprietà "from"
+//   }
+
+//   //search groups
+//   const dataKeys = Object.keys(data); // ['searchId', 'results', 'query']
+//   Object.keys(advanced_conf['search_groups']) // [ 'query', 'types', 'authors', 'collocations', 'dates' ]
+//     .forEach((groupId) => {
+//       // query, types, authors etc.
+//       const query_key = advanced_conf['search_groups'][groupId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
+//       if (query_key) {
+//         switch (
+//           query_key.type // fa uno switch su tutti i tipi di query
+//         ) {
+//           case 'fulltext':
+//             if (!data[groupId]) break;
+//             const query_string = ASHelper.buildQueryString(data[groupId], {
+//               allowWildCard: query_key.addStar,
+//               stripDoubleQuotes: true,
+//             });
+//             const ft_query = ASHelper.queryString(
+//               { fields: query_key.field, value: query_string },
+//               'AND'
+//             );
+//             highlight_fields[query_key.field] = {};
+//             must_array.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
+//             break;
+//           case 'proximity':
+//             if (!data[query_key.query_params.value]) break;
+//             const pt_query = ASHelper.matchPhrase({
+//               fields: query_key.field,
+//               value: data[query_key.query_params.value],
+//               distance: +data[query_key.query_params.slop],
+//             });
+//             must_array.push(pt_query);
+//             break;
+//           case 'term_value':
+//             if (!data[groupId]) break;
+//             const query_term = ASHelper.buildQueryString(data[groupId], {
+//               allowWildCard: query_key.addStar,
+//               stripDoubleQuotes: true,
+//             });
+//             const tv_query = ASHelper.queryString(
+//               { fields: query_key.field, value: query_term },
+//               'AND'
+//             );
+//             must_array.push(tv_query);
+//             break;
+//           case 'term_field_value':
+//             if (!data[query_key.query_params.value]) break;
+//             const query_field_value = ASHelper.buildQueryString(data[query_key.query_params.value], {
+//               allowWildCard: query_key.addStar,
+//               stripDoubleQuotes: true,
+//             });
+//             const tf_query = ASHelper.queryString(
+//               {
+//                 fields: data[query_key.query_params.field],
+//                 value: query_field_value,
+//               },
+//               'AND'
+//             );
+//             must_array.push(tf_query);
+//             break;
+//           case 'term_exists':
+//             if (<any>data[groupId] === true) {
+//               const te_query = ASHelper.queryExists(query_key.field);
+//               must_array.push(te_query);
+//             } else if (<any>data[groupId] === false) {
+//               const te_query = ASHelper.queryExists(query_key.field);
+//               must_not.push(te_query);
+//             }
+//             break;
+//           case 'ternary':
+//             break;
+
+//           default:
+//             break;
+//         }
+//       }
       
-    });
-  const bool_query = ASHelper.queryBool(must_array, [], [], must_not);
-  adv_query.query = bool_query.query;
-  return adv_query;
-};
+//     });
+//   const bool_query = ASHelper.queryBool(must_array, [], [], must_not);
+//   adv_query.query = bool_query.query;
+//   adv_query.highlight.fields = highlight_fields;
+//   return adv_query;
+// };

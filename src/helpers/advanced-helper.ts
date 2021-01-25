@@ -92,12 +92,20 @@ export const buildQueryString = (term: any, options: any = {}) => {
   ​
   }
 
+  export const buildHighlights = (queryField: any) => {
+    const fields = typeof queryField === "string" ? queryField.split(',') : queryField;
+    const highlight = {};
+    for (let f of fields) {
+        highlight[f] = {};
+    }
+    return highlight;
+};
+
   export const queryExists = (termField: any) => {
     return {
         exists: {
           field: termField
         }
     }
-  ​
   ​
   }

@@ -39,6 +39,7 @@ export interface TranslationOptions {
 export interface Input {
   data: any;
   options?: HomeOptions | ResourceOptions | SearchOptions | StaticPageOptions | TranslationOptions;
+  conf?: any;
 };
 
 export default interface Parser {

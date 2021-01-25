@@ -23,6 +23,7 @@ export declare const queryTerm: (termField: any, termValue: any) => {
         [x: number]: any;
     };
 };
+export declare const buildHighlights: (queryField: any) => {};
 export declare const queryExists: (termField: any) => {
     exists: {
         field: any;
