@@ -86,11 +86,9 @@ export class AdvancedSearchParser implements Parser {
       sort,
       highlight: {
         fields: {
-          // title: {},
-          // header: {},
-          // title: {},
-          // note: {},
         },
+        pre_tags : ["<em class='mrc__text-emph'>"],
+        post_tags : ["</em>"],
       },
     };
   
@@ -159,7 +157,7 @@ export class AdvancedSearchParser implements Parser {
               break;
             case 'proximity':
               if (!data[query_key.query_params.value]) break;
-              const pt_query = ASHelper.matchPhrase({
+              const pt_query = ASHelper.spanNear({
                 fields: query_key.field,
                 value: data[query_key.query_params.value],
                 distance: +data[query_key.query_params.slop],
