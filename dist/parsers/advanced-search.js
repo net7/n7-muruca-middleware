@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdvancedSearchParser = void 0;
+const { buildLink } = require("../helpers/advanced-helper");
 const ASHelper = require("../helpers/advanced-helper");
 class AdvancedSearchParser {
     constructor() {
@@ -15,10 +16,6 @@ class AdvancedSearchParser {
                 sort,
                 highlight: {
                     fields: {
-                    // title: {},
-                    // header: {},
-                    // title: {},
-                    // note: {},
                     },
                 },
             };
@@ -78,8 +75,9 @@ class AdvancedSearchParser {
                                 stripDoubleQuotes: true,
                             });
                             const ft_query = ASHelper.queryString({ fields: query_key.field, value: query_string }, 'AND');
+                            // if(advanced_conf['show_highlights']) {console.log('check')}; estendi a tutti i cases
                             highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
-                            must_array.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
+                            must_array.push(ft_query);
                             break;
                         case 'proximity':
                             if (!data[query_key.query_params.value])
@@ -146,9 +144,7 @@ class AdvancedSearchParser {
         const { type } = options;
         return [];
     }
-    // protected parseResultsItems({ data, options }: Input): SearchResultsItemData[];
-    advancedParseResults({ data, options }, addHighlight) {
-        //forEach dei resulsts, controlla se esiste data.valore di conf e costruisci l'oggetto
+    advancedParseResults({ data, options }) {
         if (options && "limit" in options) {
             var { offset, limit, sort, total_count } = options;
         }
@@ -157,24 +153,33 @@ class AdvancedSearchParser {
             offset,
             sort,
             total_count,
-            results: []
+            results: [],
         };
-        search_result.results = this.advancedParseResultsItems({ data, options }, addHighlight);
+        search_result.results = this.advancedParseResultsItems({ data, options });
         return search_result;
     }
-    advancedParseResultsItems({ data, options }, addHighlight) {
+    advancedParseResultsItems({ data, options }) {
         var { searchId, conf } = options;
         let items = [];
-        data.forEach(({ _source: source }) => {
-            let itemResult = {};
+        data.forEach(({ _source: source, highlight }) => {
+            let itemResult = {
+                highlights: {}
+            };
             conf[searchId].results.forEach((val) => {
+                if (conf[searchId].show_highlights === true) {
+                    itemResult.highlights[val.label] = highlight[val.field];
+                }
                 if (source.hasOwnProperty(val.field)) {
-                    itemResult[val.label] = source[val.field];
+                    itemResult[val.label] = source[val.field];  
                 }
                 else if (val.field) {
                     if (!Array.isArray(val.field)) {
-                        let obj = source;
-                        let fieldArray = val.field.split('.'); // [author, name]
+                        if (val.isLink === true){
+                            itemResult[val.label] = buildLink(val.field, source);
+                        }
+                        else 
+                        {let obj = source;
+                        let fieldArray = val.field.split('.');
                         for (let i = 0; i < fieldArray.length; i++) {
                             let prop = fieldArray[i];
                             if (!obj || !obj.hasOwnProperty(prop)) {
@@ -184,7 +189,7 @@ class AdvancedSearchParser {
                                 obj = obj[prop];
                             }
                         }
-                        itemResult[val.label] = obj;
+                        itemResult[val.label] = obj;}
                     }
                     else {
                         for (let e of val.field) {
@@ -207,6 +212,14 @@ class AdvancedSearchParser {
         });
         return items;
     }
+    // advancedParseHighlights({ data, options }, addHighlight) {
+    //     let items = [];
+    //     data.forEach(({ highlight: highlights}) => {
+    //         items.push(highlights);
+    //     });
+    //     console.log(items);
+    //     return items;
+    // }
 }
 exports.AdvancedSearchParser = AdvancedSearchParser;
 // export const buildAdvancedQuery = (data: DataType, conf: any) => {

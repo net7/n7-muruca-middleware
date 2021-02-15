@@ -12,7 +12,7 @@ export class AdvancedSearchParser implements Parser {
 
   // protected parseResultsItems({ data, options }: Input): SearchResultsItemData[];
 
-  advancedParseResults({ data, options }: Input, addHighlight) {
+  advancedParseResults({ data, options }: Input) {
     //forEach dei resulsts, controlla se esiste data.valore di conf e costruisci l'oggetto
     if (options && "limit" in options) {
       var { offset, limit, sort, total_count } = options;
@@ -24,51 +24,62 @@ export class AdvancedSearchParser implements Parser {
       total_count,
       results: []
     };
-    search_result.results = this.advancedParseResultsItems({ data, options }, addHighlight);
+    search_result.results = this.advancedParseResultsItems({ data, options });
 
     return search_result;
 
   }
 
-  advancedParseResultsItems({ data, options }: Input, addHighlight): SearchResultsItemData[] {
-    var { searchId, conf } = options as SearchOptions;
+  advancedParseResultsItems({ data, options }) {
+    var { searchId, conf } = options;
     let items = [];
-    data.forEach(({ _source: source }) => {
-        let itemResult = {} as SearchResultsItemData;
+    data.forEach(({ _source: source, highlight }) => {
+        let itemResult = {
+            highlights: {}
+        };
         conf[searchId].results.forEach((val) => {
-          if (source.hasOwnProperty(val.field)) {
-              itemResult[val.label] = source[val.field];
-          }
-          else if (val.field) {
-              if (!Array.isArray(val.field)) { let obj = source;
-              let fieldArray = val.field.split('.'); // [author, name]
-              for (let i = 0; i < fieldArray.length; i++) {
-                  let prop = fieldArray[i];
-                  if (!obj || !obj.hasOwnProperty(prop)) {
-                      return false;
-                  }
-                  else {
-                      obj = obj[prop];
-                  }
-              }
-              itemResult[val.label] = obj;}
-              else {
-                  for (let e of val.field) {
-                      if(source.hasOwnProperty(e)) {
-                          itemResult[val.label] = source[val.field];
-                      }
-                  }
-              }
-          } 
-          else {
-              let fields = val.fields;
-              fields.forEach(item => {
-                  if(source.hasOwnProperty(item.field)) {
-                      itemResult[item.label] = source[item.field]
-                  }
-              })
-          }
-      });
+            if (conf[searchId].show_highlights === true) {
+                itemResult.highlights[val.label] = highlight[val.field];
+            }
+            if (source.hasOwnProperty(val.field)) {
+                itemResult[val.label] = source[val.field];  
+            }
+            else if (val.field) {
+                if (!Array.isArray(val.field)) {
+                    if (val.isLink === true){
+                        itemResult[val.label] = ASHelper.buildLink(val.field, source);
+                    }
+                    else 
+                    {let obj = source;
+                    let fieldArray = val.field.split('.');
+                    for (let i = 0; i < fieldArray.length; i++) {
+                        let prop = fieldArray[i];
+                        if (!obj || !obj.hasOwnProperty(prop)) {
+                            return false;
+                        }
+                        else {
+                            obj = obj[prop];
+                        }
+                    }
+                    itemResult[val.label] = obj;}
+                }
+                else {
+                    for (let e of val.field) {
+                        if (source.hasOwnProperty(e)) {
+                            itemResult[val.label] = source[val.field];
+                        }
+                    }
+                }
+            }
+            else {
+                let fields = val.fields;
+                fields.forEach(item => {
+                    if (source.hasOwnProperty(item.field)) {
+                        itemResult[item.label] = source[item.field];
+                    }
+                });
+            }
+        });
         items.push(itemResult);
     });
     return items;
