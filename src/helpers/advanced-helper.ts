@@ -45,6 +45,33 @@ export const queryString = (queryField: { fields: any, value: string }, default_
 	return x
 }
 
+export const spanNear = (queryField: { fields: string, value: any, distance: number }):any => {
+	const x = {
+        span_near: {
+          clauses: [],
+          slop: queryField.distance,
+          in_order: true
+        },
+      };
+
+  const words = queryField.value.split(" ");
+  words.forEach(element => {
+    x.span_near.clauses.push(
+      {
+        "span_multi": {
+            "match": {
+                "wildcard": {
+                    [queryField.fields]: element
+                }
+            }
+        }
+      }
+    )
+  });
+​
+	return x
+}
+
 export const buildQueryString = (term: any, options: any = {}) => {
   ​
     const allowWildCard = options.allowWildCard != "undefined" ? options.allowWildCard : true,
