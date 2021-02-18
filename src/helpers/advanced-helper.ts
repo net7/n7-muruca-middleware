@@ -82,6 +82,9 @@ export const buildQueryString = (term: any, options: any = {}) => {
     let termToArray:any,
         queryTerms:any;
   ​
+   //escape slash ( \ )
+   term = term.replace(/\//g, "\\/");
+   
     if ( stripDoubleQuotes ){
       term = term.replace(/\\*"/g,"");
     }

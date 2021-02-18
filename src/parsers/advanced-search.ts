@@ -37,10 +37,10 @@ export class AdvancedSearchParser implements Parser {
         let itemResult = {
             highlights: {}
         };
+        if (conf[searchId].show_highlights === true && highlight) {
+          itemResult.highlights = highlight;
+        }
         conf[searchId].results.forEach((val) => {
-            if (conf[searchId].show_highlights === true) {
-                itemResult.highlights[val.label] = highlight[val.field];
-            }
             if (source.hasOwnProperty(val.field)) {
                 itemResult[val.label] = source[val.field];  
             }
@@ -49,10 +49,11 @@ export class AdvancedSearchParser implements Parser {
                     if (val.isLink === true){
                         itemResult[val.label] = ASHelper.buildLink(val.field, source);
                     }
-                    else 
-                    {let obj = source;
-                    let fieldArray = val.field.split('.');
-                    for (let i = 0; i < fieldArray.length; i++) {
+                    else {
+                      //check for nested properties
+                      let obj = source;
+                      let fieldArray = val.field.split('.');
+                      for (let i = 0; i < fieldArray.length; i++) {
                         let prop = fieldArray[i];
                         if (!obj || !obj.hasOwnProperty(prop)) {
                             return false;
@@ -61,7 +62,8 @@ export class AdvancedSearchParser implements Parser {
                             obj = obj[prop];
                         }
                     }
-                    itemResult[val.label] = obj;}
+                    itemResult[val.label] = obj;
+                  }
                 }
                 else {
                     for (let e of val.field) {
@@ -71,11 +73,12 @@ export class AdvancedSearchParser implements Parser {
                     }
                 }
             }
-            else {
+            else if (val.fields) {
                 let fields = val.fields;
+                itemResult[val.label] = [];
                 fields.forEach(item => {
                     if (source.hasOwnProperty(item.field)) {
-                        itemResult[item.label] = source[item.field];
+                      itemResult[val.label][item.label] = source[item.field];
                     }
                 });
             }
@@ -206,11 +209,11 @@ export class AdvancedSearchParser implements Parser {
               must_array.push(tf_query);
               break;
             case 'term_exists':
-              if (<any>data[groupId] === true) {
+              if (<any>data[groupId] === "true") {
                 const te_query = ASHelper.queryExists(query_key.field);
                 highlight_fields = {...ASHelper.buildHighlights(query_key.field), ...highlight_fields};
                 must_array.push(te_query);
-              } else if (<any>data[groupId] === false) {
+              } else if (<any>data[groupId] === "false") {
                 const te_query = ASHelper.queryExists(query_key.field);
                 highlight_fields = {...ASHelper.buildHighlights(query_key.field), ...highlight_fields};
                 must_not.push(te_query);

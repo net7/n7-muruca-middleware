@@ -111,7 +111,6 @@ class Controller {
             const { searchId } = body;
             const { limit, offset, sort } = body.results ? body.results : "null";
             let total_count = query_res.hits.total.value;
-            const addHighlight = true;
             const response = parser.advancedParseResults({
                 data,
                 options: {
@@ -122,7 +121,7 @@ class Controller {
                     searchId,
                     conf: configurations.advanced_search
                 }
-            }, addHighlight);
+            });
             return helpers_1.HttpHelper.returnOkResponse(response);
             // return HttpHelper.returnOkResponse(query_res);
         });
