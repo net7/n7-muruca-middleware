@@ -150,7 +150,7 @@ class Controller {
             const { slug } = event.pathParameters;
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'pages?' + "slug=" + slug));
             const parser = new parsers.static();
-            const response = parser.parse({ data, options: { slug } });
+            const response = parser.parse({ data });
             if (response) {
                 return helpers_1.HttpHelper.returnOkResponse(response);
             }
@@ -163,7 +163,7 @@ class Controller {
             const { slug } = event.pathParameters;
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'posts?' + "slug=" + slug));
             const parser = new parsers.static();
-            const response = parser.parse({ data, options: { slug } });
+            const response = parser.parse({ data });
             if (response) {
                 return helpers_1.HttpHelper.returnOkResponse(response);
             }

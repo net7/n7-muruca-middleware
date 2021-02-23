@@ -157,7 +157,7 @@ export class Controller {
     const { slug } = event.pathParameters;
     const data = JSON.parse(await HttpHelper.doRequest(staticUrl + 'pages?'+ "slug=" + slug));
     const parser = new parsers.static();
-    const response = parser.parse({ data, options: { slug }});
+    const response = parser.parse({ data });
     if ( response ){
       return HttpHelper.returnOkResponse(response);
     } else {
@@ -170,7 +170,7 @@ export class Controller {
     const { slug } = event.pathParameters;
     const data = JSON.parse(await HttpHelper.doRequest(staticUrl + 'posts?'+ "slug=" + slug));
     const parser = new parsers.static();
-    const response = parser.parse({ data, options: { slug }});
+    const response = parser.parse({ data });
     if ( response ){
       return HttpHelper.returnOkResponse(response);
     } else {
