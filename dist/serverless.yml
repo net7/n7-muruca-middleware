@@ -75,3 +75,9 @@ functions:
       - http:
           path: advanced_search
           method: post
+  getTypeList:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getTypeList
+    events:
+      - http:
+          path: list/{type}
+          method: get

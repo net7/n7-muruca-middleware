@@ -17,6 +17,18 @@ class StaticPageParser {
                 }))[0];
             }
         }
+        else {
+            if (Array.isArray(data)) {
+                return data.map((d) => ({
+                    title: d.title.rendered,
+                    date: d.date,
+                    content: d.content.rendered,
+                    authors: d.author,
+                    time_to_read: d.time_to_read,
+                    slug: d.slug
+                }));
+            }
+        }
         return {};
     }
 }

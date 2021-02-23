@@ -161,6 +161,14 @@ class Controller {
             const response = parser.parse({ data, options: { slug } });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        this.getTypeList = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            const { parsers, staticUrl } = this.config;
+            const { type } = event.pathParameters;
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'posts/'));
+            const parser = new parsers.static();
+            const response = { results: parser.parse({ data }) };
+            return helpers_1.HttpHelper.returnOkResponse(response);
+        });
         this.config = config;
     }
     getSlsMethods() {
@@ -175,7 +183,8 @@ class Controller {
             advancedSearch: this.advancedSearch.bind(this),
             getTranslation: this.getTranslation.bind(this),
             getStaticPage: this.getStaticPage.bind(this),
-            getStaticPost: this.getStaticPost.bind(this)
+            getStaticPost: this.getStaticPost.bind(this),
+            getTypeList: this.getTypeList.bind(this)
         };
     }
 }

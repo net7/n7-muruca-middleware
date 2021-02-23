@@ -169,6 +169,16 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   }
 
+  getTypeList = async (event: any, _context: any, _callback: any) => {
+    const { parsers, staticUrl } = this.config;
+    const { type } = event.pathParameters;
+    const data = JSON.parse(await HttpHelper.doRequest(staticUrl + 'posts/'));
+    const parser = new parsers.static();
+    const response = 
+    { results: parser.parse({ data })};
+    return HttpHelper.returnOkResponse(response);
+  }
+
   getSlsMethods() {
     return {
       getNavigation: this.getNavigation.bind(this),
@@ -181,7 +191,8 @@ export class Controller {
       advancedSearch: this.advancedSearch.bind(this),
       getTranslation: this.getTranslation.bind(this),
       getStaticPage: this.getStaticPage.bind(this),
-      getStaticPost: this.getStaticPost.bind(this)
+      getStaticPost: this.getStaticPost.bind(this),
+      getTypeList: this.getTypeList.bind(this)
     }
-  }
+  }  
 }

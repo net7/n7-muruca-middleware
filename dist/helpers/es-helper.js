@@ -32,7 +32,6 @@ exports.ESHelper = {
         });
     },
     makeSearch(index, body, Client, ELASTIC_URI) {
-        console.log(JSON.stringify(body))
         return new Promise(function (resolve, reject) {
             const client = new Client({
                 node: ELASTIC_URI,
