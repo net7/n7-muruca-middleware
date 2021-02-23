@@ -23,10 +23,26 @@ export class StaticPageParser implements Parser {
             content: d.content.rendered,
             authors: d.author,
             time_to_read: d.time_to_read,
-            slug: d.slug
+            slug: d.slug,
           }));
       }
     }
+    return {};
+  }
+
+  parseList({ data, options }: any) {    
+      if (Array.isArray(data)) {
+        return data.map((d: any) => ({
+            title: d.title.rendered,
+            date: d.date,
+            content: d.content.rendered,
+            authors: d.author,
+            time_to_read: d.time_to_read,
+            slug: d.slug,
+            image: d.image || "",
+            link: options && options.type == "posts" ? "/posts/" + d.slug : "/" +d.slug
+          }));
+      }    
     return {};
   }
 }

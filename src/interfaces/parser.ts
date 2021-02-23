@@ -29,7 +29,8 @@ export interface ResourceOptions {
 }
 
 export interface StaticPageOptions {
-  slug: string;
+  slug?: string;
+  type?: string;
 }
 
 export interface TranslationOptions {

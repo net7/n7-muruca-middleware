@@ -148,18 +148,28 @@ class Controller {
         this.getStaticPage = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
             const { slug } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'pages/'));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'pages?' + "slug=" + slug));
             const parser = new parsers.static();
             const response = parser.parse({ data, options: { slug } });
-            return helpers_1.HttpHelper.returnOkResponse(response);
+            if (response) {
+                return helpers_1.HttpHelper.returnOkResponse(response);
+            }
+            else {
+                return helpers_1.HttpHelper.returnErrorResponse("page not found", 404);
+            }
         });
         this.getStaticPost = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
             const { slug } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'posts/'));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'posts?' + "slug=" + slug));
             const parser = new parsers.static();
             const response = parser.parse({ data, options: { slug } });
-            return helpers_1.HttpHelper.returnOkResponse(response);
+            if (response) {
+                return helpers_1.HttpHelper.returnOkResponse(response);
+            }
+            else {
+                return helpers_1.HttpHelper.returnErrorResponse("page not found", 404);
+            }
         });
         this.getTypeList = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
@@ -176,10 +186,11 @@ class Controller {
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(apiUrl));
             const parser = new parsers.static();
             const response = {
-                results: parser.parse({ data }),
-                limit: body.results.offset || "",
-                offset: body.results.offset || "",
-                total_count: data.length
+                results: parser.parseList({ data, options: { type } }),
+                limit: body.results.limit || 10,
+                offset: body.results.offset || 0,
+                total_count: data.length,
+                sort: ""
             };
             return helpers_1.HttpHelper.returnOkResponse(response);
         });

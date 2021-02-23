@@ -1,6 +1,7 @@
 import { Client } from '@elastic/elasticsearch';
 import * as sortObj from 'sort-object';
 import { HttpHelper, ESHelper } from './helpers';
+import { SearchResultsData } from './interfaces';
 import { AdvancedSearchParser } from './parsers';
 
 export class Controller {
@@ -154,19 +155,27 @@ export class Controller {
   getStaticPage = async (event: any, _context: any, _callback: any) => {
     const { parsers, staticUrl } = this.config;
     const { slug } = event.pathParameters;
-    const data = JSON.parse(await HttpHelper.doRequest(staticUrl + 'pages/'));
+    const data = JSON.parse(await HttpHelper.doRequest(staticUrl + 'pages?'+ "slug=" + slug));
     const parser = new parsers.static();
     const response = parser.parse({ data, options: { slug }});
-    return HttpHelper.returnOkResponse(response);
+    if ( response ){
+      return HttpHelper.returnOkResponse(response);
+    } else {
+      return HttpHelper.returnErrorResponse("page not found", 404);
+    }
   }
 
   getStaticPost = async (event: any, _context: any, _callback: any) => {
     const { parsers, staticUrl } = this.config;
     const { slug } = event.pathParameters;
-    const data = JSON.parse(await HttpHelper.doRequest(staticUrl + 'posts/'));
+    const data = JSON.parse(await HttpHelper.doRequest(staticUrl + 'posts?'+ "slug=" + slug));
     const parser = new parsers.static();
     const response = parser.parse({ data, options: { slug }});
-    return HttpHelper.returnOkResponse(response);
+    if ( response ){
+      return HttpHelper.returnOkResponse(response);
+    } else {
+      return HttpHelper.returnErrorResponse("page not found", 404);
+    }
   }
 
   getTypeList = async (event: any, _context: any, _callback: any) => {
@@ -187,12 +196,13 @@ export class Controller {
     const apiUrl = params != "" ? staticUrl + type + "?" + params : staticUrl + type;
     const data = JSON.parse(await HttpHelper.doRequest(apiUrl));
     const parser = new parsers.static();
-    const response = 
-    { 
-      results: parser.parse({ data }),
-      limit: body.results.offset || "",
-      offset: body.results.offset || "",
-      total_count: data.length
+   
+    const response : SearchResultsData =  { 
+      results: parser.parseList({ data, options: { type } }),
+      limit: body.results.limit || 10,
+      offset: body.results.offset || 0,
+      total_count: data.length,
+      sort: ""
     };
     return HttpHelper.returnOkResponse(response);
   }
