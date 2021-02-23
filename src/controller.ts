@@ -188,7 +188,12 @@ export class Controller {
     const data = JSON.parse(await HttpHelper.doRequest(apiUrl));
     const parser = new parsers.static();
     const response = 
-    { results: parser.parse({ data })};
+    { 
+      results: parser.parse({ data }),
+      limit: body.results.offset || "",
+      offset: body.results.offset || "",
+      total_count: data.length
+    };
     return HttpHelper.returnOkResponse(response);
   }
 

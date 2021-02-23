@@ -175,7 +175,12 @@ class Controller {
             const apiUrl = params != "" ? staticUrl + type + "?" + params : staticUrl + type;
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(apiUrl));
             const parser = new parsers.static();
-            const response = { results: parser.parse({ data }) };
+            const response = {
+                results: parser.parse({ data }),
+                limit: body.results.offset || "",
+                offset: body.results.offset || "",
+                total_count: data.length
+            };
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.config = config;
