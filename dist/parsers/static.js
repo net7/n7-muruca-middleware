@@ -25,7 +25,7 @@ class StaticPageParser {
                 time_to_read: d.time_to_read,
                 slug: d.slug,
                 image: d.image || "",
-                link: options && options.type == "posts" ? "/posts/" + d.slug : "/" + d.slug
+                link: options && options.type == "posts" ? "/post/" + d.slug : "/" + d.slug
             }));
         }
         return {};
