@@ -172,7 +172,20 @@ export class Controller {
   getTypeList = async (event: any, _context: any, _callback: any) => {
     const { parsers, staticUrl } = this.config;
     const { type } = event.pathParameters;
-    const data = JSON.parse(await HttpHelper.doRequest(staticUrl + 'posts/'));
+    const body = JSON.parse(event.body)
+
+    let params = "";
+    
+    if( body.results && body.results.limit  ){
+      params = "per_page=" + body.results.limit;
+    }
+
+    if( body.results && body.results.offset  ){
+      params += params == "" ? "offset=" + body.results.offset : "&offset=" + body.results.offset;
+    }
+
+    const apiUrl = params != "" ? staticUrl + type + "?" + params : staticUrl + type;
+    const data = JSON.parse(await HttpHelper.doRequest(apiUrl));
     const parser = new parsers.static();
     const response = 
     { results: parser.parse({ data })};

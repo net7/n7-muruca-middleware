@@ -80,4 +80,4 @@ functions:
     events:
       - http:
           path: list/{type}
-          method: get
+          method: post
