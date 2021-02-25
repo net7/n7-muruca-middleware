@@ -4,6 +4,30 @@ exports.AdvancedSearchParser = void 0;
 const ASHelper = require("../helpers/advanced-helper");
 class AdvancedSearchParser {
     constructor() {
+        this.buildTextViewerQuery = (data, conf) => {
+            const { searchId, results } = data;
+            const advanced_conf = conf['advanced_search'][searchId];
+            let teiPubParams;
+            Object.keys(advanced_conf['search_full_text'])
+                .forEach((groupId) => {
+                const query_key = advanced_conf['search_full_text'][groupId];
+                if (query_key) {
+                    switch (query_key.type) {
+                        case 'fulltext':
+                            if (!data[groupId])
+                                break;
+                            const collection = query_key['collection'];
+                            const pagination = query_key['perPage'];
+                            const query = data[groupId];
+                            teiPubParams = `mrcsearch?query=${query}&start=1&per-page=${pagination}&collection=${collection}`;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
+            return teiPubParams;
+        };
         this.buildAdvancedQuery = (data, conf) => {
             // prevedere valore search-type nel data?
             const { searchId, results } = data;
@@ -127,6 +151,29 @@ class AdvancedSearchParser {
                             }
                             break;
                         case 'ternary':
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
+            Object.keys(advanced_conf['search_full_text']) // [ 'query', 'types', 'authors', 'collocations', 'dates' ]
+                .forEach((groupId) => {
+                // query, types, authors etc.
+                const query_key = advanced_conf['search_full_text'][groupId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
+                if (query_key) {
+                    switch (query_key.type // fa uno switch su tutti i tipi di query
+                    ) {
+                        case 'fulltext':
+                            if (!data[groupId])
+                                break;
+                            console.log('prova');
+                            const query_string = ASHelper.buildQueryString(data[groupId], {
+                                allowWildCard: query_key.addStar,
+                                stripDoubleQuotes: true,
+                            });
+                            const ft_query = ASHelper.queryString({ fields: query_key.field, value: query_string }, 'AND');
+                            must_array.push(ft_query);
                             break;
                         default:
                             break;
