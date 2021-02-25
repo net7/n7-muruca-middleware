@@ -102,11 +102,16 @@ export class Controller {
   }
 
   advancedSearch = async (event: any, _context: any, _callback: any) => {
-    const { parsers, searchIndex, elasticUri, configurations } = this.config;
+    const { parsers, searchIndex, elasticUri, teiPublisherUri, configurations } = this.config;
     const body = JSON.parse(event.body) // cf. SEARCH-RESULTS in Postman
     const parser = new AdvancedSearchParser();
     const params = parser.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
-    // make query
+    const teiPublisherParams = parser.buildTextViewerQuery(body, configurations); // return solo params
+    console.log(teiPublisherUri + teiPublisherParams);
+    const tei_request = HttpHelper.doRequest(teiPublisherUri + teiPublisherParams);
+    tei_request.then((body) => {
+      console.log(body);
+    });
     const query_res: any = await ESHelper.makeSearch(searchIndex, params, Client, elasticUri);
     const data = query_res.hits.hits;
     const { searchId } = body;

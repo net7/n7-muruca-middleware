@@ -8,6 +8,7 @@ provider:
     STATIC_URL: ${file(${opt:stage, 'prod'}.yml):STATIC_URL}
     SEARCH_INDEX: ${file(${opt:stage, 'prod'}.yml):SEARCH_INDEX}
     ELASTIC_URI: ${file(${opt:stage, 'prod'}.yml):ELASTIC_URI}
+    TEIPUBLISHER_URI: ${file(${opt:stage, 'prod'}.yml):TEIPUBLISHER_URI}
 functions:
   getNavigation:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getNavigation
