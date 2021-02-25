@@ -8,5 +8,6 @@ export declare class AdvancedSearchParser implements Parser {
         data: any;
         options: any;
     }): any[];
+    buildTextViewerQuery: (data: DataType, conf: any) => any;
     buildAdvancedQuery: (data: DataType, conf: any) => any;
 }
