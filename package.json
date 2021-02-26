@@ -19,7 +19,8 @@
     "elasticsearch": "^16.7.1",
     "request": "^2.88.2",
     "sort-object": "^3.0.3",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.7",
+    "xml-js": "^1.6.11"
   },
   "devDependencies": {
     "@types/elasticsearch": "^5.0.36"
