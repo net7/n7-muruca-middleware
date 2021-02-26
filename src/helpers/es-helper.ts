@@ -58,7 +58,6 @@ export const ESHelper = {
   },
   // per la Query dell'AS dovrò la conf sarà advanced_search_config.ts
   buildQuery(data: DataType, conf: any) {
-    // data = { "searchId":"work","results": {"limit":10, "offset":0, "sort":"sort_DESC"},"query":"" }, conf = search_config.ts
     const { searchId, results } = data; // searchId = "work", "results: {...}"
     const sort = results ? results.sort : data.sort; // sort = se ci sono i results è SEARCH-RESULTS e trova il sort dentro l'oggetto, altrimenti è SEARCH-FACETS e il sort è al primo livello
     const { limit, offset } = results || {}; // ci sono solo nel SEARCH-RESULTS, altrimenti vuoti
@@ -78,7 +77,6 @@ export const ESHelper = {
     };
 
     //ora deve produrre il sort e le aggregations
-
     //sorting
     let sort_object = ['slug.keyword'];
     if (conf[searchId].sort) {

@@ -163,3 +163,7 @@ export const buildLink = (queryField, sourceField) => {
     }
   ​
   }
+
+  export const mergeTeiPublisherResults = () => {
+    
+  }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queryExists = exports.buildLink = exports.buildHighlights = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
+exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildHighlights = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
 exports.queryBool = (mustList = [], shouldList = [], filterList = [], notList = []) => {
     const x = {
         query: {
@@ -133,4 +133,6 @@ exports.queryExists = (termField) => {
             field: termField
         }
     };
+};
+exports.mergeTeiPublisherResults = () => {
 };

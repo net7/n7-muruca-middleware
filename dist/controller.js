@@ -105,14 +105,15 @@ class Controller {
             const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
             const parser = new parsers_1.AdvancedSearchParser();
             const params = parser.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
-            const teiPublisherParams = parser.buildTextViewerQuery(body, configurations); // return solo params
-            console.log(teiPublisherUri + teiPublisherParams);
-            const tei_request = helpers_1.HttpHelper.doRequest(teiPublisherUri + teiPublisherParams);
-            tei_request.then((body) => {
-                console.log(body);
-            });
+            console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchIndex, params, elasticsearch_1.Client, elasticUri);
             const data = query_res.hits.hits;
+            const teiPublisherParams = parser.buildTextViewerQuery(body, configurations); // return solo params
+            if (teiPublisherParams) {
+                const tei_request = helpers_1.HttpHelper.doRequest(teiPublisherUri + teiPublisherParams);
+                tei_request.then((body) => {
+                });
+            }
             const { searchId } = body;
             const { limit, offset, sort } = body.results ? body.results : "null";
             let total_count = query_res.hits.total.value;

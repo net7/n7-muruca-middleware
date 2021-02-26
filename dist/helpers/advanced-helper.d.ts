@@ -35,3 +35,4 @@ export declare const queryExists: (termField: any) => {
         field: any;
     };
 };
+export declare const mergeTeiPublisherResults: () => void;
