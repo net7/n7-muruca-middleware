@@ -105,7 +105,6 @@ class Controller {
             const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
             const parser = new parsers_1.AdvancedSearchParser();
             const params = parser.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
-            console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchIndex, params, elasticsearch_1.Client, elasticUri);
             const data = query_res.hits.hits;
             const teiPublisherParams = parser.buildTextViewerQuery(body, configurations); // return solo params
