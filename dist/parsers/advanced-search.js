@@ -8,6 +8,8 @@ class AdvancedSearchParser {
             const { searchId, results } = data;
             const advanced_conf = conf['advanced_search'][searchId];
             let teiPubParams;
+            if (!advanced_conf['search_full_text'])
+                return;
             Object.keys(advanced_conf['search_full_text'])
                 .forEach((groupId) => {
                 const query_key = advanced_conf['search_full_text'][groupId];
