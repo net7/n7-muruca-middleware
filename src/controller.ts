@@ -108,18 +108,76 @@ export class Controller {
     const parser = new AdvancedSearchParser();
     const params = parser.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
     const query_res: any = await ESHelper.makeSearch(searchIndex, params, Client, elasticUri);
-    const data = query_res.hits.hits;
-    const teiPublisherParams = parser.buildTextViewerQuery(body, configurations); // return solo params
+    const es_data = query_res.hits.hits;
+    let map_data = {};
+        es_data.map((res) => {
+          if (res['_source']['xml_filename']) {
+            const xml_filename = res['_source']['xml_filename'];
+            map_data[xml_filename] = res['_source']['id'];
+          }
+        });
+    const docs = Object.keys(map_data);
+    const teiPublisherParams = parser.buildTextViewerQuery(body, configurations, docs);
+    let total_count = query_res.hits.total.value;
+    var data = [];
     
     if( teiPublisherParams ){
-      const tei_request = HttpHelper.doRequest(teiPublisherUri + teiPublisherParams);
-      tei_request.then((body) => {
-        
-      });
+      const collectionUri =
+            'http://staging.teipublisher.netseven.it/exist/apps/tei-publisher/api/mrcsearch';
+          const doc = await HttpHelper.doRequest(
+            collectionUri + '?' + teiPublisherParams
+          );
+          let stripped_doc = doc.replace(/<!DOCTYPE\s\w+>/g, '');
+          let wrapped_doc = '<body>' + stripped_doc + '</body>';
+
+          let convert = require('xml-js');
+          let expandedResult = convert.xml2js(wrapped_doc, {
+            // ignoreDoctype: true,
+            // ignoreDeclaration: true,
+            compact: true,
+            spaces: 4,
+          });
+
+          let matches_result = {};
+
+          expandedResult['body']['paper-card'].map((papercard) => {
+            let div = papercard.div.div;
+            let id = papercard['_attributes'].id;
+
+            let a = div.map((element) => element.a['_text']);
+            let em = div.map((element) => element.a.em['_text']);
+
+            if (matches_result[id]) {
+              for (let i = 0; i < a.length; i++) {
+                matches_result[id].matches.push(a[i][0] + em[i] + a[i][1]);
+              }
+            } else {
+              matches_result[id] = {
+                matches: [],
+              };
+            }
+          });
+
+          es_data.map((res) => {
+            if (res['_source']['xml_filename']) {
+              for (let key in matches_result) {
+                if (key === res['_source']['xml_filename']) {
+                  res['highlight']['text_matches'] = [];
+                  res['highlight']['text_matches'].push(
+                    matches_result[key].matches
+                  );
+                  data.push(res);
+                }
+              }
+            }
+          });
+
+          total_count = data.length;
+    } else {
+      data = es_data;
     }
     const { searchId } = body;
     const { limit, offset, sort } = body.results ? body.results : "null";
-    let total_count = query_res.hits.total.value;
     const response = parser.advancedParseResults({
       data,
       options: {
@@ -133,8 +191,6 @@ export class Controller {
     });
     
     return HttpHelper.returnOkResponse(response);
-    
-    // return HttpHelper.returnOkResponse(query_res);
   }
 
   getFooter = async (_event: any, _context: any, _callback: any) => {

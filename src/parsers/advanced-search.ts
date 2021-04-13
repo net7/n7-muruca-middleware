@@ -12,7 +12,7 @@ export class AdvancedSearchParser implements Parser {
 
   // protected parseResultsItems({ data, options }: Input): SearchResultsItemData[];
 
-  advancedParseResults({ data, options }: Input) {
+  advancedParseResults({ data, options }: any) {
     //forEach dei resulsts, controlla se esiste data.valore di conf e costruisci l'oggetto
     if (options && "limit" in options) {
       var { offset, limit, sort, total_count } = options;
@@ -37,7 +37,7 @@ export class AdvancedSearchParser implements Parser {
         let itemResult = {
             highlights: {}
         };
-        if (conf[searchId].show_highlights === true && highlight) {
+        if (highlight) {
           itemResult.highlights = highlight;
         }
         conf[searchId].results.forEach((val) => {
@@ -88,30 +88,40 @@ export class AdvancedSearchParser implements Parser {
     return items;
 }
 
-buildTextViewerQuery = (data: DataType, conf: any) => {
+buildTextViewerQuery = (data: DataType, conf: any, doc: any) => {
   const { searchId, results } = data;
   const advanced_conf = conf['advanced_search'][searchId];
   let teiPubParams;
   if(!advanced_conf['search_full_text']) return;
   Object.keys(advanced_conf['search_full_text'])
-      .forEach((groupId) => {
-      const query_key = advanced_conf['search_full_text'][groupId];
-      if (query_key) {
-          switch (query_key.type) {
-              case 'fulltext':
-                  if (!data[groupId])
-                      break;
-                  const collection = query_key['collection'];
-                  const pagination = query_key['perPage'];
-                  const query = data[groupId];
-                  teiPubParams = `mrcsearch?query=${query}&start=1&per-page=${pagination}&collection=${collection}`;
-                  break;
-              default:
-                  break;
-          }
-      }
-  });
-  return teiPubParams;
+                .forEach((groupId) => {
+                const query_key = advanced_conf['search_full_text'][groupId];
+                if (query_key) {
+                    switch (query_key.type) {
+                        case 'fulltext':
+                            if (!data[groupId])
+                                break;
+                            const collection = query_key['collection'];
+                            const pagination = query_key['perPage'];
+                            const query = data[groupId];
+                            teiPubParams = `query=${query}&start=1&per-page=${pagination}`;
+                            // if (collection && collection !== '') {
+                            //     teiPubParams += `&collection=${collection}`;
+                            // }
+                            if (doc) {
+                                const docString = doc.map((filename) => {
+                                    return 'doc=' + filename.replace('/', '%2F');
+                                  })
+                                  .join('&');
+                                teiPubParams += '&' + docString;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
+            return teiPubParams;
 };
 
   buildAdvancedQuery = (data: DataType, conf: any) => {

@@ -4,7 +4,7 @@ exports.AdvancedSearchParser = void 0;
 const ASHelper = require("../helpers/advanced-helper");
 class AdvancedSearchParser {
     constructor() {
-        this.buildTextViewerQuery = (data, conf) => {
+        this.buildTextViewerQuery = (data, conf, doc) => {
             const { searchId, results } = data;
             const advanced_conf = conf['advanced_search'][searchId];
             let teiPubParams;
@@ -21,7 +21,17 @@ class AdvancedSearchParser {
                             const collection = query_key['collection'];
                             const pagination = query_key['perPage'];
                             const query = data[groupId];
-                            teiPubParams = `mrcsearch?query=${query}&start=1&per-page=${pagination}&collection=${collection}`;
+                            teiPubParams = `query=${query}&start=1&per-page=${pagination}`;
+                            // if (collection && collection !== '') {
+                            //     teiPubParams += `&collection=${collection}`;
+                            // }
+                            if (doc) {
+                                const docString = doc.map((filename) => {
+                                    return 'doc=' + filename.replace('/', '%2F');
+                                })
+                                    .join('&');
+                                teiPubParams += '&' + docString;
+                            }
                             break;
                         default:
                             break;
@@ -195,7 +205,7 @@ class AdvancedSearchParser {
             let itemResult = {
                 highlights: {}
             };
-            if (conf[searchId].show_highlights === true && highlight) {
+            if (highlight) {
                 itemResult.highlights = highlight;
             }
             conf[searchId].results.forEach((val) => {
