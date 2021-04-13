@@ -25,8 +25,14 @@ export declare const spanNear: (queryField: {
 export declare const buildQueryString: (term: any, options?: any) => any;
 export declare const queryTerm: (termField: any, termValue: any) => {
     term: {
+        [x: number]: string;
+    };
+    terms?: undefined;
+} | {
+    terms: {
         [x: number]: any;
     };
+    term?: undefined;
 };
 export declare const buildHighlights: (queryField: any) => {};
 export declare const buildLink: (queryField: any, sourceField: any) => string;

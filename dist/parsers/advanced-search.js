@@ -121,7 +121,8 @@ class AdvancedSearchParser {
                                 allowWildCard: query_key.addStar,
                                 stripDoubleQuotes: true,
                             });
-                            const tv_query = ASHelper.queryString({ fields: query_key.field, value: query_term }, 'AND');
+                            const operator = query_key.operator ? query_key.operator : "AND";
+                            const tv_query = ASHelper.queryString({ fields: query_key.field, value: query_term }, operator);
                             highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
                             must_array.push(tv_query);
                             break;
@@ -160,6 +161,9 @@ class AdvancedSearchParser {
             });
             const bool_query = ASHelper.queryBool(must_array, [], [], must_not);
             adv_query.query = bool_query.query;
+            if (advanced_conf.highlight_all) {
+                highlight_fields["*"] = {};
+            }
             adv_query.highlight.fields = highlight_fields;
             return adv_query;
         };

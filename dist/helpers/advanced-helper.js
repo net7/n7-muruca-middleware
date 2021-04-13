@@ -90,11 +90,20 @@ exports.buildQueryString = (term, options = {}) => {
     return queryTerms;
 };
 exports.queryTerm = (termField, termValue) => {
-    return {
-        term: {
-            [termField]: termValue
-        }
-    };
+    if (typeof termValue === "string") {
+        return {
+            term: {
+                [termField]: termValue
+            }
+        };
+    }
+    else {
+        return {
+            terms: {
+                [termField]: termValue
+            }
+        };
+    }
 };
 exports.buildHighlights = (queryField) => {
     const fields = typeof queryField === "string" ? queryField.split(',') : queryField;

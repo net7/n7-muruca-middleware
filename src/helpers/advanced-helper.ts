@@ -113,13 +113,19 @@ export const buildQueryString = (term: any, options: any = {}) => {
   }
 
   export const queryTerm = (termField: any, termValue: any) => {
-    return {
-      term: {
-        [termField]: termValue
-      }
-    }
-  ​
-  ​
+    if( typeof termValue === "string"){
+      return {
+        term: {
+          [termField]: termValue
+        }
+      } 
+    } else  {
+      return {
+        terms: {
+          [termField]: termValue
+        }
+      } 
+    }    ​
   }
 
   export const buildHighlights = (queryField: any) => {
@@ -133,26 +139,26 @@ export const buildQueryString = (term: any, options: any = {}) => {
 
 export const buildLink = (queryField, sourceField) => {
   const linkToParse = queryField;
-                          const regExpType = /(.*?)(?=\/)/;
-                          const regExpUrl = /(?<=\{)(.*?)(?=\})/g;
-                          let matchType = linkToParse.match(regExpType);
-                          const matchUrl = linkToParse.match(regExpUrl);
-                          let filterType = [];
-                          if (Array.isArray(matchType)) {
-                              matchType.forEach((type) => {
-                                  if(!filterType.includes(type)) {
-                                      filterType.push(type);
-                                  }
-                              })
-                          }
-                          let type = filterType ? filterType[0] : matchType;
-                          let url = `/${type}/`;
-                          matchUrl.forEach((slug, i) => {
-                              if(sourceField[matchUrl[i]]) {
-                                  url += sourceField[matchUrl[i]] + '/'
-                              }
-                          });
-                          return url;  
+        const regExpType = /(.*?)(?=\/)/;
+        const regExpUrl = /(?<=\{)(.*?)(?=\})/g;
+        let matchType = linkToParse.match(regExpType);
+        const matchUrl = linkToParse.match(regExpUrl);
+        let filterType = [];
+        if (Array.isArray(matchType)) {
+            matchType.forEach((type) => {
+                if(!filterType.includes(type)) {
+                    filterType.push(type);
+                }
+            })
+        }
+        let type = filterType ? filterType[0] : matchType;
+        let url = `/${type}/`;
+        matchUrl.forEach((slug, i) => {
+            if(sourceField[matchUrl[i]]) {
+                url += sourceField[matchUrl[i]] + '/'
+            }
+        });
+        return url;  
 };
 
   export const queryExists = (termField: any) => {
