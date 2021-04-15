@@ -131,28 +131,41 @@ class Controller {
                     spaces: 4,
                 });
                 let matches_result = {};
-                expandedResult['body']['paper-card'].map((papercard) => {
-                    let div = papercard.div.div;
-                    let id = papercard['_attributes'].id;
-                    let a = div.map((element) => element.a['_text']);
-                    let em = div.map((element) => element.a.em['_text']);
-                    if (matches_result[id]) {
-                        for (let i = 0; i < a.length; i++) {
-                            matches_result[id].matches.push(a[i][0] + em[i] + a[i][1]);
+                if (expandedResult['body']['paper-card']) {
+                    expandedResult['body']['paper-card'].map((papercard) => {
+                        let div = papercard.div.div;
+                        let id = papercard['_attributes'].id;
+                        let href = div.a ? div.a['_attributes']['href'] : "";
+                        let a = Array.isArray(div) ? div === null || div === void 0 ? void 0 : div.map((element) => {
+                            href = element.a['_attributes']['href'];
+                            return element.a['_text'];
+                        }) : div.a['_text'];
+                        let em = Array.isArray(div) ? div === null || div === void 0 ? void 0 : div.map((element) => element.a.em['_text']) : div.a.em['_text'];
+                        if (!matches_result[id]) {
+                            matches_result[id] = {
+                                matches: [],
+                            };
                         }
-                    }
-                    else {
-                        matches_result[id] = {
-                            matches: [],
-                        };
-                    }
-                });
+                        for (let i = 0; i < a.length; i++) {
+                            //evita duplicati
+                            if (!Array.isArray(a[i]) && i > 0)
+                                return;
+                            const pre_text = Array.isArray(a[i]) ? a[i][0] : a[0];
+                            const post_text = Array.isArray(a[i]) ? a[i][1] : a[1];
+                            const em_text = Array.isArray(em) ? em[i] : em;
+                            const text_highlight = "<a href='" + href + "'>" + pre_text + "<em class='mrc__text-emph'>" + em_text + "</em>" + post_text + "</a>";
+                            matches_result[id].matches.push(text_highlight);
+                        }
+                    });
+                }
                 es_data.map((res) => {
                     if (res['_source']['xml_filename']) {
                         for (let key in matches_result) {
                             if (key === res['_source']['xml_filename']) {
-                                res['highlight']['text_matches'] = [];
-                                res['highlight']['text_matches'].push(matches_result[key].matches);
+                                if (!res['highlight']) {
+                                    res['highlight'] = {};
+                                }
+                                res['highlight']['text_matches'] = matches_result[key].matches;
                                 data.push(res);
                             }
                         }
@@ -247,6 +260,30 @@ class Controller {
             };
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        this.getItineraries = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            const { parsers, baseUrl } = this.config;
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'itinerary'));
+            /* const parser = new parsers.itineraries();
+             const response = parser.parse({ data });
+             if ( response ){
+               return HttpHelper.returnOkResponse(response);
+             } else {
+               return HttpHelper.returnErrorResponse("page not found", 404);
+             }*/
+        });
+        this.getItinerary = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            const { parsers, baseUrl } = this.config;
+            const { id } = event.pathParameters;
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'itinerary/' + id));
+            const parser = new parsers.itinerary();
+            const response = parser.parse({ data });
+            if (response) {
+                return helpers_1.HttpHelper.returnOkResponse(response);
+            }
+            else {
+                return helpers_1.HttpHelper.returnErrorResponse("page not found", 404);
+            }
+        });
         this.config = config;
     }
     getSlsMethods() {
@@ -262,7 +299,9 @@ class Controller {
             getTranslation: this.getTranslation.bind(this),
             getStaticPage: this.getStaticPage.bind(this),
             getStaticPost: this.getStaticPost.bind(this),
-            getTypeList: this.getTypeList.bind(this)
+            getTypeList: this.getTypeList.bind(this),
+            getItinerary: this.getItinerary.bind(this),
+            getItineraries: this.getItineraries.bind(this)
         };
     }
 }

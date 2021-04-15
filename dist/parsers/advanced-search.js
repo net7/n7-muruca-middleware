@@ -169,6 +169,17 @@ class AdvancedSearchParser {
                     }
                 }
             });
+            if (advanced_conf['search_full_text']) {
+                let te_query;
+                Object.keys(advanced_conf['search_full_text']).forEach((groupId) => {
+                    if (data[groupId]) {
+                        te_query = ASHelper.queryExists('xml_filename');
+                    }
+                });
+                if (typeof te_query !== "undefined") {
+                    must_array.push(te_query);
+                }
+            }
             const bool_query = ASHelper.queryBool(must_array, [], [], must_not);
             adv_query.query = bool_query.query;
             if (advanced_conf.highlight_all) {

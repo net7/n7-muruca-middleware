@@ -13,6 +13,8 @@ export declare class Controller {
     getStaticPage: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getStaticPost: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getTypeList: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
+    getItineraries: (event: any, _context: any, _callback: any) => Promise<void>;
+    getItinerary: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getSlsMethods(): {
         getNavigation: any;
         getFooter: any;
@@ -26,5 +28,7 @@ export declare class Controller {
         getStaticPage: any;
         getStaticPost: any;
         getTypeList: any;
+        getItinerary: any;
+        getItineraries: any;
     };
 }

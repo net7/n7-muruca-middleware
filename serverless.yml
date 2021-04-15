@@ -51,6 +51,18 @@ functions:
       - http:
           path: get_static_post/{slug}
           method: get
+  getItineraries:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getItineraries
+    events:
+      - http:
+          path: get_itineraries
+          method: get
+  getItinerary:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getItinerary
+    events:
+      - http:
+          path: get_itinerary/{id}
+          method: get
   getTimeline:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getTimeline
     events:
