@@ -113,7 +113,7 @@ export class Controller {
         es_data.map((res) => {
           if (res['_source']['xml_filename']) {
             const xml_filename = res['_source']['xml_filename'];
-            map_data[xml_filename] = res['_source']['id'];
+            map_data[xml_filename] = res;
           }
         });
     const docs = Object.keys(map_data);
@@ -159,8 +159,13 @@ export class Controller {
                   const pre_text = Array.isArray(a[i]) ? a[i][0] : a[0];
                   const post_text = Array.isArray(a[i]) ? a[i][1] : a[1];
                   const em_text = Array.isArray( em ) ? em[i]  :  em;
-                  const text_highlight = "<a href='" + href + "'>" + pre_text + "<em class='mrc__text-emph'>" + em_text + "</em>" + post_text + "</a>"
-                  matches_result[id].matches.push(text_highlight);
+                  const text_highlight = pre_text + "<em class='mrc__text-emph'>" + em_text + "</em>" + post_text
+                  matches_result[id].matches.push(
+                    {
+                      link: "?root=" + href.replace("#", ""),
+                      text: text_highlight
+                    }
+                  );
               }
             });
           }

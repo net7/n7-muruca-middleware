@@ -12,13 +12,13 @@ class ItineraryParser {
             "time_to_read": "time_to_read",
             "image": "image"
         };
-        const itinerary = {};
+        const itinerary = { sections: {} };
         for (const field in default_fields) {
             itinerary[field] = data[default_fields[field]];
         }
         for (const restField in data) {
             if (!default_fields[restField]) {
-                itinerary[restField] = data[restField];
+                itinerary.sections[restField] = data[restField];
             }
         }
         return itinerary;
