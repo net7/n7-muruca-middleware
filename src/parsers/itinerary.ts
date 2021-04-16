@@ -3,6 +3,7 @@ import Parser, { Input } from "../interfaces/parser";
 export class ItineraryParser implements Parser {
   parse({ data, options }: Input) {
     const default_fields = {
+      'id': 'id',
       'title': 'title',
       'content': "content", 
       "slug": "slug", 

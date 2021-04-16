@@ -4,6 +4,7 @@ exports.ItineraryParser = void 0;
 class ItineraryParser {
     parse({ data, options }) {
         const default_fields = {
+            'id': 'id',
             'title': 'title',
             'content': "content",
             "slug": "slug",
