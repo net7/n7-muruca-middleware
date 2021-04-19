@@ -139,26 +139,18 @@ export const buildQueryString = (term: any, options: any = {}) => {
 
 export const buildLink = (queryField, sourceField) => {
   const linkToParse = queryField;
-        const regExpType = /(.*?)(?=\/)/;
-        const regExpUrl = /(?<=\{)(.*?)(?=\})/g;
-        let matchType = linkToParse.match(regExpType);
-        const matchUrl = linkToParse.match(regExpUrl);
-        let filterType = [];
-        if (Array.isArray(matchType)) {
-            matchType.forEach((type) => {
-                if(!filterType.includes(type)) {
-                    filterType.push(type);
-                }
-            })
-        }
-        let type = filterType ? filterType[0] : matchType;
-        let url = `/${type}/`;
-        matchUrl.forEach((slug, i) => {
-            if(sourceField[matchUrl[i]]) {
-                url += sourceField[matchUrl[i]] + '/'
-            }
-        });
-        return url;  
+    const regExpUrl = /{(.*?)}/g;
+    const matchUrl = linkToParse.match(regExpUrl);
+    let url = queryField;
+
+    matchUrl.forEach((slug, i) => {
+      const key = slug.replace(/[{}]/g, "");
+      if (sourceField[key]) {
+          url = url.replace( slug, sourceField[key] );            
+      }            //url += sourceField[matchUrl[i]] + '/';
+        
+    }); 
+    return url;
 };
 
   export const queryExists = (termField: any) => {

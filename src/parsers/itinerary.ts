@@ -1,6 +1,14 @@
 import Parser, { Input } from "../interfaces/parser";
+import { CommonHelper } from './../helpers';
 
 export class ItineraryParser implements Parser {
+
+  private config;
+
+  constructor(config){
+    this.config = config;
+  }
+
   parse({ data, options }: Input) {
     const default_fields = {
       'id': 'id',
@@ -12,7 +20,7 @@ export class ItineraryParser implements Parser {
       "time_to_read": "time_to_read",
       "image": "image"
     };
-
+    console.log(this.config);
     const itinerary = { sections: {}};
     for (const field in default_fields) {
       itinerary[field] = data[default_fields[field]];
@@ -20,7 +28,14 @@ export class ItineraryParser implements Parser {
 
     for (const restField in data) {
       if (!default_fields[restField] ) {
-        itinerary.sections[restField] = data[restField];
+        if(this.config.collections[restField]){
+          itinerary.sections[restField] = data[restField].map((d: any) => ({
+            title: d.title,
+            text: d.description,
+            link: CommonHelper.buildLink(this.config.collections[restField]?.link, d),
+            image: d.item.thumbnail || null
+          }));
+        }
       }
     }
 

@@ -283,7 +283,7 @@ export class Controller {
   }
 
   getItineraries = async (event: any, _context: any, _callback: any) => {
-    const { parsers, baseUrl } = this.config;
+    const { parsers, baseUrl, configurations } = this.config;
     const data = JSON.parse(await HttpHelper.doRequest(baseUrl + 'itinerary'));
    /* const parser = new parsers.itineraries();
     const response = parser.parse({ data });
@@ -295,10 +295,10 @@ export class Controller {
   }
 
   getItinerary = async (event: any, _context: any, _callback: any) => {
-    const { parsers, baseUrl } = this.config;
+    const { parsers, baseUrl, configurations } = this.config;
     const { id } = event.pathParameters;
     const data = JSON.parse(await HttpHelper.doRequest(baseUrl + 'itinerary/'+ id));
-    const parser = new parsers.itinerary();
+    const parser = new parsers.itinerary(configurations?.itineraries);
     const response = parser.parse({ data });
     if ( response ){
       return HttpHelper.returnOkResponse(response);
