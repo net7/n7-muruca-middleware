@@ -35,7 +35,7 @@ export declare const queryTerm: (termField: any, termValue: any) => {
     term?: undefined;
 };
 export declare const buildHighlights: (queryField: any) => {};
-export declare const buildLink: (queryField: any, sourceField: any) => string;
+export declare const buildLink: (queryField: any, sourceField: any) => any;
 export declare const queryExists: (termField: any) => {
     exists: {
         field: any;

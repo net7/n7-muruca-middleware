@@ -264,7 +264,7 @@ class Controller {
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.getItineraries = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
-            const { parsers, baseUrl } = this.config;
+            const { parsers, baseUrl, configurations } = this.config;
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'itinerary'));
             /* const parser = new parsers.itineraries();
              const response = parser.parse({ data });
@@ -275,10 +275,10 @@ class Controller {
              }*/
         });
         this.getItinerary = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
-            const { parsers, baseUrl } = this.config;
+            const { parsers, baseUrl, configurations } = this.config;
             const { id } = event.pathParameters;
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'itinerary/' + id));
-            const parser = new parsers.itinerary();
+            const parser = new parsers.itinerary(configurations === null || configurations === void 0 ? void 0 : configurations.itineraries);
             const response = parser.parse({ data });
             if (response) {
                 return helpers_1.HttpHelper.returnOkResponse(response);
