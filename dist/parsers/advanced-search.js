@@ -218,14 +218,13 @@ class AdvancedSearchParser {
             };
             if (highlight) {
                 for (let prop in highlight) {
-                    if (prop != "text-match") {
+                    if (prop != "text_matches") {
                         itemResult.highlights.push([prop, highlight[prop]]);
                     }
                     else {
-                        itemResult.highlights.push(highlight[prop]);
+                        highlight[prop].forEach(el => itemResult.highlights.push(el));
                     }
                 }
-                itemResult.highlights = highlight;
             }
             conf[searchId].results.forEach((val) => {
                 if (source.hasOwnProperty(val.field)) {
