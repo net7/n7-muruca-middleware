@@ -33,7 +33,7 @@ export class ItineraryParser implements Parser {
             title: d.title,
             text: d.description,
             link: CommonHelper.buildLink(this.config.collections[restField]?.link, d),
-            image: d.item.thumbnail || null
+            image: d.thumbnail || null
           }));
         }
       }

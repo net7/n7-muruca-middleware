@@ -31,7 +31,7 @@ class ItineraryParser {
                             title: d.title,
                             text: d.description,
                             link: helpers_1.CommonHelper.buildLink((_a = this.config.collections[restField]) === null || _a === void 0 ? void 0 : _a.link, d),
-                            image: d.item.thumbnail || null
+                            image: d.thumbnail || null
                         });
                     });
                 }
