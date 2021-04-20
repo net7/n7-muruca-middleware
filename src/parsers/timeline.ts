@@ -7,7 +7,7 @@ export class TimelineParser implements Parser {
       };
       data.map(item => {
         const dateStart = item.hasOwnProperty('timeline_year_start') ? item.timeline_year_start : item.timeline_date_start;
-        const dateEnd = item.hasOwnProperty('timeline_year_end') ? item.timeline_year_start : item.timeline_date_start;
+        const dateEnd = item.hasOwnProperty('timeline_year_end') ? item.timeline_year_end : item.timeline_date_end;
 
 
 

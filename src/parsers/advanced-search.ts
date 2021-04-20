@@ -35,9 +35,17 @@ export class AdvancedSearchParser implements Parser {
     let items = [];
     data.forEach(({ _source: source, highlight }) => {
         let itemResult = {
-            highlights: {}
+            highlights: []
         };
         if (highlight) {
+          for (let prop in highlight){
+            if(prop != "text-match"){
+              itemResult.highlights.push([prop, highlight[prop]]);
+            } else {
+              itemResult.highlights.push(highlight[prop])
+            }
+          }
+
           itemResult.highlights = highlight;
         }
         conf[searchId].results.forEach((val) => {
