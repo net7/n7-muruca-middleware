@@ -41,8 +41,8 @@ export abstract class SearchParser implements Parser {
       let filteredTotal = 0;
       let values: any[] = [];
       if (data[id]) {
-        let buckets_data = data[id].buckets === undefined ? data[id][id] : data[id];
-        if (buckets_data.buckets) {
+        let buckets_data =  getBucket(data[id]);
+        if (buckets_data && buckets_data.buckets) {
           buckets_data.buckets.forEach((agg: { key: string; doc_count: number }) => {
             const haystack_formatted = (agg.key.split("|||")[0] || '').toLowerCase();
             const haystack_notFormatted = (agg.key.split("|||")[1] || '').toLowerCase();
@@ -76,4 +76,17 @@ export abstract class SearchParser implements Parser {
     return agg_res;
   }
 
+}
+
+function getBucket(data){
+  let keys = Object.keys(data);
+  var bucketData;
+      if(keys.includes("buckets")){
+          return data;
+      } else {
+          keys.forEach( k  => { if( typeof data[k] === "object") bucketData = getBucket(data[k])})
+      }
+  if (bucketData && bucketData.buckets){
+      return bucketData;
+  }
 }

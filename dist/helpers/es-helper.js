@@ -140,9 +140,10 @@ exports.ESHelper = {
                 }
             }
             if (query_nested) {
+                const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
                 const nested = {
                     nested: {
-                        path: filterId,
+                        path: path,
                         query: {
                             terms: {
                                 [query_facets[filterId].search]: data[filterId],
@@ -157,19 +158,26 @@ exports.ESHelper = {
         for (const key in query_facets) {
             const { nested } = query_facets[key];
             if (nested) {
-                main_query.aggregations[key] = {
-                    nested: { path: key },
-                    aggs: {
-                        [key]: {
-                            terms: {
-                                script: {
-                                    source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
-                                    lang: 'painless',
+                if (query_facets[key]["nestedFields"]) {
+                    const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title);
+                    main_query.aggregations[key] = build_aggs;
+                }
+                else {
+                    //it contains a error, mantained for backward compatibility
+                    main_query.aggregations[key] = {
+                        nested: { path: key },
+                        aggs: {
+                            [key]: {
+                                terms: {
+                                    script: {
+                                        source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
+                                        lang: 'painless',
+                                    },
                                 },
                             },
                         },
-                    },
-                };
+                    };
+                }
             }
             else {
                 main_query.aggregations[key] = {
@@ -185,3 +193,34 @@ exports.ESHelper = {
         return main_query;
     },
 };
+function buildNested(terms, search, title) {
+    if (terms.length > 1) {
+        let term = terms.splice(0, 1);
+        terms[0] = term + "." + terms[0];
+        return {
+            "nested": {
+                "path": term[0]
+            },
+            "aggs": {
+                [term]: buildNested(terms, search, title)
+            }
+        };
+    }
+    else {
+        return {
+            "nested": {
+                "path": terms[0]
+            },
+            "aggs": {
+                [terms[0]]: {
+                    terms: {
+                        script: {
+                            source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
+                            lang: 'painless',
+                        },
+                    }
+                }
+            }
+        };
+    }
+}
