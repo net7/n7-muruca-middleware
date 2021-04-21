@@ -182,6 +182,7 @@ export const ESHelper = {
               aggs: {
                 [key]: {
                   terms: {
+                    size: 100,
                     script: {
                       source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
                       lang: 'painless',
@@ -194,6 +195,7 @@ export const ESHelper = {
       } else {
         main_query.aggregations[key] = {
           terms: {
+            size: 100,
             script: {
               source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
               lang: 'painless',
