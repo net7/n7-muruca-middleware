@@ -23,12 +23,22 @@ class TimelineParser {
     formatDateUtcStandard(date) {
         if (date && date != "") {
             var dateArray = date.split("-");
-            let d = new Date(+dateArray[2], +dateArray[1] - 1, +dateArray[0]), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
+            let aC = "";
+            if (dateArray.length > 3) {
+                dateArray.shift();
+                aC = "-00";
+            }
+            let d = new Date(+dateArray[2], +dateArray[1] - 1, +dateArray[0]), month = '' + (d.getMonth() + 1), day = '' + d.getDate();
+            d.setFullYear(+dateArray[2]);
+            let year = '' + d.getFullYear();
+            while (year.toString().length < 4) {
+                year = "0" + year;
+            }
             if (month.length < 2)
                 month = '0' + month;
             if (day.length < 2)
                 day = '0' + day;
-            return [year, month, day].join('-') + "T00:00:00";
+            return [aC + year, month, day].join('-') + "T00:00:00";
         }
     }
 }
