@@ -17,7 +17,6 @@ class ItineraryParser {
             "time_to_read": "time_to_read",
             "image": "image"
         };
-        console.log(this.config);
         const itinerary = { sections: {} };
         for (const field in default_fields) {
             itinerary[field] = data[default_fields[field]];
@@ -25,7 +24,8 @@ class ItineraryParser {
         for (const restField in data) {
             if (!default_fields[restField]) {
                 if (this.config.collections[restField]) {
-                    itinerary.sections[restField] = data[restField].map((d) => {
+                    itinerary.sections[restField] = {};
+                    itinerary.sections[restField]['items'] = data[restField].map((d) => {
                         var _a;
                         return ({
                             title: d.title,
