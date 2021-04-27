@@ -110,7 +110,9 @@ class AdvancedSearchParser {
                                 stripDoubleQuotes: true,
                             });
                             const ft_query = ASHelper.queryString({ fields: query_key.field, value: query_string }, 'AND');
-                            highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                            if (!query_key.noHighlight) {
+                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                            }
                             must_array.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
                             break;
                         case 'proximity':
@@ -121,7 +123,9 @@ class AdvancedSearchParser {
                                 value: data[query_key.query_params.value],
                                 distance: +data[query_key.query_params.slop],
                             });
-                            highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                            if (!query_key.noHighlight) {
+                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                            }
                             must_array.push(pt_query);
                             break;
                         case 'term_value':
@@ -133,32 +137,41 @@ class AdvancedSearchParser {
                             });
                             const operator = query_key.operator ? query_key.operator : "AND";
                             const tv_query = ASHelper.queryString({ fields: query_key.field, value: query_term }, operator);
-                            highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                            if (!query_key.noHighlight) {
+                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                            }
                             must_array.push(tv_query);
                             break;
                         case 'term_field_value':
                             if (!data[query_key.query_params.value])
                                 break;
+                            const fields = data[query_key.query_params.field] ? data[query_key.query_params.field] : query_key.field;
                             const query_field_value = ASHelper.buildQueryString(data[query_key.query_params.value], {
                                 allowWildCard: query_key.addStar,
                                 stripDoubleQuotes: true,
                             });
                             const tf_query = ASHelper.queryString({
-                                fields: data[query_key.query_params.field],
+                                fields: fields,
                                 value: query_field_value,
                             }, 'AND');
-                            highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                            if (!query_key.noHighlight) {
+                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(fields)), highlight_fields);
+                            }
                             must_array.push(tf_query);
                             break;
                         case 'term_exists':
                             if (data[groupId] === "true") {
                                 const te_query = ASHelper.queryExists(query_key.field);
-                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                                if (!query_key.noHighlight) {
+                                    highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                                }
                                 must_array.push(te_query);
                             }
                             else if (data[groupId] === "false") {
                                 const te_query = ASHelper.queryExists(query_key.field);
-                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                                if (!query_key.noHighlight) {
+                                    highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                                }
                                 must_not.push(te_query);
                             }
                             break;
@@ -185,7 +198,9 @@ class AdvancedSearchParser {
             if (advanced_conf.highlight_all) {
                 highlight_fields["*"] = {};
             }
-            adv_query.highlight.fields = highlight_fields;
+            if (Object.keys(highlight_fields).length) {
+                adv_query.highlight.fields = highlight_fields;
+            }
             return adv_query;
         };
     }
@@ -218,7 +233,7 @@ class AdvancedSearchParser {
             };
             if (highlight) {
                 for (let prop in highlight) {
-                    if (prop != "text_matches") {
+                    if (prop != "text_matches" && prop != conf[searchId]["base_query"]["field"]) {
                         itemResult.highlights.push([prop, highlight[prop]]);
                     }
                     else {
