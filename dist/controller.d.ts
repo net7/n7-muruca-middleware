@@ -5,6 +5,7 @@ export declare class Controller {
     getHomeLayout: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getSearchDescription: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getTimeline: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
+    getMap: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getResource: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     search: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     advancedSearch: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
@@ -21,6 +22,7 @@ export declare class Controller {
         getHomeLayout: any;
         getSearchDescription: any;
         getTimeline: any;
+        getMap: any;
         getResource: any;
         search: any;
         advancedSearch: any;

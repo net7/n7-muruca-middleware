@@ -63,6 +63,12 @@ functions:
       - http:
           path: get_itinerary/{id}
           method: get
+  getMap:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getMap
+    events:
+      - http:
+          path: get_map/{id}
+          method: get
   getTimeline:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getTimeline
     events:

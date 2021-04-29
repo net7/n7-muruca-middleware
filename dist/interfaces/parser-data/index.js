@@ -13,6 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./home"), exports);
 __exportStar(require("./menu"), exports);
 __exportStar(require("./resource"), exports);
+__exportStar(require("./map"), exports);
 __exportStar(require("./search"), exports);
 __exportStar(require("./timeline"), exports);
 __exportStar(require("./text-viewer"), exports);

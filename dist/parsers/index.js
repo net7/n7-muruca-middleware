@@ -18,6 +18,7 @@ __exportStar(require("./home"), exports);
 __exportStar(require("./footer"), exports);
 __exportStar(require("./static"), exports);
 __exportStar(require("./timeline"), exports);
+__exportStar(require("./map"), exports);
 __exportStar(require("./search-description"), exports);
 __exportStar(require("./translation"), exports);
 __exportStar(require("./itinerary"), exports);

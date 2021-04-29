@@ -1,7 +1,7 @@
 /**
  * Interface for the Timeline component
  */
-export interface TimelineData {
+ export interface TimelineData {
     dataSet: TimelineDataset;
 }
 
