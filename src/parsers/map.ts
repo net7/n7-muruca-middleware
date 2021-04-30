@@ -6,19 +6,19 @@ export class MapParser implements Parser {
         dataSet: []
       };
       data.map(item => {
-        const zoom = item.views_place_coords.zoom;
-        const markers = item.views_place_coords.markers.map(coord => [coord.lat, coord.lng]);
-        const center = [item.views_place_coords.center_lat, item.views_place_coords.center_lng,]
-
-          map.dataSet.push({
-            id: item.id,
-            content: item.title,
-            slug: item.slug,
-            map_center: center,
-            zoom: zoom,
-            markers: markers
-          })
+        map.dataSet.push(this.parseMapItem(item));
       })
       return map;
+    }
+
+    parseMapItem( map : any ) {
+      return {
+        title: map.title,
+        slug: map.slug,
+        text: map.text,
+        map_center: {lat: map.coords?.center_lat, lng: map.coords?.center_lng},
+        markers: map.coords?.markers,
+        zoom: map.coords?.zoom
+      }
     }
   }

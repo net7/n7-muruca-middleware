@@ -3,4 +3,15 @@ export declare class MapParser implements Parser {
     parse({ data }: Input): {
         dataSet: any[];
     };
+    parseMapItem(map: any): {
+        title: any;
+        slug: any;
+        text: any;
+        map_center: {
+            lat: any;
+            lng: any;
+        };
+        markers: any;
+        zoom: any;
+    };
 }
