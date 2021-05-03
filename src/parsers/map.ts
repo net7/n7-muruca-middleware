@@ -15,7 +15,8 @@ export class MapParser implements Parser {
       return {
         title: map.title,
         slug: map.slug,
-        text: map.text,
+        id: map.id,
+        text: map.content,
         map_center: {lat: map.coords?.center_lat, lng: map.coords?.center_lng},
         markers: map.coords?.markers,
         zoom: map.coords?.zoom

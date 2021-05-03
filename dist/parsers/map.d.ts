@@ -6,6 +6,7 @@ export declare class MapParser implements Parser {
     parseMapItem(map: any): {
         title: any;
         slug: any;
+        id: any;
         text: any;
         map_center: {
             lat: any;
