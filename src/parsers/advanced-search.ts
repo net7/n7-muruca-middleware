@@ -122,8 +122,22 @@ buildTextViewerQuery = (data: DataType, conf: any, doc: any) => {
                                 teiPubParams += '&' + docString;
                             }
                             break;
+                             case "proximity":
+                                 if (!data[query_key['query_params']['value']])
+                                     break;
+                                     const pag = query_key['perPage'];
+                                     const slop = data[query_key['query_params']['slop']] ?? ""  ;
+                                     const q2 = data[query_key['query_params']['value']] + "~" + slop;
+                                           teiPubParams = `query=${q2}&start=1&per-page=${pag}`;        
+                                     if (doc) {
+                                         const docString = doc.map((filename) => {
+                                             return 'doc=' + filename.replace('/', '%2F');
+                                         })
+                                             .join('&');
+                                         teiPubParams += '&' + docString;
+                                     }
                         default:
-                            break;
+                        break;
                     }
                 }
             });
@@ -136,6 +150,7 @@ buildTextViewerQuery = (data: DataType, conf: any, doc: any) => {
     const sort = results.sort;
     const { limit, offset } = results || {};
     const advanced_conf = conf['advanced_search'][searchId];   
+    
     const adv_query: any = {
       query: {
       },

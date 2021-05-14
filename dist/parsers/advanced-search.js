@@ -12,6 +12,7 @@ class AdvancedSearchParser {
                 return;
             Object.keys(advanced_conf['search_full_text'])
                 .forEach((groupId) => {
+                var _a;
                 const query_key = advanced_conf['search_full_text'][groupId];
                 if (query_key) {
                     switch (query_key.type) {
@@ -33,6 +34,20 @@ class AdvancedSearchParser {
                                 teiPubParams += '&' + docString;
                             }
                             break;
+                        case "proximity":
+                            if (!data[query_key['query_params']['value']])
+                                break;
+                            const pag = query_key['perPage'];
+                            const slop = (_a = data[query_key['query_params']['slop']]) !== null && _a !== void 0 ? _a : "";
+                            const q2 = data[query_key['query_params']['value']] + "~" + slop;
+                            teiPubParams = `query=${q2}&start=1&per-page=${pag}`;
+                            if (doc) {
+                                const docString = doc.map((filename) => {
+                                    return 'doc=' + filename.replace('/', '%2F');
+                                })
+                                    .join('&');
+                                teiPubParams += '&' + docString;
+                            }
                         default:
                             break;
                     }

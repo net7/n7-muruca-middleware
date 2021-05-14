@@ -131,8 +131,7 @@ export class Controller {
     var data = [];
     
     if( teiPublisherParams ){
-      const collectionUri =
-            'http://staging.teipublisher.netseven.it/exist/apps/tei-publisher/api/mrcsearch';
+      const collectionUri = this.config.teiPublisherUri +'mrcsearch';;
           const doc = await HttpHelper.doRequest(
             collectionUri + '?' + teiPublisherParams
           );
@@ -149,13 +148,33 @@ export class Controller {
 
           let matches_result = {};
           if(expandedResult['body']['paper-card']){          
-            expandedResult['body']['paper-card'].map((papercard) => {
+            const cards = Array.isArray(expandedResult['body']['paper-card']) ? expandedResult['body']['paper-card'] : [expandedResult['body']['paper-card']];
+            cards.map((papercard) => {
               let div = papercard.div.div;
               let id = papercard['_attributes'].id;
               let href = div.a ? div.a['_attributes']['href'] : "";
-              let a = Array.isArray(div) ? div === null || div === void 0 ? void 0 : div.map((element) => {
-                      href = element.a['_attributes']['href']; return element.a['_text']; 
-                  }) : div.a['_text'];
+              let text_highlight = "";
+              
+              if(div.a.span && Array.isArray(div.a.span)){
+                  div.a.span.forEach(element => {
+                      if(element['_attributes'] && element['_attributes']['class'] === "mrc__text-emph"){
+                          text_highlight += "<em class='mrc__text-emph'>" + element['_text'] + "</em>"
+                      } else {
+                          text_highlight += element['_text'] + " "
+                      }
+                  });
+              }
+              if (!matches_result[id]) {
+                  matches_result[id] = {
+                      matches: [],
+                  };
+              }                        
+              matches_result[id].matches.push({
+                  link: "?root=" + href.replace("#", "") ,
+                  text: text_highlight                    
+              });
+
+              /*
               let em = Array.isArray(div) ? div === null || div === void 0 ? void 0 : div.map((element) => element.a.em['_text']) : div.a.em['_text'];
               if (!matches_result[id]) {
                   matches_result[id] = {
@@ -164,19 +183,18 @@ export class Controller {
               }
               for (let i = 0; i < a.length; i++) {
                   //evita duplicati
-                  if(!Array.isArray(a[i]) && i > 0) return;
+                  if (!Array.isArray(a[i]) && i > 0)
+                      return;
                   const pre_text = Array.isArray(a[i]) ? a[i][0] : a[0];
                   const post_text = Array.isArray(a[i]) ? a[i][1] : a[1];
-                  const em_text = Array.isArray( em ) ? em[i]  :  em;
-                  const text_highlight = pre_text + "<em class='mrc__text-emph'>" + em_text + "</em>" + post_text
-                  matches_result[id].matches.push(
-                    {
+                  const em_text = Array.isArray(em) ? em[i] : em;
+                  const text_highlight = pre_text + "<em class='mrc__text-emph'>" + em_text + "</em>" + post_text;
+                  matches_result[id].matches.push({
                       link: "?root=" + href.replace("#", ""),
                       text: text_highlight
-                    }
-                  );
-              }
-            });
+                  });
+              }*/
+          });
           }
 
           es_data.map((res) => {
