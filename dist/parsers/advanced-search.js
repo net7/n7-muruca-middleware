@@ -248,7 +248,7 @@ class AdvancedSearchParser {
             };
             if (highlight) {
                 for (let prop in highlight) {
-                    if (prop != "text_matches" && prop != conf[searchId]["base_query"]["field"]) {
+                    if (prop != "text_matches") {
                         itemResult.highlights.push([prop, highlight[prop]]);
                     }
                     else {
@@ -292,11 +292,16 @@ class AdvancedSearchParser {
                 else if (val.fields) {
                     let fields = val.fields;
                     itemResult[val.label] = [];
+                    let items = [];
                     fields.forEach(item => {
                         if (source.hasOwnProperty(item.field)) {
-                            itemResult[val.label][item.label] = source[item.field];
+                            items.push({
+                                label: item.label,
+                                value: source[item.field]
+                            });
                         }
                     });
+                    itemResult[val.label].push({ items: items });
                 }
             });
             items.push(itemResult);
