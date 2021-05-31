@@ -190,6 +190,15 @@ class AdvancedSearchParser {
                                 must_not.push(te_query);
                             }
                             break;
+                        case 'term_range':
+                            if (!data[groupId])
+                                break;
+                            const range_query = ASHelper.queryRange(query_key.field, data[groupId]);
+                            if (!query_key.noHighlight) {
+                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                            }
+                            must_array.push(range_query);
+                            break;
                         case 'ternary':
                             break;
                         default:
@@ -294,12 +303,21 @@ class AdvancedSearchParser {
                     itemResult[val.label] = [];
                     let items = [];
                     fields.forEach(item => {
-                        if (source.hasOwnProperty(item.field)) {
-                            items.push({
-                                label: item.label,
-                                value: source[item.field]
-                            });
+                        let obj = source;
+                        let fieldArray = item.field.split('.');
+                        for (let i = 0; i < fieldArray.length; i++) {
+                            let prop = fieldArray[i];
+                            if (!obj || !obj.hasOwnProperty(prop)) {
+                                return false;
+                            }
+                            else {
+                                obj = obj[prop];
+                            }
                         }
+                        items.push({
+                            label: item.label,
+                            value: obj
+                        });
                     });
                     itemResult[val.label].push({ items: items });
                 }

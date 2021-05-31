@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildHighlights = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
+exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
 exports.queryBool = (mustList = [], shouldList = [], filterList = [], notList = []) => {
     const x = {
         query: {
@@ -105,11 +105,36 @@ exports.queryTerm = (termField, termValue) => {
         };
     }
 };
+exports.queryRange = (termFields, termValue) => {
+    const ranges = [];
+    termFields.forEach((element) => {
+        ranges.push({
+            range: {
+                [element.field]: {
+                    [element.operator]: termValue
+                }
+            }
+        });
+    });
+    return exports.queryBool(ranges).query;
+};
 exports.buildHighlights = (queryField) => {
     const fields = typeof queryField === "string" ? queryField.split(',') : queryField;
     const highlight = {};
     for (let f of fields) {
-        highlight[f] = {};
+        if (Array.isArray(fields)) {
+            fields.forEach(element => {
+                if (element.field && element.field != "") {
+                    highlight[element.field] = {};
+                }
+                else {
+                    highlight[element] = {};
+                }
+            });
+        }
+        else {
+            highlight[f] = {};
+        }
     }
     return highlight;
 };

@@ -128,11 +128,39 @@ export const buildQueryString = (term: any, options: any = {}) => {
     }    ​
   }
 
+  export const queryRange = (termFields: [], termValue: any, ) => {
+
+    const ranges = [];
+    termFields.forEach( (element:any) => {
+      ranges.push(
+        {
+          range: {
+            [element.field]: {
+              [element.operator]: termValue
+            }
+          }
+        }
+      )
+    });
+    return queryBool(ranges).query;      ​
+  }
+
   export const buildHighlights = (queryField: any) => {
     const fields = typeof queryField === "string" ? queryField.split(',') : queryField;
     const highlight = {};
     for (let f of fields) {
+      if(Array.isArray(fields)){
+        fields.forEach(element => {
+            if(element.field && element.field != ""){
+                highlight[element.field ] = {};
+            } else {
+                highlight[element] = {};
+            }
+        });
+    }
+     else {
         highlight[f] = {};
+     }
     }
     return highlight;
 };
