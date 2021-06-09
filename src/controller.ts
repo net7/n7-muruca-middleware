@@ -150,12 +150,30 @@ export class Controller {
           if(expandedResult['body']['paper-card']){          
             const cards = Array.isArray(expandedResult['body']['paper-card']) ? expandedResult['body']['paper-card'] : [expandedResult['body']['paper-card']];
             cards.map((papercard) => {
-              let div = papercard.div.div;
+              let div = papercard.div;
+              let breadcrumbs = papercard.breadcrumbs["_text"].split("body/");
+              if(breadcrumbs.length > 1){
+                  breadcrumbs = breadcrumbs[1];
+              }
+              breadcrumbs = breadcrumbs.split("/");
+              let path = "";
+              breadcrumbs.forEach( el => {
+                  const regexp = /\[(?:@type|@n) eq "([\w]+)"\]/g;
+                  const matches = [...el.matchAll(regexp)];
+                  if( path != "") path += ", "
+                  for (const match of matches) {
+                      path += match[1] + " ";
+                  }
+              })
+
               let id = papercard['_attributes'].id;
-              let href = div.a ? div.a['_attributes']['href'] : "";
+              let href = div['_attributes'] ? div['_attributes']['ref'] : "";
               let text_highlight = "";
+              if( path != ""){
+                  text_highlight = "<span class='mrc__text-breadcrumbs'>" + path + "</span>"
+              }
               
-              if(div.a.span && Array.isArray(div.a.span)){
+              /*if(div.a.span && Array.isArray(div.a.span)){
                   div.a.span.forEach(element => {
                       if(element['_attributes'] && element['_attributes']['class'] === "mrc__text-emph"){
                           text_highlight += "<em class='mrc__text-emph'>" + element['_text'] + "</em>"
@@ -163,37 +181,57 @@ export class Controller {
                           text_highlight += element['_text'] + " "
                       }
                   });
-              }
+              }*/
+
+              if (div.p) {
+                let paragraphs = Array.isArray(div.p) ? div.p : [div.p];
+                paragraphs.forEach( p => {
+                    let texts;
+                    if(p._text){
+                        texts = Array.isArray(p._text) ? p._text : [p._text];
+                    }
+                    const span = Array.isArray(p.span) ? p.span : [p.span];
+                    
+                    if (texts && texts.length == span.length) {
+                        for (let i = 0; i < span.length; i++) {
+                            text_highlight += texts[i] + "<em class='mrc__text-emph'>" + span[i]["_text"] + "</em>";
+                        }
+                    }  
+                    if ( texts && texts.length > span.length) {
+                        for (let i = 0; i < texts.length; i++) {
+                            text_highlight += texts[i];
+                            if(span[i]){
+                                text_highlight += "<em class='mrc__text-emph'>" + span[i]["_text"] + "</em>"
+                            }
+                        }
+                    } 
+                    else if(span.length > 0){
+                        span.forEach(el1 => {
+                            if(el1.span){
+                                el1.span.forEach(el => {
+                                    if(el["_attributes"]["class"]){
+                                        text_highlight += "<span class='" +  el["_attributes"]["class"] + "'>" + el["_text"] + "</span> "
+                                    } else {
+                                        text_highlight +=  el["_text"] + " ";
+                                    }                                        
+                                })
+                            }
+                            text_highlight += "<span class='mrc__text-emph'>" + el1["_text"] + "</em>"
+                        })
+                    }
+                })                 
+            }
+
               if (!matches_result[id]) {
                   matches_result[id] = {
                       matches: [],
                   };
               }                        
               matches_result[id].matches.push({
-                  link: "?root=" + href.replace("#", "") ,
+                  link: "?root=" + href,
                   text: text_highlight                    
               });
-
-              /*
-              let em = Array.isArray(div) ? div === null || div === void 0 ? void 0 : div.map((element) => element.a.em['_text']) : div.a.em['_text'];
-              if (!matches_result[id]) {
-                  matches_result[id] = {
-                      matches: [],
-                  };
-              }
-              for (let i = 0; i < a.length; i++) {
-                  //evita duplicati
-                  if (!Array.isArray(a[i]) && i > 0)
-                      return;
-                  const pre_text = Array.isArray(a[i]) ? a[i][0] : a[0];
-                  const post_text = Array.isArray(a[i]) ? a[i][1] : a[1];
-                  const em_text = Array.isArray(em) ? em[i] : em;
-                  const text_highlight = pre_text + "<em class='mrc__text-emph'>" + em_text + "</em>" + post_text;
-                  matches_result[id].matches.push({
-                      link: "?root=" + href.replace("#", ""),
-                      text: text_highlight
-                  });
-              }*/
+        
           });
           }
 
