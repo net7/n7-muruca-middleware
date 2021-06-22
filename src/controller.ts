@@ -152,14 +152,14 @@ export class Controller {
       }
     });
     const docs = Object.keys(map_data);
-    const teiPublisherParams = parser.buildTextViewerQuery(
+
+    const teiPublisherParams = await parser.buildTextViewerQuery(
       body,
       this.config,
       docs
     );
     let total_count = query_res.hits.total.value;
     var data = [];
-
     if (teiPublisherParams) {
       const collectionUri = this.config.teiPublisherUri + 'mrcsearch';
       const doc = await HttpHelper.doRequest(
@@ -167,22 +167,14 @@ export class Controller {
         collectionUri + '?' + teiPublisherParams
       );
       // console.log(doc);
-      const textViewerResults: any = ASHelper.buildTextViewerResults(doc);
+      const textViewerResults = ASHelper.buildTextViewerResults(doc);
       let matches_result = textViewerResults;
-      if (matches_result.header_params.length > 0) {
-        const teiHeaderParams = parser.buildTeiHeaderQuery(
-          body,
-          configurations,
-          docs,
-          matches_result.header_params
-        );
-        const header = await HttpHelper.doRequest(
-          collectionUri + '?' + teiHeaderParams
-        );
-        const teiHeaderResults: any = ASHelper.buildTextViewerResults(header);
-        matches_result = teiHeaderResults;
-      }
-
+      // if (matches_result.header_params.length > 0) {
+      //     const teiHeaderParams = parser.buildTeiHeaderQuery(body, configurations, docs, matches_result.header_params);
+      //     const header = yield helpers_1.HttpHelper.doRequest(collectionUri + '?' + teiHeaderParams);
+      //     const teiHeaderResults = ASHelper.buildTextViewerResults(header);
+      //     matches_result = teiHeaderResults;
+      // }
       es_data.map((res) => {
         if (res['_source']['xml_filename']) {
           for (let key in matches_result) {
@@ -196,7 +188,6 @@ export class Controller {
           }
         }
       });
-
       total_count = data.length;
     } else {
       data = es_data;

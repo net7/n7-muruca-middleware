@@ -124,7 +124,7 @@ class Controller {
                 }
             });
             const docs = Object.keys(map_data);
-            const teiPublisherParams = parser.buildTextViewerQuery(body, this.config, docs);
+            const teiPublisherParams = yield parser.buildTextViewerQuery(body, this.config, docs);
             let total_count = query_res.hits.total.value;
             var data = [];
             if (teiPublisherParams) {
@@ -135,12 +135,12 @@ class Controller {
                 // console.log(doc);
                 const textViewerResults = ASHelper.buildTextViewerResults(doc);
                 let matches_result = textViewerResults;
-                if (matches_result.header_params.length > 0) {
-                    const teiHeaderParams = parser.buildTeiHeaderQuery(body, configurations, docs, matches_result.header_params);
-                    const header = yield helpers_1.HttpHelper.doRequest(collectionUri + '?' + teiHeaderParams);
-                    const teiHeaderResults = ASHelper.buildTextViewerResults(header);
-                    matches_result = teiHeaderResults;
-                }
+                // if (matches_result.header_params.length > 0) {
+                //     const teiHeaderParams = parser.buildTeiHeaderQuery(body, configurations, docs, matches_result.header_params);
+                //     const header = yield helpers_1.HttpHelper.doRequest(collectionUri + '?' + teiHeaderParams);
+                //     const teiHeaderResults = ASHelper.buildTextViewerResults(header);
+                //     matches_result = teiHeaderResults;
+                // }
                 es_data.map((res) => {
                     if (res['_source']['xml_filename']) {
                         for (let key in matches_result) {

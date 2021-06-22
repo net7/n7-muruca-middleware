@@ -43,7 +43,9 @@ export declare const queryRange: (termFields: [], termValue: any) => {
     };
 };
 export declare const buildHighlights: (queryField: any) => {};
-export declare const buildTeiHeaderResults: (idArray: any) => void;
+export declare const buildTeiHeaderResults: (headerResults: any) => {
+    header_params: any[];
+};
 export declare const buildTextViewerResults: (docResults: any) => {
     header_params: any[];
 };

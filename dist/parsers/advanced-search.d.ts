@@ -8,7 +8,7 @@ export declare class AdvancedSearchParser implements Parser {
         data: any;
         options: any;
     }): any[];
-    buildTextViewerQuery: (data: DataType, conf: any, doc: any) => any;
+    buildTextViewerQuery: (data: DataType, conf: any, doc: any) => Promise<any>;
     buildTeiHeaderQuery: (data: any, conf: any, doc: any, id_array: any) => any;
     buildAdvancedQuery: (data: DataType, conf: any) => any;
 }

@@ -142,7 +142,40 @@ exports.buildHighlights = (queryField) => {
     }
     return highlight;
 };
-exports.buildTeiHeaderResults = (idArray) => { };
+exports.buildTeiHeaderResults = (headerResults) => {
+    let stripped_doc = headerResults.replace(/<!DOCTYPE\s\w+>/g, '');
+    let wrapped_doc = '<body>' + stripped_doc + '</body>';
+    let convert = require('xml-js');
+    let expandedResult = convert.xml2js(wrapped_doc, {
+        // ignoreDoctype: true,
+        // ignoreDeclaration: true,
+        compact: true,
+        spaces: 4,
+    });
+    let matches_result = {
+        header_params: [],
+    };
+    let id_arr = [];
+    if (expandedResult['body']['paper-card']) {
+        const cards = Array.isArray(expandedResult['body']['paper-card'])
+            ? expandedResult['body']['paper-card']
+            : [expandedResult['body']['paper-card']];
+        cards.map((papercard) => {
+            var _a;
+            let div = papercard.div;
+            let header_id = (_a = div.p['_attributes']) === null || _a === void 0 ? void 0 : _a['root-id'];
+            if (header_id && header_id != "") {
+                if (!id_arr.includes(header_id)) {
+                    id_arr.push(header_id);
+                }
+            }
+        });
+    }
+    for (let id of id_arr) {
+        matches_result.header_params.push(id);
+    }
+    return matches_result;
+};
 exports.buildTextViewerResults = (docResults) => {
     let stripped_doc = docResults.replace(/<!DOCTYPE\s\w+>/g, '');
     let wrapped_doc = '<body>' + stripped_doc + '</body>';
