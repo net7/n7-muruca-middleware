@@ -154,7 +154,7 @@ export class Controller {
     const docs = Object.keys(map_data);
     const teiPublisherParams = parser.buildTextViewerQuery(
       body,
-      configurations,
+      this.config,
       docs
     );
     let total_count = query_res.hits.total.value;

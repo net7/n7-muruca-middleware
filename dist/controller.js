@@ -124,7 +124,7 @@ class Controller {
                 }
             });
             const docs = Object.keys(map_data);
-            const teiPublisherParams = parser.buildTextViewerQuery(body, configurations, docs);
+            const teiPublisherParams = parser.buildTextViewerQuery(body, this.config, docs);
             let total_count = query_res.hits.total.value;
             var data = [];
             if (teiPublisherParams) {

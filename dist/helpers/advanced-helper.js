@@ -162,9 +162,10 @@ exports.buildTextViewerResults = (docResults) => {
             ? expandedResult['body']['paper-card']
             : [expandedResult['body']['paper-card']];
         cards.map((papercard) => {
+            var _a;
             let div = papercard.div;
-            let header_id = div.p['_attributes']['root-id'];
-            if (header_id) {
+            let header_id = (_a = div.p['_attributes']) === null || _a === void 0 ? void 0 : _a['root-id'];
+            if (header_id && header_id != "") {
                 if (!id_arr.includes(header_id)) {
                     id_arr.push(header_id);
                 }

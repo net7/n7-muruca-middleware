@@ -104,12 +104,12 @@ export class AdvancedSearchParser implements Parser {
     return items;
   }
 
-  buildTextViewerQuery = (data: DataType, conf: any, doc: any) => {
+  buildTextViewerQuery =  (data: DataType, conf: any, doc: any) => {
     const { searchId, results } = data;
-    const advanced_conf = conf['advanced_search'][searchId];
+    const advanced_conf = conf['configurations']['advanced_search'][searchId];
     let teiPubParams;
     if (!advanced_conf['search_full_text']) return;
-    Object.keys(advanced_conf['search_full_text']).forEach((groupId) => {
+    Object.keys(advanced_conf['search_full_text']).forEach( async  (groupId) => {
       const query_key = advanced_conf['search_full_text'][groupId];
       if (query_key) {
         switch (query_key.type) {
@@ -124,12 +124,31 @@ export class AdvancedSearchParser implements Parser {
             // }
             break;
           case 'header-meta':
-            if (!data[groupId]) break;
+            if (!data[groupId]) break;           
             const collection_2 = query_key['collection']; //petrarca
             const pagination_2 = query_key['perPage']; //10
             const query_2 = data[groupId]; //es. query-text:"res"
             teiPubParams = `query=${query_2}&start=1&per-page=${pagination_2}`;
-            teiPubParams += `&collection=${collection_2}&field=${query_key.field}`;
+            teiPubParams += `&field=${query_key.field}`;
+
+
+            const collectionUri = conf.teiPublisherUri + 'mrcsearch';
+
+            let tmpParams =  teiPubParams; 
+            if (doc && teiPubParams && teiPubParams != "") {
+              const docString = doc
+                .map((filename) => {
+                  return 'doc=' + filename.replace('/', '%2F');
+                })
+                .join('&');
+                tmpParams += '&' + docString;
+            }
+            const resp = await HttpHelper.doRequest(
+              //qui devono arrivare già i params per il teiHeader
+              collectionUri + '?' + tmpParams
+            );
+
+            console.log(resp);
             break;
           case 'proximity':
             if (!data[query_key['query_params']['value']]) break;
@@ -142,7 +161,7 @@ export class AdvancedSearchParser implements Parser {
         }
       }
     });
-    if (doc && teiPubParams != '') {
+    if (doc && teiPubParams && teiPubParams != "") {
       const docString = doc
         .map((filename) => {
           return 'doc=' + filename.replace('/', '%2F');
@@ -185,7 +204,7 @@ export class AdvancedSearchParser implements Parser {
         }
       }
     });
-    if (doc && teiHeaderParams != '') {
+    if (doc && teiHeaderParams && teiHeaderParams != '') {
       const docString = doc
         .map((filename) => {
           return 'doc=' + filename.replace('/', '%2F');
