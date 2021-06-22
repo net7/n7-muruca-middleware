@@ -10,9 +10,8 @@ class AdvancedSearchParser {
             let teiPubParams;
             if (!advanced_conf['search_full_text'])
                 return;
-            Object.keys(advanced_conf['search_full_text'])
-                .forEach((groupId) => {
-                var _a;
+            Object.keys(advanced_conf['search_full_text']).forEach((groupId) => {
+                var _b;
                 const query_key = advanced_conf['search_full_text'][groupId];
                 if (query_key) {
                     switch (query_key.type) {
@@ -26,34 +25,83 @@ class AdvancedSearchParser {
                             // if (collection && collection !== '') {
                             //     teiPubParams += `&collection=${collection}`;
                             // }
-                            if (doc) {
-                                const docString = doc.map((filename) => {
-                                    return 'doc=' + filename.replace('/', '%2F');
-                                })
-                                    .join('&');
-                                teiPubParams += '&' + docString;
-                            }
                             break;
-                        case "proximity":
+                        case 'header-meta':
+                            if (!data[groupId])
+                                break;
+                            const collection_2 = query_key['collection']; //petrarca
+                            const pagination_2 = query_key['perPage']; //10
+                            const query_2 = data[groupId]; //es. query-text:"res"
+                            teiPubParams = `query=${query_2}&start=1&per-page=${pagination_2}`;
+                            teiPubParams += `&collection=${collection_2}&field=${query_key.field}`;
+                            break;
+                        case 'proximity':
                             if (!data[query_key['query_params']['value']])
                                 break;
                             const pag = query_key['perPage'];
-                            const slop = (_a = data[query_key['query_params']['slop']]) !== null && _a !== void 0 ? _a : "";
-                            const q2 = data[query_key['query_params']['value']] + "~" + slop;
+                            const slop = (_b = data[query_key['query_params']['slop']]) !== null && _b !== void 0 ? _b : '';
+                            const q2 = data[query_key['query_params']['value']] + '~' + slop;
                             teiPubParams = `query=${q2}&start=1&per-page=${pag}`;
-                            if (doc) {
-                                const docString = doc.map((filename) => {
-                                    return 'doc=' + filename.replace('/', '%2F');
-                                })
-                                    .join('&');
-                                teiPubParams += '&' + docString;
-                            }
                         default:
                             break;
                     }
                 }
             });
+            if (doc && teiPubParams != '') {
+                const docString = doc
+                    .map((filename) => {
+                    return 'doc=' + filename.replace('/', '%2F');
+                })
+                    .join('&');
+                teiPubParams += '&' + docString;
+            }
             return teiPubParams;
+        };
+        this.buildTeiHeaderQuery = (data, conf, doc, id_array) => {
+            const { searchId, results } = data;
+            const advanced_conf = conf['advanced_search'][searchId];
+            let teiHeaderParams;
+            // console.log(advanced_conf['search_full_text']);
+            if (!advanced_conf['search_full_text'])
+                return;
+            Object.keys(advanced_conf['search_full_text']).forEach((groupId) => {
+                var _a;
+                const query_key = advanced_conf['search_full_text'][groupId];
+                if (query_key) {
+                    switch (query_key.type) {
+                        case 'header-meta':
+                            if (!data[groupId])
+                                break;
+                            const pagination_3 = query_key['perPage']; //10
+                            let query_list = '';
+                            if (id_array.length > 1) {
+                                id_array.map((id, i) => {
+                                    if (i < id_array.length - 1) {
+                                        query_list += id;
+                                        query_list += ' OR ';
+                                    }
+                                    else {
+                                        query_list += id;
+                                    }
+                                });
+                            }
+                            else {
+                                query_list = id_array;
+                            }
+                            teiHeaderParams = `query=${query_list}&start=1&per-page=${pagination_3}`;
+                            break;
+                    }
+                }
+            });
+            if (doc && teiHeaderParams != '') {
+                const docString = doc
+                    .map((filename) => {
+                    return 'doc=' + filename.replace('/', '%2F');
+                })
+                    .join('&');
+                teiHeaderParams += '&' + docString;
+            }
+            return teiHeaderParams;
         };
         this.buildAdvancedQuery = (data, conf) => {
             // prevedere valore search-type nel data?
@@ -67,7 +115,7 @@ class AdvancedSearchParser {
                 highlight: {
                     fields: {},
                     pre_tags: ["<em class='mrc__text-emph'>"],
-                    post_tags: ["</em>"],
+                    post_tags: ['</em>'],
                 },
             };
             //sorting
@@ -150,7 +198,7 @@ class AdvancedSearchParser {
                                 allowWildCard: query_key.addStar,
                                 stripDoubleQuotes: true,
                             });
-                            const operator = query_key.operator ? query_key.operator : "AND";
+                            const operator = query_key.operator ? query_key.operator : 'AND';
                             const tv_query = ASHelper.queryString({ fields: query_key.field, value: query_term }, operator);
                             if (!query_key.noHighlight) {
                                 highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
@@ -160,7 +208,9 @@ class AdvancedSearchParser {
                         case 'term_field_value':
                             if (!data[query_key.query_params.value])
                                 break;
-                            const fields = data[query_key.query_params.field] ? data[query_key.query_params.field] : query_key.field;
+                            const fields = data[query_key.query_params.field]
+                                ? data[query_key.query_params.field]
+                                : query_key.field;
                             const query_field_value = ASHelper.buildQueryString(data[query_key.query_params.value], {
                                 allowWildCard: query_key.addStar,
                                 stripDoubleQuotes: true,
@@ -175,14 +225,14 @@ class AdvancedSearchParser {
                             must_array.push(tf_query);
                             break;
                         case 'term_exists':
-                            if (data[groupId] === "true") {
+                            if (data[groupId] === 'true') {
                                 const te_query = ASHelper.queryExists(query_key.field);
                                 if (!query_key.noHighlight) {
                                     highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
                                 }
                                 must_array.push(te_query);
                             }
-                            else if (data[groupId] === "false") {
+                            else if (data[groupId] === 'false') {
                                 const te_query = ASHelper.queryExists(query_key.field);
                                 if (!query_key.noHighlight) {
                                     highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
@@ -213,14 +263,14 @@ class AdvancedSearchParser {
                         te_query = ASHelper.queryExists('xml_filename');
                     }
                 });
-                if (typeof te_query !== "undefined") {
+                if (typeof te_query !== 'undefined') {
                     must_array.push(te_query);
                 }
             }
             const bool_query = ASHelper.queryBool(must_array, [], [], must_not);
             adv_query.query = bool_query.query;
             if (advanced_conf.highlight_all) {
-                highlight_fields["*"] = {};
+                highlight_fields['*'] = {};
             }
             if (Object.keys(highlight_fields).length) {
                 adv_query.highlight.fields = highlight_fields;
@@ -235,7 +285,7 @@ class AdvancedSearchParser {
     // protected parseResultsItems({ data, options }: Input): SearchResultsItemData[];
     advancedParseResults({ data, options }) {
         //forEach dei resulsts, controlla se esiste data.valore di conf e costruisci l'oggetto
-        if (options && "limit" in options) {
+        if (options && 'limit' in options) {
             var { offset, limit, sort, total_count } = options;
         }
         const search_result = {
@@ -243,7 +293,7 @@ class AdvancedSearchParser {
             offset,
             sort,
             total_count,
-            results: []
+            results: [],
         };
         search_result.results = this.advancedParseResultsItems({ data, options });
         return search_result;
@@ -253,15 +303,15 @@ class AdvancedSearchParser {
         let items = [];
         data.forEach(({ _source: source, highlight }) => {
             let itemResult = {
-                highlights: []
+                highlights: [],
             };
             if (highlight) {
                 for (let prop in highlight) {
-                    if (prop != "text_matches") {
+                    if (prop != 'text_matches') {
                         itemResult.highlights.push([prop, highlight[prop]]);
                     }
                     else {
-                        highlight[prop].forEach(el => itemResult.highlights.push(el));
+                        highlight[prop].forEach((el) => itemResult.highlights.push(el));
                     }
                 }
             }
@@ -302,7 +352,7 @@ class AdvancedSearchParser {
                     let fields = val.fields;
                     itemResult[val.label] = [];
                     let items = [];
-                    fields.forEach(item => {
+                    fields.forEach((item) => {
                         let obj = source;
                         let fieldArray = item.field.split('.');
                         for (let i = 0; i < fieldArray.length; i++) {
@@ -316,7 +366,7 @@ class AdvancedSearchParser {
                         }
                         items.push({
                             label: item.label,
-                            value: obj
+                            value: obj,
                         });
                     });
                     itemResult[val.label].push({ items: items });

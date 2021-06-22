@@ -13,12 +13,13 @@ exports.Controller = void 0;
 const elasticsearch_1 = require("@elastic/elasticsearch");
 const sortObj = require("sort-object");
 const helpers_1 = require("./helpers");
+const ASHelper = require("./helpers/advanced-helper");
 const parsers_1 = require("./parsers");
 class Controller {
     constructor(config) {
         this.getNavigation = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "menu"));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'menu'));
             const parser = new parsers.menu();
             const response = parser.parse(data);
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -26,21 +27,21 @@ class Controller {
         this.getHomeLayout = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers, configurations } = this.config;
             const keyOrder = JSON.parse(event.body);
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "layout/home"));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'layout/home'));
             const parser = new parsers.home();
             const response = parser.parse({
                 data,
                 options: {
                     keyOrder,
-                    conf: configurations.home
-                }
+                    conf: configurations.home,
+                },
             });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.getSearchDescription = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { searchId } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "layout/" + searchId));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'layout/' + searchId));
             const parser = new parsers.searchDescription();
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -48,7 +49,7 @@ class Controller {
         this.getTimeline = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { id } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "views/" + id));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/' + id));
             const parser = new parsers.timeline();
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -56,7 +57,7 @@ class Controller {
         this.getMap = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { id } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "views/" + id));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/' + id));
             const parser = new parsers.map();
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -66,7 +67,7 @@ class Controller {
             // change id whit slug and no un parameters but in the boy request  in POST
             let { type, id, sections } = JSON.parse(event.body);
             const requestURL = baseUrl;
-            const url = requestURL + type + "/" + id;
+            const url = requestURL + type + '/' + id;
             //remove, only for test
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(url));
             const parser = new parsers.resource();
@@ -74,7 +75,7 @@ class Controller {
                 data,
                 options: {
                     type,
-                    conf: configurations.resources[type]
+                    conf: configurations.resources[type],
                 },
             });
             const sect = sortObj(response.sections, sections); // body sections filters
@@ -91,7 +92,7 @@ class Controller {
             const data = type === 'results' ? query_res.hits.hits : query_res.aggregations;
             const parser = new parsers.search();
             const { searchId, facets } = body;
-            const { limit, offset, sort } = body.results ? body.results : "null";
+            const { limit, offset, sort } = body.results ? body.results : 'null';
             let total_count = query_res.hits.total.value;
             const response = parser.parse({
                 data,
@@ -103,13 +104,13 @@ class Controller {
                     total_count,
                     searchId,
                     facets,
-                    conf: configurations.search
-                }
+                    conf: configurations.search,
+                },
             });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.advancedSearch = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
-            const { parsers, searchIndex, elasticUri, teiPublisherUri, configurations } = this.config;
+            const { parsers, searchIndex, elasticUri, teiPublisherUri, configurations, } = this.config;
             const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
             const parser = new parsers_1.AdvancedSearchParser();
             const params = parser.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
@@ -128,100 +129,17 @@ class Controller {
             var data = [];
             if (teiPublisherParams) {
                 const collectionUri = this.config.teiPublisherUri + 'mrcsearch';
-                ;
-                const doc = yield helpers_1.HttpHelper.doRequest(collectionUri + '?' + teiPublisherParams);
-                let stripped_doc = doc.replace(/<!DOCTYPE\s\w+>/g, '');
-                let wrapped_doc = '<body>' + stripped_doc + '</body>';
-                let convert = require('xml-js');
-                let expandedResult = convert.xml2js(wrapped_doc, {
-                    // ignoreDoctype: true,
-                    // ignoreDeclaration: true,
-                    compact: true,
-                    spaces: 4,
-                });
-                let matches_result = {};
-                if (expandedResult['body']['paper-card']) {
-                    const cards = Array.isArray(expandedResult['body']['paper-card']) ? expandedResult['body']['paper-card'] : [expandedResult['body']['paper-card']];
-                    cards.map((papercard) => {
-                        let div = papercard.div;
-                        let breadcrumbs = papercard.breadcrumbs["_text"].split("body/");
-                        if (breadcrumbs.length > 1) {
-                            breadcrumbs = breadcrumbs[1];
-                        }
-                        breadcrumbs = breadcrumbs.split("/");
-                        let path = "";
-                        breadcrumbs.forEach(el => {
-                            const regexp = /\[(?:@type|@n) eq "([\w]+)"\]/g;
-                            const matches = [...el.matchAll(regexp)];
-                            if (path != "")
-                                path += ", ";
-                            for (const match of matches) {
-                                path += match[1] + " ";
-                            }
-                        });
-                        let id = papercard['_attributes'].id;
-                        let href = div['_attributes'] ? div['_attributes']['ref'] : "";
-                        let text_highlight = "";
-                        if (path != "") {
-                            text_highlight = "<span class='mrc__text-breadcrumbs'>" + path + "</span>";
-                        }
-                        /*if(div.a.span && Array.isArray(div.a.span)){
-                            div.a.span.forEach(element => {
-                                if(element['_attributes'] && element['_attributes']['class'] === "mrc__text-emph"){
-                                    text_highlight += "<em class='mrc__text-emph'>" + element['_text'] + "</em>"
-                                } else {
-                                    text_highlight += element['_text'] + " "
-                                }
-                            });
-                        }*/
-                        if (div.p) {
-                            let paragraphs = Array.isArray(div.p) ? div.p : [div.p];
-                            paragraphs.forEach(p => {
-                                let texts;
-                                if (p._text) {
-                                    texts = Array.isArray(p._text) ? p._text : [p._text];
-                                }
-                                const span = Array.isArray(p.span) ? p.span : [p.span];
-                                if (texts && texts.length == span.length) {
-                                    for (let i = 0; i < span.length; i++) {
-                                        text_highlight += texts[i] + "<em class='mrc__text-emph'>" + span[i]["_text"] + "</em>";
-                                    }
-                                }
-                                if (texts && texts.length > span.length) {
-                                    for (let i = 0; i < texts.length; i++) {
-                                        text_highlight += texts[i];
-                                        if (span[i]) {
-                                            text_highlight += "<em class='mrc__text-emph'>" + span[i]["_text"] + "</em>";
-                                        }
-                                    }
-                                }
-                                else if (span.length > 0) {
-                                    span.forEach(el1 => {
-                                        if (el1.span) {
-                                            el1.span.forEach(el => {
-                                                if (el["_attributes"]["class"]) {
-                                                    text_highlight += "<span class='" + el["_attributes"]["class"] + "'>" + el["_text"] + "</span> ";
-                                                }
-                                                else {
-                                                    text_highlight += el["_text"] + " ";
-                                                }
-                                            });
-                                        }
-                                        text_highlight += "<span class='mrc__text-emph'>" + el1["_text"] + "</em>";
-                                    });
-                                }
-                            });
-                        }
-                        if (!matches_result[id]) {
-                            matches_result[id] = {
-                                matches: [],
-                            };
-                        }
-                        matches_result[id].matches.push({
-                            link: "?root=" + href,
-                            text: text_highlight
-                        });
-                    });
+                const doc = yield helpers_1.HttpHelper.doRequest(
+                //qui devono arrivare già i params per il teiHeader
+                collectionUri + '?' + teiPublisherParams);
+                // console.log(doc);
+                const textViewerResults = ASHelper.buildTextViewerResults(doc);
+                let matches_result = textViewerResults;
+                if (matches_result.header_params.length > 0) {
+                    const teiHeaderParams = parser.buildTeiHeaderQuery(body, configurations, docs, matches_result.header_params);
+                    const header = yield helpers_1.HttpHelper.doRequest(collectionUri + '?' + teiHeaderParams);
+                    const teiHeaderResults = ASHelper.buildTextViewerResults(header);
+                    matches_result = teiHeaderResults;
                 }
                 es_data.map((res) => {
                     if (res['_source']['xml_filename']) {
@@ -242,7 +160,7 @@ class Controller {
                 data = es_data;
             }
             const { searchId } = body;
-            const { limit, offset, sort } = body.results ? body.results : "null";
+            const { limit, offset, sort } = body.results ? body.results : 'null';
             const response = parser.advancedParseResults({
                 data,
                 options: {
@@ -251,14 +169,14 @@ class Controller {
                     limit,
                     total_count,
                     searchId,
-                    conf: configurations.advanced_search
-                }
+                    conf: configurations.advanced_search,
+                },
             });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.getFooter = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers, configurations } = this.config;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "footer"));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'footer'));
             const parser = new parsers.footer();
             const response = parser.parse(data, { conf: configurations.footer });
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -266,12 +184,12 @@ class Controller {
         this.getTranslation = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { lang } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "translations?lang=" + lang));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'translations?lang=' + lang));
             const parser = new parsers.translation();
             const response = parser.parse({
                 data,
                 options: {
-                    lang
+                    lang,
                 },
             });
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -279,41 +197,44 @@ class Controller {
         this.getStaticPage = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
             const { slug } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'pages?' + "slug=" + slug));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'pages?' + 'slug=' + slug));
             const parser = new parsers.static();
             const response = parser.parse({ data });
             if (response) {
                 return helpers_1.HttpHelper.returnOkResponse(response);
             }
             else {
-                return helpers_1.HttpHelper.returnErrorResponse("page not found", 404);
+                return helpers_1.HttpHelper.returnErrorResponse('page not found', 404);
             }
         });
         this.getStaticPost = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
             const { slug } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'posts?' + "slug=" + slug));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'posts?' + 'slug=' + slug));
             const parser = new parsers.static();
             const response = parser.parse({ data });
             if (response) {
                 return helpers_1.HttpHelper.returnOkResponse(response);
             }
             else {
-                return helpers_1.HttpHelper.returnErrorResponse("page not found", 404);
+                return helpers_1.HttpHelper.returnErrorResponse('page not found', 404);
             }
         });
         this.getTypeList = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
             const { type } = event.pathParameters;
             const body = JSON.parse(event.body);
-            let params = "";
+            let params = '';
             if (body.results && body.results.limit) {
-                params = "per_page=" + body.results.limit;
+                params = 'per_page=' + body.results.limit;
             }
             if (body.results && body.results.offset) {
-                params += params == "" ? "offset=" + body.results.offset : "&offset=" + body.results.offset;
+                params +=
+                    params == ''
+                        ? 'offset=' + body.results.offset
+                        : '&offset=' + body.results.offset;
             }
-            const apiUrl = params != "" ? staticUrl + type + "?" + params : staticUrl + type;
+            const apiUrl = params != '' ? staticUrl + type + '?' + params : staticUrl + type;
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(apiUrl));
             const parser = new parsers.static();
             const response = {
@@ -321,7 +242,7 @@ class Controller {
                 limit: body.results.limit || 10,
                 offset: body.results.offset || 0,
                 total_count: data.length,
-                sort: ""
+                sort: '',
             };
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
@@ -329,12 +250,12 @@ class Controller {
             const { parsers, baseUrl, configurations } = this.config;
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'itinerary'));
             /* const parser = new parsers.itineraries();
-             const response = parser.parse({ data });
-             if ( response ){
-               return HttpHelper.returnOkResponse(response);
-             } else {
-               return HttpHelper.returnErrorResponse("page not found", 404);
-             }*/
+            const response = parser.parse({ data });
+            if ( response ){
+              return HttpHelper.returnOkResponse(response);
+            } else {
+              return HttpHelper.returnErrorResponse("page not found", 404);
+            }*/
         });
         this.getItinerary = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, baseUrl, configurations } = this.config;
@@ -346,7 +267,7 @@ class Controller {
                 return helpers_1.HttpHelper.returnOkResponse(response);
             }
             else {
-                return helpers_1.HttpHelper.returnErrorResponse("page not found", 404);
+                return helpers_1.HttpHelper.returnErrorResponse('page not found', 404);
             }
         });
         this.config = config;
@@ -367,7 +288,7 @@ class Controller {
             getStaticPost: this.getStaticPost.bind(this),
             getTypeList: this.getTypeList.bind(this),
             getItinerary: this.getItinerary.bind(this),
-            getItineraries: this.getItineraries.bind(this)
+            getItineraries: this.getItineraries.bind(this),
         };
     }
 }

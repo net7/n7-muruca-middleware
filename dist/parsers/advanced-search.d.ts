@@ -1,6 +1,6 @@
 import { DataType } from '../interfaces/helper';
-import Parser, { Input } from "../interfaces/parser";
-import { SearchResultsData } from "../interfaces/parser-data/search";
+import Parser, { Input } from '../interfaces/parser';
+import { SearchResultsData } from '../interfaces/parser-data/search';
 export declare class AdvancedSearchParser implements Parser {
     parse({ data, options }: Input): any[];
     advancedParseResults({ data, options }: any): SearchResultsData;
@@ -9,5 +9,6 @@ export declare class AdvancedSearchParser implements Parser {
         options: any;
     }): any[];
     buildTextViewerQuery: (data: DataType, conf: any, doc: any) => any;
+    buildTeiHeaderQuery: (data: any, conf: any, doc: any, id_array: any) => any;
     buildAdvancedQuery: (data: DataType, conf: any) => any;
 }
