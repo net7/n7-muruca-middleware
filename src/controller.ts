@@ -12,6 +12,17 @@ export class Controller {
     this.config = config;
   }
 
+  postTest = async (event: any, _context: any, _callback: any) => {
+    const body = JSON.parse(event.body) //la richiesta che arriva all'API
+    const response: any = body;
+    return HttpHelper.returnOkResponse(response);
+} 
+
+  getTest = async (event: any, _context: any, _callback: any) => {
+    const response: any = 'dummy string';
+    return HttpHelper.returnOkResponse(response);
+}  
+
   getNavigation = async (_event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers } = this.config;
     const data = JSON.parse(await HttpHelper.doRequest(baseUrl + 'menu'));
@@ -325,6 +336,8 @@ export class Controller {
 
   getSlsMethods() {
     return {
+      postTest: this.postTest.bind(this),
+      getTest: this.getTest.bind(this),
       getNavigation: this.getNavigation.bind(this),
       getFooter: this.getFooter.bind(this),
       getHomeLayout: this.getHomeLayout.bind(this),

@@ -9,6 +9,18 @@ provider:
     SEARCH_INDEX: ${file(${opt:stage, 'prod'}.yml):SEARCH_INDEX}
     ELASTIC_URI: ${file(${opt:stage, 'prod'}.yml):ELASTIC_URI}
 functions:
+  postTest:
+    handler: ./src/controller.postTest
+    events:
+      - http:
+          path: post_test
+          method: post
+  getTest:
+    handler: ./src/controller.getTest
+    events:
+      - http:
+          path: get_test
+          method: get
   getNavigation:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getNavigation
     events:
