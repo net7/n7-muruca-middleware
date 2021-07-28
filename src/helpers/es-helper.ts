@@ -177,30 +177,32 @@ export const ESHelper = {
       const limit:number = ( facets_request[f].limit != undefined ) ?  facets_request[f].limit : 100; 
       const offset:number = (  facets_request[f].offset != undefined ) ? facets_request[f].offset : 0; 
       const size:number =  offset + limit;
+      const filterTerm:string =  (  facets_request[f].query != undefined && facets_request[f].query != "" ) ? facets_request[f].query + "*" : "" ;
+
       const { nested } = query_facets[key];     
       if (nested) {
         if(query_facets[key]["nestedFields"]){
-          const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size);
+          const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]["innerFilterField"]);
           main_query.aggregations[key] = build_aggs;       
         } else {
             //it contains a error, mantained for backward compatibility
-            main_query.aggregations[key] = {
-              nested: { path: key },
-              aggs: {
-                [key]: {
-                  terms: {
-                    size: size,
-                    script: {
-                      source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
-                      lang: 'painless',
-                    },
+          main_query.aggregations[key] = {
+            nested: { path: key },
+            aggs: {
+              [key]: {
+                terms: {
+                  size: size,
+                  script: {
+                    source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
+                    lang: 'painless',
                   },
                 },
               },
-            };
-          }
+            },
+          };
+        }
       } else {
-        main_query.aggregations[key] = {
+        const term_aggr = {
           terms: {
             size: size,
             script: {
@@ -209,41 +211,77 @@ export const ESHelper = {
             },
           },
         };
+        
+        if( filterTerm && filterTerm != "" ){
+          main_query.aggregations['filter_term'] = {
+            "filter" : {
+              "query_string": {
+                "query": filterTerm,
+                "fields": query_facets[key]["innerFilterField"]
+              },
+              "aggs": {
+                [key]: term_aggr
+              }
+            }
+          }
+        } else {
+          main_query.aggregations[key] = term_aggr;
+        }
+
       }
     }
     return main_query;
   },
 };
 
-function buildNested(terms, search, title, size = null) {
+function buildNested(terms, search, title, size = null, filterTerm="", filterField="") {
   if (terms.length > 1) {
       let term = terms.splice(0, 1);
-      terms[0] = term + "." + terms[0];
-      return {
+      terms[0] = term + "." + terms[0];      
+
+     return {
           "nested": {
               "path": term[0]               
           },
           "aggs": {
-              [term]: buildNested(terms, search, title, size)
+              [term]: buildNested(terms, search, title, size, filterTerm, filterField)
           }
       };
   }
   else {
-      return {
-          "nested": {
-              "path": terms[0]               
-          },
-          "aggs": {    
-              [terms[0]]: {
-                  terms: {
-                     size: size,
-                      script: {
-                          source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
-                          lang: 'painless',
-                      },
-                  }                    
-              }              
-          }
+      const nestedObj = {
+        "nested": {
+          "path": terms[0]               
+      },
+      "aggs": {}
+      }
+
+      const nestedAgg =  {    
+          [terms[0]]: {
+              terms: {
+                 size: size,
+                  script: {
+                      source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
+                      lang: 'painless',
+                  },
+              }                    
+          }              
       };
+      
+
+    if( filterTerm && filterTerm != "" ){
+      nestedObj.aggs['filter_term'] = {
+        "filter" : {
+          "query_string": {
+            "query": filterTerm,
+            "fields": filterField
+          }
+        },
+        "aggs": nestedAgg
+      }
+    } else {
+      nestedObj.aggs = nestedAgg
+    }
+      return nestedObj;
   }
 }
