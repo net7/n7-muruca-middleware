@@ -155,11 +155,17 @@ exports.ESHelper = {
             }
         });
         //facets aggregations
-        for (const key in query_facets) {
+        const facets_request = data.facets;
+        //for (const key in query_facets) {
+        for (const f in facets_request) {
+            const key = facets_request[f]["id"];
+            const limit = (facets_request[f].limit != undefined) ? facets_request[f].limit : 100;
+            const offset = (facets_request[f].offset != undefined) ? facets_request[f].offset : 0;
+            const size = offset + limit;
             const { nested } = query_facets[key];
             if (nested) {
                 if (query_facets[key]["nestedFields"]) {
-                    const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title);
+                    const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size);
                     main_query.aggregations[key] = build_aggs;
                 }
                 else {
@@ -169,7 +175,7 @@ exports.ESHelper = {
                         aggs: {
                             [key]: {
                                 terms: {
-                                    size: 100,
+                                    size: size,
                                     script: {
                                         source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
                                         lang: 'painless',
@@ -183,7 +189,7 @@ exports.ESHelper = {
             else {
                 main_query.aggregations[key] = {
                     terms: {
-                        size: 100,
+                        size: size,
                         script: {
                             source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
                             lang: 'painless',
@@ -195,7 +201,7 @@ exports.ESHelper = {
         return main_query;
     },
 };
-function buildNested(terms, search, title) {
+function buildNested(terms, search, title, size = null) {
     if (terms.length > 1) {
         let term = terms.splice(0, 1);
         terms[0] = term + "." + terms[0];
@@ -204,7 +210,7 @@ function buildNested(terms, search, title) {
                 "path": term[0]
             },
             "aggs": {
-                [term]: buildNested(terms, search, title)
+                [term]: buildNested(terms, search, title, size)
             }
         };
     }
@@ -216,6 +222,7 @@ function buildNested(terms, search, title) {
             "aggs": {
                 [terms[0]]: {
                     terms: {
+                        size: size,
                         script: {
                             source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
                             lang: 'painless',

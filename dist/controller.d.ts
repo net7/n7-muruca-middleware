@@ -1,6 +1,8 @@
 export declare class Controller {
     private config;
     constructor(config: any);
+    postTest: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
+    getTest: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getNavigation: (_event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getHomeLayout: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getSearchDescription: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
@@ -17,6 +19,8 @@ export declare class Controller {
     getItineraries: (event: any, _context: any, _callback: any) => Promise<void>;
     getItinerary: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getSlsMethods(): {
+        postTest: any;
+        getTest: any;
         getNavigation: any;
         getFooter: any;
         getHomeLayout: any;

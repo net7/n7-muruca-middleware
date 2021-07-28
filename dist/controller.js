@@ -17,6 +17,15 @@ const ASHelper = require("./helpers/advanced-helper");
 const parsers_1 = require("./parsers");
 class Controller {
     constructor(config) {
+        this.postTest = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            const body = JSON.parse(event.body); //la richiesta che arriva all'API
+            const response = body;
+            return helpers_1.HttpHelper.returnOkResponse(response);
+        });
+        this.getTest = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            const response = 'dummy string';
+            return helpers_1.HttpHelper.returnOkResponse(response);
+        });
         this.getNavigation = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'menu'));
@@ -274,6 +283,8 @@ class Controller {
     }
     getSlsMethods() {
         return {
+            postTest: this.postTest.bind(this),
+            getTest: this.getTest.bind(this),
             getNavigation: this.getNavigation.bind(this),
             getFooter: this.getFooter.bind(this),
             getHomeLayout: this.getHomeLayout.bind(this),
