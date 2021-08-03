@@ -119,13 +119,9 @@ export class AdvancedSearchParser implements Parser {
                             case 'fulltext':
                                 if (!data[groupId])
                                     break;
-                                const collection = query_key['collection'];
                                 const pagination = query_key['perPage'];
                                 const query = data[groupId];
-                                teiPubParams = `query=${query}&start=1&per-page=${pagination}`;
-                                // if (collection && collection !== '') {
-                                //     teiPubParams += `&collection=${collection}`;
-                                // }
+                                teiPubParams = teiPubParams == "" ? `query=${query}&start=1&per-page=${pagination}` : teiPubParams +  `&query=${query}&start=1&per-page=${pagination}`;                            
                                 break;
                             case 'header-meta':
                                 if (!data[groupId])
@@ -178,12 +174,12 @@ export class AdvancedSearchParser implements Parser {
                                 // console.log(teiPubParams);
                                 break;
                             case 'proximity':
-                                if (!data[query_key['query_params']['value']])
+                              if (!data[groupId])
                                     break;
-                                const pag = query_key['perPage'];
-                                const slop = (_b = data[query_key['query_params']['slop']]) !== null && _b !== void 0 ? _b : '';
-                                const q2 = data[query_key['query_params']['value']] + '~' + slop;
-                                teiPubParams = `query=${q2}&start=1&per-page=${pag}`;
+                                //const pag = query_key['perPage'];
+                                const slop = data[query_key['query_params']['slop']] ?? '';
+                                //const q2 = data[query_key['query_params']['value']];
+                                teiPubParams = teiPubParams == "" ? `slop=${slop}` : teiPubParams + `&slop=${slop}`;
                             default:
                                 break;
                         }
