@@ -97,6 +97,7 @@ class Controller {
             const { type } = event.pathParameters;
             const params = helpers_1.ESHelper.buildQuery(body, configurations.search); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
             // make query
+            console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchIndex, params, elasticsearch_1.Client, elasticUri);
             const data = type === 'results' ? query_res.hits.hits : query_res.aggregations;
             const parser = new parsers.search();

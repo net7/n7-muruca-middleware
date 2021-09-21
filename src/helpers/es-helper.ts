@@ -117,13 +117,9 @@ export const ESHelper = {
       .forEach((filterId) => {
         // query, types, authors etc.
         const query_key = conf[searchId].filters[filterId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
-        const query_nested = query_facets[filterId] // {"nested": false, "search": "taxonomies.type.key.keyword", ...}
-          ? query_facets[filterId].nested // true || false
-          : false;
         if (query_key) {
-          switch (
-            query_key.type // fa uno switch su tutti i tipi di query
-          ) {
+           // fa uno switch su tutti i tipi di query
+          switch (  query_key.type ) {
             case 'fulltext':
               const ft_query = {
                 // multi_match: {
@@ -138,6 +134,10 @@ export const ESHelper = {
               main_query.query.bool.must.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
               break;
             case 'multivalue':
+              const query_nested = query_facets[filterId].nested
+              ? query_facets[filterId].nested // true || false
+              : false;
+
               if (data[filterId] && query_nested === false) {
                 data[filterId].map((value) => {
                   main_query.query.bool.must.push({
@@ -146,14 +146,35 @@ export const ESHelper = {
                     },
                   });
                 });
-              }
+              } else {
+                const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
+                
+                const must_array = [];
+                data[filterId].forEach( $val => {
+                   
+                    const nested = {
+                        nested: {
+                            path: path,
+                            query: {
+                                bool: {
+                                    must: [
+                                        { term: {[query_facets[filterId].search]: $val}}
+                                    ]
+                                },
+                            },
+                        },
+                    };
+                    main_query.query.bool.must.push(nested);
+                    
+                })
+            }
               break;
 
             default:
               break;
           }
         }
-        if (query_nested) {
+       /* if (query_nested) {
           const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
           const nested = {
             nested: {
@@ -166,7 +187,7 @@ export const ESHelper = {
             },
           };
           main_query.query.bool.must.push(nested);
-        }
+        }*/
       });
     //facets aggregations
 
