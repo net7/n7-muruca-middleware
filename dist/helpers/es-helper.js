@@ -182,10 +182,10 @@ exports.ESHelper = {
             const offset = (facets_request[f].offset != undefined) ? facets_request[f].offset : 0;
             const size = offset + limit;
             const filterTerm = (facets_request[f].query != undefined && facets_request[f].query != "") ? facets_request[f].query + "*" : "";
-            const { nested } = query_facets[key];
+            const { nested, extra } = query_facets[key];
             if (nested) {
                 if (query_facets[key]["nestedFields"]) {
-                    const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]["innerFilterField"]);
+                    const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]["innerFilterField"], extra);
                     main_query.aggregations[key] = build_aggs;
                 }
                 else {
@@ -216,6 +216,13 @@ exports.ESHelper = {
                         },
                     },
                 };
+                if (extra) {
+                    const extraAggs = {};
+                    for (const key in extra) {
+                        extraAggs[key] = { "terms": { "field": extra[key] } };
+                    }
+                    term_aggr['aggs'] = extraAggs;
+                }
                 if (filterTerm && filterTerm != "") {
                     main_query.aggregations['filter_term'] = {
                         "filter": {
@@ -237,7 +244,7 @@ exports.ESHelper = {
         return main_query;
     },
 };
-function buildNested(terms, search, title, size = null, filterTerm = "", filterField = "") {
+function buildNested(terms, search, title, size = null, filterTerm = "", filterField = "", extraFields = null) {
     if (terms.length > 1) {
         let term = terms.splice(0, 1);
         terms[0] = term + "." + terms[0];
@@ -268,6 +275,13 @@ function buildNested(terms, search, title, size = null, filterTerm = "", filterF
                 }
             }
         };
+        if (extraFields) {
+            const extraAggs = {};
+            for (const key in extraFields) {
+                extraAggs[key] = { "terms": { "field": extraFields[key] } };
+            }
+            nestedAgg[terms[0]]['aggs'] = extraAggs;
+        }
         if (filterTerm && filterTerm != "") {
             nestedObj.aggs['filter_term'] = {
                 "filter": {

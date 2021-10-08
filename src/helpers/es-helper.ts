@@ -150,8 +150,7 @@ export const ESHelper = {
                 const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
                 
                 const must_array = [];
-                data[filterId].forEach( $val => {
-                   
+                data[filterId].forEach( $val => {                   
                     const nested = {
                         nested: {
                             path: path,
@@ -164,8 +163,7 @@ export const ESHelper = {
                             },
                         },
                     };
-                    main_query.query.bool.must.push(nested);
-                    
+                    main_query.query.bool.must.push(nested);                    
                 })
             }
               break;
@@ -200,10 +198,10 @@ export const ESHelper = {
       const size:number =  offset + limit;
       const filterTerm:string =  (  facets_request[f].query != undefined && facets_request[f].query != "" ) ? facets_request[f].query + "*" : "" ;
 
-      const { nested } = query_facets[key];     
+      const { nested, extra } = query_facets[key];     
       if (nested) {
         if(query_facets[key]["nestedFields"]){
-          const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]["innerFilterField"]);
+          const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]["innerFilterField"], extra);
           main_query.aggregations[key] = build_aggs;       
         } else {
             //it contains a error, mantained for backward compatibility
@@ -233,6 +231,14 @@ export const ESHelper = {
           },
         };
         
+        if( extra ){           
+          const extraAggs = {};
+          for (const key in extra) {
+              extraAggs[key] = { "terms": {  "field": extra[key] } }
+          }
+          term_aggr['aggs'] = extraAggs;
+        }  
+
         if( filterTerm && filterTerm != "" ){
           main_query.aggregations['filter_term'] = {
             "filter" : {
@@ -255,12 +261,12 @@ export const ESHelper = {
   },
 };
 
-function buildNested(terms, search, title, size = null, filterTerm="", filterField="") {
+function buildNested(terms, search, title, size = null, filterTerm="", filterField="", extraFields = null) {
   if (terms.length > 1) {
       let term = terms.splice(0, 1);
       terms[0] = term + "." + terms[0];      
 
-     return {
+    return {
           "nested": {
               "path": term[0]               
           },
@@ -280,7 +286,7 @@ function buildNested(terms, search, title, size = null, filterTerm="", filterFie
       const nestedAgg =  {    
           [terms[0]]: {
               terms: {
-                 size: size,
+                  size: size,
                   script: {
                       source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
                       lang: 'painless',
@@ -288,7 +294,14 @@ function buildNested(terms, search, title, size = null, filterTerm="", filterFie
               }                    
           }              
       };
-      
+    
+    if( extraFields ){           
+      const extraAggs = {};
+      for (const key in extraFields) {
+          extraAggs[key] = { "terms": {  "field": extraFields[key] } }
+      }
+      nestedAgg[terms[0]]['aggs'] = extraAggs;
+  }      
 
     if( filterTerm && filterTerm != "" ){
       nestedObj.aggs['filter_term'] = {

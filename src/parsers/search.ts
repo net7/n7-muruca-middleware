@@ -30,11 +30,12 @@ export abstract class SearchParser implements Parser {
 
   protected parseFacets({ data, options }: Input) {
     let global_sum = 0;
-    const { facets } = options as SearchOptions;
+    const { facets, conf, searchId } = options as SearchOptions;
     const agg_res: any = {
       total_count: 0,
       facets: {}
     }
+    const query_facets = conf[searchId]['facets-aggs'].aggregations
 
     facets.forEach(({ id, query, offset }) => {
       let sum = 0;
@@ -53,11 +54,21 @@ export abstract class SearchParser implements Parser {
             const haystack_notFormatted = (agg.key.split("|||")[1] || '').toLowerCase();
             const needle = (query || '').toLowerCase();
             if (haystack_formatted.includes(needle) || haystack_notFormatted.includes(needle)) {
-              values.push({
+              const facet = {
                 text: agg.key.split("|||")[1],
                 counter: agg.doc_count,
                 payload: agg.key.split("|||")[0]
-              });
+            };
+            if(query_facets[id]['extra']){
+                const extra_args = {};
+                for (const key in query_facets[id]['extra']) {
+                    if(agg[key] && agg[key]['buckets']){
+                        extra_args[key] = agg[key]['buckets'].map( (bucket) => { return bucket['key'] } );
+                    }
+                }
+                facet['args'] = extra_args;
+            }
+            values.push(facet);
              // filteredTotal += 1;
             }
             sum++;
@@ -87,11 +98,18 @@ function getBucket(data, doc_count = null) {
   let keys = Object.keys(data);
   var bucketData;
   if (keys.includes("buckets")) {
-      return data;
+    if( data['doc_count'] === undefined ){
+      data['doc_count'] = doc_count;
+    }
+    return data;
   }
   else {
-      keys.forEach(k => { if (typeof data[k] === "object")
-          bucketData = getBucket(data[k], data[k]['doc_count'] ); });
+      keys.forEach(k => { 
+        if (typeof data[k] === "object"){
+          const c =  data[k]['doc_count'] || data["doc_count"];
+          bucketData = getBucket(data[k], data[k]['doc_count'] ); 
+        }
+      });
   }
   if (bucketData && bucketData.buckets) {
       if( bucketData['doc_count'] === undefined ){

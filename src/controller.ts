@@ -108,6 +108,7 @@ export class Controller {
     const { type } = event.pathParameters;
     const params = ESHelper.buildQuery(body, configurations.search); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
     // make query
+    //console.log(JSON.stringify(params));
     const query_res: any = await ESHelper.makeSearch(
       searchIndex,
       params,
