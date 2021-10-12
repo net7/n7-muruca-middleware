@@ -158,20 +158,6 @@ exports.ESHelper = {
                         break;
                 }
             }
-            /* if (query_nested) {
-               const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
-               const nested = {
-                 nested: {
-                   path: path,
-                   query: {
-                     terms: {
-                       [query_facets[filterId].search]: data[filterId],
-                     },
-                   },
-                 },
-               };
-               main_query.query.bool.must.push(nested);
-             }*/
         });
         //facets aggregations
         const facets_request = data.facets;
@@ -182,10 +168,12 @@ exports.ESHelper = {
             const offset = (facets_request[f].offset != undefined) ? facets_request[f].offset : 0;
             const size = offset + limit;
             const filterTerm = (facets_request[f].query != undefined && facets_request[f].query != "") ? facets_request[f].query + "*" : "";
+            const minDocCount = query_facets[key].showEmpty != undefined && query_facets[key].showEmpty ? 0 : 1;
+            const sort = query_facets[key].sort != undefined ? "_" + query_facets[key].sort : "_count";
             const { nested, extra } = query_facets[key];
             if (nested) {
                 if (query_facets[key]["nestedFields"]) {
-                    const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]["innerFilterField"], extra);
+                    const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]["innerFilterField"], extra, minDocCount, sort);
                     main_query.aggregations[key] = build_aggs;
                 }
                 else {
@@ -196,6 +184,9 @@ exports.ESHelper = {
                             [key]: {
                                 terms: {
                                     size: size,
+                                    order: {
+                                        [sort]: "asc"
+                                    },
                                     script: {
                                         source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
                                         lang: 'painless',
@@ -244,7 +235,7 @@ exports.ESHelper = {
         return main_query;
     },
 };
-function buildNested(terms, search, title, size = null, filterTerm = "", filterField = "", extraFields = null) {
+function buildNested(terms, search, title, size = null, filterTerm = "", filterField = "", extraFields = null, minDocCount = 1, sort = "_count") {
     if (terms.length > 1) {
         let term = terms.splice(0, 1);
         terms[0] = term + "." + terms[0];
@@ -253,7 +244,7 @@ function buildNested(terms, search, title, size = null, filterTerm = "", filterF
                 "path": term[0]
             },
             "aggs": {
-                [term]: buildNested(terms, search, title, size, filterTerm, filterField)
+                [term]: buildNested(terms, search, title, size, filterTerm, filterField, extraFields, minDocCount, sort)
             }
         };
     }
@@ -268,6 +259,10 @@ function buildNested(terms, search, title, size = null, filterTerm = "", filterF
             [terms[0]]: {
                 terms: {
                     size: size,
+                    min_doc_count: minDocCount,
+                    order: {
+                        [sort]: "asc"
+                    },
                     script: {
                         source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
                         lang: 'painless',

@@ -63,10 +63,17 @@ export abstract class SearchParser implements Parser {
                 const extra_args = {};
                 for (const key in query_facets[id]['extra']) {
                     if(agg[key] && agg[key]['buckets']){
-                        extra_args[key] = agg[key]['buckets'].map( (bucket) => { return bucket['key'] } );
-                    }
+                      if(agg[key]['buckets'].length == 1){
+                        extra_args[key] = agg[key]['buckets'][0]?.key
+                    } else if(agg[key]['buckets'].length > 1)  {
+                        extra_args[key] = agg[key]['buckets'].map((bucket) => { return bucket['key']; });
+                    }   
+                    else {
+                        extra_args[key] = null;
+                    }  
                 }
-                facet['args'] = extra_args;
+              }
+              facet['args'] = extra_args;
             }
             values.push(facet);
              // filteredTotal += 1;

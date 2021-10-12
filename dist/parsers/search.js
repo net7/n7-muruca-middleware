@@ -43,6 +43,7 @@ class SearchParser {
                         buckets_data.buckets = buckets_data.buckets.slice(offset);
                     }
                     buckets_data.buckets.forEach((agg) => {
+                        var _a;
                         const haystack_formatted = (agg.key.split("|||")[0] || '').toLowerCase();
                         const haystack_notFormatted = (agg.key.split("|||")[1] || '').toLowerCase();
                         const needle = (query || '').toLowerCase();
@@ -56,7 +57,15 @@ class SearchParser {
                                 const extra_args = {};
                                 for (const key in query_facets[id]['extra']) {
                                     if (agg[key] && agg[key]['buckets']) {
-                                        extra_args[key] = agg[key]['buckets'].map((bucket) => { return bucket['key']; });
+                                        if (agg[key]['buckets'].length == 1) {
+                                            extra_args[key] = (_a = agg[key]['buckets'][0]) === null || _a === void 0 ? void 0 : _a.key;
+                                        }
+                                        else if (agg[key]['buckets'].length > 1) {
+                                            extra_args[key] = agg[key]['buckets'].map((bucket) => { return bucket['key']; });
+                                        }
+                                        else {
+                                            extra_args[key] = null;
+                                        }
                                     }
                                 }
                                 facet['args'] = extra_args;
