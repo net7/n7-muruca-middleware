@@ -114,7 +114,7 @@ function getBucket(data, doc_count = null) {
       keys.forEach(k => { 
         if (typeof data[k] === "object"){
           const c =  data[k]['doc_count'] || data["doc_count"];
-          bucketData = getBucket(data[k], data[k]['doc_count'] ); 
+          bucketData = getBucket(data[k], c ); 
         }
       });
   }
