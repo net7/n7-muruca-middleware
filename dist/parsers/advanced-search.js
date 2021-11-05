@@ -225,7 +225,7 @@ class AdvancedSearchParser {
                                 break;
                             const query_string = ASHelper.buildQueryString(data[groupId], {
                                 allowWildCard: query_key.addStar,
-                                stripDoubleQuotes: true,
+                                stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
                             });
                             const ft_query = ASHelper.queryString({ fields: query_key.field, value: query_string }, 'AND');
                             if (!query_key.noHighlight) {
@@ -251,7 +251,7 @@ class AdvancedSearchParser {
                                 break;
                             const query_term = ASHelper.buildQueryString(data[groupId], {
                                 allowWildCard: query_key.addStar,
-                                stripDoubleQuotes: true,
+                                stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
                             });
                             const operator = query_key.operator ? query_key.operator : 'AND';
                             const tv_query = ASHelper.queryString({ fields: query_key.field, value: query_term }, operator);
@@ -268,7 +268,7 @@ class AdvancedSearchParser {
                                 : query_key.field;
                             const query_field_value = ASHelper.buildQueryString(data[query_key.query_params.value], {
                                 allowWildCard: query_key.addStar,
-                                stripDoubleQuotes: true,
+                                stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
                             });
                             const tf_query = ASHelper.queryString({
                                 fields: fields,

@@ -316,7 +316,7 @@ export class AdvancedSearchParser implements Parser {
               if (!data[groupId]) break;
               const query_string = ASHelper.buildQueryString(data[groupId], {
                 allowWildCard: query_key.addStar,
-                stripDoubleQuotes: true,
+                stripDoubleQuotes: query_key.stripDoubleQuotes ? query_key.stripDoubleQuotes : true,
               });
               const ft_query = ASHelper.queryString(
                 { fields: query_key.field, value: query_string },
