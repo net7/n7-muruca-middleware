@@ -316,7 +316,7 @@ export class AdvancedSearchParser implements Parser {
               if (!data[groupId]) break;
               const query_string = ASHelper.buildQueryString(data[groupId], {
                 allowWildCard: query_key.addStar,
-                stripDoubleQuotes: query_key.stripDoubleQuotes ? query_key.stripDoubleQuotes : true,
+                stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
               });
               const ft_query = ASHelper.queryString(
                 { fields: query_key.field, value: query_string },
@@ -349,7 +349,7 @@ export class AdvancedSearchParser implements Parser {
               if (!data[groupId]) break;
               const query_term = ASHelper.buildQueryString(data[groupId], {
                 allowWildCard: query_key.addStar,
-                stripDoubleQuotes: true,
+                stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
               });
               const operator = query_key.operator ? query_key.operator : 'AND';
               const tv_query = ASHelper.queryString(
@@ -373,7 +373,7 @@ export class AdvancedSearchParser implements Parser {
                 data[query_key.query_params.value],
                 {
                   allowWildCard: query_key.addStar,
-                  stripDoubleQuotes: true,
+                  stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
                 }
               );
               const tf_query = ASHelper.queryString(

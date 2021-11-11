@@ -42,12 +42,18 @@ export abstract class SearchParser implements Parser {
       let filteredTotal = 0;
       let values: any[] = [];
       if (data[id]) {
+        if(data[id]['distinctTerms']){
+          filteredTotal = data[id]['distinctTerms']['value'];
+          delete data[id]['distinctTerms'];
+        }
         let buckets_data =  getBucket(data[id]);
-        filteredTotal = buckets_data.doc_count;
         if (buckets_data && buckets_data.buckets) {
           if(offset && offset > 0){
             sum += offset;
             buckets_data.buckets = buckets_data.buckets.slice(offset)
+          }
+          if(buckets_data['distict_doc_count']){
+            filteredTotal = buckets_data['distict_doc_count'];
           }
           buckets_data.buckets.forEach((agg: { key: string; doc_count: number }) => {
             const haystack_formatted = (agg.key.split("|||")[0] || '').toLowerCase();
@@ -101,7 +107,7 @@ export abstract class SearchParser implements Parser {
 
 }
 
-function getBucket(data, doc_count = null) {
+function getBucket(data, doc_count = null, distict_doc_count = null) {
   let keys = Object.keys(data);
   var bucketData;
   if (keys.includes("buckets")) {
@@ -112,15 +118,19 @@ function getBucket(data, doc_count = null) {
   }
   else {
       keys.forEach(k => { 
-        if (typeof data[k] === "object"){
+        if (k != "distinctTerms" && typeof data[k] === "object"){
           const c =  data[k]['doc_count'] || data["doc_count"];
-          bucketData = getBucket(data[k], c ); 
+          const dt = data[k]['distinctTerms'] || data["distinctTerms"]["value"];
+          bucketData = getBucket(data[k], c, dt);
         }
       });
   }
   if (bucketData && bucketData.buckets) {
       if( bucketData['doc_count'] === undefined ){
           bucketData['doc_count'] = doc_count;
+      }
+      if(distict_doc_count ){
+        data['distict_doc_count'] = distict_doc_count;
       }
       return bucketData;
   }

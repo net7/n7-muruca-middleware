@@ -47,7 +47,7 @@ exports.ESHelper = {
         });
     },
     // per la Query dell'AS dovrò la conf sarà advanced_search_config.ts
-    buildQuery(data, conf) {
+    buildQuery(data, conf, type) {
         const { searchId, results } = data; // searchId = "work", "results: {...}"
         const sort = results ? results.sort : data.sort; // sort = se ci sono i results è SEARCH-RESULTS e trova il sort dentro l'oggetto, altrimenti è SEARCH-FACETS e il sort è al primo livello
         const { limit, offset } = results || {}; // ci sono solo nel SEARCH-RESULTS, altrimenti vuoti
@@ -91,7 +91,10 @@ exports.ESHelper = {
             main_query.sort = sort_object; // aggiorna il sort della main query con es. "title.keyword": "DESC"
         }
         // pagination params
-        if (limit) {
+        if (type === "facets") {
+            main_query.size = 0; // aggiunge proprietà "size" a main_query con il valore di results.limit (e.g. 10)
+        }
+        else if (limit) {
             main_query.size = limit; // aggiunge proprietà "size" a main_query con il valore di results.limit (e.g. 10)
         }
         if (offset || offset === 0) {
@@ -192,7 +195,7 @@ exports.ESHelper = {
                                         lang: 'painless',
                                     },
                                 },
-                            },
+                            }
                         },
                     };
                 }
@@ -267,6 +270,11 @@ function buildNested(terms, search, title, size = null, filterTerm = "", filterF
                         source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
                         lang: 'painless',
                     },
+                }
+            },
+            "distinctTerms": {
+                "cardinality": {
+                    "field": search
                 }
             }
         };
