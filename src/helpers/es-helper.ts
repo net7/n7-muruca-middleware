@@ -148,9 +148,8 @@ export const ESHelper = {
                 });
               } else {
                 const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
-                
-                const must_array = [];
-                data[filterId].forEach( $val => {                   
+                const values = typeof data[filterId] === "string" ? [data[filterId]] : data[filterId];
+                values.forEach( $val => {                   
                     const nested = {
                         nested: {
                             path: path,
