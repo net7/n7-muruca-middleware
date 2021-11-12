@@ -34,11 +34,7 @@ class SearchParser {
             let sum = 0;
             let filteredTotal = 0;
             let values = [];
-            if (data[id]) {
-                if (data[id]['distinctTerms']) {
-                    filteredTotal = data[id]['distinctTerms']['value'];
-                    delete data[id]['distinctTerms'];
-                }
+            if (data[id]) {                
                 let buckets_data = getBucket(data[id]);
                 if (buckets_data && buckets_data.buckets) {
                     if (offset && offset > 0) {
@@ -106,6 +102,9 @@ function getBucket(data, doc_count = null, distict_doc_count = null) {
     if (keys.includes("buckets")) {
         if (data['doc_count'] === undefined) {
             data['doc_count'] = doc_count;
+            if (distict_doc_count) {
+                data['distict_doc_count'] = distict_doc_count;
+            }
         }
         return data;
     }

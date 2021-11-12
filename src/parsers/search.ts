@@ -42,10 +42,6 @@ export abstract class SearchParser implements Parser {
       let filteredTotal = 0;
       let values: any[] = [];
       if (data[id]) {
-        if(data[id]['distinctTerms']){
-          filteredTotal = data[id]['distinctTerms']['value'];
-          delete data[id]['distinctTerms'];
-        }
         let buckets_data =  getBucket(data[id]);
         if (buckets_data && buckets_data.buckets) {
           if(offset && offset > 0){
@@ -113,6 +109,9 @@ function getBucket(data, doc_count = null, distict_doc_count = null) {
   if (keys.includes("buckets")) {
     if( data['doc_count'] === undefined ){
       data['doc_count'] = doc_count;
+      if (distict_doc_count) {
+        data['distict_doc_count'] = distict_doc_count;
+      }
     }
     return data;
   }
