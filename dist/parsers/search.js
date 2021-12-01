@@ -34,7 +34,7 @@ class SearchParser {
             let sum = 0;
             let filteredTotal = 0;
             let values = [];
-            if (data[id]) {                
+            if (data[id]) {
                 let buckets_data = getBucket(data[id]);
                 if (buckets_data && buckets_data.buckets) {
                     if (offset && offset > 0) {
@@ -81,7 +81,7 @@ class SearchParser {
             }
             global_sum += sum;
             agg_res.facets[id] = {
-                total_count: sum,
+                total_count: filteredTotal,
                 filtered_total_count: filteredTotal,
                 values,
             };

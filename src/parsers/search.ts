@@ -86,7 +86,7 @@ export abstract class SearchParser implements Parser {
       }
       global_sum += sum;
       agg_res.facets[id] = {
-        total_count: sum,
+        total_count: filteredTotal,
         filtered_total_count: filteredTotal,
         values,
       };
