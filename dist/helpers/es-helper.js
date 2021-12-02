@@ -67,20 +67,25 @@ exports.ESHelper = {
         };
         //ora deve produrre il sort e le aggregations
         //sorting
-        let sort_object = ['slug.keyword'];
+        const sort_object = [];
         if (conf[searchId].sort) {
-            sort_object = conf[searchId].sort.map((f) => {
+            conf[searchId].sort.forEach((f) => {
                 // ad es. nella search_config.ts di theatheor abbiamo [ "sort_title.keyword", "slug.keyword" ]
                 let tmp;
                 if (typeof sort != 'undefined') {
                     // es. "sort_DESC"
                     tmp = sort.split('_')[1];
-                    return { [f]: sort.split('_')[1] }; // es. "title.keyword": "DESC"
+                    if (f === sort.split('_')[0]) {
+                        sort_object.push({ [f]: sort.split('_')[1] }); // es. "title.keyword": "DESC"
+                    }
                 }
                 else {
-                    return { [f]: tmp };
+                    return sort_object.push({ [f]: tmp });
                 }
             });
+        }
+        else {
+            sort_object.push({ 'slug.keyword': "ASC" });
         }
         if (sort) {
             sort === '_score'
