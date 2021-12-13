@@ -416,7 +416,7 @@ class AdvancedSearchParser {
                                 return false;
                             }
                             else if (Array.isArray(obj[prop]) && prop === 'source') {
-                                obj = obj[prop][0]['work'][0] ? obj[prop][0]['work'][0].title + ', ' + obj[prop][0]['position'] : '';
+                                obj = obj[prop][0]['work'][0] ? obj[prop][0]['work'][0].title : '';
                             }
                             else {
                                 obj = obj[prop];
