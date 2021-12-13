@@ -35,6 +35,7 @@ export class AdvancedSearchParser implements Parser {
   advancedParseResultsItems({ data, options }) {
     var { searchId, conf } = options;
     let items = [];
+    
     data.forEach(({ _source: source, highlight }) => {
       let itemResult = {
         highlights: [],
@@ -81,18 +82,20 @@ export class AdvancedSearchParser implements Parser {
           itemResult[val.label] = [];
           let items = [];
           fields.forEach((item) => {
-            let obj = source;
+            let obj = source; 
             let fieldArray = item.field.split('.');
             for (let i = 0; i < fieldArray.length; i++) {
               let prop = fieldArray[i];
               if (!obj || !obj.hasOwnProperty(prop)) {
                 return false;
+              } else if (Array.isArray(obj[prop]) && prop === 'source') {
+                obj = obj[prop][0]['work'][0] ? obj[prop][0]['work'][0].title + ', ' + obj[prop][0]['position'] : '';
               } else {
                 obj = obj[prop];
               }
             }
             items.push({
-              label: item.label,
+              label: obj ? item.label : '',
               value: obj,
             });
           });
