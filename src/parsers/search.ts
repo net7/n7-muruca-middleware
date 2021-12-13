@@ -51,7 +51,8 @@ export abstract class SearchParser implements Parser {
           if(buckets_data['distict_doc_count']){
             filteredTotal = buckets_data['distict_doc_count'];
           }
-          buckets_data.buckets.forEach((agg: { key: string; doc_count: number }) => {
+          buckets_data.buckets.forEach((agg: { key: string; doc_count: number, from?: any, to?: any }, index:number) => {
+
             const haystack_formatted = (agg.key.split("|||")[0] || '').toLowerCase();
             const haystack_notFormatted = (agg.key.split("|||")[1] || '').toLowerCase();
             const needle = (query || '').toLowerCase();
@@ -77,9 +78,22 @@ export abstract class SearchParser implements Parser {
               }
               facet['args'] = extra_args;
             }
+            if(query_facets[id]['ranges']){
+              if(agg.from){
+                facet['text'] = query_facets[id]['ranges'][index]["from"];
+                facet['payload'] = agg.from;
+              }
+              if(agg.to){
+                facet['range'] = {
+                  text: query_facets[id]['ranges'][index]["to"],
+                  payload: agg.to
+                }
+              }
+
+            }
             values.push(facet);
              // filteredTotal += 1;
-            }
+          }
             sum++;
           });
         }
