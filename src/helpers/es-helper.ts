@@ -173,7 +173,21 @@ export const ESHelper = {
                 })
             }
             break;
-
+            case "range": 
+            const ranges = typeof data[filterId] === "string" ? [data[filterId] ] :  data[filterId];
+            ranges.forEach(range => {
+              const ranges = range.split("-");
+              const range_query = { 
+                "range": {
+                  [query_key.field] : {
+                    "gte": ranges[0] ?? "*",
+                    "lte": ranges[1] ?? "*",
+                  }                  
+                }
+              }
+              main_query.query.bool.must.push(range_query);    
+            })
+            break;
             default:
               break;
           }

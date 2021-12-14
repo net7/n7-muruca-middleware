@@ -5,7 +5,7 @@ export class StaticPageParser implements Parser {
       if (Array.isArray(data)) {
         return data.map((d: any) => ({
             title: d.title.rendered,
-            date: d.date,
+            //date: d.date,
             content: d.content.rendered,
             authors: d.author,
             time_to_read: d.time_to_read,
