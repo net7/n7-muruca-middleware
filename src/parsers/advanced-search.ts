@@ -77,30 +77,27 @@ export class AdvancedSearchParser implements Parser {
               }
             }
           }
-        } else if (val.fields) {
+        } 
+        else if (val.fields) {
           let fields = val.fields;
           itemResult[val.label] = [];
           let items = [];
           fields.forEach((item) => {
-            let obj = source; 
-            let fieldArray = item.field.split('.');
-            for (let i = 0; i < fieldArray.length; i++) {
-              let prop = fieldArray[i];
-              if (!obj || !obj.hasOwnProperty(prop)) {
-                return false;
-              } else if (Array.isArray(obj[prop]) && prop === 'source') {
-                obj = obj[prop][0]['work'][0] ? obj[prop][0]['work'][0].title : '';
-              } else {
-                obj = obj[prop];
+              let obj = source;
+              if (obj && obj.hasOwnProperty(item.field)) {
+                  obj = obj[item.field];
               }
-            }
-            items.push({
-              label: obj ? item.label : '',
-              value: obj,
-            });
+              else {
+                  let fieldArray = item.field.split('.'); // [source, work, title]
+                  obj = ASHelper.extractNestedFields(fieldArray, obj);
+              }
+              items.push({
+                  label: obj ? item.label : '',
+                  value: obj,
+              });
           });
           itemResult[val.label].push({ items: items });
-        }
+      }
       });
       items.push(itemResult);
     });
