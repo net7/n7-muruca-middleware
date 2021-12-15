@@ -162,6 +162,22 @@ exports.ESHelper = {
                             });
                         }
                         break;
+                    case "range":
+                        const ranges = typeof data[filterId] === "string" ? [data[filterId]] : data[filterId];
+                        ranges.forEach(range => {
+                            var _a, _b;
+                            const ranges = range.split("-");
+                            const range_query = {
+                                "range": {
+                                    [query_key.field]: {
+                                        "gte": (_a = ranges[0]) !== null && _a !== void 0 ? _a : "*",
+                                        "lte": (_b = ranges[1]) !== null && _b !== void 0 ? _b : "*",
+                                    }
+                                }
+                            };
+                            main_query.query.bool.must.push(range_query);
+                        });
+                        break;
                     default:
                         break;
                 }
