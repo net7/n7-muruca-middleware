@@ -56,3 +56,4 @@ export declare const queryExists: (termField: any) => {
     };
 };
 export declare const mergeTeiPublisherResults: () => void;
+export declare const extractNestedFields: (fieldArray: any, obj: any) => any;

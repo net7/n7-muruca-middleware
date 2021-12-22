@@ -409,18 +409,12 @@ class AdvancedSearchParser {
                     let items = [];
                     fields.forEach((item) => {
                         let obj = source;
-                        let fieldArray = item.field.split('.');
-                        for (let i = 0; i < fieldArray.length; i++) {
-                            let prop = fieldArray[i];
-                            if (!obj || !obj.hasOwnProperty(prop)) {
-                                return false;
-                            }
-                            else if (Array.isArray(obj[prop]) && prop === 'source') {
-                                obj = obj[prop][0]['work'][0] ? obj[prop][0]['work'][0].title : '';
-                            }
-                            else {
-                                obj = obj[prop];
-                            }
+                        if (obj && obj.hasOwnProperty(item.field)) {
+                            obj = obj[item.field];
+                        }
+                        else {
+                            let fieldArray = item.field.split('.'); // [source, work, title]
+                            obj = ASHelper.extractNestedFields(fieldArray, obj);
                         }
                         items.push({
                             label: obj ? item.label : '',

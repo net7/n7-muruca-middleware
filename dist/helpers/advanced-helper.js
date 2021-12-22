@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
+exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
 exports.queryBool = (mustList = [], shouldList = [], filterList = [], notList = []) => {
     const x = {
         query: {
@@ -163,8 +163,10 @@ exports.buildTeiHeaderResults = (headerResults) => {
         cards.map((papercard) => {
             var _a;
             let div = papercard.div;
-            let header_id = (_a = div.p['_attributes']) === null || _a === void 0 ? void 0 : _a['root-id'];
-            if (header_id && header_id != "") {
+            let header_id = (_a = div.p['_attributes']) === null || _a === void 0
+                ? void 0
+                : _a['root-id'];
+            if (header_id && header_id != '') {
                 if (!id_arr.includes(header_id)) {
                     id_arr.push(header_id);
                 }
@@ -197,8 +199,10 @@ exports.buildTextViewerResults = (docResults) => {
         cards.map((papercard) => {
             var _a;
             let div = papercard.div;
-            let header_id = (_a = div.p['_attributes']) === null || _a === void 0 ? void 0 : _a['root-id'];
-            if (header_id && header_id != "") {
+            let header_id = (_a = div.p['_attributes']) === null || _a === void 0
+                ? void 0
+                : _a['root-id'];
+            if (header_id && header_id != '') {
                 if (!id_arr.includes(header_id)) {
                     id_arr.push(header_id);
                 }
@@ -227,14 +231,14 @@ exports.buildTextViewerResults = (docResults) => {
                         "<span class='mrc__text-breadcrumbs'>" + path + '</span>';
                 }
                 /*if(div.a.span && Array.isArray(div.a.span)){
-                              div.a.span.forEach(element => {
-                                  if(element['_attributes'] && element['_attributes']['class'] === "mrc__text-emph"){
-                                      text_highlight += "<em class='mrc__text-emph'>" + element['_text'] + "</em>"
-                                  } else {
-                                      text_highlight += element['_text'] + " "
-                                  }
-                              });
-                          }*/
+                                      div.a.span.forEach(element => {
+                                          if(element['_attributes'] && element['_attributes']['class'] === "mrc__text-emph"){
+                                              text_highlight += "<em class='mrc__text-emph'>" + element['_text'] + "</em>"
+                                          } else {
+                                              text_highlight += element['_text'] + " "
+                                          }
+                                      });
+                                  }*/
                 if (div.p) {
                     let paragraphs = Array.isArray(div.p) ? div.p : [div.p];
                     paragraphs.forEach((p) => {
@@ -322,3 +326,29 @@ exports.queryExists = (termField) => {
     };
 };
 exports.mergeTeiPublisherResults = () => { };
+exports.extractNestedFields = (fieldArray, obj) => {
+    let firstField = fieldArray.shift();
+    if (obj.hasOwnProperty(firstField)) {
+        let value = '';
+        if (Array.isArray(obj[firstField])) {
+            for (let el of obj[firstField]) {
+                if (typeof el === 'object') {
+                    let tmpVal = exports.extractNestedFields(fieldArray, el);
+                    value = value === '' ? tmpVal : value + ', ' + tmpVal;
+                    return value;
+                }
+                else {
+                    return el.join(', ');
+                }
+            }
+        }
+        else if (typeof obj[firstField] === 'object') {
+            let tmpVal = exports.extractNestedFields(fieldArray, obj[firstField]);
+            value = value === '' ? tmpVal : value + ', ' + tmpVal;
+            return value;
+        }
+        else {
+            return obj[firstField];
+        }
+    }
+};
