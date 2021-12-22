@@ -196,7 +196,7 @@ exports.ESHelper = {
             const filterTerm = (facets_request[f].query != undefined && facets_request[f].query != "") ? facets_request[f].query + "*" : "";
             const minDocCount = query_facets[key].showEmpty != undefined && query_facets[key].showEmpty ? 0 : 1;
             const sort = query_facets[key].sort != undefined ? "_" + query_facets[key].sort : "_count";
-            const { nested, extra, ranges } = query_facets[key];
+            const { nested, extra, ranges, global } = query_facets[key];
             if (nested) {
                 if (query_facets[key]["nestedFields"]) {
                     const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]["innerFilterField"], extra, minDocCount, sort);
@@ -230,7 +230,17 @@ exports.ESHelper = {
                         ranges: query_facets[key].ranges
                     },
                 };
-                main_query.aggregations[key] = range_aggs;
+                if (global) {
+                    main_query.aggregations[key] = {
+                        global: {},
+                        aggs: {
+                            [key]: range_aggs
+                        }
+                    };
+                }
+                else {
+                    main_query.aggregations[key] = range_aggs;
+                }
             }
             else {
                 const term_aggr = buildTerm(query_facets[key], size, extra);
