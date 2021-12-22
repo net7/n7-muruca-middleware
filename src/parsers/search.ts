@@ -133,7 +133,7 @@ function getBucket(data, doc_count = null, distict_doc_count = null) {
       keys.forEach(k => { 
         if (k != "distinctTerms" && typeof data[k] === "object"){
           const c =  data[k]['doc_count'] || data["doc_count"];
-          const dt = data[k]['distinctTerms'] || data["distinctTerms"]["value"];
+          const dt = data["distinctTerms"] ? data["distinctTerms"]["value"] : null;
           bucketData = getBucket(data[k], c, dt);
         }
       });
