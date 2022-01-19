@@ -304,7 +304,7 @@ function buildNested(terms, search, title, size = null, filterTerm="", filterFie
                   size: size,
                   min_doc_count: minDocCount,
                   order: {
-                    [sort]: "asc"
+                    [sort]: sort == "_count" ? "desc" : "asc"
                   },
                   script: {
                       source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
