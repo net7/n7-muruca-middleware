@@ -71,22 +71,15 @@ exports.ESHelper = {
         if (conf[searchId].sort) {
             conf[searchId].sort.forEach((f) => {
                 // ad es. nella search_config.ts di theatheor abbiamo [ "sort_title.keyword", "slug.keyword" ]
-                let tmp;
                 if (typeof sort != 'undefined') {
                     // es. "sort_DESC"
-                    tmp = sort.split('_')[1];
                     if (f === sort.split('_')[0]) {
                         sort_object.push({ [f]: sort.split('_')[1] }); // es. "title.keyword": "DESC"
                     }
                 }
-                else {
-                    return sort_object.push({ [f]: tmp });
-                }
             });
         }
-        else {
-            sort_object.push({ 'slug.keyword': "ASC" });
-        }
+        sort_object.push({ 'slug.keyword': "ASC" });
         if (sort) {
             sort === '_score'
                 ? (main_query.sort = ['_score'])

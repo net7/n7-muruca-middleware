@@ -9,11 +9,16 @@ class TimelineParser {
         data.map(item => {
             const dateStart = item.hasOwnProperty('timeline_year_start') ? item.timeline_year_start : item.timeline_date_start;
             const dateEnd = item.hasOwnProperty('timeline_year_end') ? item.timeline_year_end : item.timeline_date_end;
+            let missingDate;
+            if (!dateStart && !dateEnd) {
+                console.log(`Missing date in item ${item.id}. Date set to Jan 1st 3000.`);
+                missingDate = '01-01-3000';
+            }
             timeline.dataSet.push({
                 id: item.id,
                 content: item.title,
-                start: this.formatDateUtcStandard(dateStart),
-                end: this.formatDateUtcStandard(dateEnd)
+                start: this.formatDateUtcStandard(dateStart ? dateStart : missingDate),
+                end: this.formatDateUtcStandard(dateEnd ? dateEnd : missingDate)
                 // end: FIX ME
             });
         });
