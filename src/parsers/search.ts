@@ -50,6 +50,8 @@ export abstract class SearchParser implements Parser {
           }
           if(buckets_data['distict_doc_count']){
             filteredTotal = buckets_data['distict_doc_count'];
+          } else if( data["distinctTerms_" + id] ){
+            filteredTotal = data["distinctTerms_" + id]["value"];
           }
           buckets_data.buckets.forEach((agg: { key: string; doc_count: number, from?: any, to?: any }, index:number) => {
 

@@ -236,7 +236,7 @@ exports.ESHelper = {
                 }
             }
             else {
-                const term_aggr = buildTerm(query_facets[key], size, extra);
+                const term_aggr = buildTerm(query_facets[key], size, extra, sort);
                 if (filterTerm && filterTerm != "") {
                     main_query.aggregations['filter_term'] = {
                         "filter": {
@@ -253,6 +253,8 @@ exports.ESHelper = {
                 else {
                     main_query.aggregations[key] = term_aggr;
                 }
+                const distTerm = distinctTerms(query_facets[key]['search']);
+                main_query.aggregations["distinctTerms_" + key] = distTerm;
             }
         }
         return main_query;
@@ -292,11 +294,7 @@ function buildNested(terms, search, title, size = null, filterTerm = "", filterF
                     },
                 }
             },
-            "distinctTerms": {
-                "cardinality": {
-                    "field": search
-                }
-            }
+            "distinctTerms": distinctTerms(search)
         };
         if (extraFields) {
             const extraAggs = {};
@@ -322,10 +320,13 @@ function buildNested(terms, search, title, size = null, filterTerm = "", filterF
         return nestedObj;
     }
 }
-function buildTerm(term, size, extra) {
+function buildTerm(term, size, extra = null, sort = "_count") {
     const term_aggr = {
         terms: {
             size: size,
+            order: {
+                [sort]: sort == "_count" ? "desc" : "asc"
+            },
             script: {
                 source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '|||' + doc['${term.title}'].value`,
                 lang: 'painless',
@@ -340,4 +341,11 @@ function buildTerm(term, size, extra) {
         term_aggr['aggs'] = extraAggs;
     }
     return term_aggr;
+}
+function distinctTerms(term) {
+    return {
+        "cardinality": {
+            "field": term
+        }
+    };
 }

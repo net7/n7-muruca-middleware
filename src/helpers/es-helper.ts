@@ -266,7 +266,8 @@ export const ESHelper = {
         } else {
           main_query.aggregations[key] = term_aggr;
         }
-
+        const distTerm = distinctTerms(query_facets[key]['search']);
+        main_query.aggregations["distinctTerms_" + key] = distTerm;
       }
     }
     return main_query;
@@ -309,11 +310,7 @@ function buildNested(terms, search, title, size = null, filterTerm="", filterFie
                   },
               }                    
           },
-          "distinctTerms": {
-            "cardinality": {
-                "field": search
-            }
-          }             
+          "distinctTerms": distinctTerms(search)
       };
     
     if( extraFields ){           
@@ -360,4 +357,13 @@ function buildTerm(term, size, extra){
     term_aggr['aggs'] = extraAggs;
   }  
   return term_aggr;
+}
+
+
+function distinctTerms(term){
+  return {
+    "cardinality": {
+        "field": term
+    }
+  }
 }
