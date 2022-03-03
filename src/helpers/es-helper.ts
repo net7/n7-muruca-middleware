@@ -249,7 +249,7 @@ export const ESHelper = {
         }
       }
       else {
-        const term_aggr = buildTerm(query_facets[key], size, extra);
+        const term_aggr = buildTerm(query_facets[key], size, extra, sort);
 
         if( filterTerm && filterTerm != "" ){
           main_query.aggregations['filter_term'] = {
@@ -338,10 +338,13 @@ function buildNested(terms, search, title, size = null, filterTerm="", filterFie
   }
 }
 
-function buildTerm(term, size, extra){
+function buildTerm(term, size, extra = null, sort = "_count"){
   const term_aggr = {
     terms: {
       size: size,
+      order: {
+        [sort]: sort == "_count" ? "desc" : "asc"
+      },
       script: {
         source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '|||' + doc['${term.title}'].value`,
         lang: 'painless',
