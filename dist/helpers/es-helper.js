@@ -73,8 +73,11 @@ exports.ESHelper = {
                 // ad es. nella search_config.ts di theatheor abbiamo [ "sort_title.keyword", "slug.keyword" ]
                 if (typeof sort != 'undefined') {
                     // es. "sort_DESC"
-                    if (f === sort.split('_')[0]) {
-                        sort_object.push({ [f]: sort.split('_')[1] }); // es. "title.keyword": "DESC"
+                    const lastIndex = sort.lastIndexOf('_');
+                    const before = sort.slice(0, lastIndex);
+                    const after = sort.slice(lastIndex + 1);
+                    if (f === before) {
+                        sort_object.push({ [f]: after }); // es. "title.keyword": "DESC"
                     }
                 }
             });
