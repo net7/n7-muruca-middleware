@@ -5,12 +5,12 @@ class StaticPageParser {
     parse({ data, options }) {
         if (Array.isArray(data)) {
             return data.map((d) => ({
-                title: d.title.rendered,
+                title: d.title.rendered || '',
                 //date: d.date,
-                content: d.content.rendered,
-                authors: d.author,
-                time_to_read: d.time_to_read,
-                slug: d.slug
+                content: d.content.rendered || '',
+                authors: d.author || '',
+                time_to_read: d.time_to_read || '',
+                slug: d.slug || ''
             }))[0];
         }
         return {};
@@ -18,12 +18,12 @@ class StaticPageParser {
     parseList({ data, options }) {
         if (Array.isArray(data)) {
             return data.map((d) => ({
-                title: d.title.rendered,
-                date: d.date,
-                content: d.content.rendered,
-                authors: d.author,
-                time_to_read: d.time_to_read,
-                slug: d.slug,
+                title: d.title.rendered || '',
+                date: d.date || '',
+                content: d.content.rendered || '',
+                authors: d.author || '',
+                time_to_read: d.time_to_read || '',
+                slug: d.slug || '',
                 image: d.image || "",
                 link: options && options.type == "posts" ? "/post/" + d.slug : "/" + d.slug
             }));
