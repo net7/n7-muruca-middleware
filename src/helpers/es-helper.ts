@@ -147,13 +147,30 @@ export const ESHelper = {
               : false;
 
               if (data[filterId] && query_nested === false) {
-                data[filterId].map((value) => {
-                  main_query.query.bool.must.push({
-                    match: {
-                      [query_key.field]: value,
-                    },
+                if(query_key.operator == "OR"){
+                  const should = {
+                      "bool": {
+                          "should": []
+                      }
+                  };
+                  data[filterId].map((value) => {
+                      should.bool.should.push({
+                          match: {
+                              [query_key.field]: value,
+                          },
+                      });
                   });
-                });
+                  main_query.query.bool.must.push(should);
+
+              } else {
+                  data[filterId].map((value) => {
+                    main_query.query.bool.must.push({
+                      match: {
+                        [query_key.field]: value,
+                      },
+                    });
+                  });
+                }
               } else {
                 const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
                 const values = typeof data[filterId] === "string" ? [data[filterId]] : data[filterId];
@@ -253,8 +270,7 @@ export const ESHelper = {
         }
       }
       else {
-        const term_aggr = buildTerm(query_facets[key], size, extra, sort);
-
+        let term_aggr = buildTerm(query_facets[key], size, extra, sort, global);        
         if( filterTerm && filterTerm != "" ){
           main_query.aggregations['filter_term'] = {
             "filter" : {
@@ -342,7 +358,8 @@ function buildNested(terms, search, title, size = null, filterTerm="", filterFie
   }
 }
 
-function buildTerm(term, size, extra = null, sort = "_count"){
+function buildTerm(term, size, extra = null, sort = "_count", global = false){
+  let term_query = {};
   const term_aggr = {
     terms: {
       size: size,
@@ -363,6 +380,20 @@ function buildTerm(term, size, extra = null, sort = "_count"){
     }
     term_aggr['aggs'] = extraAggs;
   }  
+
+  if (global) {
+    term_query["global"] = {};
+    term_query['aggs'] = {
+      "term" : term_aggr
+    }
+
+    return {
+      "global": {},
+      "aggs": {
+        "term": term_aggr
+      }
+    }
+  } 
   return term_aggr;
 }
 
