@@ -10,3 +10,4 @@ export * from './map';
 export * from './search-description';
 export * from './translation';
 export * from './itinerary';
+export * from './resource';

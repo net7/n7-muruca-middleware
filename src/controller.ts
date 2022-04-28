@@ -3,7 +3,7 @@ import * as sortObj from 'sort-object';
 import { HttpHelper, ESHelper } from './helpers';
 import * as ASHelper from './helpers/advanced-helper';
 import { SearchResultsData } from './interfaces';
-import { AdvancedSearchParser } from './parsers';
+import { AdvancedSearchParser, ResourceParser } from './parsers';
 
 export class Controller {
   private config: any;
@@ -25,8 +25,8 @@ export class Controller {
 
   getNavigation = async (_event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers } = this.config;
-    const { lang } = _event.queryStringParameters ? _event.queryStringParameters : '';
-    const path = lang ? 'menu?lang=' + lang : 'menu';
+    const { locale } = _event.queryStringParameters ? _event.queryStringParameters : '';
+    const path = locale ? 'menu?lang=' + locale : 'menu';
     const data = JSON.parse(await HttpHelper.doRequest(baseUrl + path));
     const parser = new parsers.menu();
     const response = parser.parse(data);
@@ -36,8 +36,8 @@ export class Controller {
   getHomeLayout = async (event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers, configurations } = this.config;
     const keyOrder = JSON.parse(event.body);
-    const { lang } = event.queryStringParameters ? event.queryStringParameters : '';
-    const path = lang ? 'layout/home?lang=' + lang : 'layout/home';
+    const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+    const path = locale ? 'layout/home?lang=' + locale : 'layout/home';
     const data = JSON.parse(
       await HttpHelper.doRequest(baseUrl + path)
     );
@@ -103,6 +103,10 @@ export class Controller {
     });
     const sect = sortObj(response.sections, sections); // body sections filters
     response.sections = sect;
+    if (data.locale) {
+      const parseLang = new ResourceParser();
+      response.locale = parseLang.parse(data.locale);
+    }
     return HttpHelper.returnOkResponse(response);
   };
 
@@ -110,12 +114,12 @@ export class Controller {
     const { parsers, searchIndex, elasticUri, configurations } = this.config;
     const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
     const { type } = event.pathParameters;
-    const { lang } = event.queryStringParameters ? event.queryStringParameters : '';
+    const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
     const params = ESHelper.buildQuery(body, configurations.search, type); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
     // make query
     //console.log(JSON.stringify(params));
     const query_res: any = await ESHelper.makeSearch(
-      lang ? searchIndex + '_en' : searchIndex,
+      locale ? searchIndex + '_en' : searchIndex,
       params,
       Client,
       elasticUri
@@ -229,8 +233,8 @@ export class Controller {
 
   getFooter = async (_event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers, configurations } = this.config;
-    const { lang } = _event.queryStringParameters ? _event.queryStringParameters : '';
-    const path = lang ? 'footer?lang=' + lang : 'footer';
+    const { locale } = _event.queryStringParameters ? _event.queryStringParameters : '';
+    const path = locale ? 'footer?lang=' + locale : 'footer';
     const data = JSON.parse(await HttpHelper.doRequest(baseUrl + path));
     const parser = new parsers.footer();
     const response = parser.parse(data, { conf: configurations.footer });

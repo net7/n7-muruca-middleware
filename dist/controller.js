@@ -28,8 +28,8 @@ class Controller {
         });
         this.getNavigation = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
-            const { lang } = _event.queryStringParameters ? _event.queryStringParameters : '';
-            const path = lang ? 'menu?lang=' + lang : 'menu';
+            const { locale } = _event.queryStringParameters ? _event.queryStringParameters : '';
+            const path = locale ? 'menu?lang=' + locale : 'menu';
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + path));
             const parser = new parsers.menu();
             const response = parser.parse(data);
@@ -38,8 +38,8 @@ class Controller {
         this.getHomeLayout = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers, configurations } = this.config;
             const keyOrder = JSON.parse(event.body);
-            const { lang } = event.queryStringParameters ? event.queryStringParameters : '';
-            const path = lang ? 'layout/home?lang=' + lang : 'layout/home';
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            const path = locale ? 'layout/home?lang=' + locale : 'layout/home';
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + path));
             const parser = new parsers.home();
             const response = parser.parse({
@@ -93,17 +93,21 @@ class Controller {
             });
             const sect = sortObj(response.sections, sections); // body sections filters
             response.sections = sect;
+            if (data.locale) {
+                const parseLang = new parsers_1.ResourceParser();
+                response.locale = parseLang.parse(data.locale);
+            }
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.search = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, searchIndex, elasticUri, configurations } = this.config;
             const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
             const { type } = event.pathParameters;
-            const { lang } = event.queryStringParameters ? event.queryStringParameters : '';
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
             const params = helpers_1.ESHelper.buildQuery(body, configurations.search, type); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
             // make query
             //console.log(JSON.stringify(params));
-            const query_res = yield helpers_1.ESHelper.makeSearch(lang ? searchIndex + '_en' : searchIndex, params, elasticsearch_1.Client, elasticUri);
+            const query_res = yield helpers_1.ESHelper.makeSearch(locale ? searchIndex + '_en' : searchIndex, params, elasticsearch_1.Client, elasticUri);
             const data = type === 'results' ? query_res.hits.hits : query_res.aggregations;
             const parser = new parsers.search();
             const { searchId, facets } = body;
@@ -192,8 +196,8 @@ class Controller {
         });
         this.getFooter = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers, configurations } = this.config;
-            const { lang } = _event.queryStringParameters ? _event.queryStringParameters : '';
-            const path = lang ? 'footer?lang=' + lang : 'footer';
+            const { locale } = _event.queryStringParameters ? _event.queryStringParameters : '';
+            const path = locale ? 'footer?lang=' + locale : 'footer';
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + path));
             const parser = new parsers.footer();
             const response = parser.parse(data, { conf: configurations.footer });

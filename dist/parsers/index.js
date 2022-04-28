@@ -22,3 +22,4 @@ __exportStar(require("./map"), exports);
 __exportStar(require("./search-description"), exports);
 __exportStar(require("./translation"), exports);
 __exportStar(require("./itinerary"), exports);
+__exportStar(require("./resource"), exports);
