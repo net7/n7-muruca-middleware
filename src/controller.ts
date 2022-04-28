@@ -25,7 +25,9 @@ export class Controller {
 
   getNavigation = async (_event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers } = this.config;
-    const data = JSON.parse(await HttpHelper.doRequest(baseUrl + 'menu'));
+    const { lang } = _event.queryStringParameters ? _event.queryStringParameters : '';
+    const path = lang ? 'menu?lang=' + lang : 'menu';
+    const data = JSON.parse(await HttpHelper.doRequest(baseUrl + path));
     const parser = new parsers.menu();
     const response = parser.parse(data);
     return HttpHelper.returnOkResponse(response);
@@ -34,8 +36,10 @@ export class Controller {
   getHomeLayout = async (event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers, configurations } = this.config;
     const keyOrder = JSON.parse(event.body);
+    const { lang } = event.queryStringParameters ? event.queryStringParameters : '';
+    const path = lang ? 'layout/home?lang=' + lang : 'layout/home';
     const data = JSON.parse(
-      await HttpHelper.doRequest(baseUrl + 'layout/home')
+      await HttpHelper.doRequest(baseUrl + path)
     );
     const parser = new parsers.home();
     const response = parser.parse({
@@ -106,11 +110,12 @@ export class Controller {
     const { parsers, searchIndex, elasticUri, configurations } = this.config;
     const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
     const { type } = event.pathParameters;
+    const { lang } = event.queryStringParameters ? event.queryStringParameters : '';
     const params = ESHelper.buildQuery(body, configurations.search, type); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
     // make query
     //console.log(JSON.stringify(params));
     const query_res: any = await ESHelper.makeSearch(
-      searchIndex,
+      lang ? searchIndex + '_en' : searchIndex,
       params,
       Client,
       elasticUri
@@ -224,7 +229,9 @@ export class Controller {
 
   getFooter = async (_event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers, configurations } = this.config;
-    const data = JSON.parse(await HttpHelper.doRequest(baseUrl + 'footer'));
+    const { lang } = _event.queryStringParameters ? _event.queryStringParameters : '';
+    const path = lang ? 'footer?lang=' + lang : 'footer';
+    const data = JSON.parse(await HttpHelper.doRequest(baseUrl + path));
     const parser = new parsers.footer();
     const response = parser.parse(data, { conf: configurations.footer });
     return HttpHelper.returnOkResponse(response);
