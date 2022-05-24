@@ -42,4 +42,5 @@ export interface Input {
 }
 export default interface Parser {
     parse: (input: Input) => object;
+    localeParse?: (input: any) => object;
 }

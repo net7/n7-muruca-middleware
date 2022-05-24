@@ -54,7 +54,9 @@ class Controller {
         this.getSearchDescription = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { searchId } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'layout/' + searchId));
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            const path = locale ? '?lang=' + locale : '';
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'layout/' + searchId + path));
             const parser = new parsers.searchDescription();
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -62,7 +64,9 @@ class Controller {
         this.getTimeline = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { id } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/' + id));
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            const path = locale ? '?lang=' + locale : '';
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/' + id + path));
             const parser = new parsers.timeline();
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -70,7 +74,9 @@ class Controller {
         this.getMap = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { id } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/' + id));
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            const path = locale ? '?lang=' + locale : '';
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/' + id + path));
             const parser = new parsers.map();
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -81,8 +87,10 @@ class Controller {
             let { type, id, sections } = JSON.parse(event.body);
             const requestURL = baseUrl;
             const url = requestURL + type + '/' + id;
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            const path = locale ? '?lang=' + locale : '';
             //remove, only for test
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(url));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(url + path));
             const parser = new parsers.resource();
             const response = parser.parse({
                 data,
@@ -93,21 +101,27 @@ class Controller {
             });
             const sect = sortObj(response.sections, sections); // body sections filters
             response.sections = sect;
+            // FIX ME: non serve il parser
             if (data.locale) {
                 const parseLang = new parsers_1.ResourceParser();
-                response.locale = parseLang.parse(data.locale);
+                response.locale = parseLang.localeParse(data.locale);
             }
+            // 
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.search = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
-            const { parsers, searchIndex, elasticUri, configurations } = this.config;
+            const { parsers, searchIndex, elasticUri, configurations, defaultLang } = this.config;
             const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
             const { type } = event.pathParameters;
             const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            let searchLangIndex = searchIndex;
+            if (locale && defaultLang && locale != defaultLang) {
+                searchLangIndex = searchIndex + '_' + locale;
+            }
             const params = helpers_1.ESHelper.buildQuery(body, configurations.search, type); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
             // make query
             //console.log(JSON.stringify(params));
-            const query_res = yield helpers_1.ESHelper.makeSearch(locale ? searchIndex + '_en' : searchIndex, params, elasticsearch_1.Client, elasticUri);
+            const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
             const data = type === 'results' ? query_res.hits.hits : query_res.aggregations;
             const parser = new parsers.search();
             const { searchId, facets } = body;
@@ -129,12 +143,17 @@ class Controller {
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.advancedSearch = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
-            const { parsers, searchIndex, elasticUri, teiPublisherUri, configurations, } = this.config;
+            const { parsers, searchIndex, elasticUri, teiPublisherUri, configurations, defaultLang } = this.config;
             const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
             const parser = new parsers_1.AdvancedSearchParser();
             const params = parser.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
             //console.log(JSON.stringify(params));
-            const query_res = yield helpers_1.ESHelper.makeSearch(searchIndex, params, elasticsearch_1.Client, elasticUri);
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            let searchLangIndex = searchIndex;
+            if (locale && defaultLang && locale != defaultLang) {
+                searchLangIndex = searchIndex + '_' + locale;
+            }
+            const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
             const es_data = query_res.hits.hits;
             let map_data = {};
             es_data.map((res) => {
@@ -206,12 +225,13 @@ class Controller {
         this.getTranslation = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { lang } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'translations?lang=' + lang));
+            const queryLang = lang === 'en' ? lang + '_US' : lang + '_' + lang.toUpperCase();
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'translations?lang=' + queryLang));
             const parser = new parsers.translation();
             const response = parser.parse({
                 data,
                 options: {
-                    lang,
+                    queryLang,
                 },
             });
             return helpers_1.HttpHelper.returnOkResponse(response);

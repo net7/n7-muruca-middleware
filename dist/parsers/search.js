@@ -8,6 +8,17 @@ class SearchParser {
             ? this.parseResults({ data, options })
             : this.parseFacets({ data, options });
     }
+    searchResultsMetadata(source, field, label) {
+        const item = [];
+        field.map((f) => {
+            item[label][0].items.push({
+                label: source[f] ? f : null,
+                // value: f === 'contenuti' ? (source[f] || []).map(sf => sf['contenuto']) : source[f]
+                value: source[f],
+            });
+        });
+        return item;
+    }
     parseResults({ data, options }) {
         if (options && "limit" in options) {
             var { offset, limit, sort, total_count } = options;
@@ -20,6 +31,53 @@ class SearchParser {
             results: []
         };
         search_result.results = this.parseResultsItems({ data, options });
+        // implementare 
+        // data.forEach(({ _source: source }) => {
+        //   const item = {} as SearchResultsItemData;
+        //   conf.results.forEach((val: { label: string; field: any }) => {
+        //     switch (val.label) {
+        //       case 'title':
+        //       case 'text':
+        //         item[val.label] = source[val.field] || null;
+        //         break;
+        //       case 'metadata':
+        //         item[val.label] = [
+        //           {
+        //             items: [],
+        //           },
+        //         ];
+        //         val.field.map((f) => {
+        //           item[val.label][0].items.push({
+        //             label: source[f] ? f : null,
+        //             // value: f === 'contenuti' ? (source[f] || []).map(sf => sf['contenuto']) : source[f]
+        //             value:
+        //               f === 'origine' && source[f]
+        //                 ? source[f].replace(/(<([^>]+)>)/gi, '')
+        //                 : source[f],
+        //           });
+        //         });
+        //         break;
+        //       case 'image':
+        //         item[val.label] = source[val.field] || null;
+        //         break;
+        //       case 'link':
+        //         item[
+        //           val.label
+        //         ] = `/${source['record-type']}/${source.id}/${source.slug}`;
+        //         break;
+        //       case 'id':
+        //         item[val.label] = source.id;
+        //         break;
+        //       case 'routeId':
+        //           item[val.label] = source[val.field];
+        //       case 'slug':
+        //         item[val.label] = source[val.field];
+        //       default:
+        //         break;
+        //     }
+        //   });
+        //   items.push(item);
+        // });
         return search_result;
     }
     parseFacets({ data, options }) {
