@@ -4,7 +4,5 @@ export declare class FooterParser implements Parser {
         conf: {
             poweredby: boolean;
         };
-    }): {
-        columns: any[];
-    };
+    }): any;
 }
