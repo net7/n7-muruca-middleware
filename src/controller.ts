@@ -265,7 +265,10 @@ export class Controller {
   getTranslation = async (event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers } = this.config;
     const { lang } = event.pathParameters;
-    const queryLang = lang === 'en' ? lang + '_US' : lang + '_' + lang.toUpperCase();
+    let queryLang = lang;
+    if(lang && lang.length < 5){
+        queryLang = lang === 'en' ? lang + '_US' : lang + '_' + lang.toUpperCase();
+    }            
     const data = JSON.parse(
       await HttpHelper.doRequest(baseUrl + 'translations?lang=' + queryLang)
     );
