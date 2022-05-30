@@ -225,7 +225,10 @@ class Controller {
         this.getTranslation = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { lang } = event.pathParameters;
-            const queryLang = lang === 'en' ? lang + '_US' : lang + '_' + lang.toUpperCase();
+            let queryLang = lang;
+            if (lang && lang.length < 5) {
+                queryLang = lang === 'en' ? lang + '_US' : lang + '_' + lang.toUpperCase();
+            }
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'translations?lang=' + queryLang));
             const parser = new parsers.translation();
             const response = parser.parse({
