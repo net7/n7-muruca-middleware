@@ -357,8 +357,10 @@ export class Controller {
   getItinerary = async (event: any, _context: any, _callback: any) => {
     const { parsers, baseUrl, configurations } = this.config;
     const { id } = event.pathParameters;
+    const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+    const path = locale ? '?lang=' + locale : '';
     const data = JSON.parse(
-      await HttpHelper.doRequest(baseUrl + 'itinerary/' + id)
+      await HttpHelper.doRequest(baseUrl + 'itinerary/' + id + path)
     );
     const parser = new parsers.itinerary(configurations?.itineraries);
     const response = parser.parse({ data });

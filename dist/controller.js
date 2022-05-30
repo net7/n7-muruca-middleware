@@ -302,7 +302,9 @@ class Controller {
         this.getItinerary = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, baseUrl, configurations } = this.config;
             const { id } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'itinerary/' + id));
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            const path = locale ? '?lang=' + locale : '';
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'itinerary/' + id + path));
             const parser = new parsers.itinerary(configurations === null || configurations === void 0 ? void 0 : configurations.itineraries);
             const response = parser.parse({ data });
             if (response) {
