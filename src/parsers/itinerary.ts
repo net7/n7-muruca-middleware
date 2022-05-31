@@ -35,7 +35,8 @@ export class ItineraryParser implements Parser {
             link: CommonHelper.buildLink(this.config.collections[restField]?.link, d),
             image: d.thumbnail || null,
             slug: d.slug,
-            id: d.id 
+            id: d.id,
+            routeId: d['record-type']
           }));
         }
       }
