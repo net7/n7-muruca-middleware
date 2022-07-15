@@ -150,6 +150,11 @@ class SearchParser {
                         }
                         sum++;
                     });
+                    if (query_facets[id]['sortValues']) {
+                        values.sort((a, b) => {
+                            return query_facets[id]['sortValues'].indexOf(a['payload']) - query_facets[id]['sortValues'].indexOf(b['payload']);
+                        });
+                    }
                 }
             }
             global_sum += sum;

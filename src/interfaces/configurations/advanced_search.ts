@@ -7,7 +7,7 @@ export interface ConfigAdvancedSearch {
             }
         }
         /** sort fields. Ex: ['slug.keyword', 'sort_title.keyword']*/
-        sort: string[]
+        sort?: string[]
         /** a query executed in any case */
         base_query: {
             /** the field to query on. Ex: "record-type" */

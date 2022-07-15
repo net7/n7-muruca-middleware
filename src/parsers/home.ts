@@ -17,6 +17,8 @@ export class HomeParser implements Parser {
       // the corresponding data is stored.
       const field = conf[block].field
 
+      if( !data[field] ) continue;
+
       // compiling data for the hero blocks
       if (/hero-?\w*/i.test(block)) {
           parsedData[block] = this.parseHero(data[field], block);
