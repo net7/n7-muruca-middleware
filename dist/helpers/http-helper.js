@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HttpHelper = void 0;
-const request = require("request");
+const axios = require('axios');
 exports.HttpHelper = {
     returnOkResponse(data, headerData) {
         let headers = {
@@ -39,14 +39,32 @@ exports.HttpHelper = {
         return response;
     },
     doRequest(url) {
+        /*return new Promise(function (resolve, reject) {
+          request(url, function (error, res, body) {
+            if (!error && res.statusCode == 200) {
+              resolve(body);
+            } else {
+              reject(error);
+            }
+          });
+        });*/
         return new Promise(function (resolve, reject) {
-            request(url, function (error, res, body) {
-                if (!error && res.statusCode == 200) {
-                    resolve(body);
-                }
-                else {
-                    reject(error);
-                }
+            let res = axios.get(url).then(res => {
+                //for legacy with old code
+                resolve(JSON.stringify(res.data));
+            })
+                .catch(error => {
+                console.error(error);
+            });
+        });
+    },
+    doPostRequest(url, data) {
+        return new Promise(function (resolve, reject) {
+            let res = axios.post(url, data).then(res => {
+                resolve(res);
+            })
+                .catch(error => {
+                console.error(error);
             });
         });
     }

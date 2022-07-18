@@ -20,6 +20,11 @@ export interface ConfigAdvancedSearch {
         },
         /** enables highlights */
         show_highlights?: boolean
+        /** Options for dynamic options fields */
+        dynamic_options?: {
+            /* list of fields to retrieve options values*/
+            fields: DynamicOptionField[]
+        }
         /**results formatting */
         results: ResultsFormatData[]
     }
@@ -97,4 +102,9 @@ export interface ResultsFormatData {
     isLink?: boolean,
     /** set of fields */
     fields?: ResultsFormatData[]
+}
+
+export interface DynamicOptionField {
+    key: string,
+    content_type: string
 }

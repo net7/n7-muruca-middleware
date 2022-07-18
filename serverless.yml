@@ -8,6 +8,7 @@ provider:
     STATIC_URL: ${file(${opt:stage, 'prod'}.yml):STATIC_URL}
     SEARCH_INDEX: ${file(${opt:stage, 'prod'}.yml):SEARCH_INDEX}
     ELASTIC_URI: ${file(${opt:stage, 'prod'}.yml):ELASTIC_URI}
+    ADVANCED_SEARCH_PARAMETERS_PATH: ${file(${opt:stage, 'prod'}.yml):ADVANCED_SEARCH_PARAMETERS_PATH}
 functions:
   postTest:
     handler: ./src/controller.postTest
@@ -111,3 +112,9 @@ functions:
       - http:
           path: list/{type}
           method: post
+  advancedSearchOptions:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.advancedSearchOptions
+    events:
+      - http:
+          path: advanced_search_options
+          method: get

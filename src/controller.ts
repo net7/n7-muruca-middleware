@@ -252,6 +252,27 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   };
 
+  advancedSearchOptions = async (event: any, _context: any, _callback: any) => {
+    const {
+      configurations,
+      baseUrl,
+      advancedSearchParametersPath
+    } = this.config;
+
+    const advanced_search_options = configurations.advanced_search.advanced_search?.dynamic_options;
+
+    if(advanced_search_options){
+      const requestURL = baseUrl + advancedSearchParametersPath;;
+      const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+      const path = locale ? '?lang=' + locale : '';
+      const data:any = await HttpHelper.doPostRequest(requestURL + path, advanced_search_options);      
+      const options = data.data;
+    return HttpHelper.returnOkResponse(options);
+    }
+
+    
+  }
+
   getFooter = async (_event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers, configurations } = this.config;
     const { locale } = _event.queryStringParameters ? _event.queryStringParameters : '';
@@ -393,6 +414,7 @@ export class Controller {
       getTypeList: this.getTypeList.bind(this),
       getItinerary: this.getItinerary.bind(this),
       getItineraries: this.getItineraries.bind(this),
+      advancedSearchOptions: this.advancedSearchOptions.bind(this),
     };
   }
 }

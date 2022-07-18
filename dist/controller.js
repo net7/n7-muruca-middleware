@@ -213,6 +213,20 @@ class Controller {
             });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        this.advancedSearchOptions = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const { configurations, baseUrl, advancedSearchParametersPath } = this.config;
+            const advanced_search_options = (_a = configurations.advanced_search.advanced_search) === null || _a === void 0 ? void 0 : _a.dynamic_options;
+            if (advanced_search_options) {
+                const requestURL = baseUrl + advancedSearchParametersPath;
+                ;
+                const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+                const path = locale ? '?lang=' + locale : '';
+                const data = yield helpers_1.HttpHelper.doPostRequest(requestURL + path, advanced_search_options);
+                const options = data.data;
+                return helpers_1.HttpHelper.returnOkResponse(options);
+            }
+        });
         this.getFooter = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers, configurations } = this.config;
             const { locale } = _event.queryStringParameters ? _event.queryStringParameters : '';
@@ -338,6 +352,7 @@ class Controller {
             getTypeList: this.getTypeList.bind(this),
             getItinerary: this.getItinerary.bind(this),
             getItineraries: this.getItineraries.bind(this),
+            advancedSearchOptions: this.advancedSearchOptions.bind(this),
         };
     }
 }

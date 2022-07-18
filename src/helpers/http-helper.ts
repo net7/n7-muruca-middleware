@@ -1,5 +1,5 @@
-import * as request from 'request';
 import { HTTPHeaders, HTTPResponse } from "../interfaces/helper";
+const axios = require('axios');
 
 export const HttpHelper = {
   returnOkResponse(data: object, headerData?: HTTPHeaders): HTTPResponse {
@@ -43,7 +43,7 @@ export const HttpHelper = {
 
 
   doRequest(url: string): Promise<string> {
-    return new Promise(function (resolve, reject) {
+    /*return new Promise(function (resolve, reject) {
       request(url, function (error, res, body) {
         if (!error && res.statusCode == 200) {
           resolve(body);
@@ -51,6 +51,27 @@ export const HttpHelper = {
           reject(error);
         }
       });
+    });*/
+    return new Promise(function (resolve, reject) {
+      let res = axios.get(url).then(res => {
+          //for legacy with old code
+          resolve(JSON.stringify(res.data));
+      })
+        .catch(error => {
+          console.error(error);
+      });
+    });
+  },
+
+  doPostRequest(url, data) {
+    return new Promise(function (resolve, reject) {
+        let res = axios.post(url, data).then(res => {
+            resolve(res)
+        })
+        .catch(error => {
+        console.error(error);
+        });
+        
     });
   }
 }
