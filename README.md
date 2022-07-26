@@ -1,6 +1,7 @@
 # Changelog n7-serverless
 
 ## Unrealeased
+- Added dynamic options
 - Added search config for manual sorting of facets
 - Added interfaces for search and andvanced search configurations files.
 
