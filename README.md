@@ -1,5 +1,9 @@
 # Changelog n7-serverless
 
+## [2.3.0] - 04-08-2022
+- Advanced search add 'highlightField' options 
+- Advanced search **BREAKING CHANGE**  modified `term_value` search query. See new options or convert to `fulltext` query
+
 ## [2.2.0] - 26-07-2022
 - Added dynamic options
 - Added search config for manual sorting of facets

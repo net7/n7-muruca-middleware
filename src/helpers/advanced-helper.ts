@@ -149,25 +149,47 @@ export const queryRange = (termFields: [], termValue: any) => {
   return queryBool(ranges).query;
 };
 
-export const buildHighlights = (queryField: any) => {
+
+export const buildHighlights = (queryField: any, prePostTag: any = null, highlightQuery: boolean = false) => {
   const fields =
-    typeof queryField === 'string' ? queryField.split(',') : queryField;
+  typeof queryField === 'string' ? queryField.split(',') : queryField;
   const highlight = {};
   for (let f of fields) {
     if (Array.isArray(fields)) {
       fields.forEach((element) => {
         if (element.field && element.field != '') {
-          highlight[element.field] = {};
+          highlight[element.field] = highlightValue(element.field, prePostTag, highlightQuery);
         } else {
-          highlight[element] = {};
+          highlight[element] = highlightValue(element, prePostTag, highlightQuery);;
         }
       });
     } else {
-      highlight[f] = {};
+      highlight[f] = highlightValue(f, prePostTag, highlightQuery);;
     }
+    
   }
   return highlight;
 };
+
+export const highlightValue = ( field, prePostTag, highlightQuery ) => {
+  const highlightValue = {};
+
+  if (prePostTag){
+    highlightValue['pre_tags'] = prePostTag[0];
+    highlightValue['post_tags'] = prePostTag[1];
+  }
+
+  if(highlightQuery) {
+    highlightValue['highlight_query'] = {
+      "regexp": {
+        [field]: {
+            "value": ".*"
+        }
+      }
+    }
+  }
+  return highlightValue;
+}
 
 export const buildTeiHeaderResults = (headerResults: any) => {
   let stripped_doc = headerResults.replace(/<!DOCTYPE\s\w+>/g, '');

@@ -347,6 +347,16 @@ export class AdvancedSearchParser implements Parser {
               break;
             case 'term_value':
               if (!data[groupId]) break;
+
+              // from 2.3.1
+              const query_term = data[groupId]; 
+              const tv_query = ASHelper.queryTerm(
+                query_key.field,
+                query_term
+              );
+            
+            //until 2.2.0  
+            /*
               const query_term = ASHelper.buildQueryString(data[groupId], {
                 allowWildCard: query_key.addStar,
                 stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
@@ -355,12 +365,22 @@ export class AdvancedSearchParser implements Parser {
               const tv_query = ASHelper.queryString(
                 { fields: query_key.field, value: query_term },
                 operator
-              );
-              if (!query_key.noHighlight) {
-                highlight_fields = {
-                  ...ASHelper.buildHighlights(query_key.field),
-                  ...highlight_fields,
-                };
+              );*/
+
+              if ( !query_key.noHighlight ) {
+
+                if( query_key.highlightField ){
+                  highlight_fields = {
+                    ...ASHelper.buildHighlights(query_key.highlightField, ["", ""], true),
+                    ...highlight_fields,
+                  };     
+                } else {
+                  highlight_fields = {
+                    ...ASHelper.buildHighlights(query_key.field),
+                    ...highlight_fields,
+                  };
+                }
+
               }
               must_array.push(tv_query);
               break;

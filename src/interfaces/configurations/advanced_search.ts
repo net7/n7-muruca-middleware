@@ -31,14 +31,14 @@ export interface ConfigAdvancedSearch {
 }
 
 /** query based on a set of specific terms */
-export interface TermAdvancedSearch extends TextSettingsAdvancedSearch, CommonSettingsAdvancedSearch {
+export interface TermAdvancedSearch extends CommonSettingsAdvancedSearch {
     /**
      * term_value: search the input value into the fields
      * term_field_value: search the input value into the input field. Use the "field" as default
     */
     type: "term_value" | "term_field_value"
     /** the fields to query on. Ex: "["record-type", "author.name", "date.range"] */
-    field: string[]
+    field: string
     /** @default AND */
     operator?: "OR" | "AND"
     /** only for "term_field_value" type */
@@ -48,6 +48,9 @@ export interface TermAdvancedSearch extends TextSettingsAdvancedSearch, CommonSe
         /**the query_param containing the value to search */
         "value": string
     }
+    /*alternative field to highlight instead of search field */
+    highlightField?: string
+
 }
 
 /** fulltext query */

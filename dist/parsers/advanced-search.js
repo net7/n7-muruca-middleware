@@ -249,14 +249,27 @@ class AdvancedSearchParser {
                         case 'term_value':
                             if (!data[groupId])
                                 break;
-                            const query_term = ASHelper.buildQueryString(data[groupId], {
+                            // from 2.3.1
+                            const query_term = data[groupId];
+                            const tv_query = ASHelper.queryTerm(query_key.field, query_term);
+                            //until 2.2.0  
+                            /*
+                              const query_term = ASHelper.buildQueryString(data[groupId], {
                                 allowWildCard: query_key.addStar,
                                 stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
-                            });
-                            const operator = query_key.operator ? query_key.operator : 'AND';
-                            const tv_query = ASHelper.queryString({ fields: query_key.field, value: query_term }, operator);
+                              });
+                              const operator = query_key.operator ? query_key.operator : 'AND';
+                              const tv_query = ASHelper.queryString(
+                                { fields: query_key.field, value: query_term },
+                                operator
+                              );*/
                             if (!query_key.noHighlight) {
-                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                                if (query_key.highlightField) {
+                                    highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.highlightField, ["", ""], true)), highlight_fields);
+                                }
+                                else {
+                                    highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                                }
                             }
                             must_array.push(tv_query);
                             break;

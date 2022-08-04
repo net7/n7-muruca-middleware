@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
+exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.highlightValue = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
 exports.queryBool = (mustList = [], shouldList = [], filterList = [], notList = []) => {
     const x = {
         query: {
@@ -122,25 +122,44 @@ exports.queryRange = (termFields, termValue) => {
     });
     return exports.queryBool(ranges).query;
 };
-exports.buildHighlights = (queryField) => {
+exports.buildHighlights = (queryField, prePostTag = null, highlightQuery = false) => {
     const fields = typeof queryField === 'string' ? queryField.split(',') : queryField;
     const highlight = {};
     for (let f of fields) {
         if (Array.isArray(fields)) {
             fields.forEach((element) => {
                 if (element.field && element.field != '') {
-                    highlight[element.field] = {};
+                    highlight[element.field] = exports.highlightValue(element.field, prePostTag, highlightQuery);
                 }
                 else {
-                    highlight[element] = {};
+                    highlight[element] = exports.highlightValue(element, prePostTag, highlightQuery);
+                    ;
                 }
             });
         }
         else {
-            highlight[f] = {};
+            highlight[f] = exports.highlightValue(f, prePostTag, highlightQuery);
+            ;
         }
     }
     return highlight;
+};
+exports.highlightValue = (field, prePostTag, highlightQuery) => {
+    const highlightValue = {};
+    if (prePostTag) {
+        highlightValue['pre_tags'] = prePostTag[0];
+        highlightValue['post_tags'] = prePostTag[1];
+    }
+    if (highlightQuery) {
+        highlightValue['highlight_query'] = {
+            "regexp": {
+                [field]: {
+                    "value": ".*"
+                }
+            }
+        };
+    }
+    return highlightValue;
 };
 exports.buildTeiHeaderResults = (headerResults) => {
     let stripped_doc = headerResults.replace(/<!DOCTYPE\s\w+>/g, '');
