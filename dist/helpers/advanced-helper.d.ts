@@ -46,7 +46,8 @@ export declare const queryRange: (termFields: [], termValue: any) => {
         must_not: any[];
     };
 };
-export declare const buildHighlights: (queryField: any) => {};
+export declare const buildHighlights: (queryField: any, prePostTag?: any, highlightQuery?: boolean) => {};
+export declare const highlightValue: (field: any, prePostTag: any, highlightQuery: any) => {};
 export declare const buildTeiHeaderResults: (headerResults: any) => {
     header_params: any[];
 };
