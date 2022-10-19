@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
+exports.nestedQuery = exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.simpleQueryString = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
 exports.queryBool = (mustList = [], shouldList = [], filterList = [], notList = []) => {
     const x = {
         query: {
@@ -40,6 +40,25 @@ exports.queryString = (queryField, default_operator = 'AND', boost = null) => {
     if (boost) {
         x.query_string['boost'] = boost;
     }
+    return x;
+};
+exports.simpleQueryString = (queryField, default_operator = 'AND', replaceBoolean = true, _name = "") => {
+    const fields = typeof queryField.fields == 'string'
+        ? queryField.fields.split(',')
+        : queryField.fields;
+    _name = _name == "" && typeof queryField.fields == 'string' ? queryField.fields : _name;
+    let term = queryField.value;
+    if (replaceBoolean) {
+        term = term.replace(/\sAND\s/g, '+').replace(/\sOR\s/g, '|').replace(/\sNOT\s/g, '-');
+    }
+    const x = {
+        simple_query_string: {
+            query: term,
+            fields: fields,
+            default_operator: default_operator,
+            _name: _name
+        },
+    };
     return x;
 };
 exports.spanNear = (queryField) => {
@@ -125,20 +144,15 @@ exports.queryRange = (termFields, termValue) => {
 exports.buildHighlights = (queryField) => {
     const fields = typeof queryField === 'string' ? queryField.split(',') : queryField;
     const highlight = {};
-    for (let f of fields) {
-        if (Array.isArray(fields)) {
-            fields.forEach((element) => {
-                if (element.field && element.field != '') {
-                    highlight[element.field] = {};
-                }
-                else {
-                    highlight[element] = {};
-                }
-            });
-        }
-        else {
-            highlight[f] = {};
-        }
+    if (Array.isArray(fields)) {
+        fields.forEach((element) => {
+            if (element.field && element.field != '') {
+                highlight[element.field] = (element === null || element === void 0 ? void 0 : element.options) || {};
+            }
+            else {
+                highlight[element] = {};
+            }
+        });
     }
     return highlight;
 };
@@ -351,4 +365,37 @@ exports.extractNestedFields = (fieldArray, obj) => {
             return obj[firstField];
         }
     }
+};
+exports.nestedQuery = (path, query, inner_hits = null) => {
+    const nested = {
+        "path": path,
+        "query": query
+    };
+    if (inner_hits) {
+        const ih = {
+            "size": 30
+        };
+        if (inner_hits.highlight) {
+            ih['highlight'] = {
+                "fields": inner_hits.highlight,
+                "pre_tags": ["<em class='mrc__text-emph'>"],
+                "post_tags": ['</em>'],
+                "fragment_size": 500,
+                'type': 'plain',
+                "order": "none",
+                "number_of_fragments": 30
+            };
+        }
+        if (inner_hits.sort) {
+            ih.sort = inner_hits.sort;
+        }
+        if (inner_hits.source) {
+            ih._source = inner_hits.source;
+        }
+        if (inner_hits.name) {
+            ih.name = inner_hits.name;
+        }
+        nested['inner_hits'] = ih;
+    }
+    return nested;
 };

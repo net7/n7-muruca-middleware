@@ -1,6 +1,11 @@
 # Changelog n7-serverless
 
-## Unrealeased
+## [2.3.0] - 26-07-2022
+- refactor of advanced search controller
+- new directory organization
+- added XML-Json based advanced search
+
+## [2.2.0] - 26-07-2022
 - Added dynamic options
 - Added search config for manual sorting of facets
 - Added interfaces for search and andvanced search configurations files.

@@ -17,6 +17,10 @@ export declare const queryString: (queryField: {
     fields: any;
     value: string;
 }, default_operator?: string, boost?: number) => any;
+export declare const simpleQueryString: (queryField: {
+    fields: any;
+    value: string;
+}, default_operator?: string, replaceBoolean?: boolean, _name?: string) => any;
 export declare const spanNear: (queryField: {
     fields: string;
     value: any;
@@ -57,3 +61,7 @@ export declare const queryExists: (termField: any) => {
 };
 export declare const mergeTeiPublisherResults: () => void;
 export declare const extractNestedFields: (fieldArray: any, obj: any) => any;
+export declare const nestedQuery: (path: string, query: any, inner_hits?: any) => {
+    path: string;
+    query: any;
+};

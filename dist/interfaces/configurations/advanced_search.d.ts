@@ -15,8 +15,25 @@ export interface ConfigAdvancedSearch {
             /** the values to search for. Ex: "record" */
             value: string[];
         };
+        /** extra options for query */
+        options?: {
+            /** esclude some fields from result */
+            exclude: string[];
+        };
         search_groups: {
             [key: string]: TermAdvancedSearch | FulltextAdvancedSearch | ExistsAdvancedSearch;
+        };
+        search_full_text: {
+            search_groups: {
+                [key: string]: TextSearch;
+            };
+            /** options for inner_hits query on nested object */
+            inner_hits?: InnerHitsOption;
+            /** extra options for query */
+            options: {
+                /**path of property of xml tranacription object */
+                path: string;
+            };
         };
         /** enables highlights */
         show_highlights?: boolean;
@@ -29,14 +46,14 @@ export interface ConfigAdvancedSearch {
     };
 }
 /** query based on a set of specific terms */
-export interface TermAdvancedSearch extends TextSettingsAdvancedSearch, CommonSettingsAdvancedSearch {
+export interface TermAdvancedSearch extends CommonSettingsAdvancedSearch {
     /**
      * term_value: search the input value into the fields
      * term_field_value: search the input value into the input field. Use the "field" as default
     */
     type: "term_value" | "term_field_value";
     /** the fields to query on. Ex: "["record-type", "author.name", "date.range"] */
-    field: string[];
+    field: string;
     /** @default AND */
     operator?: "OR" | "AND";
     /** only for "term_field_value" type */
@@ -46,6 +63,7 @@ export interface TermAdvancedSearch extends TextSettingsAdvancedSearch, CommonSe
         /**the query_param containing the value to search */
         "value": string;
     };
+    highlightField?: string;
 }
 /** fulltext query */
 export interface FulltextAdvancedSearch extends TextSettingsAdvancedSearch, CommonSettingsAdvancedSearch {
@@ -100,4 +118,25 @@ export interface ResultsFormatData {
 export interface DynamicOptionField {
     key: string;
     content_type: string;
+}
+export interface TextSearch {
+    type: "fulltext" | "xml_attribute";
+    /** path of nested node */
+    path?: string;
+    /** the fields to query on */
+    fields: String[];
+    /** the fields to highlight */
+    highlight?: String[] | Object[];
+    /** extra options for query */
+    options?: {
+        /** esclude some fields from result */
+        nested: string;
+    };
+}
+export interface InnerHitsOption {
+    /** the fields to sort on. Example: ["_doc"] to use the occurences order */
+    sort?: String[];
+    /** the fields to include in results */
+    "source": String[];
+    "size": number;
 }

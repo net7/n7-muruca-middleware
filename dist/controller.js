@@ -12,8 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Controller = void 0;
 const elasticsearch_1 = require("@elastic/elasticsearch");
 const sortObj = require("sort-object");
+const controllers = require("./controllers");
 const helpers_1 = require("./helpers");
-const ASHelper = require("./helpers/advanced-helper");
 const parsers_1 = require("./parsers");
 class Controller {
     constructor(config) {
@@ -143,74 +143,10 @@ class Controller {
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.advancedSearch = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
-            const { parsers, searchIndex, elasticUri, teiPublisherUri, configurations, defaultLang } = this.config;
             const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
-            const parser = new parsers_1.AdvancedSearchParser();
-            const params = parser.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
-            //console.log(JSON.stringify(params));
             const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
-            let searchLangIndex = searchIndex;
-            if (locale && defaultLang && locale != defaultLang) {
-                searchLangIndex = searchIndex + '_' + locale;
-            }
-            const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
-            const es_data = query_res.hits.hits;
-            let map_data = {};
-            es_data.map((res) => {
-                if (res['_source']['xml_filename']) {
-                    const xml_filename = res['_source']['xml_filename'];
-                    map_data[xml_filename] = res;
-                }
-            });
-            const docs = Object.keys(map_data);
-            const teiPublisherParams = yield parser.buildTextViewerQuery(body, this.config, docs);
-            let total_count = query_res.hits.total.value;
-            var data = [];
-            if (teiPublisherParams) {
-                const collectionUri = this.config.teiPublisherUri + 'mrcsearch';
-                const doc = yield helpers_1.HttpHelper.doRequest(
-                //qui devono arrivare già i params per il teiHeader
-                collectionUri + '?' + teiPublisherParams);
-                // console.log(doc);
-                const textViewerResults = ASHelper.buildTextViewerResults(doc);
-                let matches_result = textViewerResults;
-                // if (matches_result.header_params.length > 0) {
-                //     const teiHeaderParams = parser.buildTeiHeaderQuery(body, configurations, docs, matches_result.header_params);
-                //     const header = yield helpers_1.HttpHelper.doRequest(collectionUri + '?' + teiHeaderParams);
-                //     const teiHeaderResults = ASHelper.buildTextViewerResults(header);
-                //     matches_result = teiHeaderResults;
-                // }
-                es_data.map((res) => {
-                    if (res['_source']['xml_filename']) {
-                        for (let key in matches_result) {
-                            if (key === res['_source']['xml_filename']) {
-                                if (!res['highlight']) {
-                                    res['highlight'] = {};
-                                }
-                                res['highlight']['text_matches'] = matches_result[key].matches;
-                                data.push(res);
-                            }
-                        }
-                    }
-                });
-                total_count = data.length;
-            }
-            else {
-                data = es_data;
-            }
-            const { searchId } = body;
-            const { limit, offset, sort } = body.results ? body.results : 'null';
-            const response = parser.advancedParseResults({
-                data,
-                options: {
-                    offset,
-                    sort,
-                    limit,
-                    total_count,
-                    searchId,
-                    conf: configurations.advanced_search,
-                },
-            });
+            const controller = new controllers.advancedSearchController();
+            const response = yield controller.search(body, this.config, locale);
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.advancedSearchOptions = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
