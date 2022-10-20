@@ -141,28 +141,43 @@ exports.queryRange = (termFields, termValue) => {
     });
     return exports.queryBool(ranges).query;
 };
-exports.buildHighlights = (queryField, prePostTag = null, highlightQuery = false) => {
+exports.buildHighlights = (queryField) => {
     const fields = typeof queryField === 'string' ? queryField.split(',') : queryField;
+    const highlight = {};
+    if (Array.isArray(fields)) {
+        fields.forEach((element) => {
+            if (element.field && element.field != '') {
+                highlight[element.field] = (element === null || element === void 0 ? void 0 : element.options) || {};
+            }
+            else {
+                highlight[element] = {};
+            }
+        });
+    }
+    return highlight;
+};
+/*
+export const buildHighlights = (queryField: any, prePostTag: any = null, highlightQuery: boolean = false) => {
+    const fields =
+        typeof queryField === 'string' ? queryField.split(',') : queryField;
     const highlight = {};
     for (let f of fields) {
         if (Array.isArray(fields)) {
             fields.forEach((element) => {
                 if (element.field && element.field != '') {
-                    highlight[element.field] = exports.highlightValue(element.field, prePostTag, highlightQuery);
-                }
-                else {
-                    highlight[element] = exports.highlightValue(element, prePostTag, highlightQuery);
-                    ;
+                    highlight[element.field] = highlightValue(element.field, prePostTag, highlightQuery);
+                } else {
+                    highlight[element] = highlightValue(element, prePostTag, highlightQuery);;
                 }
             });
+        } else {
+            highlight[f] = highlightValue(f, prePostTag, highlightQuery);;
         }
-        else {
-            highlight[f] = exports.highlightValue(f, prePostTag, highlightQuery);
-            ;
-        }
+
     }
     return highlight;
 };
+*/
 exports.highlightValue = (field, prePostTag, highlightQuery) => {
     const highlightValue = {};
     if (prePostTag) {

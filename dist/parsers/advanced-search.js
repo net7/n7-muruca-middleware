@@ -134,13 +134,11 @@ class AdvancedSearchParser {
                     }
                 }
                 if (/xml_text$/.test(prop)) {
-                    let h_snippet = breadcrumbs;
                     hit.highlight[prop].forEach(snippet => {
-                        h_snippet += snippet + '<span class="mrc__text-divider"></span>';
-                    });
-                    highlights.push({
-                        link: "",
-                        text: h_snippet
+                        highlights.push({
+                            link: "",
+                            text: breadcrumbs + snippet
+                        });
                     });
                 }
                 else if (/.*\._attr\.\w*/.test(prop)) {

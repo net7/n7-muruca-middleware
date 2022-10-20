@@ -178,7 +178,22 @@ export const queryRange = (termFields: [], termValue: any) => {
     return queryBool(ranges).query;
 };
 
-
+export const buildHighlights = (queryField: any) => {
+    const fields =
+        typeof queryField === 'string' ? queryField.split(',') : queryField;
+    const highlight = {};
+    if (Array.isArray(fields)) {
+        fields.forEach((element) => {
+            if (element.field && element.field != '') {
+                highlight[element.field] = element?.options || {};
+            } else {
+                highlight[element] = {};
+            }
+        });
+    }    
+    return highlight;
+};
+/*
 export const buildHighlights = (queryField: any, prePostTag: any = null, highlightQuery: boolean = false) => {
     const fields =
         typeof queryField === 'string' ? queryField.split(',') : queryField;
@@ -199,7 +214,7 @@ export const buildHighlights = (queryField: any, prePostTag: any = null, highlig
     }
     return highlight;
 };
-
+*/
 export const highlightValue = ( field, prePostTag, highlightQuery ) => {
   const highlightValue = {};
 
