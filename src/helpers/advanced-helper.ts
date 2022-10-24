@@ -148,20 +148,17 @@ export const buildQueryString = (term: any, options: any = {}) => {
     return queryTerms;
 };
 
-export const queryTerm = (termField: any, termValue: any) => {
-    if (typeof termValue === 'string') {
-        return {
-            term: {
-                [termField]: termValue,
-            },
-        };
-    } else {
+export const queryTerm = (termField: string, termValue: any, _name:string = "") => {
+    
+    _name = _name == "" &&  typeof termField == 'string' ? termField : _name;
+        termValue = typeof termValue === 'string' ? [termValue] : termValue;
+        
         return {
             terms: {
                 [termField]: termValue,
-            },
-        };
-    }
+                _name
+            }
+        };    
 };
 
 export const queryRange = (termFields: [], termValue: any) => {
@@ -484,4 +481,14 @@ export const nestedQuery = (path: string, query: any, inner_hits:any = null) => 
     
 }
 
+export const checkMatchedQuery =(prop, matched_queries) => {
+    if( matched_queries.filter( q => {
+        const test = new RegExp(".*\." + q + "$", 'g');
+        return test.test(prop);
+    } ).length <= 0 ){
+        return false;                        
+    } else {
+        return true;
+    }
+}
 

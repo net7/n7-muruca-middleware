@@ -6,6 +6,7 @@ import {
     SearchResultsData,
     SearchResultsItemData,
 } from '../interfaces/parser-data/search';
+import Helpers from '@elastic/elasticsearch/lib/Helpers';
 
 export class AdvancedSearchParser implements Parser {
     
@@ -41,17 +42,18 @@ export class AdvancedSearchParser implements Parser {
         var { searchId, conf } = options;
         let items = [];
 
-        data.forEach(({ _source: source, highlight, inner_hits }) => {
+        data.forEach(({ _source: source, highlight, inner_hits, matched_queries }) => {
             let itemResult = {
                 highlights: [],
             };
             if (highlight) {
-                for (let prop in highlight) {
+                for (let prop in highlight) {                   
+                    //this check is for results coming from teipublisher. Not used after version 2.4.0
                     if (prop != 'text_matches') {
                         itemResult.highlights.push([prop, highlight[prop]]);
                     } else {
                         highlight[prop].forEach((el) => itemResult.highlights.push(el));
-                    }
+                    }            
                 }
             }
             if( inner_hits && inner_hits.xml_text ){
@@ -124,6 +126,7 @@ export class AdvancedSearchParser implements Parser {
             const highlights = [];
             for (let prop in hit.highlight) {
                 if(hit.matched_queries){
+                    ASHelper.checkMatchedQuery(prop, hit.matched_queries);
                     if( hit.matched_queries.filter( q => {
                         const test = new RegExp(".*\." + q + "$", 'g');
                         return test.test(prop);

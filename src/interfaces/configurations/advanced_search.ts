@@ -114,7 +114,14 @@ export interface CommonSettingsAdvancedSearch {
      *  @default false 
      * exclude field from highlights
     */
-    noHighlight?: boolean
+    noHighlight?: boolean,
+    /** sets a base query for this element */
+    baseQuery?: {
+        /** the field to query on. Ex: "record-type" */
+        field: string
+        /** the values to search for. Ex: "record" */
+        value: string[]
+    },
 }
 export interface ResultsFormatData {
     /** label for metadata */

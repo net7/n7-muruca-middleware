@@ -96,6 +96,10 @@ class AdvancedSearchService {
                                 highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
                             }
                             must_array.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
+                            if (query_key.baseQuery) {
+                                const base_query = ASHelper.queryTerm(query_key.baseQuery.field, query_key.baseQuery.value);
+                                must_array.push(base_query);
+                            }
                             break;
                         case 'proximity':
                             if (!this.body[query_key.query_params.value])
@@ -117,8 +121,9 @@ class AdvancedSearchService {
                             if (query_key.separator) {
                                 query_term = query_term.split(query_key.separator);
                             }
+                            const _name = query_key.field.replace("*", "");
                             // from 2.3.1
-                            const tv_query = ASHelper.queryTerm(query_key.field, query_term);
+                            const tv_query = ASHelper.queryTerm(query_key.field, query_term, _name);
                             //until 2.2.0  
                             /*
                             const query_term = ASHelper.buildQueryString(data[groupId], {
@@ -132,6 +137,10 @@ class AdvancedSearchService {
                             );*/
                             if (!query_key.noHighlight) {
                                 highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                            }
+                            if (query_key.baseQuery) {
+                                const base_query = ASHelper.queryTerm(query_key.baseQuery.field, query_key.baseQuery.value);
+                                must_array.push(base_query);
                             }
                             must_array.push(tv_query);
                             break;
@@ -152,6 +161,10 @@ class AdvancedSearchService {
                             if (!query_key.noHighlight) {
                                 highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(fields)), highlight_fields);
                             }
+                            if (query_key.baseQuery) {
+                                const base_query = ASHelper.queryTerm(query_key.baseQuery.field, query_key.baseQuery.value);
+                                must_array.push(base_query);
+                            }
                             must_array.push(tf_query);
                             break;
                         case 'term_exists':
@@ -169,6 +182,10 @@ class AdvancedSearchService {
                                 }
                                 must_not.push(te_query);
                             }
+                            if (query_key.baseQuery) {
+                                const base_query = ASHelper.queryTerm(query_key.baseQuery.field, query_key.baseQuery.value);
+                                must_array.push(base_query);
+                            }
                             break;
                         case 'term_range':
                             if (!this.body[groupId])
@@ -176,6 +193,10 @@ class AdvancedSearchService {
                             const range_query = ASHelper.queryRange(query_key.field, this.body[groupId]);
                             if (!query_key.noHighlight) {
                                 highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                            }
+                            if (query_key.baseQuery) {
+                                const base_query = ASHelper.queryTerm(query_key.baseQuery.field, query_key.baseQuery.value);
+                                must_array.push(base_query);
                             }
                             must_array.push(range_query);
                             break;

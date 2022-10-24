@@ -27,16 +27,11 @@ export declare const spanNear: (queryField: {
     distance: number;
 }) => any;
 export declare const buildQueryString: (term: any, options?: any) => any;
-export declare const queryTerm: (termField: any, termValue: any) => {
-    term: {
-        [x: number]: string;
-    };
-    terms?: undefined;
-} | {
+export declare const queryTerm: (termField: string, termValue: any, _name?: string) => {
     terms: {
-        [x: number]: any;
+        [x: string]: any;
+        _name: string;
     };
-    term?: undefined;
 };
 export declare const queryRange: (termFields: [], termValue: any) => {
     bool: {
@@ -66,3 +61,4 @@ export declare const nestedQuery: (path: string, query: any, inner_hits?: any) =
     path: string;
     query: any;
 };
+export declare const checkMatchedQuery: (prop: any, matched_queries: any) => boolean;

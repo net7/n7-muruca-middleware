@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.nestedQuery = exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.highlightValue = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.simpleQueryString = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
+exports.checkMatchedQuery = exports.nestedQuery = exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.highlightValue = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.simpleQueryString = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
 exports.queryBool = (mustList = [], shouldList = [], filterList = [], notList = []) => {
     const x = {
         query: {
@@ -112,21 +112,15 @@ exports.buildQueryString = (term, options = {}) => {
     }
     return queryTerms;
 };
-exports.queryTerm = (termField, termValue) => {
-    if (typeof termValue === 'string') {
-        return {
-            term: {
-                [termField]: termValue,
-            },
-        };
-    }
-    else {
-        return {
-            terms: {
-                [termField]: termValue,
-            },
-        };
-    }
+exports.queryTerm = (termField, termValue, _name = "") => {
+    _name = _name == "" && typeof termField == 'string' ? termField : _name;
+    termValue = typeof termValue === 'string' ? [termValue] : termValue;
+    return {
+        terms: {
+            [termField]: termValue,
+            _name
+        }
+    };
 };
 exports.queryRange = (termFields, termValue) => {
     const ranges = [];
@@ -437,4 +431,15 @@ exports.nestedQuery = (path, query, inner_hits = null) => {
         nested['inner_hits'] = ih;
     }
     return nested;
+};
+exports.checkMatchedQuery = (prop, matched_queries) => {
+    if (matched_queries.filter(q => {
+        const test = new RegExp(".*\." + q + "$", 'g');
+        return test.test(prop);
+    }).length <= 0) {
+        return false;
+    }
+    else {
+        return true;
+    }
 };
