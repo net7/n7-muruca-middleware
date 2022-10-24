@@ -1,7 +1,9 @@
-import { DataType } from '../interfaces/helper';
 export declare class AdvancedSearchService {
-    runAdvancedSearch: (body: DataType, conf: any, locale: string) => Promise<import("..").SearchResultsData>;
-    buildAdvancedQuery: (data: DataType, conf: any) => any;
+    private body;
+    private configurations;
+    constructor(body: any, configurations: any);
+    parseResponse: (query_res: any) => import("..").SearchResultsData;
+    buildAdvancedQuery: () => any;
     buildXmlTextQuery(advanced_conf: any, data: any): {
         path: string;
         query: any;

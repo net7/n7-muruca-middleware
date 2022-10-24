@@ -68,6 +68,9 @@ export interface TermAdvancedSearch extends CommonSettingsAdvancedSearch {
     }
     /*alternative field to highlight instead of search field */
     highlightField?: string
+    
+    /* the field receives values separated by a value. If specified string will be splitted in token and search is made on one of available tokens */
+    separator?: string
 
 }
 

@@ -64,6 +64,7 @@ export interface TermAdvancedSearch extends CommonSettingsAdvancedSearch {
         "value": string;
     };
     highlightField?: string;
+    separator?: string;
 }
 /** fulltext query */
 export interface FulltextAdvancedSearch extends TextSettingsAdvancedSearch, CommonSettingsAdvancedSearch {

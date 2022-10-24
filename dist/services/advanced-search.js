@@ -1,34 +1,15 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdvancedSearchService = void 0;
 const ASHelper = require("../helpers/advanced-helper");
-const helpers_1 = require("../helpers");
-const elasticsearch_1 = require("@elastic/elasticsearch");
 const parsers_1 = require("../parsers");
 class AdvancedSearchService {
-    constructor() {
-        this.runAdvancedSearch = (body, conf, locale) => __awaiter(this, void 0, void 0, function* () {
-            const { searchIndex, elasticUri, configurations, defaultLang } = conf;
-            const params = this.buildAdvancedQuery(body, configurations); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
-            //console.log(JSON.stringify(params));
-            let searchLangIndex = searchIndex;
-            if (locale && defaultLang && locale != defaultLang) {
-                searchLangIndex = searchIndex + '_' + locale;
-            }
-            const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
+    constructor(body, configurations) {
+        this.parseResponse = (query_res) => {
+            const { searchId } = this.body;
+            const { limit, offset, sort } = this.body.results ? this.body.results : 'null';
             const data = query_res.hits.hits;
             let total_count = query_res.hits.total.value;
-            const { searchId } = body;
-            const { limit, offset, sort } = body.results ? body.results : 'null';
             const parser = new parsers_1.AdvancedSearchParser();
             const response = parser.advancedParseResults({
                 data,
@@ -38,50 +19,42 @@ class AdvancedSearchService {
                     limit,
                     total_count,
                     searchId,
-                    conf: configurations.advanced_search,
+                    conf: this.configurations.advanced_search,
                 },
             });
             return response;
-        });
-        this.buildAdvancedQuery = (data, conf) => {
+        };
+        this.buildAdvancedQuery = () => {
             var _a;
             // prevedere valore search-type nel data?
-            const { searchId, results } = data;
+            const { searchId, results } = this.body;
             const sort = results.sort;
             const { limit, offset } = results || {};
-            const advanced_conf = conf['advanced_search'][searchId];
+            const advanced_conf = this.configurations['advanced_search'][searchId];
             const adv_query = {
                 query: {},
-                sort,
                 highlight: {
                     fields: {},
                     pre_tags: ["<em class='mrc__text-emph'>"],
                     post_tags: ['</em>'],
                 },
             };
-            //sorting
-            let sort_object = ['slug.keyword'];
-            if (advanced_conf.sort) {
-                sort_object = advanced_conf.sort.map((f) => {
-                    // ad es. nella search_config.ts di theatheor abbiamo [ "sort_title.keyword", "slug.keyword" ]
-                    let tmp;
-                    if (typeof sort != 'undefined') {
-                        // es. "sort_DESC"
-                        tmp = sort.split('_')[1];
-                        return { [f]: sort.split('_')[1] }; // es. "title.keyword": "DESC"
+            //sorting        
+            if (sort) {
+                if (sort === '_score' || sort === 'sort_ASC') {
+                    adv_query.sort = ['_score'];
+                }
+                else {
+                    const lastIndex = sort.lastIndexOf('_');
+                    const field = sort.slice(0, lastIndex);
+                    const order = sort.slice(lastIndex + 1);
+                    if (field != "" && order != "") {
+                        adv_query.sort = { [field]: order }; // es. "title.keyword": "DESC"                        
                     }
                     else {
-                        return { [f]: tmp };
+                        adv_query.sort = { [field]: "ASC" }; // es. "title.keyword": "DESC"                        
                     }
-                });
-            }
-            if (sort) {
-                sort === '_score'
-                    ? (adv_query.sort = ['_score'])
-                    : (adv_query.sort = sort_object);
-            }
-            else {
-                adv_query.sort = sort_object; // aggiorna il sort della main query con es. "title.keyword": "DESC"
+                }
             }
             if ((_a = advanced_conf === null || advanced_conf === void 0 ? void 0 : advanced_conf.options) === null || _a === void 0 ? void 0 : _a.exclude) {
                 adv_query["_source"] = {
@@ -112,9 +85,9 @@ class AdvancedSearchService {
                     switch (query_key.type // fa uno switch su tutti i tipi di query
                     ) {
                         case 'fulltext':
-                            if (!data[groupId])
+                            if (!this.body[groupId])
                                 break;
-                            const query_string = ASHelper.buildQueryString(data[groupId], {
+                            const query_string = ASHelper.buildQueryString(this.body[groupId], {
                                 allowWildCard: query_key.addStar,
                                 stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
                             });
@@ -125,12 +98,12 @@ class AdvancedSearchService {
                             must_array.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
                             break;
                         case 'proximity':
-                            if (!data[query_key.query_params.value])
+                            if (!this.body[query_key.query_params.value])
                                 break;
                             const pt_query = ASHelper.spanNear({
                                 fields: query_key.field,
-                                value: data[query_key.query_params.value],
-                                distance: +data[query_key.query_params.slop],
+                                value: this.body[query_key.query_params.value],
+                                distance: +this.body[query_key.query_params.slop],
                             });
                             if (!query_key.noHighlight) {
                                 highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
@@ -138,10 +111,13 @@ class AdvancedSearchService {
                             must_array.push(pt_query);
                             break;
                         case 'term_value':
-                            if (!data[groupId])
+                            if (!this.body[groupId])
                                 break;
+                            let query_term = this.body[groupId];
+                            if (query_key.separator) {
+                                query_term = query_term.split(query_key.separator);
+                            }
                             // from 2.3.1
-                            const query_term = data[groupId];
                             const tv_query = ASHelper.queryTerm(query_key.field, query_term);
                             //until 2.2.0  
                             /*
@@ -160,12 +136,12 @@ class AdvancedSearchService {
                             must_array.push(tv_query);
                             break;
                         case 'term_field_value':
-                            if (!data[query_key.query_params.value])
+                            if (!this.body[query_key.query_params.value])
                                 break;
-                            const fields = data[query_key.query_params.field]
-                                ? data[query_key.query_params.field]
+                            const fields = this.body[query_key.query_params.field]
+                                ? this.body[query_key.query_params.field]
                                 : query_key.field;
-                            const query_field_value = ASHelper.buildQueryString(data[query_key.query_params.value], {
+                            const query_field_value = ASHelper.buildQueryString(this.body[query_key.query_params.value], {
                                 allowWildCard: query_key.addStar,
                                 stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
                             });
@@ -179,14 +155,14 @@ class AdvancedSearchService {
                             must_array.push(tf_query);
                             break;
                         case 'term_exists':
-                            if (data[groupId] === 'true') {
+                            if (this.body[groupId] === 'true') {
                                 const te_query = ASHelper.queryExists(query_key.field);
                                 if (!query_key.noHighlight) {
                                     highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
                                 }
                                 must_array.push(te_query);
                             }
-                            else if (data[groupId] === 'false') {
+                            else if (this.body[groupId] === 'false') {
                                 const te_query = ASHelper.queryExists(query_key.field);
                                 if (!query_key.noHighlight) {
                                     highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
@@ -195,9 +171,9 @@ class AdvancedSearchService {
                             }
                             break;
                         case 'term_range':
-                            if (!data[groupId])
+                            if (!this.body[groupId])
                                 break;
-                            const range_query = ASHelper.queryRange(query_key.field, data[groupId]);
+                            const range_query = ASHelper.queryRange(query_key.field, this.body[groupId]);
                             if (!query_key.noHighlight) {
                                 highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
                             }
@@ -214,14 +190,17 @@ class AdvancedSearchService {
                 //to version 2.2.0
                 /*let te_query;
                 Object.keys(advanced_conf['search_full_text']).forEach((groupId) => {
-                    if (data[groupId]) {
+                    if (this.body[groupId]) {
                         te_query = ASHelper.queryExists('xml_filename');
                     }
                 });
                 if (typeof te_query !== 'undefined') {
                     must_array.push(te_query);
                 }*/
-                must_array.push({ "nested": this.buildXmlTextQuery(advanced_conf.search_full_text, data) });
+                const text_query = this.buildXmlTextQuery(advanced_conf.search_full_text, this.body);
+                if (text_query) {
+                    must_array.push({ "nested": this.buildXmlTextQuery(advanced_conf.search_full_text, this.body) });
+                }
             }
             const bool_query = ASHelper.queryBool(must_array, [], [], must_not);
             adv_query.query = bool_query.query;
@@ -233,6 +212,8 @@ class AdvancedSearchService {
             }
             return adv_query;
         };
+        this.body = body;
+        this.configurations = configurations;
     }
     buildXmlTextQuery(advanced_conf, data) {
         const xml_query_should = [];
@@ -257,8 +238,12 @@ class AdvancedSearchService {
                     break;
             }
         });
-        const xml_query_nested = ASHelper.nestedQuery(advanced_conf.options.path, ASHelper.queryBool([], xml_query_should).query, inner_hits);
-        return xml_query_nested;
+        if (xml_query_should.length > 0) {
+            const xml_query_nested = ASHelper.nestedQuery(advanced_conf.options.path, ASHelper.queryBool([], xml_query_should).query, inner_hits);
+            return xml_query_nested;
+        }
+        else
+            return null;
     }
 }
 exports.AdvancedSearchService = AdvancedSearchService;
