@@ -23,7 +23,7 @@ class advancedSearchController {
             if (locale && defaultLang && locale != defaultLang) {
                 searchLangIndex = searchIndex + '_' + locale;
             }
-            console.log(JSON.stringify(params));
+            //console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
             if (query_res) {
                 const response = service.parseResponse(query_res);
@@ -31,6 +31,19 @@ class advancedSearchController {
             }
             else
                 return { error: "error" };
+        });
+        /**
+         * Search term in text and replaces the highlighted results in original xml file
+         *
+         */
+        this.advancedSearchTextSearch = (body, config, locale) => __awaiter(this, void 0, void 0, function* () {
+            const { searchIndex, elasticUri, teiPublisherUri, configurations, defaultLang } = config;
+            const { xml, doc_id, query_params } = body;
+            const teipubservice = new services_1.TeipublisherService(configurations);
+            const xml_doc = teipubservice.getXmlDocument(xml);
+            const searchService = new services_1.AdvancedSearchService(body, configurations);
+            const results = searchService;
+            return { error: "error" };
         });
     }
 }

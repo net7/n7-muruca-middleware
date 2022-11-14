@@ -149,6 +149,19 @@ class Controller {
             const response = yield controller.search(body, this.config, locale);
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        this.advancedSearchTextSearch = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            const controller = new controllers.advancedSearchController();
+            const response = yield controller.advancedSearchTextSearch(body, this.config, locale);
+            return helpers_1.HttpHelper.returnOkResponse(response);
+        });
+        this.teiPubGetNodePath = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            const body = JSON.parse(event.body);
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            const controller = new controllers.teiPublisherController(this.config);
+            return controller.teiPubGetNodePath(body, locale);
+        });
         this.advancedSearchOptions = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const { configurations, baseUrl, advancedSearchParametersPath } = this.config;
@@ -289,6 +302,7 @@ class Controller {
             getItinerary: this.getItinerary.bind(this),
             getItineraries: this.getItineraries.bind(this),
             advancedSearchOptions: this.advancedSearchOptions.bind(this),
+            teiPubGetNodePath: this.teiPubGetNodePath.bind(this),
         };
     }
 }

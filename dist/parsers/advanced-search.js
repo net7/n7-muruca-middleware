@@ -53,6 +53,7 @@ class AdvancedSearchParser {
                     const hh = this.parseXmlTextHighlight(hit);
                     if (hh != null) {
                         itemResult.highlights = itemResult.highlights.concat(hh);
+                        itemResult['tei_doc'] = source['xml_filename'] || null;
                     }
                 });
             }
@@ -129,8 +130,10 @@ class AdvancedSearchParser {
                     }
                 }
                 let breadcrumbs = "";
+                let xpath = "";
                 if ((_a = hit._source) === null || _a === void 0 ? void 0 : _a._path) {
                     breadcrumbs = this.getXmlPathBreadcrumbs(hit._source._path);
+                    xpath = this.getNodeXpath(hit._source._path);
                     if (breadcrumbs != "") {
                         breadcrumbs = "<span class='mrc__text-breadcrumbs'>" + breadcrumbs + "</span> ";
                     }
@@ -142,7 +145,8 @@ class AdvancedSearchParser {
                     });
                     highlights.push({
                         link: "",
-                        text: h_snippet
+                        text: h_snippet,
+                        xpath: xpath
                     });
                 }
                 else if (/.*\._attr\.\w*/.test(prop)) {
@@ -185,6 +189,17 @@ class AdvancedSearchParser {
             }
         });
         return breadcrumbs;
+    }
+    getNodeXpath(path) {
+        let xpath = "";
+        const ns = "tei:";
+        path.forEach(node => {
+            if (node.node) {
+                let elem = node.position ? ns + node.node + "[" + node.position + "]" : ns + node.node;
+                xpath += xpath == "" ? elem : "/" + elem;
+            }
+        });
+        return xpath;
     }
 }
 exports.AdvancedSearchParser = AdvancedSearchParser;

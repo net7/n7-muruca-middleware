@@ -12,4 +12,5 @@ export declare class AdvancedSearchParser implements Parser {
     }): any[];
     parseXmlTextHighlight(hit: any): any[];
     getXmlPathBreadcrumbs(path: any): string;
+    getNodeXpath(path: any): string;
 }

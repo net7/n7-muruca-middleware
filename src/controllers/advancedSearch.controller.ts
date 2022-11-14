@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 import { ESHelper } from '../helpers';
-import {AdvancedSearchService} from '../services';
+import {AdvancedSearchService, TeipublisherService} from '../services';
 
 
 export class advancedSearchController {
@@ -30,5 +30,27 @@ export class advancedSearchController {
         } else 
             return {error:"error"}
         
+    }
+    
+    /** 
+     * Search term in text and replaces the highlighted results in original xml file
+     * 
+     */
+    advancedSearchTextSearch = async (body: any, config: any, locale?:string) => {  
+        const {
+            searchIndex,
+            elasticUri,
+            teiPublisherUri,
+            configurations,
+            defaultLang
+        } = config;
+        const { xml, doc_id, query_params } = body;
+        const teipubservice = new TeipublisherService(configurations);  
+        const xml_doc = teipubservice.getXmlDocument(xml);
+        
+        const searchService = new AdvancedSearchService(body, configurations);  
+        const results = searchService
+        
+        return  {error:"error"}
     }
 }

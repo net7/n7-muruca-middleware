@@ -11,6 +11,8 @@ export declare class Controller {
     getResource: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     search: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     advancedSearch: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
+    advancedSearchTextSearch: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
+    teiPubGetNodePath: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     advancedSearchOptions: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getFooter: (_event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getTranslation: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
@@ -38,5 +40,6 @@ export declare class Controller {
         getItinerary: any;
         getItineraries: any;
         advancedSearchOptions: any;
+        teiPubGetNodePath: any;
     };
 }

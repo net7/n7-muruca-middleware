@@ -118,3 +118,15 @@ functions:
       - http:
           path: advanced_search_options
           method: get
+  textSearchTerm:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.advancedSearchTextSearch
+    events:
+      - http:
+          path: search_text_teipub
+          method: get
+  getNodePath:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.teiPubGetNodePath
+    events:
+      - http:
+          path: get_node_path
+          method: post

@@ -61,7 +61,7 @@ export class AdvancedSearchParser implements Parser {
                 inn_hits.forEach(hit => {
                     const hh = this.parseXmlTextHighlight(hit);
                     if( hh != null){
-                        itemResult.highlights = itemResult.highlights.concat(hh);                        
+                        itemResult.highlights = itemResult.highlights.concat(hh);               
                     }
                 });
             }
@@ -135,12 +135,16 @@ export class AdvancedSearchParser implements Parser {
                     }
                 }
                 let breadcrumbs = "";
+                let xpath = "";
                 if(hit._source?._path){
                     breadcrumbs = this.getXmlPathBreadcrumbs(hit._source._path)
+                    xpath = this.getNodeXpath(hit._source._path)
                     if (breadcrumbs != ""){
                         breadcrumbs = "<span class='mrc__text-breadcrumbs'>" + breadcrumbs + "</span> ";
                     }
                 }
+                
+                
                 
                 if(/xml_text$/.test(prop)){
                     let h_snippet = breadcrumbs;
@@ -149,7 +153,8 @@ export class AdvancedSearchParser implements Parser {
                     });
                     highlights.push({
                         link: "",
-                        text:h_snippet
+                        text:h_snippet,
+                        xpath: xpath
                     });
                 } 
                 else if(/.*\._attr\.\w*/.test(prop)){
@@ -197,5 +202,18 @@ export class AdvancedSearchParser implements Parser {
             }
         });
         return breadcrumbs;
+    }
+    
+    getNodeXpath(path){
+        let xpath = "";
+        const ns = "tei:";
+        path.forEach(node => {
+            if(node.node) {
+                let elem = node.position ? ns + node.node + "[" + node.position + "]" : ns + node.node;
+                
+                xpath += xpath == "" ? elem : "/" + elem
+            }
+        });
+        return xpath;
     }
 }
