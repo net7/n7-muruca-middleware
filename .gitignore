@@ -1,6 +1,7 @@
 node_modules
 .history/*
 .history
-
+*/.DS_Store
+.DS_Store
 # misc
 package-lock.json

@@ -11,10 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Controller = void 0;
 const elasticsearch_1 = require("@elastic/elasticsearch");
-const sortObj = require("sort-object");
-const controllers = require("./controllers");
 const helpers_1 = require("./helpers");
-const parsers_1 = require("./parsers");
+const controllers = require("./controllers");
 class Controller {
     constructor(config) {
         this.postTest = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
@@ -23,13 +21,15 @@ class Controller {
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.getTest = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
-            const response = 'dummy string';
+            const response = "dummy string";
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.getNavigation = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
-            const { locale } = _event.queryStringParameters ? _event.queryStringParameters : '';
-            const path = locale ? 'menu?lang=' + locale : 'menu';
+            const { locale } = _event.queryStringParameters
+                ? _event.queryStringParameters
+                : "";
+            const path = locale ? "menu?lang=" + locale : "menu";
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + path));
             const parser = new parsers.menu();
             const response = parser.parse(data);
@@ -38,8 +38,10 @@ class Controller {
         this.getHomeLayout = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers, configurations } = this.config;
             const keyOrder = JSON.parse(event.body);
-            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
-            const path = locale ? 'layout/home?lang=' + locale : 'layout/home';
+            const { locale } = event.queryStringParameters
+                ? event.queryStringParameters
+                : "";
+            const path = locale ? "layout/home?lang=" + locale : "layout/home";
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + path));
             const parser = new parsers.home();
             const response = parser.parse({
@@ -54,9 +56,11 @@ class Controller {
         this.getSearchDescription = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { searchId } = event.pathParameters;
-            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
-            const path = locale ? '?lang=' + locale : '';
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'layout/' + searchId + path));
+            const { locale } = event.queryStringParameters
+                ? event.queryStringParameters
+                : "";
+            const path = locale ? "?lang=" + locale : "";
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "layout/" + searchId + path));
             const parser = new parsers.searchDescription();
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -64,9 +68,11 @@ class Controller {
         this.getTimeline = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { id } = event.pathParameters;
-            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
-            const path = locale ? '?lang=' + locale : '';
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/' + id + path));
+            const { locale } = event.queryStringParameters
+                ? event.queryStringParameters
+                : "";
+            const path = locale ? "?lang=" + locale : "";
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "views/" + id + path));
             const parser = new parsers.timeline();
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -74,58 +80,41 @@ class Controller {
         this.getMap = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { id } = event.pathParameters;
-            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
-            const path = locale ? '?lang=' + locale : '';
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/' + id + path));
+            const { locale } = event.queryStringParameters
+                ? event.queryStringParameters
+                : "";
+            const path = locale ? "?lang=" + locale : "";
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "views/" + id + path));
             const parser = new parsers.map();
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.getResource = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
-            const { baseUrl, parsers, configurations } = this.config;
-            // change id whit slug and no un parameters but in the boy request  in POST
-            let { type, id, sections } = JSON.parse(event.body);
-            const requestURL = baseUrl;
-            const url = requestURL + type + '/' + id;
-            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
-            const path = locale ? '?lang=' + locale : '';
-            //remove, only for test
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(url + path));
-            const parser = new parsers.resource();
-            const response = parser.parse({
-                data,
-                options: {
-                    type,
-                    conf: configurations.resources[type],
-                },
-            });
-            const sect = sortObj(response.sections, sections); // body sections filters
-            response.sections = sect;
-            // FIX ME: non serve il parser
-            if (data.locale) {
-                const parseLang = new parsers_1.ResourceParser();
-                response.locale = parseLang.localeParse(data.locale);
-            }
-            // 
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : "";
+            const controller = new controllers.getResourceController();
+            const body = JSON.parse(event.body);
+            const response = yield controller.searchResource(body, this.config, locale);
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.search = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, searchIndex, elasticUri, configurations, defaultLang } = this.config;
             const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
             const { type } = event.pathParameters;
-            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            const { locale } = event.queryStringParameters
+                ? event.queryStringParameters
+                : "";
             let searchLangIndex = searchIndex;
             if (locale && defaultLang && locale != defaultLang) {
-                searchLangIndex = searchIndex + '_' + locale;
+                searchLangIndex = searchIndex + "_" + locale;
             }
             const params = helpers_1.ESHelper.buildQuery(body, configurations.search, type); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
             // make query
             //console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
-            const data = type === 'results' ? query_res.hits.hits : query_res.aggregations;
+            const data = type === "results" ? query_res.hits.hits : query_res.aggregations;
             const parser = new parsers.search();
             const { searchId, facets } = body;
-            const { limit, offset, sort } = body.results ? body.results : 'null';
+            const { limit, offset, sort } = body.results ? body.results : "null";
             let total_count = query_res.hits.total.value;
             const response = parser.parse({
                 data,
@@ -144,7 +133,7 @@ class Controller {
         });
         this.advancedSearch = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
-            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : "";
             const controller = new controllers.advancedSearchController();
             const response = yield controller.search(body, this.config, locale);
             return helpers_1.HttpHelper.returnOkResponse(response);
@@ -155,9 +144,10 @@ class Controller {
             const advanced_search_options = (_a = configurations.advanced_search.advanced_search) === null || _a === void 0 ? void 0 : _a.dynamic_options;
             if (advanced_search_options) {
                 const requestURL = baseUrl + advancedSearchParametersPath;
-                ;
-                const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
-                const path = locale ? '?lang=' + locale : '';
+                const { locale } = event.queryStringParameters
+                    ? event.queryStringParameters
+                    : "";
+                const path = locale ? "?lang=" + locale : "";
                 const data = yield helpers_1.HttpHelper.doPostRequest(requestURL + path, advanced_search_options);
                 const options = data.data;
                 return helpers_1.HttpHelper.returnOkResponse(options);
@@ -165,8 +155,10 @@ class Controller {
         });
         this.getFooter = (_event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers, configurations } = this.config;
-            const { locale } = _event.queryStringParameters ? _event.queryStringParameters : '';
-            const path = locale ? 'footer?lang=' + locale : 'footer';
+            const { locale } = _event.queryStringParameters
+                ? _event.queryStringParameters
+                : "";
+            const path = locale ? "footer?lang=" + locale : "footer";
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + path));
             const parser = new parsers.footer();
             const response = parser.parse(data, { conf: configurations.footer });
@@ -177,9 +169,10 @@ class Controller {
             const { lang } = event.pathParameters;
             let queryLang = lang;
             if (lang && lang.length < 5) {
-                queryLang = lang === 'en' ? lang + '_US' : lang + '_' + lang.toUpperCase();
+                queryLang =
+                    lang === "en" ? lang + "_US" : lang + "_" + lang.toUpperCase();
             }
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'translations?lang=' + queryLang));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "translations?lang=" + queryLang));
             const parser = new parsers.translation();
             const response = parser.parse({
                 data,
@@ -192,44 +185,44 @@ class Controller {
         this.getStaticPage = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
             const { slug } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'pages?' + 'slug=' + slug));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + "pages?" + "slug=" + slug));
             const parser = new parsers.static();
             const response = parser.parse({ data });
             if (response) {
                 return helpers_1.HttpHelper.returnOkResponse(response);
             }
             else {
-                return helpers_1.HttpHelper.returnErrorResponse('page not found', 404);
+                return helpers_1.HttpHelper.returnErrorResponse("page not found", 404);
             }
         });
         this.getStaticPost = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
             const { slug } = event.pathParameters;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + 'posts?' + 'slug=' + slug));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(staticUrl + "posts?" + "slug=" + slug));
             const parser = new parsers.static();
             const response = parser.parse({ data });
             if (response) {
                 return helpers_1.HttpHelper.returnOkResponse(response);
             }
             else {
-                return helpers_1.HttpHelper.returnErrorResponse('page not found', 404);
+                return helpers_1.HttpHelper.returnErrorResponse("page not found", 404);
             }
         });
         this.getTypeList = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
             const { type } = event.pathParameters;
             const body = JSON.parse(event.body);
-            let params = '';
+            let params = "";
             if (body.results && body.results.limit) {
-                params = 'per_page=' + body.results.limit;
+                params = "per_page=" + body.results.limit;
             }
             if (body.results && body.results.offset) {
                 params +=
-                    params == ''
-                        ? 'offset=' + body.results.offset
-                        : '&offset=' + body.results.offset;
+                    params == ""
+                        ? "offset=" + body.results.offset
+                        : "&offset=" + body.results.offset;
             }
-            const apiUrl = params != '' ? staticUrl + type + '?' + params : staticUrl + type;
+            const apiUrl = params != "" ? staticUrl + type + "?" + params : staticUrl + type;
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(apiUrl));
             const parser = new parsers.static();
             const response = {
@@ -237,13 +230,13 @@ class Controller {
                 limit: body.results.limit || 10,
                 offset: body.results.offset || 0,
                 total_count: data.length,
-                sort: '',
+                sort: "",
             };
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
         this.getItineraries = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, baseUrl, configurations } = this.config;
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'itinerary'));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "itinerary"));
             /* const parser = new parsers.itineraries();
             const response = parser.parse({ data });
             if ( response ){
@@ -255,16 +248,18 @@ class Controller {
         this.getItinerary = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, baseUrl, configurations } = this.config;
             const { id } = event.pathParameters;
-            const { locale } = event.queryStringParameters ? event.queryStringParameters : '';
-            const path = locale ? '?lang=' + locale : '';
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'itinerary/' + id + path));
+            const { locale } = event.queryStringParameters
+                ? event.queryStringParameters
+                : "";
+            const path = locale ? "?lang=" + locale : "";
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "itinerary/" + id + path));
             const parser = new parsers.itinerary(configurations === null || configurations === void 0 ? void 0 : configurations.itineraries);
             const response = parser.parse({ data });
             if (response) {
                 return helpers_1.HttpHelper.returnOkResponse(response);
             }
             else {
-                return helpers_1.HttpHelper.returnErrorResponse('page not found', 404);
+                return helpers_1.HttpHelper.returnErrorResponse("page not found", 404);
             }
         });
         this.config = config;
