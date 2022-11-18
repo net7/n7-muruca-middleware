@@ -122,8 +122,8 @@ functions:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.advancedSearchTextSearch
     events:
       - http:
-          path: search_text_teipub
-          method: get
+          path: search_text_hl
+          method: post
   getNodePath:
     handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.teiPubGetNodePath
     events:

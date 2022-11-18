@@ -13,8 +13,11 @@ exports.TeipublisherService = void 0;
 const helpers_1 = require("../helpers");
 class TeipublisherService {
     constructor(teiPublisherUri) {
-        this.getXmlDocument = (xml) => {
-        };
+        this.getXmlDocument = (xml) => __awaiter(this, void 0, void 0, function* () {
+            const api_url = this.teiPublisherUri + 'document/' + encodeURIComponent(xml);
+            const res = yield helpers_1.HttpHelper.doRequestNoJson(api_url);
+            return res;
+        });
         this.getNodePath = (doc, path) => __awaiter(this, void 0, void 0, function* () {
             //doc_root_id/petrarca%2Fde-viris_i_23_3_2022_1648127195.xml
             const api_url = this.teiPublisherUri + 'doc_root_id' + encodeURIComponent(doc);

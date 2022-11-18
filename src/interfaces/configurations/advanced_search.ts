@@ -1,5 +1,5 @@
 export interface ConfigAdvancedSearch {
-    advanced_search: {
+    [key:string]: {
         lang: {
             query: {
                 type: string,
@@ -18,7 +18,9 @@ export interface ConfigAdvancedSearch {
         /** extra options for query */
         options? : {
             /** esclude some fields from result */
-            exclude: string[]
+            exclude?: string[],
+            /** esclude some fields from result */
+            include?: string[]
         }
         
         search_groups: {
@@ -158,6 +160,8 @@ export interface InnerHitsOption {
      /** the fields to sort on. Example: ["_doc"] to use the occurences order */
     sort?: String[] 
      /** the fields to include in results */
-    "source": String[] 
-    "size": number
+    "source"?: String[] 
+    "size"?: number,
+    /*number of fragments to show. Value 0 show all text */
+    "number_of_fragments"?: number
 }

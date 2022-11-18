@@ -2,12 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdvancedSearchService = void 0;
 const ASHelper = require("../helpers/advanced-helper");
+const helpers_1 = require("../helpers");
 const parsers_1 = require("../parsers");
 class AdvancedSearchService {
-    constructor(body, configurations) {
-        this.parseResponse = (query_res) => {
-            const { searchId } = this.body;
-            const { limit, offset, sort } = this.body.results ? this.body.results : 'null';
+    constructor(configurations) {
+        this.parseResponse = (query_res, query_params) => {
+            const { searchId } = query_params;
+            const { limit, offset, sort } = query_params.results ? query_params.results : 'null';
             const data = query_res.hits.hits;
             let total_count = query_res.hits.total.value;
             const parser = new parsers_1.AdvancedSearchParser();
@@ -24,11 +25,45 @@ class AdvancedSearchService {
             });
             return response;
         };
-        this.buildAdvancedQuery = () => {
-            var _a;
+        this.extractXmlTextHl = (query_res) => {
+            const data = query_res.hits.hits;
+            const hl = [];
+            data.forEach(hit => {
+                var _a, _b;
+                if (hit.inner_hits && ((_a = hit.inner_hits) === null || _a === void 0 ? void 0 : _a.xml_text)) {
+                    (_b = hit.inner_hits) === null || _b === void 0 ? void 0 : _b.xml_text.hits.hits.forEach(element => {
+                        const el = element._source;
+                        if (element.highlight) {
+                            for (const property in element.highlight) {
+                                const hl_array = Object.values(element.highlight[property]);
+                                if (/xml_text$/.test(property)) {
+                                    if (hl_array[0] && hl_array[0]) {
+                                        el['highlight'] = hl_array[0];
+                                    }
+                                }
+                                else if (/.*\._attr\.\w*/.test(property)) {
+                                    const nodes = property.match(/(.*\.)?(\w+)\._attr\.(\w*)/);
+                                    if (Array.isArray(nodes)) {
+                                        const node_name = nodes === null || nodes === void 0 ? void 0 : nodes[2];
+                                        const node_attr = nodes === null || nodes === void 0 ? void 0 : nodes[3];
+                                        let xml_text = el.xml_text;
+                                        const snippet = helpers_1.CommonHelper.HighlightTagInXml(node_name, node_attr, hl_array[0], xml_text);
+                                        el['highlight'] = snippet;
+                                    }
+                                }
+                            }
+                        }
+                        hl.push(el);
+                    });
+                }
+            });
+            return hl;
+        };
+        this.buildAdvancedQuery = (query_params) => {
+            var _a, _b;
             // prevedere valore search-type nel data?
-            const { searchId, results } = this.body;
-            const sort = results.sort;
+            const { searchId, results } = query_params;
+            const sort = (results === null || results === void 0 ? void 0 : results.sort) || null;
             const { limit, offset } = results || {};
             const advanced_conf = this.configurations['advanced_search'][searchId];
             const adv_query = {
@@ -61,11 +96,16 @@ class AdvancedSearchService {
                     exclude: advanced_conf.options.exclude
                 };
             }
+            if ((_b = advanced_conf === null || advanced_conf === void 0 ? void 0 : advanced_conf.options) === null || _b === void 0 ? void 0 : _b.include) {
+                adv_query["_source"] = {
+                    include: advanced_conf.options.include
+                };
+            }
             //BASE QUERY
             const must_array = [];
             const must_not = [];
             let highlight_fields = {};
-            if (advanced_conf.base_query) {
+            if (advanced_conf === null || advanced_conf === void 0 ? void 0 : advanced_conf.base_query) {
                 const base_query = ASHelper.queryTerm(advanced_conf.base_query.field, advanced_conf.base_query.value);
                 must_array.push(base_query);
             }
@@ -85,9 +125,9 @@ class AdvancedSearchService {
                     switch (query_key.type // fa uno switch su tutti i tipi di query
                     ) {
                         case 'fulltext':
-                            if (!this.body[groupId])
+                            if (!query_params[groupId])
                                 break;
-                            const query_string = ASHelper.buildQueryString(this.body[groupId], {
+                            const query_string = ASHelper.buildQueryString(query_params[groupId], {
                                 allowWildCard: query_key.addStar,
                                 stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
                             });
@@ -102,12 +142,12 @@ class AdvancedSearchService {
                             }
                             break;
                         case 'proximity':
-                            if (!this.body[query_key.query_params.value])
+                            if (!query_params[query_key.query_params.value])
                                 break;
                             const pt_query = ASHelper.spanNear({
                                 fields: query_key.field,
-                                value: this.body[query_key.query_params.value],
-                                distance: +this.body[query_key.query_params.slop],
+                                value: query_params[query_key.query_params.value],
+                                distance: +query_params[query_key.query_params.slop],
                             });
                             if (!query_key.noHighlight) {
                                 highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
@@ -115,9 +155,9 @@ class AdvancedSearchService {
                             must_array.push(pt_query);
                             break;
                         case 'term_value':
-                            if (!this.body[groupId])
+                            if (!query_params[groupId])
                                 break;
-                            let query_term = this.body[groupId];
+                            let query_term = query_params[groupId];
                             if (query_key.separator) {
                                 query_term = query_term.split(query_key.separator);
                             }
@@ -145,12 +185,12 @@ class AdvancedSearchService {
                             must_array.push(tv_query);
                             break;
                         case 'term_field_value':
-                            if (!this.body[query_key.query_params.value])
+                            if (!query_params[query_key.query_params.value])
                                 break;
-                            const fields = this.body[query_key.query_params.field]
-                                ? this.body[query_key.query_params.field]
+                            const fields = query_params[query_key.query_params.field]
+                                ? query_params[query_key.query_params.field]
                                 : query_key.field;
-                            const query_field_value = ASHelper.buildQueryString(this.body[query_key.query_params.value], {
+                            const query_field_value = ASHelper.buildQueryString(query_params[query_key.query_params.value], {
                                 allowWildCard: query_key.addStar,
                                 stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
                             });
@@ -168,14 +208,14 @@ class AdvancedSearchService {
                             must_array.push(tf_query);
                             break;
                         case 'term_exists':
-                            if (this.body[groupId] === 'true') {
+                            if (query_params[groupId] === 'true') {
                                 const te_query = ASHelper.queryExists(query_key.field);
                                 if (!query_key.noHighlight) {
                                     highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
                                 }
                                 must_array.push(te_query);
                             }
-                            else if (this.body[groupId] === 'false') {
+                            else if (query_params[groupId] === 'false') {
                                 const te_query = ASHelper.queryExists(query_key.field);
                                 if (!query_key.noHighlight) {
                                     highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
@@ -188,9 +228,9 @@ class AdvancedSearchService {
                             }
                             break;
                         case 'term_range':
-                            if (!this.body[groupId])
+                            if (!query_params[groupId])
                                 break;
-                            const range_query = ASHelper.queryRange(query_key.field, this.body[groupId]);
+                            const range_query = ASHelper.queryRange(query_key.field, query_params[groupId]);
                             if (!query_key.noHighlight) {
                                 highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
                             }
@@ -218,9 +258,9 @@ class AdvancedSearchService {
                 if (typeof te_query !== 'undefined') {
                     must_array.push(te_query);
                 }*/
-                const text_query = this.buildXmlTextQuery(advanced_conf.search_full_text, this.body);
+                const text_query = this.buildXmlTextQuery(advanced_conf.search_full_text, query_params);
                 if (text_query) {
-                    must_array.push({ "nested": this.buildXmlTextQuery(advanced_conf.search_full_text, this.body) });
+                    must_array.push({ "nested": text_query });
                 }
             }
             const bool_query = ASHelper.queryBool(must_array, [], [], must_not);
@@ -233,7 +273,6 @@ class AdvancedSearchService {
             }
             return adv_query;
         };
-        this.body = body;
         this.configurations = configurations;
     }
     buildXmlTextQuery(advanced_conf, data) {
@@ -265,6 +304,9 @@ class AdvancedSearchService {
         }
         else
             return null;
+    }
+    buildSingleTextQuery(query_params, id, field = "id") {
+        this.buildAdvancedQuery(query_params);
     }
 }
 exports.AdvancedSearchService = AdvancedSearchService;

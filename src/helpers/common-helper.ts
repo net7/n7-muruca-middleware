@@ -42,5 +42,11 @@ export const CommonHelper = {
             snippets.push(snippet);
         }
         return snippets;
+    },
+    HighlightTagInXml(node_name, node_attr, snippet, text){
+        const regex_str = '(<' + node_name + '[^>]*?' + this.escapeRegExp(node_attr) + '=["\']' + this.escapeRegExp(snippet) + '["\'][^>]*?>[^<>]+?<\/' + node_name + '>)';
+        const regex = new RegExp(regex_str, 'g');            
+        const text_hl  = text.replace(regex,"<em class='mrc__text-emph'>$1</em>" );        
+        return text_hl ;
     }
 }

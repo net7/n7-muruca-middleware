@@ -6,7 +6,5 @@ export declare class advancedSearchController {
      * Search term in text and replaces the highlighted results in original xml file
      *
      */
-    advancedSearchTextSearch: (body: any, config: any, locale?: string) => Promise<{
-        error: string;
-    }>;
+    advancedSearchTextSearch: (body: any, config: any, locale?: string) => Promise<import("../interfaces/helper").HTTPResponse>;
 }

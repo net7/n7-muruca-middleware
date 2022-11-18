@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
-import { ESHelper } from '../helpers';
-import {AdvancedSearchService, TeipublisherService} from '../services';
+import { ESHelper, HttpHelper } from '../helpers';
+import {AdvancedSearchService, TeipublisherService, XmlService} from '../services';
 
 
 export class advancedSearchController {
@@ -11,8 +11,8 @@ export class advancedSearchController {
             configurations,
             defaultLang
         } = config;
-        const service = new AdvancedSearchService(body, configurations);        
-        const params = service.buildAdvancedQuery(); 
+        const service = new AdvancedSearchService(configurations);        
+        const params = service.buildAdvancedQuery(body); 
         let searchLangIndex = searchIndex;
         if (locale && defaultLang && locale != defaultLang) {
             searchLangIndex = searchIndex + '_' + locale
@@ -25,7 +25,7 @@ export class advancedSearchController {
             elasticUri
         );
         if(query_res){
-            const response = service.parseResponse(query_res);
+            const response = service.parseResponse(query_res, body);
             return response;
         } else 
             return {error:"error"}
@@ -44,13 +44,40 @@ export class advancedSearchController {
             configurations,
             defaultLang
         } = config;
-        const { xml, doc_id, query_params } = body;
-        const teipubservice = new TeipublisherService(configurations);  
-        const xml_doc = teipubservice.getXmlDocument(xml);
+    
+        const { xml, id, searchId } = body;        
+        const service = new AdvancedSearchService(configurations);                
+        const params = service.buildAdvancedQuery(body); 
+        let searchLangIndex = searchIndex;
+        if (locale && defaultLang && locale != defaultLang) {
+            searchLangIndex = searchIndex + '_' + locale
+        }
+        //console.log(JSON.stringify(params));
+        const query_res: any = await ESHelper.makeSearch(
+            searchLangIndex,
+            params,
+            Client,
+            elasticUri
+        );
         
-        const searchService = new AdvancedSearchService(body, configurations);  
-        const results = searchService
-        
-        return  {error:"error"}
+        if(query_res){            
+            const xmlService = new XmlService();  
+            const teipubservice = new TeipublisherService(teiPublisherUri); 
+            const hlNodes = service.extractXmlTextHl(query_res);
+            const xml_doc = await teipubservice.getXmlDocument(xml);
+            
+            const xml_hl = xmlService.replaceHlNodes(xml_doc, hlNodes);
+            
+            return  HttpHelper.returnOkResponse(xml_hl, 
+                {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Credentials": true,
+                    "Access-Control-Allow-Methods":
+                    "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+                    "Access-Control-Allow-Headers": "X-Requested-With,content-type",
+                    "Content-Type": "application/xml"
+                });
+        } else 
+        return HttpHelper.returnErrorResponse("no xml root found", 400);
     }
 }

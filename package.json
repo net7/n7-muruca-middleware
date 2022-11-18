@@ -19,6 +19,7 @@
     "axios": "^0.27.2",
     "elasticsearch": "^16.7.1",
     "jsdom": "^16.4.0",
+    "linkedom": "^0.14.20",
     "node-fetch": "^3.2.8",
     "request": "^2.88.2",
     "sort-object": "^3.0.3",

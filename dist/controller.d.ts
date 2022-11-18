@@ -41,5 +41,6 @@ export declare class Controller {
         getItineraries: any;
         advancedSearchOptions: any;
         teiPubGetNodePath: any;
+        advancedSearchTextSearch: any;
     };
 }

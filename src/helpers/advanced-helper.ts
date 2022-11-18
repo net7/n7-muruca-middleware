@@ -151,7 +151,7 @@ export const buildQueryString = (term: any, options: any = {}) => {
 export const queryTerm = (termField: string, termValue: any, _name:string = "") => {
     
     _name = _name == "" &&  typeof termField == 'string' ? termField : _name;
-        termValue = typeof termValue === 'string' ? [termValue] : termValue;
+        termValue = typeof termValue != 'object' ? [termValue] : termValue;
         
         return {
             terms: {
@@ -463,7 +463,7 @@ export const nestedQuery = (path: string, query: any, inner_hits:any = null) => 
                 "fragment_size": 500,
                 'type': 'plain',
                 "order": "none",                
-                "number_of_fragments": 30
+                "number_of_fragments": inner_hits.number_of_fragments !== undefined ? inner_hits.number_of_fragments : 30
             }
         }
         if (inner_hits.sort){

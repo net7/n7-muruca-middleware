@@ -18,7 +18,7 @@ exports.HttpHelper = {
         }
         let response = {
             statusCode: 200,
-            body: JSON.stringify(data),
+            body: headers["Content-Type"] == "application/json" ? JSON.stringify(data) : String(data),
             headers
         };
         return response;
@@ -52,6 +52,17 @@ exports.HttpHelper = {
             let res = axios.get(url).then(res => {
                 //for legacy with old code
                 resolve(JSON.stringify(res.data));
+            })
+                .catch(error => {
+                console.error(error);
+            });
+        });
+    },
+    doRequestNoJson(url) {
+        return new Promise(function (resolve, reject) {
+            let res = axios.get(url).then(res => {
+                //for legacy with old code
+                resolve(res.data);
             })
                 .catch(error => {
                 console.error(error);

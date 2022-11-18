@@ -17,8 +17,8 @@ class advancedSearchController {
     constructor() {
         this.search = (body, config, locale) => __awaiter(this, void 0, void 0, function* () {
             const { searchIndex, elasticUri, configurations, defaultLang } = config;
-            const service = new services_1.AdvancedSearchService(body, configurations);
-            const params = service.buildAdvancedQuery();
+            const service = new services_1.AdvancedSearchService(configurations);
+            const params = service.buildAdvancedQuery(body);
             let searchLangIndex = searchIndex;
             if (locale && defaultLang && locale != defaultLang) {
                 searchLangIndex = searchIndex + '_' + locale;
@@ -26,7 +26,7 @@ class advancedSearchController {
             //console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
             if (query_res) {
-                const response = service.parseResponse(query_res);
+                const response = service.parseResponse(query_res, body);
                 return response;
             }
             else
@@ -38,12 +38,31 @@ class advancedSearchController {
          */
         this.advancedSearchTextSearch = (body, config, locale) => __awaiter(this, void 0, void 0, function* () {
             const { searchIndex, elasticUri, teiPublisherUri, configurations, defaultLang } = config;
-            const { xml, doc_id, query_params } = body;
-            const teipubservice = new services_1.TeipublisherService(configurations);
-            const xml_doc = teipubservice.getXmlDocument(xml);
-            const searchService = new services_1.AdvancedSearchService(body, configurations);
-            const results = searchService;
-            return { error: "error" };
+            const { xml, id, searchId } = body;
+            const service = new services_1.AdvancedSearchService(configurations);
+            const params = service.buildAdvancedQuery(body);
+            let searchLangIndex = searchIndex;
+            if (locale && defaultLang && locale != defaultLang) {
+                searchLangIndex = searchIndex + '_' + locale;
+            }
+            //console.log(JSON.stringify(params));
+            const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
+            if (query_res) {
+                const xmlService = new services_1.XmlService();
+                const teipubservice = new services_1.TeipublisherService(teiPublisherUri);
+                const hlNodes = service.extractXmlTextHl(query_res);
+                const xml_doc = yield teipubservice.getXmlDocument(xml);
+                const xml_hl = xmlService.replaceHlNodes(xml_doc, hlNodes);
+                return helpers_1.HttpHelper.returnOkResponse(xml_hl, {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Credentials": true,
+                    "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+                    "Access-Control-Allow-Headers": "X-Requested-With,content-type",
+                    "Content-Type": "application/xml"
+                });
+            }
+            else
+                return helpers_1.HttpHelper.returnErrorResponse("no xml root found", 400);
         });
     }
 }

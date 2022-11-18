@@ -114,7 +114,7 @@ exports.buildQueryString = (term, options = {}) => {
 };
 exports.queryTerm = (termField, termValue, _name = "") => {
     _name = _name == "" && typeof termField == 'string' ? termField : _name;
-    termValue = typeof termValue === 'string' ? [termValue] : termValue;
+    termValue = typeof termValue != 'object' ? [termValue] : termValue;
     return {
         terms: {
             [termField]: termValue,
@@ -416,7 +416,7 @@ exports.nestedQuery = (path, query, inner_hits = null) => {
                 "fragment_size": 500,
                 'type': 'plain',
                 "order": "none",
-                "number_of_fragments": 30
+                "number_of_fragments": inner_hits.number_of_fragments !== undefined ? inner_hits.number_of_fragments : 30
             };
         }
         if (inner_hits.sort) {

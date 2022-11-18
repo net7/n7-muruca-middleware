@@ -12,8 +12,12 @@ export class TeipublisherService {
         this.teiPublisherUri = teiPublisherUri;
     }
     
-    getXmlDocument = (xml: string) => {
-        
+    getXmlDocument = async (xml: string) => {
+        const api_url = this.teiPublisherUri + 'document/' + encodeURIComponent(xml);
+        const res = await HttpHelper.doRequestNoJson(
+            api_url 
+        );
+        return res;
     }
     
     getNodePath = async (doc: string, path: string) => {

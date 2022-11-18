@@ -2,7 +2,7 @@ import { HTTPHeaders, HTTPResponse } from "../interfaces/helper";
 const axios = require('axios');
 
 export const HttpHelper = {
-  returnOkResponse(data: object, headerData?: HTTPHeaders): HTTPResponse {
+  returnOkResponse(data: object | string, headerData?: HTTPHeaders): HTTPResponse {
     let headers: HTTPHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Credentials": true,
@@ -17,7 +17,7 @@ export const HttpHelper = {
     }
     let response: HTTPResponse = {
       statusCode: 200,
-      body: JSON.stringify(data),
+      body:  headers["Content-Type"] == "application/json" ? JSON.stringify(data) : String(data),
       headers
     };
     return response;
@@ -56,6 +56,17 @@ export const HttpHelper = {
       let res = axios.get(url).then(res => {
           //for legacy with old code
           resolve(JSON.stringify(res.data));
+      })
+        .catch(error => {
+          console.error(error);
+      });
+    });
+  },  
+  doRequestNoJson(url: string): Promise<string> {
+    return new Promise(function (resolve, reject) {
+      let res = axios.get(url).then(res => {
+          //for legacy with old code
+          resolve(res.data);
       })
         .catch(error => {
           console.error(error);

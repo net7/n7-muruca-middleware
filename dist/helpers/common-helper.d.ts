@@ -4,4 +4,5 @@ export declare const CommonHelper: {
     stripTags(string: any): any;
     stripBrokeTags(string: any): any;
     getSnippetAroundTag(node_name: any, node_attr: any, snippet: any, text: any): any[];
+    HighlightTagInXml(node_name: any, node_attr: any, snippet: any, text: any): any;
 };

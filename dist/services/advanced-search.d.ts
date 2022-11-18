@@ -1,11 +1,12 @@
 export declare class AdvancedSearchService {
-    private body;
     private configurations;
-    constructor(body: any, configurations: any);
-    parseResponse: (query_res: any) => import("..").SearchResultsData;
-    buildAdvancedQuery: () => any;
+    constructor(configurations: any);
+    parseResponse: (query_res: any, query_params: any) => import("..").SearchResultsData;
+    extractXmlTextHl: (query_res: any) => any[];
+    buildAdvancedQuery: (query_params: any) => any;
     buildXmlTextQuery(advanced_conf: any, data: any): {
         path: string;
         query: any;
     };
+    buildSingleTextQuery(query_params: any, id: any, field?: string): void;
 }

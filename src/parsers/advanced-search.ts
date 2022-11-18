@@ -61,7 +61,8 @@ export class AdvancedSearchParser implements Parser {
                 inn_hits.forEach(hit => {
                     const hh = this.parseXmlTextHighlight(hit);
                     if( hh != null){
-                        itemResult.highlights = itemResult.highlights.concat(hh);               
+                        itemResult.highlights = itemResult.highlights.concat(hh);       
+                        itemResult['tei_doc'] = source['xml_filename'] || null;                 
                     }
                 });
             }
