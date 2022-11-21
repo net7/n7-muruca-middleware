@@ -1,5 +1,7 @@
 # Changelog n7-serverless
-
+## [2.5.0] - 21-11-2022
+- advanced search in XML text
+- tag replacement with highlight
 ## [2.4.0] - 19-10-2022
 - refactor of advanced search controller
 - new directory organization
