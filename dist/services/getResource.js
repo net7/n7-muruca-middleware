@@ -33,11 +33,7 @@ class GetResourceService {
                 const parseLang = new parsers_1.ResourceParser();
                 response.locale = parseLang.localeParse(data.locale);
             }
-            const obj = {
-                "response": response,
-                "data": data
-            };
-            return obj;
+            return response;
         });
         this.getResource = (body, conf, locale) => __awaiter(this, void 0, void 0, function* () {
             const { type, id } = body;

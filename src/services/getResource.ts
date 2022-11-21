@@ -26,12 +26,7 @@ export class GetResourceService {
       const parseLang = new ResourceParser();
       response.locale = parseLang.localeParse(data.locale);
     }
-    
-    const obj={
-        "response": response,
-        "data": data
-    }
-    return obj;
+    return response;
 
   };
   getResource = async (body: any, conf: any, locale: string) => {
