@@ -3,6 +3,7 @@ import * as ASHelper from '../helpers/advanced-helper';
 import { CommonHelper, ESHelper } from '../helpers';
 import { Client } from '@elastic/elasticsearch';
 import { AdvancedSearchParser } from '../parsers';
+import { SearchResultsData } from '../interfaces';
 
 export class AdvancedSearchService {
     
@@ -13,7 +14,7 @@ export class AdvancedSearchService {
         this.configurations = configurations;
     }
 
-    parseResponse = (query_res: any, query_params) => {
+    parseResponse = async (query_res: any, query_params, teiPublisherUri) => {
         
         const { searchId } = query_params;
         const { limit, offset, sort } = query_params.results ? query_params.results : 'null';
@@ -21,17 +22,27 @@ export class AdvancedSearchService {
         let total_count = query_res.hits.total.value;
         
         const parser = new AdvancedSearchParser();
-        const response = parser.advancedParseResults({
-            data,
-            options: {
-                offset,
-                sort,
-                limit,
-                total_count,
-                searchId,
-                conf: this.configurations.advanced_search,
-            },
-        });   
+        
+        const response: SearchResultsData = {
+            limit,
+            offset,
+            sort,
+            total_count,
+            results: [],
+        };
+        
+        const results = await parser.advancedParseResultsItems(
+            {
+                data,
+                options: {
+                    searchId,
+                    conf: this.configurations.advanced_search,
+                    teiPublisherUri
+                }
+            }
+        );
+        
+        response.results = results;
         return response; 
     }
     

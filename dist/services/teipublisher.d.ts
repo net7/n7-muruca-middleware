@@ -4,4 +4,5 @@ export declare class TeipublisherService {
     constructor(teiPublisherUri: any);
     getXmlDocument: (xml: string) => Promise<string>;
     getNodePath: (doc: string, path: string) => Promise<string>;
+    getNodePaths: (doc: string, path: any) => Promise<string>;
 }

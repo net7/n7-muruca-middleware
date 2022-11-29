@@ -8,6 +8,7 @@ export class advancedSearchController {
         const {
             searchIndex,
             elasticUri,
+            teiPublisherUri,
             configurations,
             defaultLang
         } = config;
@@ -22,10 +23,10 @@ export class advancedSearchController {
             searchLangIndex,
             params,
             Client,
-            elasticUri
+            elasticUri,
         );
         if(query_res){
-            const response = service.parseResponse(query_res, body);
+            const response = await service.parseResponse(query_res, body, teiPublisherUri);
             return response;
         } else 
             return {error:"error"}

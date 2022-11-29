@@ -16,7 +16,7 @@ const services_1 = require("../services");
 class advancedSearchController {
     constructor() {
         this.search = (body, config, locale) => __awaiter(this, void 0, void 0, function* () {
-            const { searchIndex, elasticUri, configurations, defaultLang } = config;
+            const { searchIndex, elasticUri, teiPublisherUri, configurations, defaultLang } = config;
             const service = new services_1.AdvancedSearchService(configurations);
             const params = service.buildAdvancedQuery(body);
             let searchLangIndex = searchIndex;
@@ -26,7 +26,7 @@ class advancedSearchController {
             //console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
             if (query_res) {
-                const response = service.parseResponse(query_res, body);
+                const response = yield service.parseResponse(query_res, body, teiPublisherUri);
                 return response;
             }
             else

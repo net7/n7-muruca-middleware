@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdvancedSearchService = void 0;
 const ASHelper = require("../helpers/advanced-helper");
@@ -6,25 +15,30 @@ const helpers_1 = require("../helpers");
 const parsers_1 = require("../parsers");
 class AdvancedSearchService {
     constructor(configurations) {
-        this.parseResponse = (query_res, query_params) => {
+        this.parseResponse = (query_res, query_params, teiPublisherUri) => __awaiter(this, void 0, void 0, function* () {
             const { searchId } = query_params;
             const { limit, offset, sort } = query_params.results ? query_params.results : 'null';
             const data = query_res.hits.hits;
             let total_count = query_res.hits.total.value;
             const parser = new parsers_1.AdvancedSearchParser();
-            const response = parser.advancedParseResults({
+            const response = {
+                limit,
+                offset,
+                sort,
+                total_count,
+                results: [],
+            };
+            const results = yield parser.advancedParseResultsItems({
                 data,
                 options: {
-                    offset,
-                    sort,
-                    limit,
-                    total_count,
                     searchId,
                     conf: this.configurations.advanced_search,
-                },
+                    teiPublisherUri
+                }
             });
+            response.results = results;
             return response;
-        };
+        });
         this.extractXmlTextHl = (query_res) => {
             const data = query_res.hits.hits;
             const hl = [];

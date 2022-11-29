@@ -20,11 +20,28 @@ class TeipublisherService {
         });
         this.getNodePath = (doc, path) => __awaiter(this, void 0, void 0, function* () {
             //doc_root_id/petrarca%2Fde-viris_i_23_3_2022_1648127195.xml
-            const api_url = this.teiPublisherUri + 'doc_root_id' + encodeURIComponent(doc);
+            const api_url = this.teiPublisherUri + 'doc_root_id/' + encodeURIComponent(doc);
             const res = yield helpers_1.HttpHelper.doRequest(
             //qui devono arrivare già i params per il teiHeader
             api_url + '?path=' + path);
             return res;
+        });
+        this.getNodePaths = (doc, path) => __awaiter(this, void 0, void 0, function* () {
+            //doc_root_id/petrarca%2Fde-viris_i_23_3_2022_1648127195.xml
+            const api_url = this.teiPublisherUri + 'doc_root_id/' + encodeURIComponent(doc) + "?";
+            let params = "";
+            path.forEach(element => {
+                params += params == "" ? "path=" + element : "&path=" + element;
+            });
+            try {
+                const res = yield helpers_1.HttpHelper.doRequest(
+                //qui devono arrivare già i params per il teiHeader
+                api_url + params);
+                return res;
+            }
+            catch (error) {
+                return null;
+            }
         });
         this.teiPublisherUri = teiPublisherUri;
     }
