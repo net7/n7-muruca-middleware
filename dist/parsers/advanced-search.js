@@ -148,7 +148,6 @@ class AdvancedSearchParser {
                             if (!highlights_obj[last_div_path]) {
                                 highlights_obj[last_div_path] =
                                     {
-                                        link: "",
                                         text: breadcrumbs + h_snippet,
                                         xpath: xpath
                                     };
@@ -173,7 +172,6 @@ class AdvancedSearchParser {
                                                 const value = "<span class='mrc__text-attr_value'>" + this.apparatus[node_attr] + ": " + snippet + "</span>";
                                                 if (!highlights_obj[last_div_path]) {
                                                     highlights_obj[last_div_path] = {
-                                                        link: "",
                                                         text: breadcrumbs + " " + value + " " + element,
                                                         xpath: xpath
                                                     };
@@ -195,13 +193,16 @@ class AdvancedSearchParser {
             if (xpaths.size > 0) {
                 const teipub = new services_1.TeipublisherService(teiPublisherUri);
                 xpath_root_id = JSON.parse(yield teipub.getNodePaths(doc, xpaths));
-                if (!Array.isArray(xpath_root_id)) 
+                if (!Array.isArray(xpath_root_id))
                     xpath_root_id = [xpath_root_id];
             }
             for (let el in highlights_obj) {
                 if (highlights_obj[el]) {
                     const root = xpath_root_id.find(x => x.xpath === highlights_obj[el].xpath).root_id;
-                    highlights_obj[el]["link"] = "?root=" + root + "&q=true";
+                    highlights_obj[el]["link"] = {
+                        "params": "root=" + root,
+                        "query_string": true
+                    };
                     highlights.push(highlights_obj[el]);
                 }
             }
