@@ -93,6 +93,7 @@ export class AdvancedSearchService {
             query: {},
             highlight: {
                 fields: {},
+                fragment_size:500,
                 pre_tags: ["<em class='mrc__text-emph'>"],
                 post_tags: ['</em>'],
             },
@@ -166,7 +167,7 @@ export class AdvancedSearchService {
                             );
                             if (!query_key.noHighlight) {
                                 highlight_fields = {
-                                    ...ASHelper.buildHighlights(query_key.field),
+                                    ...ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields),
                                     ...highlight_fields,
                                 };
                             }
@@ -223,7 +224,7 @@ export class AdvancedSearchService {
 
                             if (!query_key.noHighlight) {
                                 highlight_fields = {
-                                    ...ASHelper.buildHighlights(query_key.field),
+                                    ...ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields ),
                                     ...highlight_fields,
                                 };
                             }
@@ -372,7 +373,8 @@ export class AdvancedSearchService {
                     if (!data[groupId]) break;
                     query_conf.fields.forEach(field => {
                         const _name = field.replace("*", "");
-                        xml_query_should.push(ASHelper.simpleQueryString({ fields: field, value: data[groupId] }, "AND", true, _name));
+                        const value =  query_conf['data-value'] ? data[ query_conf['data-value'] ] : data[groupId];                       
+                        xml_query_should.push(ASHelper.simpleQueryString({ fields: field, value: value}, "AND", true, _name));
                     });
                     if(query_conf.highlight){
                         inner_hits['highlight'] = {

@@ -1,12 +1,6 @@
-import { DataType } from '../interfaces/helper';
 import * as ASHelper from '../helpers/advanced-helper';
 import { CommonHelper } from '../helpers';
 import Parser, { Input, SearchOptions } from '../interfaces/parser';
-import {
-    SearchResultsData,
-    SearchResultsItemData,
-} from '../interfaces/parser-data/search';
-import Helpers from '@elastic/elasticsearch/lib/Helpers';
 import { TeipublisherService } from '../services';
 
 export class AdvancedSearchParser implements Parser {
@@ -34,7 +28,11 @@ export class AdvancedSearchParser implements Parser {
                     for (let prop in highlight) {                   
                         //this check is for results coming from teipublisher. Not used after version 2.4.0
                         if (prop != 'text_matches') {
+                            if(conf[searchId]['noHighlightLabels'] && conf[searchId]['noHighlightLabels'].includes(prop) ) {
+                                itemResult.highlights.push(["", highlight[prop]]); 
+                            } else {
                             itemResult.highlights.push([prop, highlight[prop]]);
+                            }
                         } else {
                             highlight[prop].forEach((el) => itemResult.highlights.push(el));
                         }            
@@ -43,7 +41,7 @@ export class AdvancedSearchParser implements Parser {
                 if( inner_hits && inner_hits.xml_text ){
                     const inn_hits = inner_hits.xml_text.hits.hits;
                     const hh = await this.parseXmlTextHighlight(inn_hits, teiPublisherUri, source['xml_filename']);
-                    
+                    let tot_hl = 0;
                     if( hh != null){
                         itemResult.highlights = itemResult.highlights.concat(hh);       
                         itemResult['tei_doc'] = source['xml_filename'] || null;                 
@@ -109,17 +107,12 @@ export class AdvancedSearchParser implements Parser {
     async parseXmlTextHighlight(inn_hits, teiPublisherUri = "", doc =""){        
         const highlights_obj = [];
         const xpaths = new Set();
+        let totCount = 0;                
         inn_hits.forEach(hit => {        
             if( hit.highlight ){
                 for (let prop in hit.highlight) {
-                    if(hit.matched_queries){
-                        ASHelper.checkMatchedQuery(prop, hit.matched_queries);
-                        if( hit.matched_queries.filter( q => {
-                            const test = new RegExp(".*\." + q + "$", 'g');
-                            return test.test(prop);
-                        } ).length <= 0 ){
-                            continue;                        
-                        }
+                    if(hit.matched_queries && !ASHelper.checkMatchedQuery(prop, hit.matched_queries)){
+                       continue;    
                     }
                     let breadcrumbs = "";
                     let xpath = "";
@@ -139,6 +132,7 @@ export class AdvancedSearchParser implements Parser {
                     if(/xml_text$/.test(prop)){
                         let h_snippet = "";
                         hit.highlight[prop].forEach(snippet => {
+                            totCount++;
                             h_snippet = h_snippet == "" ? snippet : h_snippet + '<span class="mrc__text-divider"></span>' + snippet;
                         });
                         
@@ -164,6 +158,8 @@ export class AdvancedSearchParser implements Parser {
                             
                             const attr_parsed = [];
                             hit.highlight[prop].forEach(snippet => {
+                                totCount++;
+                                
                                 if (!attr_parsed.includes(snippet)){
                                     attr_parsed.push(snippet);
                                     const snippets = CommonHelper.getSnippetAroundTag(node_name, node_attr, snippet, xml_text);
@@ -193,6 +189,12 @@ export class AdvancedSearchParser implements Parser {
         });
         const highlights = [];
         let xpath_root_id;
+        if(totCount > 0){
+            highlights.push ({
+                "text": "<span class='mrc__text-total-count'>Occurrences:</span> "+ totCount,
+                "link": ""
+            })
+        }
         if( xpaths.size > 0 ){
             const teipub = new TeipublisherService(teiPublisherUri);            
                 xpath_root_id = JSON.parse(await teipub.getNodePaths(doc, xpaths)); 
@@ -203,7 +205,7 @@ export class AdvancedSearchParser implements Parser {
                 if(highlights_obj[el]){
                     const root = xpath_root_id.find(x => x.xpath === highlights_obj[el].xpath).root_id;
                     highlights_obj[el]["link"]={
-                        "params": "root=" + root,
+                        "params": "root=" + root + "&hq=1",
                         "query_string": true
                     };
                     highlights.push(highlights_obj[el]);

@@ -15,7 +15,7 @@ const parsers_1 = require("../parsers");
 const sortObj = require("sort-object");
 class GetResourceService {
     constructor() {
-        this.buildResource = (body, data, conf) => __awaiter(this, void 0, void 0, function* () {
+        this.buildResource = (body, data, conf) => {
             const { parsers, configurations } = conf;
             let { type, sections } = body;
             const parser = new parsers.resource();
@@ -34,7 +34,7 @@ class GetResourceService {
                 response.locale = parseLang.localeParse(data.locale);
             }
             return response;
-        });
+        };
         this.getResource = (body, conf, locale) => __awaiter(this, void 0, void 0, function* () {
             const { type, id } = body;
             const { baseUrl } = conf;

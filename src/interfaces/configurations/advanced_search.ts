@@ -40,6 +40,8 @@ export interface ConfigAdvancedSearch {
         },
         /** enables highlights */
         show_highlights?: boolean
+        /* exclude label from fields to highlight */
+        noHighlightLabels?:string[]
         /** Options for dynamic options fields */
         dynamic_options?: {
             /* list of fields to retrieve options values*/
@@ -114,9 +116,11 @@ export interface TextSettingsAdvancedSearch {
 export interface CommonSettingsAdvancedSearch {
     /**
      *  @default false 
-     * exclude field from highlights
+     * exclude all field from highlights
     */
-    noHighlight?: boolean,
+    noHighlight?: boolean,    
+    /* exclude some fields from highlight */
+    noHighlightFields?:string[]
     /** sets a base query for this element */
     baseQuery?: {
         /** the field to query on. Ex: "record-type" */
@@ -151,9 +155,13 @@ export interface TextSearch {
     highlight?: String[] | Object[]
     /** extra options for query */
     options? : {
-        /** esclude some fields from result */
-        nested: string
+        nested?: string
+        xml_attribute?: {
+            [key:string] : TextSearch
+        }
     }
+    /*take value from another field identified from its id */
+    "data-value": string
 }
 
 export interface InnerHitsOption {
@@ -164,4 +172,5 @@ export interface InnerHitsOption {
     "size"?: number,
     /*number of fragments to show. Value 0 show all text */
     "number_of_fragments"?: number
+    "explain": boolean
 }

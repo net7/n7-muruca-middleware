@@ -7,7 +7,7 @@ import { idText } from "typescript";
 import * as sortObj from "sort-object";
 
 export class GetResourceService {
-  buildResource = async (body: any, data: any, conf: any) => {
+  buildResource = (body: any, data: any, conf: any) => {
     const { parsers, configurations } = conf;
     let { type, sections } = body;
     const parser = new parsers.resource();
