@@ -194,7 +194,7 @@ class AdvancedSearchParser {
             let xpath_root_id;
             if (totCount > 0) {
                 highlights.push({
-                    "text": "<span class='mrc__text-total-count'>Occurrences:</span> " + totCount,
+                    "text": "<span class='mrc__text-total-count'>Occorrenze:</span> " + totCount,
                     "link": ""
                 });
             }
