@@ -39,6 +39,7 @@ export interface ConfigAdvancedSearch {
         };
         /** enables highlights */
         show_highlights?: boolean;
+        noHighlightLabels?: string[];
         /** Options for dynamic options fields */
         dynamic_options?: {
             fields: DynamicOptionField[];
@@ -103,9 +104,10 @@ export interface TextSettingsAdvancedSearch {
 export interface CommonSettingsAdvancedSearch {
     /**
      *  @default false
-     * exclude field from highlights
+     * exclude all field from highlights
     */
     noHighlight?: boolean;
+    noHighlightFields?: string[];
     /** sets a base query for this element */
     baseQuery?: {
         /** the field to query on. Ex: "record-type" */
@@ -139,9 +141,12 @@ export interface TextSearch {
     highlight?: String[] | Object[];
     /** extra options for query */
     options?: {
-        /** esclude some fields from result */
-        nested: string;
+        nested?: string;
+        xml_attribute?: {
+            [key: string]: TextSearch;
+        };
     };
+    "data-value"?: string;
 }
 export interface InnerHitsOption {
     /** the fields to sort on. Example: ["_doc"] to use the occurences order */
@@ -150,4 +155,5 @@ export interface InnerHitsOption {
     "source"?: String[];
     "size"?: number;
     "number_of_fragments"?: number;
+    "explain"?: boolean;
 }

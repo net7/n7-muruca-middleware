@@ -135,16 +135,18 @@ exports.queryRange = (termFields, termValue) => {
     });
     return exports.queryBool(ranges).query;
 };
-exports.buildHighlights = (queryField) => {
+exports.buildHighlights = (queryField, noHighlightFields = null) => {
     const fields = typeof queryField === 'string' ? queryField.split(',') : queryField;
     const highlight = {};
     if (Array.isArray(fields)) {
         fields.forEach((element) => {
-            if (element.field && element.field != '') {
-                highlight[element.field] = (element === null || element === void 0 ? void 0 : element.options) || {};
-            }
-            else {
-                highlight[element] = {};
+            if (!noHighlightFields || (noHighlightFields && !noHighlightFields.includes(element))) {
+                if (element.field && element.field != '') {
+                    highlight[element.field] = (element === null || element === void 0 ? void 0 : element.options) || {};
+                }
+                else {
+                    highlight[element] = {};
+                }
             }
         });
     }
@@ -404,10 +406,12 @@ exports.nestedQuery = (path, query, inner_hits = null) => {
         "path": path,
         "query": query
     };
+    const ih_defaults = {
+        "size": 30
+    };
     if (inner_hits) {
-        const ih = {
-            "size": 30
-        };
+        const ih = {};
+        ih.size = inner_hits.size || ih_defaults['size'];
         if (inner_hits.highlight) {
             ih['highlight'] = {
                 "fields": inner_hits.highlight,
@@ -428,13 +432,16 @@ exports.nestedQuery = (path, query, inner_hits = null) => {
         if (inner_hits.name) {
             ih.name = inner_hits.name;
         }
+        if (inner_hits.explain) {
+            ih.explain = inner_hits.explain;
+        }
         nested['inner_hits'] = ih;
     }
     return nested;
 };
 exports.checkMatchedQuery = (prop, matched_queries) => {
     if (matched_queries.filter(q => {
-        const test = new RegExp(".*\." + q + "$", 'g');
+        const test = new RegExp("(.*\.)?" + q + "$", 'g');
         return test.test(prop);
     }).length <= 0) {
         return false;

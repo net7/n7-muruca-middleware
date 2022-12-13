@@ -41,7 +41,6 @@ export class AdvancedSearchParser implements Parser {
                 if( inner_hits && inner_hits.xml_text ){
                     const inn_hits = inner_hits.xml_text.hits.hits;
                     const hh = await this.parseXmlTextHighlight(inn_hits, teiPublisherUri, source['xml_filename']);
-                    let tot_hl = 0;
                     if( hh != null){
                         itemResult.highlights = itemResult.highlights.concat(hh);       
                         itemResult['tei_doc'] = source['xml_filename'] || null;                 

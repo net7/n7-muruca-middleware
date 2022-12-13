@@ -175,16 +175,18 @@ export const queryRange = (termFields: [], termValue: any) => {
     return queryBool(ranges).query;
 };
 
-export const buildHighlights = (queryField: any) => {
+export const buildHighlights = (queryField: any, noHighlightFields:string[] = null) => {
     const fields =
         typeof queryField === 'string' ? queryField.split(',') : queryField;
     const highlight = {};
     if (Array.isArray(fields)) {
         fields.forEach((element) => {
-            if (element.field && element.field != '') {
-                highlight[element.field] = element?.options || {};
-            } else {
-                highlight[element] = {};
+            if ( !noHighlightFields || ( noHighlightFields && !noHighlightFields.includes(element)) ) {
+                if (element.field && element.field != '') {
+                    highlight[element.field] = element?.options || {};
+                } else {
+                    highlight[element] = {};
+                }
             }
         });
     }    
@@ -450,11 +452,17 @@ export const nestedQuery = (path: string, query: any, inner_hits:any = null) => 
         "path": path,
         "query": query
     };
+    const ih_defaults = {
+        "size": 30        
+    }
     
     if (inner_hits){
         const ih:any = {
-            "size": 30            
         };
+        
+        ih.size = inner_hits.size || ih_defaults['size']
+
+        
         if (inner_hits.highlight){
             ih['highlight'] = {
                 "fields": inner_hits.highlight,
@@ -475,6 +483,9 @@ export const nestedQuery = (path: string, query: any, inner_hits:any = null) => 
         if (inner_hits.name){
             ih.name = inner_hits.name
         }
+        if (inner_hits.explain){
+            ih.explain = inner_hits.explain
+        }
         nested['inner_hits'] = ih;
     }
     return nested;    
@@ -483,7 +494,7 @@ export const nestedQuery = (path: string, query: any, inner_hits:any = null) => 
 
 export const checkMatchedQuery =(prop, matched_queries) => {
     if( matched_queries.filter( q => {
-        const test = new RegExp(".*\." + q + "$", 'g');
+        const test = new RegExp("(.*\.)?" + q + "$", 'g');
         return test.test(prop);
     } ).length <= 0 ){
         return false;                        

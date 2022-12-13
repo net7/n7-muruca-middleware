@@ -161,7 +161,7 @@ export interface TextSearch {
         }
     }
     /*take value from another field identified from its id */
-    "data-value": string
+    "data-value"?: string
 }
 
 export interface InnerHitsOption {
@@ -172,5 +172,5 @@ export interface InnerHitsOption {
     "size"?: number,
     /*number of fragments to show. Value 0 show all text */
     "number_of_fragments"?: number
-    "explain": boolean
+    "explain"?: boolean
 }

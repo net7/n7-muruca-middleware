@@ -84,6 +84,7 @@ class AdvancedSearchService {
                 query: {},
                 highlight: {
                     fields: {},
+                    fragment_size: 500,
                     pre_tags: ["<em class='mrc__text-emph'>"],
                     post_tags: ['</em>'],
                 },
@@ -147,7 +148,7 @@ class AdvancedSearchService {
                             });
                             const ft_query = ASHelper.queryString({ fields: query_key.field, value: query_string }, 'AND');
                             if (!query_key.noHighlight) {
-                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields)), highlight_fields);
                             }
                             must_array.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
                             if (query_key.baseQuery) {
@@ -190,7 +191,7 @@ class AdvancedSearchService {
                                 operator
                             );*/
                             if (!query_key.noHighlight) {
-                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field)), highlight_fields);
+                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields)), highlight_fields);
                             }
                             if (query_key.baseQuery) {
                                 const base_query = ASHelper.queryTerm(query_key.baseQuery.field, query_key.baseQuery.value);
@@ -304,7 +305,8 @@ class AdvancedSearchService {
                         break;
                     query_conf.fields.forEach(field => {
                         const _name = field.replace("*", "");
-                        xml_query_should.push(ASHelper.simpleQueryString({ fields: field, value: data[groupId] }, "AND", true, _name));
+                        const value = query_conf['data-value'] ? data[query_conf['data-value']] : data[groupId];
+                        xml_query_should.push(ASHelper.simpleQueryString({ fields: field, value: value }, "AND", true, _name));
                     });
                     if (query_conf.highlight) {
                         inner_hits['highlight'] = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_conf.highlight)), inner_hits['highlight']);

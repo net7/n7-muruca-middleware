@@ -36,7 +36,12 @@ class AdvancedSearchParser {
                     for (let prop in highlight) {
                         //this check is for results coming from teipublisher. Not used after version 2.4.0
                         if (prop != 'text_matches') {
-                            itemResult.highlights.push([prop, highlight[prop]]);
+                            if (conf[searchId]['noHighlightLabels'] && conf[searchId]['noHighlightLabels'].includes(prop)) {
+                                itemResult.highlights.push(["", highlight[prop]]);
+                            }
+                            else {
+                                itemResult.highlights.push([prop, highlight[prop]]);
+                            }
                         }
                         else {
                             highlight[prop].forEach((el) => itemResult.highlights.push(el));
@@ -114,18 +119,13 @@ class AdvancedSearchParser {
         return __awaiter(this, void 0, void 0, function* () {
             const highlights_obj = [];
             const xpaths = new Set();
+            let totCount = 0;
             inn_hits.forEach(hit => {
                 var _a, _b;
                 if (hit.highlight) {
                     for (let prop in hit.highlight) {
-                        if (hit.matched_queries) {
-                            ASHelper.checkMatchedQuery(prop, hit.matched_queries);
-                            if (hit.matched_queries.filter(q => {
-                                const test = new RegExp(".*\." + q + "$", 'g');
-                                return test.test(prop);
-                            }).length <= 0) {
-                                continue;
-                            }
+                        if (hit.matched_queries && !ASHelper.checkMatchedQuery(prop, hit.matched_queries)) {
+                            continue;
                         }
                         let breadcrumbs = "";
                         let xpath = "";
@@ -143,6 +143,7 @@ class AdvancedSearchParser {
                         if (/xml_text$/.test(prop)) {
                             let h_snippet = "";
                             hit.highlight[prop].forEach(snippet => {
+                                totCount++;
                                 h_snippet = h_snippet == "" ? snippet : h_snippet + '<span class="mrc__text-divider"></span>' + snippet;
                             });
                             if (!highlights_obj[last_div_path]) {
@@ -164,6 +165,7 @@ class AdvancedSearchParser {
                                 let xml_text = (_b = hit._source) === null || _b === void 0 ? void 0 : _b.xml_text;
                                 const attr_parsed = [];
                                 hit.highlight[prop].forEach(snippet => {
+                                    totCount++;
                                     if (!attr_parsed.includes(snippet)) {
                                         attr_parsed.push(snippet);
                                         const snippets = helpers_1.CommonHelper.getSnippetAroundTag(node_name, node_attr, snippet, xml_text);
@@ -190,6 +192,12 @@ class AdvancedSearchParser {
             });
             const highlights = [];
             let xpath_root_id;
+            if (totCount > 0) {
+                highlights.push({
+                    "text": "<span class='mrc__text-total-count'>Occurrences:</span> " + totCount,
+                    "link": ""
+                });
+            }
             if (xpaths.size > 0) {
                 const teipub = new services_1.TeipublisherService(teiPublisherUri);
                 xpath_root_id = JSON.parse(yield teipub.getNodePaths(doc, xpaths));
@@ -200,7 +208,7 @@ class AdvancedSearchParser {
                 if (highlights_obj[el]) {
                     const root = xpath_root_id.find(x => x.xpath === highlights_obj[el].xpath).root_id;
                     highlights_obj[el]["link"] = {
-                        "params": "root=" + root,
+                        "params": "root=" + root + "&hq=1",
                         "query_string": true
                     };
                     highlights.push(highlights_obj[el]);
