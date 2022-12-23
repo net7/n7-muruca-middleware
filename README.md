@@ -1,3 +1,13 @@
+##How to compile 
+ Dopo ogni modifica ai file .ts della libreria questa va compilata con il comando
+  
+ `npm run build`
+ 
+ Vanno committati sia i file .ts che i file generati dentro la dist
+ 
+ 
+
+
 # Changelog n7-serverless
 ## [2.5.0] - 21-11-2022
 - advanced search in XML text

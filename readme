@@ -1,0 +1,9 @@
+##How to compile 
+ Dopo ogni modifica ai file .ts della libreria questa va compilata con il comando
+  
+ `npm run build`
+ 
+ Vanno committati sia i file .ts che i file generati dentro la dist
+ 
+ 
+ 
