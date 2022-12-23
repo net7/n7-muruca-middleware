@@ -108,46 +108,12 @@ export class Controller {
   };
 
   search = async (event: any, _context: any, _callback: any) => {
-    const { parsers, searchIndex, elasticUri, configurations, defaultLang } =
-      this.config;
-    const body = JSON.parse(event.body); // cf. SEARCH-RESULTS in Postman
+    
     const { type } = event.pathParameters;
-    const { locale } = event.queryStringParameters
-      ? event.queryStringParameters
-      : "";
-    let searchLangIndex = searchIndex;
-    if (locale && defaultLang && locale != defaultLang) {
-      searchLangIndex = searchIndex + "_" + locale;
-    }
-    const params = ESHelper.buildQuery(body, configurations.search, type); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
-    // make query
-    //console.log(JSON.stringify(params));
-    const query_res: any = await ESHelper.makeSearch(
-      searchLangIndex,
-      params,
-      Client,
-      elasticUri
-    );
-    const data =
-      type === "results" ? query_res.hits.hits : query_res.aggregations;
-    const parser = new parsers.search();
-    const { searchId, facets } = body;
-    const { limit, offset, sort } = body.results ? body.results : "null";
-    let total_count = query_res.hits.total.value;
-    const response = parser.parse({
-      data,
-      options: {
-        type,
-        offset,
-        sort,
-        limit,
-        total_count,
-        searchId,
-        facets,
-        conf: configurations.search,
-      },
-    });
-
+    const { locale } = event.queryStringParameters ? event.queryStringParameters : "";
+    const body = JSON.parse(event.body); 
+    const controller = new controllers.searchController();    
+    const response = await controller.search(body, this.config, type, locale);    
     return HttpHelper.returnOkResponse(response);
   };
 

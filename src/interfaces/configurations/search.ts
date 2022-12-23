@@ -6,11 +6,11 @@ export interface ConfigSearch {
 
 export interface SearchStruct {
     /** a query executed in any case */
-    base_query: {
+    base_query?: {
         /** the field to query on. Ex: "record-type" */
-        field: string
+        field?: string
         /** the values to search for. Ex: "record" */
-        value: string
+        value?: string
     },
     /** sort fields. Ex: ['slug.keyword', 'sort_title.keyword']*/
     sort: string[]
@@ -19,6 +19,13 @@ export interface SearchStruct {
             type: string,
             field: string
         }
+    }
+    /** extra options for query */
+    options? : {
+        /** esclude some fields from result */
+        exclude?: string[],
+        /** esclude some fields from result */
+        include?: string[]
     }
     /** list of facets. The keys must be the same received from the request */
     "facets-aggs": {
@@ -84,8 +91,10 @@ export interface SearchResults {
      * "link": used to build the link to the record
      * "image": used to show a thumbnail of the record
      * "id": the id of the record
+     * "routeId": id used to build the link to the record
+     * "slug": the slug of the record
      */
-    label: "title" | "text" | "metadata" | "highlights" | "id" | "link" | "image"
+    label: "title" | "text" | "metadata" | "highlights" | "id" | "link" | "image" | "routeId" | "slug"
     /** the field value to return. 
      * label: "metadata" it may be an array of fields. Ex.  ['curator', 'autore']
      * label:"link" the fields value are used to build the link to the record.Ex: field: ['id', 'slug']*/

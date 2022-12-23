@@ -13,3 +13,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./advancedSearch.controller"), exports);
 __exportStar(require("./teiPublisher.controller"), exports);
 __exportStar(require("./getResource.controller"), exports);
+__exportStar(require("./search.controller"), exports);

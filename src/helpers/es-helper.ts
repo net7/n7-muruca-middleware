@@ -61,20 +61,28 @@ export const ESHelper = {
     const { searchId, results } = data; // searchId = "work", "results: {...}"
     const sort = results ? results.sort : data.sort; // sort = se ci sono i results è SEARCH-RESULTS e trova il sort dentro l'oggetto, altrimenti è SEARCH-FACETS e il sort è al primo livello
     const { limit, offset } = results || {}; // ci sono solo nel SEARCH-RESULTS, altrimenti vuoti
-    // QUERY ELASTICSEARCH ... costruisco la query per ES
-    const sort_field = conf[searchId].base_query.field // sort_field = "record-type"?
-      ? conf[searchId].base_query.field // record-type, altrimenti
-      : 'slug.keyword'; // .keyword significa che cercherà su ES lo slug
-    const main_query: any = {
-      // prepara il data model per la basic query per ES (cf. Basic Query Theatheor su Postman)
-      query: {
-        bool: {
-          must: [{ match: { [sort_field]: conf[searchId].base_query.value } }], //"record-type": "work"
+    
+    // QUERY ELASTICSEARCH ... costruisco la query per ES    
+    const sort_field = conf[searchId]?.base_query?.field 
+      ? conf[searchId].base_query.field 
+      : 'slug.keyword'; 
+      
+    const main_query: any =  {
+        // prepara il data model per la basic query per ES (cf. Basic Query Theatheor su Postman)
+        query: {
+          bool: {
+            must: [], //"record-type": "work"
+          },
         },
-      },
-      sort,
-      aggregations: {},
-    };
+        sort,
+        aggregations: {},
+      };
+    
+    if(conf[searchId].base_query && conf[searchId].base_query.value){    
+        main_query.query.bool.must.push(
+            { match: { [sort_field]: conf[searchId].base_query.value } }
+        ) 
+    }
 
     //ora deve produrre il sort e le aggregations
     //sorting
@@ -117,6 +125,14 @@ export const ESHelper = {
     if (offset || offset === 0) {
       main_query.from = offset; // vd. sopra, aggiunge proprietà "from"
     }
+    
+    
+    if (conf[searchId].options?.exclude) {
+        main_query["_source"] = {
+            exclude: conf[searchId].options.exclude
+        }
+    }
+    
     // aggregations filters
     const query_facets = conf[searchId]['facets-aggs'].aggregations; // { "types": {"nested": false, "search": "taxonomies.type.key.keyword", "title": "taxonomies.type.name.keyword"}, "collocations": {...}, "authors": {...}}
     const dataKeys = Object.keys(data); // ['searchId', 'results', 'query']
