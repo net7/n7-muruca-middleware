@@ -36,6 +36,9 @@ class Controller {
         });
         this.getHomeLayout = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers, configurations } = this.config;
+            if (!event || !(event === null || event === void 0 ? void 0 : event.body)) {
+                return helpers_1.HttpHelper.returnErrorResponse("Empty body from request", 400);
+            }
             const keyOrder = JSON.parse(event.body);
             const { locale } = event.queryStringParameters
                 ? event.queryStringParameters

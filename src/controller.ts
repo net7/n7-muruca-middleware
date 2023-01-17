@@ -37,6 +37,10 @@ export class Controller {
 
   getHomeLayout = async (event: any, _context: any, _callback: any) => {
     const { baseUrl, parsers, configurations } = this.config;
+    if(!event || !event?.body){
+        return HttpHelper.returnErrorResponse("Empty body from request", 400);
+    }
+    
     const keyOrder = JSON.parse(event.body);
     const { locale } = event.queryStringParameters
       ? event.queryStringParameters
