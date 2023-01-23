@@ -373,8 +373,10 @@ export class AdvancedSearchService {
                     if (!data[groupId]) break;
                     query_conf.fields.forEach(field => {
                         const _name = field.replace("*", "");
-                        const value =  query_conf['data-value'] ? data[ query_conf['data-value'] ] : data[groupId];                       
-                        xml_query_should.push(ASHelper.simpleQueryString({ fields: field, value: value}, "AND", true, _name));
+                        const value =  query_conf['data-value'] ? data[ query_conf['data-value'] ] : data[groupId];        
+                        if(value && value != ""){
+                            xml_query_should.push(ASHelper.simpleQueryString({ fields: field, value: value}, "AND", true, _name));                            
+                        }               
                     });
                     if(query_conf.highlight){
                         inner_hits['highlight'] = {
