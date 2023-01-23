@@ -6,7 +6,7 @@ import { TeipublisherService } from '../services';
 export class AdvancedSearchParser implements Parser {
     
     apparatus = {
-        key: "alias"
+        key: "Voci di autorità"
     }
     
     parse({ data, options }: Input) {

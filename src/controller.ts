@@ -164,6 +164,11 @@ export class Controller {
         advanced_search_options
       );
       const options = data.data;
+      for (const key in options) {
+        options[key].options.map(
+            option => option.value = option.value.toString()
+        );
+    }
       return HttpHelper.returnOkResponse(options);
     }
   };

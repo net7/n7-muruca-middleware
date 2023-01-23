@@ -9,6 +9,11 @@
 
 
 # Changelog n7-serverless
+## [2.6.0] - 21-11-2022
+- added teipublisher call API to get node root
+- added link to highlight text
+- get result not async
+- added advanced search occurrences
 ## [2.5.0] - 21-11-2022
 - advanced search in XML text
 - tag replacement with highlight

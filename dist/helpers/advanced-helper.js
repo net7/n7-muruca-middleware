@@ -48,7 +48,7 @@ exports.simpleQueryString = (queryField, default_operator = 'AND', replaceBoolea
         : queryField.fields;
     _name = _name == "" && typeof queryField.fields == 'string' ? queryField.fields : _name;
     let term = queryField.value;
-    if (replaceBoolean) {
+    if (replaceBoolean && term && term != "") {
         term = term.replace(/\sAND\s/g, '+').replace(/\sOR\s/g, '|').replace(/\sNOT\s/g, '-');
     }
     const x = {

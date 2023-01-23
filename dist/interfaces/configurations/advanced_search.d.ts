@@ -130,6 +130,7 @@ export interface ResultsFormatData {
 export interface DynamicOptionField {
     key: string;
     content_type: string;
+    type?: "post" | "taxonomy";
 }
 export interface TextSearch {
     type: "fulltext" | "xml_attribute";

@@ -137,6 +137,9 @@ class Controller {
                 const path = locale ? "?lang=" + locale : "";
                 const data = yield helpers_1.HttpHelper.doPostRequest(requestURL + path, advanced_search_options);
                 const options = data.data;
+                for (const key in options) {
+                    options[key].options.map(option => option.value = option.value.toString());
+                }
                 return helpers_1.HttpHelper.returnOkResponse(options);
             }
         });

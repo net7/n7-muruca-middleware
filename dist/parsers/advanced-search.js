@@ -16,7 +16,7 @@ const services_1 = require("../services");
 class AdvancedSearchParser {
     constructor() {
         this.apparatus = {
-            key: "alias"
+            key: "Voci di autorità"
         };
     }
     parse({ data, options }) {
