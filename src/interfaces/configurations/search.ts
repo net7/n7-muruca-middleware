@@ -74,6 +74,10 @@ export interface SearchFilter {
     field: string | string[]
     /** @default AND */
     operator?: "OR" | "AND"
+    /** @default false set to true if aggregation is made on a nested field */
+    nested?: boolean
+    /** The list of parent fields of a nested field. Ex: ["taxonomies", "place"] */
+    nestedFields?: string[],
     
 }
 
