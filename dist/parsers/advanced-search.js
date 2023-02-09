@@ -29,6 +29,7 @@ class AdvancedSearchParser {
             var { searchId, conf, teiPublisherUri } = options;
             let items = [];
             yield Promise.all(data.map(({ _source: source, highlight, inner_hits, matched_queries }) => __awaiter(this, void 0, void 0, function* () {
+                var _a, _b, _c;
                 let itemResult = {
                     highlights: [],
                 };
@@ -50,10 +51,17 @@ class AdvancedSearchParser {
                 }
                 if (inner_hits && inner_hits.xml_text) {
                     const inn_hits = inner_hits.xml_text.hits.hits;
-                    const hh = yield this.parseXmlTextHighlight(inn_hits, teiPublisherUri, source['xml_filename']);
-                    if (hh != null) {
-                        itemResult.highlights = itemResult.highlights.concat(hh);
-                        itemResult['tei_doc'] = source['xml_filename'] || null;
+                    const xml_filename = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.xml_search_options) === null || _b === void 0 ? void 0 : _b.field_filename) || "xml_filename";
+                    const doc = xml_filename.split('.').reduce((a, b) => a[b], source);
+                    if (doc) {
+                        const hh = yield this.parseXmlTextHighlight(inn_hits, teiPublisherUri, doc);
+                        if (hh.length > 0 && ((_c = hh[0]) === null || _c === void 0 ? void 0 : _c.isTitle)) {
+                            itemResult["highlightsTitle"] = hh.shift().text;
+                        }
+                        if (hh != null) {
+                            itemResult.highlights = itemResult.highlights.concat(hh);
+                            itemResult['tei_doc'] = doc || null;
+                        }
                     }
                 }
                 conf[searchId].results.forEach((val) => {
@@ -199,20 +207,24 @@ class AdvancedSearchParser {
                     "link": ""
                 });
             }
-            if (xpaths.size > 0) {
+            if (xpaths.size > 0 && doc != "") {
                 const teipub = new services_1.TeipublisherService(teiPublisherUri);
-                xpath_root_id = JSON.parse(yield teipub.getNodePaths(doc, xpaths));
-                if (!Array.isArray(xpath_root_id))
-                    xpath_root_id = [xpath_root_id];
-            }
-            for (let el in highlights_obj) {
-                if (highlights_obj[el]) {
-                    const root = xpath_root_id.find(x => x.xpath === highlights_obj[el].xpath).root_id;
-                    highlights_obj[el]["link"] = {
-                        "params": "root=" + root + "&hq=1",
-                        "query_string": true
-                    };
-                    highlights.push(highlights_obj[el]);
+                try {
+                    xpath_root_id = JSON.parse(yield teipub.getNodePaths(doc, xpaths));
+                    if (!Array.isArray(xpath_root_id))
+                        xpath_root_id = [xpath_root_id];
+                    for (let el in highlights_obj) {
+                        if (highlights_obj[el]) {
+                            const root = xpath_root_id.find(x => x.xpath === highlights_obj[el].xpath).root_id;
+                            highlights_obj[el]["link"] = {
+                                "params": "root=" + root + "&hq=1",
+                                "query_string": true
+                            };
+                            highlights.push(highlights_obj[el]);
+                        }
+                    }
+                }
+                catch (error) {
                 }
             }
             return highlights;

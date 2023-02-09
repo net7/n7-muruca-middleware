@@ -59,6 +59,7 @@ export const HttpHelper = {
       })
         .catch(error => {
           console.error(error);
+          resolve(null)
       });
     });
   },  
@@ -78,9 +79,9 @@ export const HttpHelper = {
     return new Promise(function (resolve, reject) {
         let res = axios.post(url, data).then(res => {
             resolve(res)
-        })
-        .catch(error => {
-        console.error(error);
+          })
+          .catch(error => {
+            console.error(error);          
         });
         
     });

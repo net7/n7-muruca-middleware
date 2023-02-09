@@ -35,7 +35,7 @@ export interface ConfigAdvancedSearch {
             /** extra options for query */
             options : {
                 /**path of property of xml tranacription object */
-                path: string
+                path?: string             
             }      
         },
         /** enables highlights */
@@ -46,6 +46,10 @@ export interface ConfigAdvancedSearch {
         dynamic_options?: {
             /* list of fields to retrieve options values*/
             fields: DynamicOptionField[]
+        }
+           /**options for search in xml */
+        xml_search_options?: {
+          field_filename?: string
         }
         /**results formatting */
         results: ResultsFormatData[]
