@@ -16,9 +16,11 @@ export class XmlService {
                 var replaceNode:Element = document.querySelectorAll("TEI")[0];               
                 node._path.forEach(el => {
                     replaceNode = replaceNode.querySelectorAll(":scope > " + el.node)[el.position || 0];
+                    const { document: highlightNode } = parseHTML("<" + node.node + ">" +node.highlight + "</" + node.node + ">");
+                    if(replaceNode){
+                      nodesToreplace.push([highlightNode, replaceNode]);                    
+                    }
                 });
-                const { document: highlightNode } = parseHTML("<" + node.node + ">" +node.highlight + "</" + node.node + ">");
-                nodesToreplace.push([highlightNode, replaceNode]);
             }
         });                
         nodesToreplace.forEach(nodes => {
