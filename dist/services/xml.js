@@ -6,20 +6,23 @@ class XmlService {
     constructor() {
     }
     replaceHlNodes(xml, nodes) {
-        const { 
-        // note, these are *not* globals
-        document } = linkedom_1.parseHTML(xml);
+        /*  const {
+              // note, these are *not* globals
+              document
+          } = parseHTML(xml);
+          */
+        const { document } = (new linkedom_1.DOMParser).parseFromString(xml, 'text/xml').defaultView;
         const nodesToreplace = [];
         nodes.forEach(node => {
             if (node._path) {
                 var replaceNode = document.querySelectorAll("TEI")[0];
                 node._path.forEach(el => {
                     replaceNode = replaceNode.querySelectorAll(":scope > " + el.node)[el.position || 0];
-                    const { document: highlightNode } = linkedom_1.parseHTML("<" + node.node + ">" + node.highlight + "</" + node.node + ">");
-                    if (replaceNode) {
-                        nodesToreplace.push([highlightNode, replaceNode]);
-                    }
                 });
+                const { document: highlightNode } = linkedom_1.parseHTML("<" + node.node + ">" + node.highlight + "</" + node.node + ">");
+                if (replaceNode) {
+                    nodesToreplace.push([highlightNode, replaceNode]);
+                }
             }
         });
         nodesToreplace.forEach(nodes => {
