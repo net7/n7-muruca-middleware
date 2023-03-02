@@ -1,0 +1,12 @@
+{
+    "timeout": 5000,
+    "reporter": "list",
+    "ui": "bdd",
+    "exit": true,
+    "extension": ["ts"],
+    "require": "ts-node/register",
+    "spec": [
+        "test/**/*"
+    ]
+    
+}
