@@ -18,6 +18,7 @@ class AdvancedSearchParser {
         this.apparatus = {
             key: "Voci di autorità"
         };
+        this.text_separator = "<span class=\"mrc__text-divider\"></span>";
     }
     parse({ data, options }) {
         const { type } = options;
@@ -49,18 +50,20 @@ class AdvancedSearchParser {
                         }
                     }
                 }
-                if (inner_hits && inner_hits.xml_text) {
-                    const inn_hits = inner_hits.xml_text.hits.hits;
-                    const xml_filename = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.xml_search_options) === null || _b === void 0 ? void 0 : _b.field_filename) || "xml_filename";
-                    const doc = xml_filename.split('.').reduce((a, b) => a[b], source);
-                    if (doc) {
-                        const hh = yield this.parseXmlTextHighlight(inn_hits, teiPublisherUri, doc);
-                        if (hh.length > 0 && ((_c = hh[0]) === null || _c === void 0 ? void 0 : _c.isTitle)) {
-                            itemResult["highlightsTitle"] = hh.shift().text;
-                        }
-                        if (hh != null) {
-                            itemResult.highlights = itemResult.highlights.concat(hh);
-                            itemResult['tei_doc'] = doc || null;
+                if (inner_hits && Object.keys(inner_hits)) {
+                    for (var prop in inner_hits) {
+                        const inn_hits = inner_hits[prop].hits.hits;
+                        const xml_filename = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.xml_search_options) === null || _b === void 0 ? void 0 : _b.field_filename) || "xml_filename";
+                        const doc = xml_filename.split('.').reduce((a, b) => a[b], source);
+                        if (doc) {
+                            const hh = yield this.parseXmlTextHighlight(inn_hits, teiPublisherUri, doc);
+                            if (hh.length > 0 && ((_c = hh[0]) === null || _c === void 0 ? void 0 : _c.isTitle)) {
+                                itemResult["highlightsTitle"] = hh.shift().text;
+                            }
+                            if (hh != null) {
+                                itemResult.highlights = itemResult.highlights.concat(hh);
+                                itemResult['tei_doc'] = doc || null;
+                            }
                         }
                     }
                 }
@@ -123,112 +126,189 @@ class AdvancedSearchParser {
             return items;
         });
     }
+    /**
+     * Parse Hits of a document
+     * @param inn_hits
+     * @param teiPublisherUri
+     * @param doc
+     * @returns
+     */
     parseXmlTextHighlight(inn_hits, teiPublisherUri = "", doc = "") {
         return __awaiter(this, void 0, void 0, function* () {
-            const highlights_obj = [];
-            const xpaths = new Set();
-            let totCount = 0;
-            inn_hits.forEach(hit => {
-                var _a, _b;
-                if (hit.highlight) {
-                    for (let prop in hit.highlight) {
-                        if (hit.matched_queries && !ASHelper.checkMatchedQuery(prop, hit.matched_queries)) {
-                            continue;
-                        }
-                        let breadcrumbs = "";
-                        let xpath = "";
-                        let last_div_path = "";
-                        if ((_a = hit._source) === null || _a === void 0 ? void 0 : _a._path) {
-                            breadcrumbs = this.getXmlPathBreadcrumbs(hit._source._path);
-                            xpath = this.getNodeXpath(hit._source._path, "p");
-                            if (xpath)
-                                xpaths.add(xpath);
-                            last_div_path = this.getXmlLastDivPath(hit._source._path);
-                            if (breadcrumbs != "") {
-                                breadcrumbs = "<span class='mrc__text-breadcrumbs'>" + breadcrumbs + "</span> ";
-                            }
-                        }
-                        if (/xml_text$/.test(prop)) {
-                            let h_snippet = "";
-                            hit.highlight[prop].forEach(snippet => {
-                                totCount++;
-                                h_snippet = h_snippet == "" ? snippet : h_snippet + '<span class="mrc__text-divider"></span>' + snippet;
-                            });
-                            if (!highlights_obj[last_div_path]) {
-                                highlights_obj[last_div_path] =
-                                    {
-                                        text: breadcrumbs + h_snippet,
-                                        xpath: xpath
-                                    };
-                            }
-                            else {
-                                highlights_obj[last_div_path]["text"] = highlights_obj[last_div_path]["text"] + '<span class="mrc__text-divider"></span>' + h_snippet;
-                            }
-                        }
-                        else if (/.*\._attr\.\w*/.test(prop)) {
-                            const nodes = prop.match(/(.*\.)?(\w+)\._attr\.(\w*)/);
-                            if (Array.isArray(nodes)) {
-                                const node_name = nodes === null || nodes === void 0 ? void 0 : nodes[2];
-                                const node_attr = nodes === null || nodes === void 0 ? void 0 : nodes[3];
-                                let xml_text = (_b = hit._source) === null || _b === void 0 ? void 0 : _b.xml_text;
-                                const attr_parsed = [];
-                                hit.highlight[prop].forEach(snippet => {
-                                    totCount++;
-                                    if (!attr_parsed.includes(snippet)) {
-                                        attr_parsed.push(snippet);
-                                        const snippets = helpers_1.CommonHelper.getSnippetAroundTag(node_name, node_attr, snippet, xml_text);
-                                        if (snippets) {
-                                            snippets.forEach(element => {
-                                                const value = "<span class='mrc__text-attr_value'>" + this.apparatus[node_attr] + ": " + snippet + "</span>";
-                                                if (!highlights_obj[last_div_path]) {
-                                                    highlights_obj[last_div_path] = {
-                                                        text: breadcrumbs + " " + value + " " + element,
-                                                        xpath: xpath
-                                                    };
-                                                }
-                                                else {
-                                                    highlights_obj[last_div_path]["text"] = highlights_obj[last_div_path]["text"] + '<span class="mrc__text-divider"></span>' + value + " " + element;
-                                                }
-                                            });
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    }
-                }
-            });
             const highlights = [];
-            let xpath_root_id;
-            if (totCount > 0) {
+            const highlights_obj = this.buildHighlightObj(inn_hits);
+            if (highlights_obj.totCount > 0) {
                 highlights.push({
                     "isTitle": true,
-                    "text": "Occorrenze: " + totCount,
+                    "text": "Occorrenze: " + highlights_obj.totCount,
                     "link": ""
                 });
             }
-            if (xpaths.size > 0 && doc != "") {
-                const teipub = new services_1.TeipublisherService(teiPublisherUri);
-                try {
-                    xpath_root_id = JSON.parse(yield teipub.getNodePaths(doc, xpaths));
-                    if (!Array.isArray(xpath_root_id))
-                        xpath_root_id = [xpath_root_id];
-                    for (let el in highlights_obj) {
-                        if (highlights_obj[el]) {
-                            const root = xpath_root_id.find(x => x.xpath === highlights_obj[el].xpath).root_id;
-                            highlights_obj[el]["link"] = {
-                                "params": "root=" + root + "&hq=1",
-                                "query_string": true
-                            };
-                            highlights.push(highlights_obj[el]);
-                        }
-                    }
-                }
-                catch (error) {
+            const objects = highlights_obj.highlights_obj;
+            let xpath_root_id = [];
+            const xpaths = Object.values(objects).map(obj => obj['xpath']);
+            if (xpaths.length > 0 && doc != "") {
+                xpath_root_id = yield this.getTeipublisherNodesRoot(teiPublisherUri, doc, [...new Set(xpaths)]);
+            }
+            for (let el in objects) {
+                if (objects[el]) {
+                    let hl = {};
+                    const root = xpath_root_id.find(x => x.xpath === objects[el].xpath).root_id;
+                    hl["link"] = {
+                        "params": "root=" + root + "&hq=1",
+                        "query_string": true
+                    };
+                    hl["xpath"] = objects[el]["xpath"];
+                    hl["text"] = this.buildFinalHighlightSnippet(objects[el]);
+                    highlights.push(hl);
                 }
             }
             return highlights;
         });
+    }
+    buildFinalHighlightSnippet(el) {
+        let finaltext = "";
+        el.texts.forEach(text => {
+            finaltext = finaltext == "" ? text : finaltext + this.text_separator + text;
+        });
+        if (el["breadcrumb"]) {
+            finaltext = el["breadcrumb"] + finaltext;
+        }
+        return finaltext;
+    }
+    getTeipublisherNodesRoot(teiPublisherUri, doc, xpaths) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const teipub = new services_1.TeipublisherService(teiPublisherUri);
+            try {
+                let xpath_root_id = JSON.parse(yield teipub.getNodePaths(doc, xpaths));
+                if (!Array.isArray(xpath_root_id))
+                    xpath_root_id = [xpath_root_id];
+                return xpath_root_id;
+            }
+            catch (error) {
+                return [];
+            }
+            return [];
+        });
+    }
+    /**
+     *
+     * @param inn_hits inner hits object from ES query. It contains matches for paragraph or other substructures
+     * @returns Object with propertites TotCount and matches grouped for div
+     */
+    buildHighlightObj(inn_hits) {
+        let totCount = 0;
+        let highlights_obj = {};
+        inn_hits.forEach(hit => {
+            var _a;
+            //array di tutti i testi evidenziati nel nodo
+            const result = this.parseHighlightNode(hit);
+            //qui mi serve l'xpath per unire i risultati simili
+            if (result.length > 0 && ((_a = hit._source) === null || _a === void 0 ? void 0 : _a._path)) {
+                const last_div_path = this.getXmlLastDivPath(hit._source._path);
+                if (!highlights_obj[last_div_path]) {
+                    highlights_obj[last_div_path] = {
+                        texts: [],
+                        breadcrumb: this.getNodeBreadcrumb(hit._source._path),
+                        xpath: this.getNodeXpath(hit._source._path, hit._source.node)
+                    };
+                }
+                totCount += result.length;
+                highlights_obj[last_div_path].texts.push(...result);
+            }
+        });
+        return {
+            totCount: totCount,
+            highlights_obj: highlights_obj
+        };
+    }
+    //parse Highlights of a single node (es: a `p` node )
+    parseHighlightNode(hit) {
+        if (hit.highlight) {
+            return this.parseHighlights(hit);
+        }
+        else if (hit.inner_hits && Object.keys(hit.inner_hits)) {
+            const prop = Object.keys(hit.inner_hits)[0];
+            let inn_hits = hit.inner_hits[prop].hits.hits;
+            let res = [];
+            inn_hits.forEach(hit => {
+                if (hit.highlight) {
+                    res.push(...this.parseHighlights(hit));
+                }
+            });
+            return res;
+        }
+    }
+    getNodeBreadcrumb(path) {
+        let breadcrumbs = "";
+        if (path) {
+            breadcrumbs = this.getXmlPathBreadcrumbs(path);
+            if (breadcrumbs != "") {
+                breadcrumbs = "<span class='mrc__text-breadcrumbs'>" + breadcrumbs + "</span> ";
+            }
+        }
+        return breadcrumbs;
+    }
+    /*
+      parse ES highlight property (may be an array of strings)
+    */
+    parseHighlights(hit) {
+        var _a;
+        const unique_hl = {
+            xml_text: [],
+            attr: [],
+            refs: []
+        };
+        for (let prop in hit.highlight) {
+            if (hit.matched_queries && !ASHelper.checkMatchedQuery(prop, hit.matched_queries)) {
+                continue;
+            }
+            if (/xml_text$/.test(prop)) {
+                hit.highlight[prop].forEach(snippet => {
+                    var _a;
+                    let prefix = "";
+                    if ((_a = hit._source) === null || _a === void 0 ? void 0 : _a._refs) {
+                        const references = this.parseReferences(hit._source._refs);
+                        prefix = "<span class='mrc__text-attr_value'>In: " + references + "</span> ";
+                    }
+                    unique_hl.xml_text.push(prefix + snippet);
+                    //h_snippets.push(prefix + snippet);
+                });
+            }
+            else if (/.*\._attr\.\w*/.test(prop)) {
+                unique_hl.attr.push(...this.parseAttributeHighlight(hit, prop));
+                //h_snippets.push(...this.parseAttributeHighlight(hit, prop));
+            }
+            else if (/.*\._refs\.\w*/.test(prop)) {
+                if ((_a = hit._source) === null || _a === void 0 ? void 0 : _a.xml_text) {
+                    unique_hl.refs.push(helpers_1.CommonHelper.makeXmlTextSnippet(hit._source.xml_text, 250));
+                    //h_snippets.push(CommonHelper.makeXmlTextSnippet(hit._source.xml_text))
+                }
+            }
+        }
+        return this.mergeUniqueSnippets(unique_hl);
+    }
+    mergeUniqueSnippets(unique_hl) {
+        if (unique_hl.attr.length > 0) {
+            return unique_hl.attr;
+        }
+        if (unique_hl.xml_text.length > 0) {
+            return unique_hl.xml_text;
+        }
+        if (unique_hl.refs.length > 0) {
+            return [unique_hl.refs[0]];
+        }
+    }
+    parseReferences(refs) {
+        let references = "";
+        refs.forEach(element => {
+            let r = "";
+            for (const prop in element) {
+                r = r == "" ? element[prop] : r + ", " + element[prop];
+            }
+            references = references == "" ? r : references + "; " + r;
+        });
+        return references;
     }
     getXmlPathBreadcrumbs(path) {
         let breadcrumbs = "";
@@ -241,8 +321,10 @@ class AdvancedSearchParser {
     }
     getXmlLastDivPath(path) {
         let lastdiv = "";
+        let divFound = false;
         for (let i = path.length - 1; i >= 0; i--) {
-            if (path[i] && path[i].node != "p") {
+            if (path[i] && path[i].node == "div" || divFound) {
+                divFound = true;
                 const node = typeof path[i].position !== "undefined" ? path[i].node + "_" + path[i].position : path[i].node;
                 lastdiv = lastdiv == "" ? node : node + "." + lastdiv;
             }
@@ -263,6 +345,28 @@ class AdvancedSearchParser {
             }
         });
         return xpath;
+    }
+    parseAttributeHighlight(hit, prop) {
+        var _a;
+        const nodes = prop.match(/(.*\.)?(\w+)\._attr\.(\w*)/);
+        let uniqueSnippets = [];
+        if (Array.isArray(nodes)) {
+            const node_attr = nodes === null || nodes === void 0 ? void 0 : nodes[3];
+            let xml_text = (_a = hit._source) === null || _a === void 0 ? void 0 : _a.xml_text;
+            const attr_parsed = [];
+            hit.highlight[prop].forEach(snippet => {
+                if (!attr_parsed.includes(snippet)) {
+                    attr_parsed.push(snippet);
+                    const snippets = helpers_1.CommonHelper.getSnippetAroundTag(node_attr, snippet, xml_text);
+                    if (snippets) {
+                        snippets.forEach(element => {
+                            uniqueSnippets.push("<span class='mrc__text-attr_value'>" + this.apparatus[node_attr] + ": " + snippet + "</span>" + element);
+                        });
+                    }
+                }
+            });
+        }
+        return uniqueSnippets;
     }
 }
 exports.AdvancedSearchParser = AdvancedSearchParser;

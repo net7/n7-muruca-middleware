@@ -9,5 +9,8 @@ export declare class AdvancedSearchService {
         path: string;
         query: any;
     };
+    parseQueryGroups(search_groups: any, data: any, inner_hits: any): any[];
+    buildGroupQuery(query_conf: any, data: any, groupId: any, inner_hits: any): any[];
+    buildTextQuery(data: any, query_conf: any, groupId: any, inner_hits: any): any;
     buildSingleTextQuery(query_params: any, id: any, field?: string): void;
 }

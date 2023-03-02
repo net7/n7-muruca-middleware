@@ -294,34 +294,104 @@ class AdvancedSearchService {
         const xml_query_should = [];
         const inner_hits = advanced_conf.inner_hits;
         inner_hits['name'] = "xml_text";
-        Object.keys(advanced_conf.search_groups)
-            .forEach((groupId) => {
-            const query_conf = advanced_conf.search_groups[groupId];
-            switch (query_conf.type // fa uno switch su tutti i tipi di query
-            ) {
-                case "fulltext":
-                case "xml_attribute":
-                    if (!data[groupId])
-                        break;
-                    query_conf.fields.forEach(field => {
-                        const _name = field.replace("*", "");
-                        const value = query_conf['data-value'] ? data[query_conf['data-value']] : data[groupId];
-                        if (value && value != "") {
-                            xml_query_should.push(ASHelper.simpleQueryString({ fields: field, value: value }, "AND", true, _name));
-                        }
-                    });
-                    if (query_conf.highlight) {
-                        inner_hits['highlight'] = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_conf.highlight)), inner_hits['highlight']);
-                    }
-                    break;
-            }
-        });
+        const q = this.parseQueryGroups(advanced_conf.search_groups, data, inner_hits);
+        xml_query_should.push(...q);
+        /*
+         Object.keys(advanced_conf.search_groups)
+         .forEach((groupId) => {
+           const query_conf = advanced_conf.search_groups[groupId];
+           if(data[groupId]){
+             const q = this.buildGroupQuery(query_conf, data, groupId, inner_hits);
+             if(q.length > 0){
+               xml_query_should.push(...q);
+             }
+           } else if( query_conf.search_groups ){
+             const must_array = [];
+             Object.keys(advanced_conf.search_groups)
+               .forEach((subgroupId) => {
+                 if(data[subgroupId]){
+                   const q = this.buildGroupQuery(query_conf, data, groupId, inner_hits);
+                 }
+               })
+           }
+                 
+         })
+         */
         if (xml_query_should.length > 0) {
             const xml_query_nested = ASHelper.nestedQuery(advanced_conf.options.path, ASHelper.queryBool([], xml_query_should).query, inner_hits);
             return xml_query_nested;
         }
         else
             return null;
+    }
+    parseQueryGroups(search_groups, data, inner_hits) {
+        const xml_query_should = [];
+        const nested_innerhits = Object.assign({}, inner_hits);
+        Object.keys(search_groups)
+            .forEach((groupId) => {
+            var _a;
+            const query_conf = search_groups[groupId];
+            if (data[groupId] && !query_conf.search_groups) {
+                const q = this.buildGroupQuery(query_conf, data, groupId, inner_hits);
+                if (q.length > 0) {
+                    xml_query_should.push(...q);
+                }
+            }
+            else if (query_conf.search_groups) {
+                const inner_array = [];
+                const q = this.parseQueryGroups(query_conf.search_groups, data, inner_hits);
+                if (q.length > 0) {
+                    inner_array.push(...q);
+                    const query_bool = ASHelper.queryBool(inner_array).query;
+                    if ((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.nested) {
+                        if (query_conf.highlight) {
+                            nested_innerhits['highlight'] = ASHelper.buildHighlights(query_conf.highlight);
+                        }
+                        nested_innerhits['name'] = groupId;
+                        const nested = { nested: ASHelper.nestedQuery(query_conf.options.nested, query_bool, nested_innerhits) };
+                        xml_query_should.push(nested);
+                    }
+                    else {
+                        xml_query_should.push(query_bool);
+                    }
+                }
+            }
+        });
+        return xml_query_should;
+    }
+    buildGroupQuery(query_conf, data, groupId, inner_hits) {
+        var _a;
+        const xml_query_should = [];
+        switch (query_conf.type) {
+            case "fulltext":
+            case "xml_attribute":
+                const q = this.buildTextQuery(data, query_conf, groupId, Object.assign({}, inner_hits));
+                if (q != "") {
+                    xml_query_should.push(q);
+                }
+                if (query_conf.highlight && !((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.nested)) {
+                    inner_hits['highlight'] = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_conf.highlight)), inner_hits['highlight']);
+                }
+                break;
+        }
+        return xml_query_should;
+    }
+    buildTextQuery(data, query_conf, groupId, inner_hits) {
+        var _a;
+        const value = query_conf['data-value'] ? data[query_conf['data-value']] : data[groupId];
+        let queries;
+        if (value && value != "") {
+            queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value }, "AND", true);
+        }
+        if ((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.nested) {
+            if (query_conf.highlight) {
+                inner_hits['highlight'] = ASHelper.buildHighlights(query_conf.highlight);
+            }
+            inner_hits['name'] = groupId;
+            const nested = { nested: ASHelper.nestedQuery(query_conf.options.nested, queries, inner_hits) };
+            queries = nested;
+        }
+        return queries;
     }
     buildSingleTextQuery(query_params, id, field = "id") {
         this.buildAdvancedQuery(query_params);

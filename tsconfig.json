@@ -9,5 +9,8 @@
         "node_modules/@types", 
         "node_modules/@n7-frontend/serverless"
       ]
-    }
+    },
+    "include": [
+        "./src/**/*"
+        ]
   }

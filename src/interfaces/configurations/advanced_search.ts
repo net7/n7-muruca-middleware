@@ -28,7 +28,8 @@ export interface ConfigAdvancedSearch {
         },
         search_full_text: {
             search_groups: {
-                [key:string] : TextSearch
+                [key:string] : TextSearch | any
+                
             }
              /** options for inner_hits query on nested object */
             inner_hits?: InnerHitsOption,
@@ -148,7 +149,8 @@ export interface ResultsFormatData {
 export interface DynamicOptionField {
     key: string,
     content_type: string,
-    type?: "post" | "taxonomy"
+    type?: "post" | "taxonomy",
+    value?: "slug" | "label" | "name"
 }
 export interface TextSearch {
     type: "fulltext" | "xml_attribute",
@@ -178,4 +180,8 @@ export interface InnerHitsOption {
     /*number of fragments to show. Value 0 show all text */
     "number_of_fragments"?: number
     "explain"?: boolean
+}
+
+export interface SearchGroup {
+  [key: string]: TextSearch
 }
