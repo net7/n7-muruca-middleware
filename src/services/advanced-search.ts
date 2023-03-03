@@ -2,7 +2,7 @@ import { DataType } from '../interfaces/helper';
 import * as ASHelper from '../helpers/advanced-helper';
 import { CommonHelper, ESHelper } from '../helpers';
 import { Client } from '@elastic/elasticsearch';
-import { AdvancedSearchParser } from '../parsers';
+import { AdvancedSearchParser, XmlSearchParser } from '../parsers';
 import { SearchResultsData } from '../interfaces';
 
 export class AdvancedSearchService {
@@ -50,36 +50,13 @@ export class AdvancedSearchService {
         
         const data = query_res.hits.hits;        
         const hl = [];
-        data.forEach(hit => {
-            if( hit.inner_hits && hit.inner_hits?.xml_text ){
-                hit.inner_hits?.xml_text.hits.hits.forEach(element => {
-                    const el = element._source;
-                    if(element.highlight){
-                        for (const property in element.highlight) {
-                            const hl_array = Object.values(element.highlight[property]);
-                            if(/xml_text$/.test(property)) {
-                                if(hl_array[0] && hl_array[0]){
-                                    el['highlight'] = hl_array[0];                            
-                                }          
-                            } else if(/.*\._attr\.\w*/.test(property)){
-                                const nodes = property.match(/(.*\.)?(\w+)\._attr\.(\w*)/);
-                                if(Array.isArray(nodes)){                       
-                                    const node_name = nodes?.[2];
-                                    const node_attr = nodes?.[3];
-                                    let xml_text = el.xml_text;      
-                                    const snippet = CommonHelper.HighlightTagInXml(node_name, node_attr, hl_array[0], xml_text);
-                                    el['highlight'] = snippet;
-                                }
-
-                            }
-                        }
-                        
-                    }
-                    hl.push(el);
-                });
+        const parser = new XmlSearchParser();
+        data.forEach(hit => {          
+          if( hit.inner_hits && hit.inner_hits?.xml_text ){
+            hl.push(... parser.parseResponse(hit.inner_hits.xml_text));                
             }            
         });        
-        return hl;      
+        return hl;
     }
     
     buildAdvancedQuery = (query_params) => {
@@ -331,16 +308,6 @@ export class AdvancedSearchService {
             });
 
         if (advanced_conf['search_full_text']) {
-            //to version 2.2.0
-            /*let te_query;
-            Object.keys(advanced_conf['search_full_text']).forEach((groupId) => {
-                if (this.body[groupId]) {
-                    te_query = ASHelper.queryExists('xml_filename');
-                }
-            });
-            if (typeof te_query !== 'undefined') {
-                must_array.push(te_query);
-            }*/
             const text_query = this.buildXmlTextQuery(advanced_conf.search_full_text, query_params);
             if (text_query){
                 must_array.push({"nested": text_query})                
@@ -365,27 +332,6 @@ export class AdvancedSearchService {
         
         const q  = this.parseQueryGroups(advanced_conf.search_groups,data, inner_hits);
         xml_query_should.push(...q); 
-       /* 
-        Object.keys(advanced_conf.search_groups)
-        .forEach((groupId) => {
-          const query_conf = advanced_conf.search_groups[groupId];
-          if(data[groupId]){
-            const q = this.buildGroupQuery(query_conf, data, groupId, inner_hits);
-            if(q.length > 0){
-              xml_query_should.push(...q);         
-            }               
-          } else if( query_conf.search_groups ){
-            const must_array = [];
-            Object.keys(advanced_conf.search_groups)
-              .forEach((subgroupId) => {
-                if(data[subgroupId]){
-                  const q = this.buildGroupQuery(query_conf, data, groupId, inner_hits);                  
-                }
-              })
-          }
-                
-        })
-        */
         if (xml_query_should.length > 0 ){
             const xml_query_nested = ASHelper.nestedQuery(advanced_conf.options.path, ASHelper.queryBool([], xml_query_should).query, inner_hits);
             return xml_query_nested;            

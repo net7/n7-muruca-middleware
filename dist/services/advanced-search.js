@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdvancedSearchService = void 0;
 const ASHelper = require("../helpers/advanced-helper");
-const helpers_1 = require("../helpers");
 const parsers_1 = require("../parsers");
 class AdvancedSearchService {
     constructor(configurations) {
@@ -42,33 +41,11 @@ class AdvancedSearchService {
         this.extractXmlTextHl = (query_res) => {
             const data = query_res.hits.hits;
             const hl = [];
+            const parser = new parsers_1.XmlSearchParser();
             data.forEach(hit => {
-                var _a, _b;
+                var _a;
                 if (hit.inner_hits && ((_a = hit.inner_hits) === null || _a === void 0 ? void 0 : _a.xml_text)) {
-                    (_b = hit.inner_hits) === null || _b === void 0 ? void 0 : _b.xml_text.hits.hits.forEach(element => {
-                        const el = element._source;
-                        if (element.highlight) {
-                            for (const property in element.highlight) {
-                                const hl_array = Object.values(element.highlight[property]);
-                                if (/xml_text$/.test(property)) {
-                                    if (hl_array[0] && hl_array[0]) {
-                                        el['highlight'] = hl_array[0];
-                                    }
-                                }
-                                else if (/.*\._attr\.\w*/.test(property)) {
-                                    const nodes = property.match(/(.*\.)?(\w+)\._attr\.(\w*)/);
-                                    if (Array.isArray(nodes)) {
-                                        const node_name = nodes === null || nodes === void 0 ? void 0 : nodes[2];
-                                        const node_attr = nodes === null || nodes === void 0 ? void 0 : nodes[3];
-                                        let xml_text = el.xml_text;
-                                        const snippet = helpers_1.CommonHelper.HighlightTagInXml(node_name, node_attr, hl_array[0], xml_text);
-                                        el['highlight'] = snippet;
-                                    }
-                                }
-                            }
-                        }
-                        hl.push(el);
-                    });
+                    hl.push(...parser.parseResponse(hit.inner_hits.xml_text));
                 }
             });
             return hl;
@@ -263,16 +240,6 @@ class AdvancedSearchService {
                 }
             });
             if (advanced_conf['search_full_text']) {
-                //to version 2.2.0
-                /*let te_query;
-                Object.keys(advanced_conf['search_full_text']).forEach((groupId) => {
-                    if (this.body[groupId]) {
-                        te_query = ASHelper.queryExists('xml_filename');
-                    }
-                });
-                if (typeof te_query !== 'undefined') {
-                    must_array.push(te_query);
-                }*/
                 const text_query = this.buildXmlTextQuery(advanced_conf.search_full_text, query_params);
                 if (text_query) {
                     must_array.push({ "nested": text_query });
@@ -296,27 +263,6 @@ class AdvancedSearchService {
         inner_hits['name'] = "xml_text";
         const q = this.parseQueryGroups(advanced_conf.search_groups, data, inner_hits);
         xml_query_should.push(...q);
-        /*
-         Object.keys(advanced_conf.search_groups)
-         .forEach((groupId) => {
-           const query_conf = advanced_conf.search_groups[groupId];
-           if(data[groupId]){
-             const q = this.buildGroupQuery(query_conf, data, groupId, inner_hits);
-             if(q.length > 0){
-               xml_query_should.push(...q);
-             }
-           } else if( query_conf.search_groups ){
-             const must_array = [];
-             Object.keys(advanced_conf.search_groups)
-               .forEach((subgroupId) => {
-                 if(data[subgroupId]){
-                   const q = this.buildGroupQuery(query_conf, data, groupId, inner_hits);
-                 }
-               })
-           }
-                 
-         })
-         */
         if (xml_query_should.length > 0) {
             const xml_query_nested = ASHelper.nestedQuery(advanced_conf.options.path, ASHelper.queryBool([], xml_query_should).query, inner_hits);
             return xml_query_nested;
