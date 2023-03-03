@@ -1,4 +1,5 @@
 import {parseHTML, DOMParser} from 'linkedom';
+import { XmlSearchParser } from '../parsers';
 export class XmlService {
     
     constructor(){
@@ -21,7 +22,8 @@ export class XmlService {
                 node._path.forEach(el => {
                     replaceNode = replaceNode.querySelectorAll(":scope > " + el.node)[el.position || 0];
                 });
-                    const { document: highlightNode } = parseHTML("<" + node.node + ">" +node.highlight + "</" + node.node + ">");
+                  const parser = new XmlSearchParser();
+                    const { document: highlightNode } = parseHTML(parser.buildXmlNode(node));
                     if(replaceNode){
                       nodesToreplace.push([highlightNode, replaceNode]); 
                     }

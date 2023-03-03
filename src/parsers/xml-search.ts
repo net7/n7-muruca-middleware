@@ -42,4 +42,20 @@ export class XmlSearchParser {
       }
       return {};
     }
+    
+    buildXmlNode( node ) {
+      let node_str = "";
+      if(node.node && node.highlight){
+        let attrs = "";
+        if(node._attr){          
+          for (const attr in node._attr) {
+            attrs += " " + attr + "='" + node._attr[attr]  +"' ";
+            }
+          }
+          node_str = "<" + node.node + attrs + ">" +node.highlight + "</" + node.node + ">"
+        }
+      return node_str;
+    }
+    
+    
 }
