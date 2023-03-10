@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ESHelper = void 0;
+const ASHelper = require("../helpers/advanced-helper");
 exports.ESHelper = {
     bulkIndex(response, index, Client, ELASTIC_URI) {
         // client = const { Client } = require('@elastic/elasticsearch')
@@ -205,8 +206,13 @@ exports.ESHelper = {
             }
         });
         //facets aggregations
-        const facets_request = data.facets;
-        //for (const key in query_facets) {
+        main_query.aggregations = this.buildAggs(data.facets, query_facets);
+        return main_query;
+    },
+    buildAggs(facets_request, query_facets) {
+        const main_query = {
+            aggregations: {}
+        };
         for (const f in facets_request) {
             const key = facets_request[f]["id"];
             if (query_facets[key] === undefined)
@@ -220,7 +226,7 @@ exports.ESHelper = {
             const { nested, extra, ranges, global } = query_facets[key];
             if (nested) {
                 if (query_facets[key]["nestedFields"]) {
-                    const build_aggs = buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]["innerFilterField"], extra, minDocCount, sort);
+                    const build_aggs = this.buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]["innerFilterField"], extra, minDocCount, sort);
                     main_query.aggregations[key] = build_aggs;
                 }
                 else {
@@ -264,129 +270,147 @@ exports.ESHelper = {
                 }
             }
             else {
-                let term_aggr = buildTerm(query_facets[key], size, extra, sort, global);
-                if (filterTerm && filterTerm != "") {
-                    main_query.aggregations['filter_term'] = {
-                        "filter": {
-                            "query_string": {
-                                "query": filterTerm,
-                                "fields": query_facets[key]["innerFilterField"]
-                            },
-                            "aggs": {
-                                [key]: term_aggr
-                            }
-                        }
-                    };
+                let filterQuery = null;
+                if ((filterTerm && filterTerm != "") || query_facets[key]['generalFilter']) {
+                    filterQuery = this.buildAggsFilter(filterTerm, query_facets[key]);
                 }
-                else {
-                    main_query.aggregations[key] = term_aggr;
+                let term_aggr = this.buildTerm(query_facets[key], size, extra, sort, global, filterQuery);
+                main_query.aggregations[key] = term_aggr;
+                if (!term_aggr.aggs) {
+                    const distTerm = this.distinctTerms(query_facets[key]['search']);
+                    main_query.aggregations["distinctTerms_" + key] = distTerm;
                 }
-                const distTerm = distinctTerms(query_facets[key]['search']);
-                main_query.aggregations["distinctTerms_" + key] = distTerm;
             }
         }
-        return main_query;
+        return main_query.aggregations;
     },
-};
-function buildNested(terms, search, title, size = null, filterTerm = "", filterField = "", extraFields = null, minDocCount = 1, sort = "_count") {
-    if (terms.length > 1) {
-        let term = terms.splice(0, 1);
-        terms[0] = term + "." + terms[0];
-        return {
-            "nested": {
-                "path": term[0]
-            },
-            "aggs": {
-                [term]: buildNested(terms, search, title, size, filterTerm, filterField, extraFields, minDocCount, sort)
-            }
-        };
-    }
-    else {
-        const nestedObj = {
-            "nested": {
-                "path": terms[0]
-            },
-            "aggs": {}
-        };
-        const nestedAgg = {
-            [terms[0]]: {
-                terms: {
-                    size: size,
-                    min_doc_count: minDocCount,
-                    order: {
-                        [sort]: sort == "_count" ? "desc" : "asc"
-                    },
-                    script: {
-                        source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
-                        lang: 'painless',
-                    },
-                }
-            },
-            "distinctTerms": distinctTerms(search)
-        };
-        if (extraFields) {
-            const extraAggs = {};
-            for (const key in extraFields) {
-                extraAggs[key] = { "terms": { "field": extraFields[key] } };
-            }
-            nestedAgg[terms[0]]['aggs'] = extraAggs;
+    buildAggsFilter(filterTerm, facet_conf) {
+        const must_array = [];
+        if ((filterTerm && filterTerm != "")) {
+            must_array.push(ASHelper.queryString({
+                "value": filterTerm,
+                "fields": facet_conf["innerFilterField"]
+            }));
         }
-        if (filterTerm && filterTerm != "") {
-            nestedObj.aggs['filter_term'] = {
-                "filter": {
-                    "query_string": {
-                        "query": filterTerm,
-                        "fields": filterField
-                    }
+        if (facet_conf['generalFilter']) {
+            must_array.push(ASHelper.queryString(facet_conf["generalFilter"]));
+        }
+        if (must_array.length > 0) {
+            const bool = ASHelper.queryBool(must_array);
+            return bool.query;
+        }
+        return null;
+    },
+    buildNested(terms, search, title, size = null, filterTerm = "", filterField = "", extraFields = null, minDocCount = 1, sort = "_count") {
+        if (terms.length > 1) {
+            let term = terms.splice(0, 1);
+            terms[0] = term + "." + terms[0];
+            return {
+                "nested": {
+                    "path": term[0]
                 },
-                "aggs": nestedAgg
+                "aggs": {
+                    [term]: this.buildNested(terms, search, title, size, filterTerm, filterField, extraFields, minDocCount, sort)
+                }
             };
         }
         else {
-            nestedObj.aggs = nestedAgg;
+            const nestedObj = {
+                "nested": {
+                    "path": terms[0]
+                },
+                "aggs": {}
+            };
+            const nestedAgg = {
+                [terms[0]]: {
+                    terms: {
+                        size: size,
+                        min_doc_count: minDocCount,
+                        order: {
+                            [sort]: sort == "_count" ? "desc" : "asc"
+                        },
+                        script: {
+                            source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
+                            lang: 'painless',
+                        },
+                    }
+                },
+                "distinctTerms": this.distinctTerms(search)
+            };
+            if (extraFields) {
+                const extraAggs = {};
+                for (const key in extraFields) {
+                    extraAggs[key] = { "terms": { "field": extraFields[key] } };
+                }
+                nestedAgg[terms[0]]['aggs'] = extraAggs;
+            }
+            if (filterTerm && filterTerm != "") {
+                nestedObj.aggs['filter_term'] = {
+                    "filter": {
+                        "query_string": {
+                            "query": filterTerm,
+                            "fields": filterField
+                        }
+                    },
+                    "aggs": nestedAgg
+                };
+            }
+            else {
+                nestedObj.aggs = nestedAgg;
+            }
+            return nestedObj;
         }
-        return nestedObj;
-    }
-}
-function buildTerm(term, size, extra = null, sort = "_count", global = false) {
-    let term_query = {};
-    const term_aggr = {
-        terms: {
-            size: size,
-            order: {
-                [sort]: sort == "_count" ? "desc" : "asc"
+    },
+    buildTerm(term, size, extra = null, sort = "_count", global = false, filterQuery = null) {
+        let term_query = {};
+        const term_aggr = {
+            terms: {
+                size: size,
+                order: {
+                    [sort]: sort == "_count" ? "desc" : "asc"
+                },
+                script: {
+                    source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '|||' + doc['${term.title}'].value`,
+                    lang: 'painless',
+                },
             },
-            script: {
-                source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '|||' + doc['${term.title}'].value`,
-                lang: 'painless',
-            },
-        },
-    };
-    if (extra) {
-        const extraAggs = {};
-        for (const key in extra) {
-            extraAggs[key] = { "terms": { "field": extra[key] } };
-        }
-        term_aggr['aggs'] = extraAggs;
-    }
-    if (global) {
-        term_query["global"] = {};
-        term_query['aggs'] = {
-            "term": term_aggr
         };
+        const distinct_term = this.distinctTerms(term.search);
+        if (extra) {
+            const extraAggs = {};
+            for (const key in extra) {
+                extraAggs[key] = { "terms": { "field": extra[key] } };
+            }
+            term_aggr['aggs'] = extraAggs;
+        }
+        if (filterQuery) {
+            term_query = {
+                "filter": filterQuery,
+                "aggs": {
+                    "term": term_aggr,
+                    "distinctTerms": distinct_term
+                }
+            };
+        }
+        else {
+            term_query = term_aggr;
+        }
+        if (global) {
+            return {
+                "global": {},
+                "aggs": {
+                    "term": term_query,
+                    "distinctTerms": distinct_term
+                }
+            };
+        }
+        return term_query;
+    },
+    distinctTerms(term) {
         return {
-            "global": {},
-            "aggs": {
-                "term": term_aggr
+            "cardinality": {
+                "field": term
             }
         };
     }
-    return term_aggr;
-}
-function distinctTerms(term) {
-    return {
-        "cardinality": {
-            "field": term
-        }
-    };
-}
+};

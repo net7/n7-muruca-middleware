@@ -52,6 +52,13 @@ export interface SearchAggregation {
     sortValues?: string[];
     /** The fields used for search inside the facet. Ex: ["taxonomies.place.name"] */
     innerFilterField?: string[];
+    /** Apply a general filter to the aggregation*/
+    generalFilter?: {
+        /** fields to filter on */
+        fields: string[];
+        /** value to filter */
+        value: string;
+    };
     /** an object of extra properties to send in response made by a pair of key:field_to_send. Ex: {"lat": "cadastral_unit.geolocation.markers.lat", "lon": "cadastral_unit.geolocation.markers.lng"}  */
     extra?: {
         [key: string]: string;

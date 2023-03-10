@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SearchParser = void 0;
 class SearchParser {
-    parse({ data, options }) {
+    parse({ data, options }, queryParams = null) {
         const { type } = options;
         return type === 'results'
-            ? this.parseResults({ data, options })
+            ? this.parseResults({ data, options }, queryParams)
             : this.parseFacets({ data, options });
     }
     searchResultsMetadata(source, field, label) {
@@ -19,7 +19,7 @@ class SearchParser {
         });
         return item;
     }
-    parseResults({ data, options }) {
+    parseResults({ data, options }, queryParams = null) {
         if (options && "limit" in options) {
             var { offset, limit, sort, total_count } = options;
         }
@@ -30,7 +30,7 @@ class SearchParser {
             total_count,
             results: []
         };
-        search_result.results = this.parseResultsItems({ data, options });
+        search_result.results = this.parseResultsItems({ data, options }, queryParams);
         // implementare 
         // data.forEach(({ _source: source }) => {
         //   const item = {} as SearchResultsItemData;
