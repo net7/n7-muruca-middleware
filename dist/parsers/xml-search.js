@@ -42,16 +42,22 @@ class XmlSearchParser {
         }
         return {};
     }
-    buildXmlNode(node) {
+    buildXmlNode(node, hl = true) {
         let node_str = "";
-        if (node.node && node.highlight) {
-            let attrs = "";
-            if (node._attr) {
-                for (const attr in node._attr) {
-                    attrs += " " + attr + "='" + node._attr[attr] + "' ";
-                }
+        let attrs = "";
+        if (node._attr) {
+            for (const attr in node._attr) {
+                attrs += " " + attr + "='" + node._attr[attr] + "' ";
             }
+        }
+        if (node.node && node.highlight) {
             node_str = "<" + node.node + attrs + ">" + node.highlight + "</" + node.node + ">";
+        }
+        else if (node.xml_text) {
+            if (hl) {
+                attrs += " class='mrc__text-emph' ";
+            }
+            node_str = "<" + node.node + attrs + ">" + node.xml_text + "</" + node.node + ">";
         }
         return node_str;
     }

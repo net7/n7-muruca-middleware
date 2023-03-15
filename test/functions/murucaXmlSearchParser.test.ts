@@ -181,6 +181,32 @@ describe('XML Text parser', function commonHelpersTest() {
       expect(xml_node).eq("<quote source='"+xml_source+"'  rend='italics' >"+hl_text+"</quote>");      
     });
     
+    it('should return an xml tag with xml_text', async function () {
+      const node = {
+        xml_text:hl_text,       
+        node: "quote",
+        _attr: {
+          source: xml_source,
+          rend:'italics'
+        },
+      }
+      let xml_node = parser.buildXmlNode(node);
+      expect(xml_node).eq("<quote source='"+xml_source+"'  rend='italics'  class='mrc__text-emph' >"+hl_text+"</quote>");      
+    });
+    
+    it('should return an xml tag with xml_text and mrc_highlight attribute', async function () {
+      const node = {
+        xml_text:hl_text,       
+        node: "quote",
+        _attr: {
+          source: xml_source,
+          rend:'italics'
+        },
+      }
+      let xml_node = parser.buildXmlNode(node, false);
+      expect(xml_node).eq("<quote source='"+xml_source+"'  rend='italics' >"+hl_text+"</quote>");      
+    });
+    
 
   });
   
