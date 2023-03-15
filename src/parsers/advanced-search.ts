@@ -142,12 +142,20 @@ export class AdvancedSearchParser implements Parser {
     }
     for (let el in objects) {
       if (objects[el]) {
-        let hl = {};
-        const root = xpath_root_id.find(x => x.xpath === objects[el].xpath).root_id;
-        hl["link"] = {
-          "params": "root=" + root + "&hq=1",
-          "query_string": true
+        let hl = {
+          "link": {
+            "params": "",
+            "query_string": false
+          }
         };
+        
+        if( xpath_root_id!= null ){
+          const root = xpath_root_id.find(x => x.xpath === objects[el].xpath).root_id;
+          hl["link"] = {
+            "params": "root=" + root + "&hq=1",
+            "query_string": true
+          };          
+        }
         hl["xpath"] = objects[el]["xpath"];
         hl["text"] = this.buildFinalHighlightSnippet(objects[el]);
         highlights.push(hl);
@@ -172,14 +180,16 @@ export class AdvancedSearchParser implements Parser {
   async getTeipublisherNodesRoot(teiPublisherUri, doc, xpaths) {
     const teipub = new TeipublisherService(teiPublisherUri);
     try {
-      let xpath_root_id = JSON.parse(await teipub.getNodePaths(doc, xpaths));
-      if (!Array.isArray(xpath_root_id))
+      const teipubResponse = await teipub.getNodePaths(doc, xpaths);
+      let xpath_root_id = JSON.parse(teipubResponse);
+      if (xpath_root_id != null && !Array.isArray(xpath_root_id)){
         xpath_root_id = [xpath_root_id];
+      }
       return xpath_root_id;
     } catch (error) {
       return []
     }
-    return [];
+
   }
 
   /**
