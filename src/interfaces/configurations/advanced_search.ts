@@ -7,7 +7,7 @@ export interface ConfigAdvancedSearch {
             }
         }
         /** sort fields. Ex: ['slug.keyword', 'sort_title.keyword']*/
-        sort?: string[]
+        sort?: string[] | SortObject
         /** a query executed in any case */
         base_query: {
             /** the field to query on. Ex: "record-type" */
@@ -162,9 +162,15 @@ export interface TextSearch {
     highlight?: String[] | Object[]
     /** extra options for query */
     options? : {
-        nested?: string
+        /*Nested field to search in */
+        nested?: string        
         xml_attribute?: {
             [key:string] : TextSearch
+        }
+        /*query param for distance in proximity search */
+        proximity_search_param? : {
+          field: string
+          in_order?: boolean
         }
     }
     /*take value from another field identified from its id */
@@ -184,4 +190,8 @@ export interface InnerHitsOption {
 
 export interface SearchGroup {
   [key: string]: TextSearch
+}
+
+export interface SortObject {
+  [key: string]: string[];
 }

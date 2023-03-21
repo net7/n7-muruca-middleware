@@ -7,7 +7,7 @@ export interface ConfigAdvancedSearch {
             };
         };
         /** sort fields. Ex: ['slug.keyword', 'sort_title.keyword']*/
-        sort?: string[];
+        sort?: string[] | SortObject;
         /** a query executed in any case */
         base_query: {
             /** the field to query on. Ex: "record-type" */
@@ -151,6 +151,10 @@ export interface TextSearch {
         xml_attribute?: {
             [key: string]: TextSearch;
         };
+        proximity_search_param?: {
+            field: string;
+            in_order?: boolean;
+        };
     };
     "data-value"?: string;
 }
@@ -165,4 +169,7 @@ export interface InnerHitsOption {
 }
 export interface SearchGroup {
     [key: string]: TextSearch;
+}
+export interface SortObject {
+    [key: string]: string[];
 }

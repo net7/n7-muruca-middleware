@@ -78,19 +78,7 @@ export class AdvancedSearchService {
 
         //sorting        
         if (sort) {
-            if ( sort === '_score' ||  sort === 'sort_ASC' ){
-                adv_query.sort = ['_score']
-            } else {
-                const lastIndex = sort.lastIndexOf('_');
-                const field = sort.slice(0, lastIndex);
-                const order = sort.slice(lastIndex + 1);
-                if(field != "" && order != ""){
-                    adv_query.sort = { [field]: order }; // es. "title.keyword": "DESC"                        
-                } else {
-                    adv_query.sort = { [field]: "ASC" }; // es. "title.keyword": "DESC"                        
-                    
-                }             
-            }        
+          adv_query.sort = ASHelper.buildSortParam(sort, advanced_conf.sort);      
         }
         if (advanced_conf?.options?.exclude) {
             adv_query["_source"] = {
@@ -134,14 +122,8 @@ export class AdvancedSearchService {
                     ) {
                         case 'fulltext':
                             if (!query_params[groupId]) break;
-                            const query_string = ASHelper.buildQueryString(query_params[groupId], {
-                                allowWildCard: query_key.addStar,
-                                stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
-                            });
-                            const ft_query = ASHelper.queryString(
-                                { fields: query_key.field, value: query_string },
-                                'AND'
-                            );
+                            let ft_query = this.buildFulltextQuery(query_key, query_params[groupId])                          
+                            
                             if (!query_key.noHighlight) {
                                 highlight_fields = {
                                     ...ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields),
@@ -157,22 +139,6 @@ export class AdvancedSearchService {
                                 );
                                 must_array.push(base_query);
                             }
-                            
-                            break;
-                        case 'proximity':
-                            if (!query_params[query_key.query_params.value]) break;
-                            const pt_query = ASHelper.spanNear({
-                                fields: query_key.field,
-                                value: query_params[query_key.query_params.value],
-                                distance: +query_params[query_key.query_params.slop],
-                            });
-                            if (!query_key.noHighlight) {
-                                highlight_fields = {
-                                    ...ASHelper.buildHighlights(query_key.field),
-                                    ...highlight_fields,
-                                };
-                            }
-                            must_array.push(pt_query);
                             break;
                         case 'term_value':
                             if (!query_params[groupId]) break;
@@ -324,6 +290,18 @@ export class AdvancedSearchService {
         }
         return adv_query;
     };
+    
+    buildFulltextQuery(query_conf, query_param){
+      const query_string = ASHelper.buildQueryString(query_param, {
+        allowWildCard:query_conf.addStar,
+        stripDoubleQuotes:query_conf.stripDoubleQuotes != undefined ?query_conf.stripDoubleQuotes : true,
+      });
+      const ft_query = ASHelper.queryString(
+          { fields:query_conf.field, value: query_string },
+          'AND'
+      );
+      return ft_query;
+    }
         
     buildXmlTextQuery(advanced_conf, data){        
         const xml_query_should = [];            
@@ -377,11 +355,24 @@ export class AdvancedSearchService {
       const xml_query_should = [];
       switch (query_conf.type) {
         case "fulltext": 
-        case "xml_attribute": 
-        const q = this.buildTextQuery(data, query_conf, groupId,  {...inner_hits}); 
-        if(q != "" ){
-          xml_query_should.push(q);         
-        }                    
+        case "xml_attribute":
+        if( query_conf.options?.proximity_search_param && data[query_conf.options.proximity_search_param.field] ){
+          
+          query_conf.fields.forEach(field => {
+            const q = this.buildProximityTextQuery(query_conf.options.proximity_search_param, data[groupId], data[query_conf.options.proximity_search_param.field], field);
+            if(q != "" ){
+              xml_query_should.push(q);        
+            }                    
+            
+          });
+          
+        }
+        else {
+          const q = this.buildTextQuery(data, query_conf, groupId,  {...inner_hits});           
+          if(q != "" ){
+            xml_query_should.push(q);         
+          }                    
+        }
         if(query_conf.highlight && !query_conf.options?.nested ){
             inner_hits['highlight'] = {
                 ...ASHelper.buildHighlights(query_conf.highlight),
@@ -417,5 +408,20 @@ export class AdvancedSearchService {
     buildSingleTextQuery(query_params, id, field="id"){
         
         this.buildAdvancedQuery(query_params);
+    }
+    
+    buildProximityTextQuery(proximity_param, value, distance, text_field){
+      
+      if(proximity_param.field){
+        const pt_query = ASHelper.spanNear({
+          fields: text_field,
+          value: value,
+          distance: +distance,
+          in_order: proximity_param.in_order || true
+        });
+        return pt_query;        
+      }
+      else return "";
+
     }
 }

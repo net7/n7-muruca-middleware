@@ -25,6 +25,7 @@ export declare const spanNear: (queryField: {
     fields: string;
     value: any;
     distance: number;
+    in_order?: boolean;
 }) => any;
 export declare const buildQueryString: (term: any, options?: any) => any;
 export declare const queryTerm: (termField: string, termValue: any, _name?: string) => {
@@ -62,3 +63,6 @@ export declare const nestedQuery: (path: string, query: any, inner_hits?: any) =
     query: any;
 };
 export declare const checkMatchedQuery: (prop: any, matched_queries: any) => boolean;
+export declare const buildSortParam: (sort: string, sort_conf: any) => string[] | {
+    [x: string]: string;
+};

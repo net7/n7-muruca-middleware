@@ -90,12 +90,14 @@ export const spanNear = (queryField: {
     fields: string;
     value: any;
     distance: number;
+    in_order?:boolean    
 }): any => {
+    const in_order = typeof(queryField.in_order) !== "undefined" ? queryField.in_order : true;
     const x = {
         span_near: {
             clauses: [],
             slop: queryField.distance,
-            in_order: true,
+            in_order: in_order,
         },
     };
 
@@ -503,3 +505,26 @@ export const checkMatchedQuery =(prop, matched_queries) => {
     }
 }
 
+export const buildSortParam = ( sort:string, sort_conf) =>{
+  if ( sort === '_score' ||  sort === 'sort_ASC' ){
+    return ['_score']
+} else {
+    const lastIndex = sort.lastIndexOf('_');
+    const field = sort.slice(0, lastIndex);
+    const order = sort.slice(lastIndex + 1) != "" ?  sort.slice(lastIndex + 1) : "ASC";
+    
+    if(!sort_conf[field]){
+      return { [field]: order }; // es. "title.keyword": "DESC"                       
+    }
+    else if(sort_conf[field]){
+      const sortObj = {};
+      sort_conf[field].forEach(element => {
+        sortObj[element] = order;
+      });
+      return sortObj;
+    } else {
+       return {}; // es. "title.keyword": "DESC"                        
+        
+    }             
+  }  
+}
