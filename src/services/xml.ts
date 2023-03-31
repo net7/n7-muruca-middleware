@@ -23,7 +23,8 @@ export class XmlService {
                     replaceNode = replaceNode.querySelectorAll(":scope > " + el.node)[el.position || 0];
                 });
                   const parser = new XmlSearchParser();
-                    const { document: highlightNode } = parseHTML(parser.buildXmlNode(node));
+                   // const { document: highlightNode } = parseHTML(parser.buildXmlNode(node));
+                    const { document: highlightNode } =  (new DOMParser).parseFromString(parser.buildXmlNode(node), 'text/xml').defaultView;
                     if(replaceNode){
                       nodesToreplace.push([highlightNode, replaceNode]); 
                     }

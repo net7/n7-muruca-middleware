@@ -21,7 +21,8 @@ class XmlService {
                     replaceNode = replaceNode.querySelectorAll(":scope > " + el.node)[el.position || 0];
                 });
                 const parser = new parsers_1.XmlSearchParser();
-                const { document: highlightNode } = linkedom_1.parseHTML(parser.buildXmlNode(node));
+                // const { document: highlightNode } = parseHTML(parser.buildXmlNode(node));
+                const { document: highlightNode } = (new linkedom_1.DOMParser).parseFromString(parser.buildXmlNode(node), 'text/xml').defaultView;
                 if (replaceNode) {
                     nodesToreplace.push([highlightNode, replaceNode]);
                 }

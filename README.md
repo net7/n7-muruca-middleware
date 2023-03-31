@@ -11,7 +11,7 @@
 # Changelog n7-serverless
 - advanced search proximity search
 - added test
-- added 
+- change sort configuration
 
 ## [2.6.0] - 21-11-2022
 - added teipublisher call API to get node root
