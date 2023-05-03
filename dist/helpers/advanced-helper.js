@@ -76,7 +76,10 @@ exports.spanNear = (queryField) => {
             span_multi: {
                 match: {
                     wildcard: {
-                        [queryField.fields]: element,
+                        [queryField.fields]: {
+                            "value": element,
+                            "case_insensitive": true
+                        },
                     },
                 },
             },
