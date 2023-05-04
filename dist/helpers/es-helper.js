@@ -49,7 +49,7 @@ exports.ESHelper = {
     },
     // per la Query dell'AS dovrò la conf sarà advanced_search_config.ts
     buildQuery(data, conf, type) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         const { searchId, results } = data; // searchId = "work", "results: {...}"
         const sort = results ? results.sort : data.sort; // sort = se ci sono i results è SEARCH-RESULTS e trova il sort dentro l'oggetto, altrimenti è SEARCH-FACETS e il sort è al primo livello
         const { limit, offset } = results || {}; // ci sono solo nel SEARCH-RESULTS, altrimenti vuoti
@@ -110,103 +110,110 @@ exports.ESHelper = {
                 exclude: conf[searchId].options.exclude
             };
         }
+        if ((_d = conf[searchId].options) === null || _d === void 0 ? void 0 : _d.include) {
+            main_query["_source"] = {
+                include: conf[searchId].options.include
+            };
+        }
         // aggregations filters
-        const query_facets = conf[searchId]['facets-aggs'].aggregations; // { "types": {"nested": false, "search": "taxonomies.type.key.keyword", "title": "taxonomies.type.name.keyword"}, "collocations": {...}, "authors": {...}}
-        const dataKeys = Object.keys(data); // ['searchId', 'results', 'query']
-        Object.keys(conf[searchId].filters) // [ 'query', 'types', 'authors', 'collocations', 'dates' ]
-            .filter((filterId) => dataKeys.includes(filterId)) // query
-            .forEach((filterId) => {
-            // query, types, authors etc.
-            const query_key = conf[searchId].filters[filterId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
-            if (query_key) {
-                // fa uno switch su tutti i tipi di query
-                switch (query_key.type) {
-                    case 'fulltext':
-                        const ft_query = {
-                            // multi_match: {
-                            query_string: {
-                                query: query_key.addStar // if true
-                                    ? '*' + data[filterId] + '*' // il valore della query, es. "query": "*test*"
-                                    : data[filterId],
-                                fields: query_key.field,
-                                default_operator: 'AND',
-                            },
-                        };
-                        main_query.query.bool.must.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
-                        break;
-                    case 'multivalue':
-                        const query_nested = query_facets[filterId].nested
-                            ? query_facets[filterId].nested // true || false
-                            : false;
-                        if (data[filterId] && query_nested === false) {
-                            if (query_key.operator == "OR") {
-                                const should = {
-                                    "bool": {
-                                        "should": []
-                                    }
-                                };
-                                data[filterId].map((value) => {
-                                    should.bool.should.push({
-                                        match: {
-                                            [query_key.field]: value,
-                                        },
+        if (conf[searchId]['facets-aggs']) {
+            const query_facets = conf[searchId]['facets-aggs'].aggregations; // { "types": {"nested": false, "search": "taxonomies.type.key.keyword", "title": "taxonomies.type.name.keyword"}, "collocations": {...}, "authors": {...}}
+            const dataKeys = Object.keys(data); // ['searchId', 'results', 'query']
+            Object.keys(conf[searchId].filters) // [ 'query', 'types', 'authors', 'collocations', 'dates' ]
+                .filter((filterId) => dataKeys.includes(filterId)) // query
+                .forEach((filterId) => {
+                // query, types, authors etc.
+                const query_key = conf[searchId].filters[filterId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
+                if (query_key) {
+                    // fa uno switch su tutti i tipi di query
+                    switch (query_key.type) {
+                        case 'fulltext':
+                            const ft_query = {
+                                // multi_match: {
+                                query_string: {
+                                    query: query_key.addStar // if true
+                                        ? '*' + data[filterId] + '*' // il valore della query, es. "query": "*test*"
+                                        : data[filterId],
+                                    fields: query_key.field,
+                                    default_operator: 'AND',
+                                },
+                            };
+                            main_query.query.bool.must.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
+                            break;
+                        case 'multivalue':
+                            const query_nested = query_facets[filterId].nested
+                                ? query_facets[filterId].nested // true || false
+                                : false;
+                            if (data[filterId] && query_nested === false) {
+                                if (query_key.operator == "OR") {
+                                    const should = {
+                                        "bool": {
+                                            "should": []
+                                        }
+                                    };
+                                    data[filterId].map((value) => {
+                                        should.bool.should.push({
+                                            match: {
+                                                [query_key.field]: value,
+                                            },
+                                        });
                                     });
-                                });
-                                main_query.query.bool.must.push(should);
+                                    main_query.query.bool.must.push(should);
+                                }
+                                else {
+                                    data[filterId].map((value) => {
+                                        main_query.query.bool.must.push({
+                                            match: {
+                                                [query_key.field]: value,
+                                            },
+                                        });
+                                    });
+                                }
                             }
                             else {
-                                data[filterId].map((value) => {
-                                    main_query.query.bool.must.push({
-                                        match: {
-                                            [query_key.field]: value,
-                                        },
-                                    });
-                                });
-                            }
-                        }
-                        else {
-                            const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
-                            const values = typeof data[filterId] === "string" ? [data[filterId]] : data[filterId];
-                            values.forEach($val => {
-                                const nested = {
-                                    nested: {
-                                        path: path,
-                                        query: {
-                                            bool: {
-                                                must: [
-                                                    { term: { [query_facets[filterId].search]: $val } }
-                                                ]
+                                const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
+                                const values = typeof data[filterId] === "string" ? [data[filterId]] : data[filterId];
+                                values.forEach($val => {
+                                    const nested = {
+                                        nested: {
+                                            path: path,
+                                            query: {
+                                                bool: {
+                                                    must: [
+                                                        { term: { [query_facets[filterId].search]: $val } }
+                                                    ]
+                                                },
                                             },
                                         },
-                                    },
-                                };
-                                main_query.query.bool.must.push(nested);
-                            });
-                        }
-                        break;
-                    case "range":
-                        const ranges = typeof data[filterId] === "string" ? [data[filterId]] : data[filterId];
-                        ranges.forEach(range => {
-                            var _a, _b;
-                            const ranges = range.split("-");
-                            const range_query = {
-                                "range": {
-                                    [query_key.field]: {
-                                        "gte": (_a = ranges[0]) !== null && _a !== void 0 ? _a : "*",
-                                        "lte": (_b = ranges[1]) !== null && _b !== void 0 ? _b : "*",
+                                    };
+                                    main_query.query.bool.must.push(nested);
+                                });
+                            }
+                            break;
+                        case "range":
+                            const ranges = typeof data[filterId] === "string" ? [data[filterId]] : data[filterId];
+                            ranges.forEach(range => {
+                                var _a, _b;
+                                const ranges = range.split("-");
+                                const range_query = {
+                                    "range": {
+                                        [query_key.field]: {
+                                            "gte": (_a = ranges[0]) !== null && _a !== void 0 ? _a : "*",
+                                            "lte": (_b = ranges[1]) !== null && _b !== void 0 ? _b : "*",
+                                        }
                                     }
-                                }
-                            };
-                            main_query.query.bool.must.push(range_query);
-                        });
-                        break;
-                    default:
-                        break;
+                                };
+                                main_query.query.bool.must.push(range_query);
+                            });
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            }
-        });
-        //facets aggregations
-        main_query.aggregations = this.buildAggs(data.facets, query_facets);
+            });
+            //facets aggregations
+            main_query.aggregations = this.buildAggs(data.facets, query_facets);
+        }
         return main_query;
     },
     buildAggs(facets_request, query_facets) {

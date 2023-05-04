@@ -465,7 +465,7 @@ export const nestedQuery = (path: string, query: any, inner_hits:any = null) => 
         const ih:any = {
         };
         
-        ih.size = inner_hits.size || ih_defaults['size']
+        ih.size = typeof inner_hits.size != "undefined" ? inner_hits.size : ih_defaults['size']
 
         
         if (inner_hits.highlight){

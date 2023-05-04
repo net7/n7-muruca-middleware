@@ -135,102 +135,110 @@ export const ESHelper = {
         }
     }
     
-    // aggregations filters
-    const query_facets = conf[searchId]['facets-aggs'].aggregations; // { "types": {"nested": false, "search": "taxonomies.type.key.keyword", "title": "taxonomies.type.name.keyword"}, "collocations": {...}, "authors": {...}}
-    const dataKeys = Object.keys(data); // ['searchId', 'results', 'query']
-    Object.keys(conf[searchId].filters) // [ 'query', 'types', 'authors', 'collocations', 'dates' ]
-      .filter((filterId) => dataKeys.includes(filterId)) // query
-      .forEach((filterId) => {
-        // query, types, authors etc.
-        const query_key = conf[searchId].filters[filterId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
-        if (query_key) {
-           // fa uno switch su tutti i tipi di query
-          switch (  query_key.type ) {
-            case 'fulltext':
-              const ft_query = {
-                // multi_match: {
-                query_string: {
-                  query: query_key.addStar // if true
-                    ? '*' + data[filterId] + '*' // il valore della query, es. "query": "*test*"
-                    : data[filterId], // altrimenti query vuota
-                  fields: query_key.field, // es. "title", "description"
-                  default_operator: 'AND',
-                },
-              };
-              main_query.query.bool.must.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
-              break;
-            case 'multivalue':
-              const query_nested = query_facets[filterId].nested
-              ? query_facets[filterId].nested // true || false
-              : false;
-
-              if (data[filterId] && query_nested === false) {
-                if(query_key.operator == "OR"){
-                  const should = {
-                      "bool": {
-                          "should": []
-                      }
-                  };
-                  data[filterId].map((value) => {
-                      should.bool.should.push({
-                          match: {
-                              [query_key.field]: value,
-                          },
-                      });
-                  });
-                  main_query.query.bool.must.push(should);
-
-              } else {
-                  data[filterId].map((value) => {
-                    main_query.query.bool.must.push({
-                      match: {
-                        [query_key.field]: value,
-                      },
-                    });
-                  });
-                }
-              } else {
-                const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
-                const values = typeof data[filterId] === "string" ? [data[filterId]] : data[filterId];
-                values.forEach( $val => {                   
-                    const nested = {
-                        nested: {
-                            path: path,
-                            query: {
-                                bool: {
-                                    must: [
-                                        { term: {[query_facets[filterId].search]: $val}}
-                                    ]
-                                },
-                            },
-                        },
-                    };
-                    main_query.query.bool.must.push(nested);                    
-                })
-            }
-            break;
-            case "range": 
-            const ranges = typeof data[filterId] === "string" ? [data[filterId] ] :  data[filterId];
-            ranges.forEach(range => {
-              const ranges = range.split("-");
-              const range_query = { 
-                "range": {
-                  [query_key.field] : {
-                    "gte": ranges[0] ?? "*",
-                    "lte": ranges[1] ?? "*",
-                  }                  
-                }
-              }
-              main_query.query.bool.must.push(range_query);    
-            })
-            break;
-            default:
-              break;
-          }
+    if (conf[searchId].options?.include) {
+        main_query["_source"] = {
+            include: conf[searchId].options.include
         }
-      });
-    //facets aggregations
-    main_query.aggregations = this.buildAggs(data.facets, query_facets);
+    }
+    
+    // aggregations filters
+    if(conf[searchId]['facets-aggs']){
+      const query_facets = conf[searchId]['facets-aggs'].aggregations; // { "types": {"nested": false, "search": "taxonomies.type.key.keyword", "title": "taxonomies.type.name.keyword"}, "collocations": {...}, "authors": {...}}
+      const dataKeys = Object.keys(data); // ['searchId', 'results', 'query']
+      Object.keys(conf[searchId].filters) // [ 'query', 'types', 'authors', 'collocations', 'dates' ]
+        .filter((filterId) => dataKeys.includes(filterId)) // query
+        .forEach((filterId) => {
+          // query, types, authors etc.
+          const query_key = conf[searchId].filters[filterId]; // { "type": "fulltext", "field": ["title", "description"], "addStar": true }, {...}
+          if (query_key) {
+             // fa uno switch su tutti i tipi di query
+            switch (  query_key.type ) {
+              case 'fulltext':
+                const ft_query = {
+                  // multi_match: {
+                  query_string: {
+                    query: query_key.addStar // if true
+                      ? '*' + data[filterId] + '*' // il valore della query, es. "query": "*test*"
+                      : data[filterId], // altrimenti query vuota
+                    fields: query_key.field, // es. "title", "description"
+                    default_operator: 'AND',
+                  },
+                };
+                main_query.query.bool.must.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
+                break;
+              case 'multivalue':
+                const query_nested = query_facets[filterId].nested
+                ? query_facets[filterId].nested // true || false
+                : false;
+  
+                if (data[filterId] && query_nested === false) {
+                  if(query_key.operator == "OR"){
+                    const should = {
+                        "bool": {
+                            "should": []
+                        }
+                    };
+                    data[filterId].map((value) => {
+                        should.bool.should.push({
+                            match: {
+                                [query_key.field]: value,
+                            },
+                        });
+                    });
+                    main_query.query.bool.must.push(should);
+  
+                } else {
+                    data[filterId].map((value) => {
+                      main_query.query.bool.must.push({
+                        match: {
+                          [query_key.field]: value,
+                        },
+                      });
+                    });
+                  }
+                } else {
+                  const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
+                  const values = typeof data[filterId] === "string" ? [data[filterId]] : data[filterId];
+                  values.forEach( $val => {                   
+                      const nested = {
+                          nested: {
+                              path: path,
+                              query: {
+                                  bool: {
+                                      must: [
+                                          { term: {[query_facets[filterId].search]: $val}}
+                                      ]
+                                  },
+                              },
+                          },
+                      };
+                      main_query.query.bool.must.push(nested);                    
+                  })
+              }
+              break;
+              case "range": 
+              const ranges = typeof data[filterId] === "string" ? [data[filterId] ] :  data[filterId];
+              ranges.forEach(range => {
+                const ranges = range.split("-");
+                const range_query = { 
+                  "range": {
+                    [query_key.field] : {
+                      "gte": ranges[0] ?? "*",
+                      "lte": ranges[1] ?? "*",
+                    }                  
+                  }
+                }
+                main_query.query.bool.must.push(range_query);    
+              })
+              break;
+              default:
+                break;
+            }
+          }
+        });
+      //facets aggregations
+      main_query.aggregations = this.buildAggs(data.facets, query_facets);
+    }
     
     return main_query;
   },

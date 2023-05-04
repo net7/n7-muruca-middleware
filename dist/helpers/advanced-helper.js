@@ -415,7 +415,7 @@ exports.nestedQuery = (path, query, inner_hits = null) => {
     };
     if (inner_hits) {
         const ih = {};
-        ih.size = inner_hits.size || ih_defaults['size'];
+        ih.size = typeof inner_hits.size != "undefined" ? inner_hits.size : ih_defaults['size'];
         if (inner_hits.highlight) {
             ih['highlight'] = {
                 "fields": inner_hits.highlight,
