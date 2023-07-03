@@ -14,3 +14,4 @@ __exportStar(require("./advanced-search"), exports);
 __exportStar(require("./teipublisher"), exports);
 __exportStar(require("./xml"), exports);
 __exportStar(require("./getResource"), exports);
+__exportStar(require("./translate"), exports);

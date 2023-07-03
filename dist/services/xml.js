@@ -2,13 +2,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.XmlService = void 0;
 const linkedom_1 = require("linkedom");
+const parsers_1 = require("../parsers");
 class XmlService {
     constructor() {
     }
     replaceHlNodes(xml, nodes) {
-        const { 
-        // note, these are *not* globals
-        document } = linkedom_1.parseHTML(xml);
+        /*  const {
+              // note, these are *not* globals
+              document
+          } = parseHTML(xml);
+          */
+        const { document } = (new linkedom_1.DOMParser).parseFromString(xml, 'text/xml').defaultView;
         const nodesToreplace = [];
         nodes.forEach(node => {
             if (node._path) {
@@ -16,8 +20,12 @@ class XmlService {
                 node._path.forEach(el => {
                     replaceNode = replaceNode.querySelectorAll(":scope > " + el.node)[el.position || 0];
                 });
-                const { document: highlightNode } = linkedom_1.parseHTML("<" + node.node + ">" + node.highlight + "</" + node.node + ">");
-                nodesToreplace.push([highlightNode, replaceNode]);
+                const parser = new parsers_1.XmlSearchParser();
+                // const { document: highlightNode } = parseHTML(parser.buildXmlNode(node));
+                const { document: highlightNode } = (new linkedom_1.DOMParser).parseFromString(parser.buildXmlNode(node), 'text/xml').defaultView;
+                if (replaceNode) {
+                    nodesToreplace.push([highlightNode, replaceNode]);
+                }
             }
         });
         nodesToreplace.forEach(nodes => {

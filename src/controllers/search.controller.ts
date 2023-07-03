@@ -35,7 +35,7 @@ export class searchController {
                 facets,
                 conf: configurations.search,
             },
-        });
+        }, body );
         return response;
     }
 }

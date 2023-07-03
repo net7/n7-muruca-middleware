@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkMatchedQuery = exports.nestedQuery = exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.highlightValue = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.simpleQueryString = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
+exports.buildSortParam = exports.checkMatchedQuery = exports.nestedQuery = exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.highlightValue = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.simpleQueryString = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
 exports.queryBool = (mustList = [], shouldList = [], filterList = [], notList = []) => {
     const x = {
         query: {
@@ -62,11 +62,12 @@ exports.simpleQueryString = (queryField, default_operator = 'AND', replaceBoolea
     return x;
 };
 exports.spanNear = (queryField) => {
+    const in_order = typeof (queryField.in_order) !== "undefined" ? queryField.in_order : true;
     const x = {
         span_near: {
             clauses: [],
             slop: queryField.distance,
-            in_order: true,
+            in_order: in_order,
         },
     };
     const words = queryField.value.split(' ');
@@ -75,7 +76,10 @@ exports.spanNear = (queryField) => {
             span_multi: {
                 match: {
                     wildcard: {
-                        [queryField.fields]: element,
+                        [queryField.fields]: {
+                            "value": element,
+                            "case_insensitive": true
+                        },
                     },
                 },
             },
@@ -411,7 +415,7 @@ exports.nestedQuery = (path, query, inner_hits = null) => {
     };
     if (inner_hits) {
         const ih = {};
-        ih.size = inner_hits.size || ih_defaults['size'];
+        ih.size = typeof inner_hits.size != "undefined" ? inner_hits.size : ih_defaults['size'];
         if (inner_hits.highlight) {
             ih['highlight'] = {
                 "fields": inner_hits.highlight,
@@ -448,5 +452,28 @@ exports.checkMatchedQuery = (prop, matched_queries) => {
     }
     else {
         return true;
+    }
+};
+exports.buildSortParam = (sort, sort_conf) => {
+    if (sort === '_score' || sort === 'sort_ASC') {
+        return ['_score'];
+    }
+    else {
+        const lastIndex = sort.lastIndexOf('_');
+        const field = sort.slice(0, lastIndex);
+        const order = sort.slice(lastIndex + 1) != "" ? sort.slice(lastIndex + 1) : "ASC";
+        if (!sort_conf[field]) {
+            return { [field]: order }; // es. "title.keyword": "DESC"                       
+        }
+        else if (sort_conf[field]) {
+            const sortObj = {};
+            sort_conf[field].forEach(element => {
+                sortObj[element] = order;
+            });
+            return sortObj;
+        }
+        else {
+            return {}; // es. "title.keyword": "DESC"                        
+        }
     }
 };

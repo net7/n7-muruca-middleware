@@ -55,6 +55,7 @@ exports.HttpHelper = {
             })
                 .catch(error => {
                 console.error(error);
+                resolve(null);
             });
         });
     },

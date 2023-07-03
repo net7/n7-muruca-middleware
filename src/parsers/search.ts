@@ -2,14 +2,14 @@ import Parser, { Input, SearchOptions } from "../interfaces/parser";
 import { SearchResultsData, SearchResultsItemData } from "../interfaces/parser-data/search";
 
 export abstract class SearchParser implements Parser {
-  parse({ data, options }: Input) {
+  parse({ data, options }: Input, queryParams = null) {
     const { type } = options as SearchOptions;
     return type === 'results'
-      ? this.parseResults({ data, options })
+      ? this.parseResults({ data, options }, queryParams)
       : this.parseFacets({ data, options });
   }
 
-  protected abstract parseResultsItems({ data, options }: Input): SearchResultsItemData[];
+  protected abstract parseResultsItems({ data, options }: Input, queryParams?): SearchResultsItemData[];
 
   protected searchResultsMetadata(source, field, label){
     const item = [];
@@ -23,7 +23,7 @@ export abstract class SearchParser implements Parser {
     return item;
   }
 
-  protected parseResults({ data, options }: Input) {
+  protected parseResults({ data, options }: Input, queryParams = null) {
     if (options && "limit" in options) {
       var { offset, limit, sort, total_count } = options;
     }
@@ -34,7 +34,7 @@ export abstract class SearchParser implements Parser {
       total_count,
       results: []
     };
-    search_result.results = this.parseResultsItems({ data, options });
+    search_result.results = this.parseResultsItems({ data, options }, queryParams);
     // implementare 
     // data.forEach(({ _source: source }) => {
     //   const item = {} as SearchResultsItemData;

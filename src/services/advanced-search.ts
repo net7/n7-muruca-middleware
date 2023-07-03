@@ -2,7 +2,7 @@ import { DataType } from '../interfaces/helper';
 import * as ASHelper from '../helpers/advanced-helper';
 import { CommonHelper, ESHelper } from '../helpers';
 import { Client } from '@elastic/elasticsearch';
-import { AdvancedSearchParser } from '../parsers';
+import { AdvancedSearchParser, XmlSearchParser } from '../parsers';
 import { SearchResultsData } from '../interfaces';
 
 export class AdvancedSearchService {
@@ -50,36 +50,13 @@ export class AdvancedSearchService {
         
         const data = query_res.hits.hits;        
         const hl = [];
-        data.forEach(hit => {
-            if( hit.inner_hits && hit.inner_hits?.xml_text ){
-                hit.inner_hits?.xml_text.hits.hits.forEach(element => {
-                    const el = element._source;
-                    if(element.highlight){
-                        for (const property in element.highlight) {
-                            const hl_array = Object.values(element.highlight[property]);
-                            if(/xml_text$/.test(property)) {
-                                if(hl_array[0] && hl_array[0]){
-                                    el['highlight'] = hl_array[0];                            
-                                }          
-                            } else if(/.*\._attr\.\w*/.test(property)){
-                                const nodes = property.match(/(.*\.)?(\w+)\._attr\.(\w*)/);
-                                if(Array.isArray(nodes)){                       
-                                    const node_name = nodes?.[2];
-                                    const node_attr = nodes?.[3];
-                                    let xml_text = el.xml_text;      
-                                    const snippet = CommonHelper.HighlightTagInXml(node_name, node_attr, hl_array[0], xml_text);
-                                    el['highlight'] = snippet;
-                                }
-
-                            }
-                        }
-                        
-                    }
-                    hl.push(el);
-                });
+        const parser = new XmlSearchParser();
+        data.forEach(hit => {          
+          if( hit.inner_hits && hit.inner_hits?.xml_text ){
+            hl.push(... parser.parseResponse(hit.inner_hits.xml_text));                
             }            
         });        
-        return hl;      
+        return hl;
     }
     
     buildAdvancedQuery = (query_params) => {
@@ -101,19 +78,7 @@ export class AdvancedSearchService {
 
         //sorting        
         if (sort) {
-            if ( sort === '_score' ||  sort === 'sort_ASC' ){
-                adv_query.sort = ['_score']
-            } else {
-                const lastIndex = sort.lastIndexOf('_');
-                const field = sort.slice(0, lastIndex);
-                const order = sort.slice(lastIndex + 1);
-                if(field != "" && order != ""){
-                    adv_query.sort = { [field]: order }; // es. "title.keyword": "DESC"                        
-                } else {
-                    adv_query.sort = { [field]: "ASC" }; // es. "title.keyword": "DESC"                        
-                    
-                }             
-            }        
+          adv_query.sort = ASHelper.buildSortParam(sort, advanced_conf.sort);      
         }
         if (advanced_conf?.options?.exclude) {
             adv_query["_source"] = {
@@ -157,14 +122,8 @@ export class AdvancedSearchService {
                     ) {
                         case 'fulltext':
                             if (!query_params[groupId]) break;
-                            const query_string = ASHelper.buildQueryString(query_params[groupId], {
-                                allowWildCard: query_key.addStar,
-                                stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
-                            });
-                            const ft_query = ASHelper.queryString(
-                                { fields: query_key.field, value: query_string },
-                                'AND'
-                            );
+                            let ft_query = this.buildFulltextQuery(query_key, query_params[groupId])                          
+                            
                             if (!query_key.noHighlight) {
                                 highlight_fields = {
                                     ...ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields),
@@ -180,22 +139,6 @@ export class AdvancedSearchService {
                                 );
                                 must_array.push(base_query);
                             }
-                            
-                            break;
-                        case 'proximity':
-                            if (!query_params[query_key.query_params.value]) break;
-                            const pt_query = ASHelper.spanNear({
-                                fields: query_key.field,
-                                value: query_params[query_key.query_params.value],
-                                distance: +query_params[query_key.query_params.slop],
-                            });
-                            if (!query_key.noHighlight) {
-                                highlight_fields = {
-                                    ...ASHelper.buildHighlights(query_key.field),
-                                    ...highlight_fields,
-                                };
-                            }
-                            must_array.push(pt_query);
                             break;
                         case 'term_value':
                             if (!query_params[groupId]) break;
@@ -331,16 +274,6 @@ export class AdvancedSearchService {
             });
 
         if (advanced_conf['search_full_text']) {
-            //to version 2.2.0
-            /*let te_query;
-            Object.keys(advanced_conf['search_full_text']).forEach((groupId) => {
-                if (this.body[groupId]) {
-                    te_query = ASHelper.queryExists('xml_filename');
-                }
-            });
-            if (typeof te_query !== 'undefined') {
-                must_array.push(te_query);
-            }*/
             const text_query = this.buildXmlTextQuery(advanced_conf.search_full_text, query_params);
             if (text_query){
                 must_array.push({"nested": text_query})                
@@ -357,45 +290,138 @@ export class AdvancedSearchService {
         }
         return adv_query;
     };
+    
+    buildFulltextQuery(query_conf, query_param){
+      const query_string = ASHelper.buildQueryString(query_param, {
+        allowWildCard:query_conf.addStar,
+        stripDoubleQuotes:query_conf.stripDoubleQuotes != undefined ?query_conf.stripDoubleQuotes : true,
+      });
+      const ft_query = ASHelper.queryString(
+          { fields:query_conf.field, value: query_string },
+          'AND'
+      );
+      return ft_query;
+    }
         
     buildXmlTextQuery(advanced_conf, data){        
         const xml_query_should = [];            
         const inner_hits = advanced_conf.inner_hits;    
-        inner_hits['name'] = "xml_text";    
-        Object.keys(advanced_conf.search_groups)
-        .forEach((groupId) => {
-            const query_conf = advanced_conf.search_groups[groupId];
-            switch (
-                query_conf.type // fa uno switch su tutti i tipi di query
-                ) {
-                    case "fulltext": 
-                    case "xml_attribute": 
-                    if (!data[groupId]) break;
-                    query_conf.fields.forEach(field => {
-                        const _name = field.replace("*", "");
-                        const value =  query_conf['data-value'] ? data[ query_conf['data-value'] ] : data[groupId];        
-                        if(value && value != ""){
-                            xml_query_should.push(ASHelper.simpleQueryString({ fields: field, value: value}, "AND", true, _name));                            
-                        }               
-                    });
-                    if(query_conf.highlight){
-                        inner_hits['highlight'] = {
-                            ...ASHelper.buildHighlights(query_conf.highlight),
-                            ...inner_hits['highlight'],
-                        };
-                    }
-                    break;                    
-                }
-        })
+        inner_hits['name'] = "xml_text";   
         
+        const q  = this.parseQueryGroups(advanced_conf.search_groups,data, inner_hits);
+        xml_query_should.push(...q); 
         if (xml_query_should.length > 0 ){
             const xml_query_nested = ASHelper.nestedQuery(advanced_conf.options.path, ASHelper.queryBool([], xml_query_should).query, inner_hits);
             return xml_query_nested;            
         } else return null;
     }
     
+    parseQueryGroups(search_groups, data, inner_hits){
+      const xml_query_should = [];
+      const nested_innerhits = {...inner_hits}
+      Object.keys(search_groups)
+          .forEach((groupId) => {
+            const query_conf = search_groups[groupId];
+            if(data[groupId] && !query_conf.search_groups ){
+              const q = this.buildGroupQuery(query_conf, data, groupId, inner_hits);
+              if(q.length > 0){
+                xml_query_should.push(...q);         
+              }               
+            } else if( query_conf.search_groups ) {
+              const inner_array = [];              
+              const q = this.parseQueryGroups(query_conf.search_groups, data, inner_hits);
+              if(q.length > 0){
+                inner_array.push(...q);  
+                const query_bool = ASHelper.queryBool(inner_array).query;                   
+                if( query_conf.options?.nested ){
+                  if(query_conf.highlight  ){
+                    nested_innerhits['highlight'] = ASHelper.buildHighlights(query_conf.highlight)
+                  }
+                  nested_innerhits['name'] = groupId;          
+                  const nested = {nested: ASHelper.nestedQuery( query_conf.options.nested, query_bool, nested_innerhits)}
+                  xml_query_should.push(nested);
+                } else {
+                  xml_query_should.push(query_bool);    
+                }
+                
+              }
+            }
+        })
+        return xml_query_should;
+    }
+    
+    buildGroupQuery(query_conf, data, groupId, inner_hits){
+      
+      const xml_query_should = [];
+      switch (query_conf.type) {
+        case "fulltext": 
+        case "xml_attribute":
+        if( query_conf.options?.proximity_search_param && data[query_conf.options.proximity_search_param.field] ){
+          
+          query_conf.fields.forEach(field => {
+            const q = this.buildProximityTextQuery(query_conf.options.proximity_search_param, data[groupId], data[query_conf.options.proximity_search_param.field], field);
+            if(q != "" ){
+              xml_query_should.push(q);        
+            }                    
+            
+          });
+          
+        }
+        else {
+          const q = this.buildTextQuery(data, query_conf, groupId,  {...inner_hits});           
+          if(q != "" ){
+            xml_query_should.push(q);         
+          }                    
+        }
+        if(query_conf.highlight && !query_conf.options?.nested ){
+            inner_hits['highlight'] = {
+                ...ASHelper.buildHighlights(query_conf.highlight),
+                ...inner_hits['highlight'],
+            };
+        }
+        break;                    
+      }
+      return xml_query_should;
+    }
+    
+    
+    buildTextQuery(data, query_conf, groupId, inner_hits){    
+      const value =  query_conf['data-value'] ? data[ query_conf['data-value'] ] : data[groupId];
+      let queries;
+      if(value && value != ""){
+        queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value}, "AND", true);
+      } 
+      
+      if( query_conf.options?.nested ){
+        if(query_conf.highlight){
+          inner_hits['highlight'] = ASHelper.buildHighlights(query_conf.highlight)
+        }
+        inner_hits['name'] = groupId;
+
+        const nested = {nested: ASHelper.nestedQuery( query_conf.options.nested, queries, inner_hits)}
+        queries = nested;
+      }      
+      return queries;
+    }
+    
+    
     buildSingleTextQuery(query_params, id, field="id"){
         
         this.buildAdvancedQuery(query_params);
+    }
+    
+    buildProximityTextQuery(proximity_param, value, distance, text_field){
+      
+      if(proximity_param.field){
+        const pt_query = ASHelper.spanNear({
+          fields: text_field,
+          value: value,
+          distance: +distance,
+          in_order: proximity_param.in_order || true
+        });
+        return pt_query;        
+      }
+      else return "";
+
     }
 }

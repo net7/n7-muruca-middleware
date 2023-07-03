@@ -1,15 +1,20 @@
-import {parseHTML} from 'linkedom';
-
+import {parseHTML, DOMParser} from 'linkedom';
+import { XmlSearchParser } from '../parsers';
 export class XmlService {
     
     constructor(){
     }
     
     replaceHlNodes(xml, nodes){
-        const {
+      /*  const {
             // note, these are *not* globals
             document
         } = parseHTML(xml);
+        */
+        const {document} =  (new DOMParser).parseFromString(
+          xml, 'text/xml'
+        ).defaultView;
+        
         const nodesToreplace = [];
         nodes.forEach(node => {
             if(node._path){
@@ -17,10 +22,14 @@ export class XmlService {
                 node._path.forEach(el => {
                     replaceNode = replaceNode.querySelectorAll(":scope > " + el.node)[el.position || 0];
                 });
-                const { document: highlightNode } = parseHTML("<" + node.node + ">" +node.highlight + "</" + node.node + ">");
-                nodesToreplace.push([highlightNode, replaceNode]);
-            }
-        });                
+                  const parser = new XmlSearchParser();
+                   // const { document: highlightNode } = parseHTML(parser.buildXmlNode(node));
+                    const { document: highlightNode } =  (new DOMParser).parseFromString(parser.buildXmlNode(node), 'text/xml').defaultView;
+                    if(replaceNode){
+                      nodesToreplace.push([highlightNode, replaceNode]); 
+                    }
+                    }
+                });
         nodesToreplace.forEach(nodes => {
             document.replaceChild(nodes[0].firstChild, nodes[1]);            
         })

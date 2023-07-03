@@ -1,8 +1,5 @@
-import { Client } from "@elastic/elasticsearch";
-import { HttpHelper, ESHelper } from "./helpers";
-import * as ASHelper from "./helpers/advanced-helper";
+import { HttpHelper } from "./helpers";
 import { SearchResultsData } from "./interfaces";
-import { AdvancedSearchParser, ResourceParser } from "./parsers";
 import * as controllers from "./controllers";
 
 export class Controller {

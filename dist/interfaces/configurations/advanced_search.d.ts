@@ -7,7 +7,7 @@ export interface ConfigAdvancedSearch {
             };
         };
         /** sort fields. Ex: ['slug.keyword', 'sort_title.keyword']*/
-        sort?: string[];
+        sort?: string[] | SortObject;
         /** a query executed in any case */
         base_query: {
             /** the field to query on. Ex: "record-type" */
@@ -27,14 +27,14 @@ export interface ConfigAdvancedSearch {
         };
         search_full_text: {
             search_groups: {
-                [key: string]: TextSearch;
+                [key: string]: TextSearch | any;
             };
             /** options for inner_hits query on nested object */
             inner_hits?: InnerHitsOption;
             /** extra options for query */
             options: {
                 /**path of property of xml tranacription object */
-                path: string;
+                path?: string;
             };
         };
         /** enables highlights */
@@ -43,6 +43,10 @@ export interface ConfigAdvancedSearch {
         /** Options for dynamic options fields */
         dynamic_options?: {
             fields: DynamicOptionField[];
+        };
+        /**options for search in xml */
+        xml_search_options?: {
+            field_filename?: string;
         };
         /**results formatting */
         results: ResultsFormatData[];
@@ -131,6 +135,7 @@ export interface DynamicOptionField {
     key: string;
     content_type: string;
     type?: "post" | "taxonomy";
+    value?: "slug" | "label" | "name";
 }
 export interface TextSearch {
     type: "fulltext" | "xml_attribute";
@@ -146,6 +151,10 @@ export interface TextSearch {
         xml_attribute?: {
             [key: string]: TextSearch;
         };
+        proximity_search_param?: {
+            field: string;
+            in_order?: boolean;
+        };
     };
     "data-value"?: string;
 }
@@ -157,4 +166,10 @@ export interface InnerHitsOption {
     "size"?: number;
     "number_of_fragments"?: number;
     "explain"?: boolean;
+}
+export interface SearchGroup {
+    [key: string]: TextSearch;
+}
+export interface SortObject {
+    [key: string]: string[];
 }

@@ -52,6 +52,13 @@ export interface SearchAggregation {
     sortValues?: string[];
     /** The fields used for search inside the facet. Ex: ["taxonomies.place.name"] */
     innerFilterField?: string[];
+    /** Apply a general filter to the aggregation*/
+    generalFilter?: {
+        /** fields to filter on */
+        fields: string[];
+        /** value to filter */
+        value: string;
+    };
     /** an object of extra properties to send in response made by a pair of key:field_to_send. Ex: {"lat": "cadastral_unit.geolocation.markers.lat", "lon": "cadastral_unit.geolocation.markers.lng"}  */
     extra?: {
         [key: string]: string;
@@ -70,6 +77,10 @@ export interface SearchFilter {
     field: string | string[];
     /** @default AND */
     operator?: "OR" | "AND";
+    /** @default false set to true if aggregation is made on a nested field */
+    nested?: boolean;
+    /** The list of parent fields of a nested field. Ex: ["taxonomies", "place"] */
+    nestedFields?: string[];
 }
 export interface RangeAggregation {
     from: number;

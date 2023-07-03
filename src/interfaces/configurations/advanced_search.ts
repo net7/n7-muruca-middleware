@@ -7,7 +7,7 @@ export interface ConfigAdvancedSearch {
             }
         }
         /** sort fields. Ex: ['slug.keyword', 'sort_title.keyword']*/
-        sort?: string[]
+        sort?: string[] | SortObject
         /** a query executed in any case */
         base_query: {
             /** the field to query on. Ex: "record-type" */
@@ -28,14 +28,15 @@ export interface ConfigAdvancedSearch {
         },
         search_full_text: {
             search_groups: {
-                [key:string] : TextSearch
+                [key:string] : TextSearch | any
+                
             }
              /** options for inner_hits query on nested object */
             inner_hits?: InnerHitsOption,
             /** extra options for query */
             options : {
                 /**path of property of xml tranacription object */
-                path: string
+                path?: string             
             }      
         },
         /** enables highlights */
@@ -46,6 +47,10 @@ export interface ConfigAdvancedSearch {
         dynamic_options?: {
             /* list of fields to retrieve options values*/
             fields: DynamicOptionField[]
+        }
+           /**options for search in xml */
+        xml_search_options?: {
+          field_filename?: string
         }
         /**results formatting */
         results: ResultsFormatData[]
@@ -144,7 +149,8 @@ export interface ResultsFormatData {
 export interface DynamicOptionField {
     key: string,
     content_type: string,
-    type?: "post" | "taxonomy"
+    type?: "post" | "taxonomy",
+    value?: "slug" | "label" | "name"
 }
 export interface TextSearch {
     type: "fulltext" | "xml_attribute",
@@ -156,9 +162,15 @@ export interface TextSearch {
     highlight?: String[] | Object[]
     /** extra options for query */
     options? : {
-        nested?: string
+        /*Nested field to search in */
+        nested?: string        
         xml_attribute?: {
             [key:string] : TextSearch
+        }
+        /*query param for distance in proximity search */
+        proximity_search_param? : {
+          field: string
+          in_order?: boolean
         }
     }
     /*take value from another field identified from its id */
@@ -174,4 +186,12 @@ export interface InnerHitsOption {
     /*number of fragments to show. Value 0 show all text */
     "number_of_fragments"?: number
     "explain"?: boolean
+}
+
+export interface SearchGroup {
+  [key: string]: TextSearch
+}
+
+export interface SortObject {
+  [key: string]: string[];
 }
