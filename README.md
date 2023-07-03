@@ -8,7 +8,7 @@
  
 
 
-# Changelog n7-serverless
+## [2.7.0] - 03-07-2023
 - advanced search proximity search
 - added test
 - change sort configuration
