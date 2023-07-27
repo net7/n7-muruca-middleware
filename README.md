@@ -6,7 +6,8 @@
  Vanno committati sia i file .ts che i file generati dentro la dist
  
  
-
+## [2.7.1] - 27-07-2023
+- fix empty query in advanced search
 
 ## [2.7.0] - 03-07-2023
 - advanced search proximity search

@@ -292,14 +292,14 @@ class AdvancedSearchService {
                 if (((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.proximity_search_param) && data[query_conf.options.proximity_search_param.field]) {
                     query_conf.fields.forEach(field => {
                         const q = this.buildProximityTextQuery(query_conf.options.proximity_search_param, data[groupId], data[query_conf.options.proximity_search_param.field], field);
-                        if (q != "") {
+                        if (q && q != "") {
                             xml_query_should.push(q);
                         }
                     });
                 }
                 else {
                     const q = this.buildTextQuery(data, query_conf, groupId, Object.assign({}, inner_hits));
-                    if (q != "") {
+                    if (q && q != "") {
                         xml_query_should.push(q);
                     }
                 }
