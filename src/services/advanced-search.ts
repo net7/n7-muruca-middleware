@@ -360,7 +360,7 @@ export class AdvancedSearchService {
           
           query_conf.fields.forEach(field => {
             const q = this.buildProximityTextQuery(query_conf.options.proximity_search_param, data[groupId], data[query_conf.options.proximity_search_param.field], field);
-            if(q != "" ){
+            if( q && q != "" ){
               xml_query_should.push(q);        
             }                    
             
@@ -369,7 +369,7 @@ export class AdvancedSearchService {
         }
         else {
           const q = this.buildTextQuery(data, query_conf, groupId,  {...inner_hits});           
-          if(q != "" ){
+          if(q && q != "" ){
             xml_query_should.push(q);         
           }                    
         }
