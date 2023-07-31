@@ -365,7 +365,9 @@ class AdvancedSearchParser {
             hit.highlight[prop].forEach(snippet => {
                 if (!attr_parsed.includes(snippet)) {
                     attr_parsed.push(snippet);
-                    const snippets = helpers_1.CommonHelper.getSnippetAroundTag(node_attr, snippet, xml_text);
+                    let xmlService = new services_1.XmlService();
+                    let decoded_text = xmlService.decodeEntity(xml_text);
+                    const snippets = helpers_1.CommonHelper.getSnippetAroundTag(node_attr, snippet, decoded_text);
                     if (snippets) {
                         snippets.forEach(element => {
                             uniqueSnippets.push("<span class='mrc__text-attr_value'>" + this.apparatus[node_attr] + ": " + snippet + "</span>" + element);

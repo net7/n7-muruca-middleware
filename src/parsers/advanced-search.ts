@@ -1,7 +1,7 @@
 import * as ASHelper from '../helpers/advanced-helper';
 import { CommonHelper } from '../helpers';
 import Parser, { Input, SearchOptions } from '../interfaces/parser';
-import { TeipublisherService } from '../services';
+import { TeipublisherService, XmlService } from '../services';
 import _ = require('lodash');
 
 export class AdvancedSearchParser implements Parser {
@@ -370,7 +370,9 @@ export class AdvancedSearchParser implements Parser {
       hit.highlight[prop].forEach(snippet => {
         if (!attr_parsed.includes(snippet)) {
           attr_parsed.push(snippet);
-          const snippets = CommonHelper.getSnippetAroundTag(node_attr, snippet, xml_text);
+          let xmlService = new XmlService();
+          let decoded_text = xmlService.decodeEntity(xml_text);
+          const snippets = CommonHelper.getSnippetAroundTag(node_attr, snippet, decoded_text);
 
           if (snippets) {
             snippets.forEach(element => {
