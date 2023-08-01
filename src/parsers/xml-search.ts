@@ -1,4 +1,5 @@
 import { CommonHelper } from "../helpers";
+import { XmlService } from "../services";
 
 
 export class XmlSearchParser {
@@ -32,7 +33,8 @@ export class XmlSearchParser {
           if (Array.isArray(nodes)) {
             const node_name = nodes?.[2];
             const node_attr = nodes?.[3];
-            let xml_text = el.xml_text;
+            const xmlService = new XmlService();  
+            let xml_text = xmlService.decodeEntity(el.xml_text);
             const snippet = CommonHelper.HighlightTagInXml(node_name, node_attr, hl_array[0], xml_text);
             el['highlight'] = snippet;
           }

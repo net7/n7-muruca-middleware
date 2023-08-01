@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.XmlSearchParser = void 0;
 const helpers_1 = require("../helpers");
+const services_1 = require("../services");
 class XmlSearchParser {
     parseResponse(hit) {
         const hl = [];
@@ -32,7 +33,8 @@ class XmlSearchParser {
                     if (Array.isArray(nodes)) {
                         const node_name = nodes === null || nodes === void 0 ? void 0 : nodes[2];
                         const node_attr = nodes === null || nodes === void 0 ? void 0 : nodes[3];
-                        let xml_text = el.xml_text;
+                        const xmlService = new services_1.XmlService();
+                        let xml_text = xmlService.decodeEntity(el.xml_text);
                         const snippet = helpers_1.CommonHelper.HighlightTagInXml(node_name, node_attr, hl_array[0], xml_text);
                         el['highlight'] = snippet;
                     }
