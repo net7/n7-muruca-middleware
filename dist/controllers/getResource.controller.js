@@ -16,7 +16,7 @@ class getResourceController {
         this.searchResource = (body, config, locale) => __awaiter(this, void 0, void 0, function* () {
             const service = new services_1.GetResourceService();
             const response = yield service.getResource(body, config, locale);
-            var result = service.buildResource(body, response, config);
+            var result = service.buildResource(body, response, config, locale);
             return result;
         });
     }

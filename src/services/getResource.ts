@@ -7,7 +7,7 @@ import { idText } from "typescript";
 import * as sortObj from "sort-object";
 
 export class GetResourceService {
-  buildResource = (body: any, data: any, conf: any) => {
+  buildResource = (body: any, data: any, conf: any, locale?:string) => {
     const { parsers, configurations } = conf;
     let { type, sections } = body;
     const parser = new parsers.resource();
@@ -17,7 +17,7 @@ export class GetResourceService {
         type,
         conf: configurations.resources[type],
       },
-    });
+    }, locale);
     const sect = sortObj(response.sections, sections);
     // body sections filters
     response.sections = sect;

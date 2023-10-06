@@ -15,7 +15,7 @@ const parsers_1 = require("../parsers");
 const sortObj = require("sort-object");
 class GetResourceService {
     constructor() {
-        this.buildResource = (body, data, conf) => {
+        this.buildResource = (body, data, conf, locale) => {
             const { parsers, configurations } = conf;
             let { type, sections } = body;
             const parser = new parsers.resource();
@@ -25,7 +25,7 @@ class GetResourceService {
                     type,
                     conf: configurations.resources[type],
                 },
-            });
+            }, locale);
             const sect = sortObj(response.sections, sections);
             // body sections filters
             response.sections = sect;
