@@ -36,4 +36,12 @@ export class XmlService {
         return document.toString()
     }
     
+    decodeEntity(str) {
+
+      let txt =  (new DOMParser).parseFromString("<tmp>" + str + "</tmp>", "text/xml");
+      
+      return txt.documentElement.innerHTML;
+      
+      }
+    
 }

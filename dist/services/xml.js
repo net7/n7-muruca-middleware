@@ -33,5 +33,9 @@ class XmlService {
         });
         return document.toString();
     }
+    decodeEntity(str) {
+        let txt = (new linkedom_1.DOMParser).parseFromString("<tmp>" + str + "</tmp>", "text/xml");
+        return txt.documentElement.innerHTML;
+    }
 }
 exports.XmlService = XmlService;

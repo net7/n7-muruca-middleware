@@ -4,9 +4,12 @@
  `npm run build`
  
  Vanno committati sia i file .ts che i file generati dentro la dist
- 
- 
+
+## [2.8.0] - 27-07-2023
+- added locale to resource parser
+
 ## [2.7.1] - 27-07-2023
+- fix html entities in XML snippet
 - fix empty query in advanced search
 
 ## [2.7.0] - 03-07-2023
