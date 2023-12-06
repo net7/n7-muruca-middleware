@@ -54,13 +54,14 @@ exports.ESHelper = {
         const sort = results ? results.sort : data.sort; // sort = se ci sono i results è SEARCH-RESULTS e trova il sort dentro l'oggetto, altrimenti è SEARCH-FACETS e il sort è al primo livello
         const { limit, offset } = results || {}; // ci sono solo nel SEARCH-RESULTS, altrimenti vuoti
         // QUERY ELASTICSEARCH ... costruisco la query per ES    
-        const sort_field = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.base_query) === null || _b === void 0 ? void 0 : _b.field) ? conf[searchId].base_query.field
+        const sort_field = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.base_query) === null || _b === void 0 ? void 0 : _b.field)
+            ? conf[searchId].base_query.field
             : 'slug.keyword';
         const main_query = {
             // prepara il data model per la basic query per ES (cf. Basic Query Theatheor su Postman)
             query: {
                 bool: {
-                    must: [],
+                    must: [], //"record-type": "work"
                 },
             },
             sort,
@@ -133,8 +134,8 @@ exports.ESHelper = {
                                 query_string: {
                                     query: query_key.addStar // if true
                                         ? '*' + data[filterId] + '*' // il valore della query, es. "query": "*test*"
-                                        : data[filterId],
-                                    fields: query_key.field,
+                                        : data[filterId], // altrimenti query vuota
+                                    fields: query_key.field, // es. "title", "description"
                                     default_operator: 'AND',
                                 },
                             };

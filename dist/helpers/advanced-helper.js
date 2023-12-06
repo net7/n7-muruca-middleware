@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildSortParam = exports.checkMatchedQuery = exports.nestedQuery = exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.highlightValue = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.simpleQueryString = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
-exports.queryBool = (mustList = [], shouldList = [], filterList = [], notList = []) => {
+const queryBool = (mustList = [], shouldList = [], filterList = [], notList = []) => {
     const x = {
         query: {
             bool: {
@@ -14,7 +14,8 @@ exports.queryBool = (mustList = [], shouldList = [], filterList = [], notList = 
     };
     return x;
 };
-exports.matchPhrase = (queryField) => {
+exports.queryBool = queryBool;
+const matchPhrase = (queryField) => {
     const x = {
         match_phrase: {
             [queryField.fields]: {
@@ -25,7 +26,8 @@ exports.matchPhrase = (queryField) => {
     };
     return x;
 };
-exports.queryString = (queryField, default_operator = 'AND', boost = null) => {
+exports.matchPhrase = matchPhrase;
+const queryString = (queryField, default_operator = 'AND', boost = null) => {
     const fields = typeof queryField.fields == 'string'
         ? queryField.fields.split(',')
         : queryField.fields;
@@ -35,6 +37,7 @@ exports.queryString = (queryField, default_operator = 'AND', boost = null) => {
             fields: fields,
             default_operator: default_operator,
             lenient: true,
+            // "fuzziness": fuzziness FIXME
         },
     };
     if (boost) {
@@ -42,7 +45,8 @@ exports.queryString = (queryField, default_operator = 'AND', boost = null) => {
     }
     return x;
 };
-exports.simpleQueryString = (queryField, default_operator = 'AND', replaceBoolean = true, _name = "") => {
+exports.queryString = queryString;
+const simpleQueryString = (queryField, default_operator = 'AND', replaceBoolean = true, _name = "") => {
     const fields = typeof queryField.fields == 'string'
         ? queryField.fields.split(',')
         : queryField.fields;
@@ -61,7 +65,8 @@ exports.simpleQueryString = (queryField, default_operator = 'AND', replaceBoolea
     };
     return x;
 };
-exports.spanNear = (queryField) => {
+exports.simpleQueryString = simpleQueryString;
+const spanNear = (queryField) => {
     const in_order = typeof (queryField.in_order) !== "undefined" ? queryField.in_order : true;
     const x = {
         span_near: {
@@ -87,7 +92,8 @@ exports.spanNear = (queryField) => {
     });
     return x;
 };
-exports.buildQueryString = (term, options = {}) => {
+exports.spanNear = spanNear;
+const buildQueryString = (term, options = {}) => {
     const allowWildCard = options.allowWildCard != 'undefined' ? options.allowWildCard : true, splitString = options.splitString ? options.splitString : true, stripDoubleQuotes = options.stripDoubleQuotes
         ? options.stripDoubleQuotes
         : false, allowFuzziness = options.allowFuzziness ? options.allowFuzziness : false;
@@ -116,7 +122,8 @@ exports.buildQueryString = (term, options = {}) => {
     }
     return queryTerms;
 };
-exports.queryTerm = (termField, termValue, _name = "") => {
+exports.buildQueryString = buildQueryString;
+const queryTerm = (termField, termValue, _name = "") => {
     _name = _name == "" && typeof termField == 'string' ? termField : _name;
     termValue = typeof termValue != 'object' ? [termValue] : termValue;
     return {
@@ -126,7 +133,8 @@ exports.queryTerm = (termField, termValue, _name = "") => {
         }
     };
 };
-exports.queryRange = (termFields, termValue) => {
+exports.queryTerm = queryTerm;
+const queryRange = (termFields, termValue) => {
     const ranges = [];
     termFields.forEach((element) => {
         ranges.push({
@@ -137,9 +145,10 @@ exports.queryRange = (termFields, termValue) => {
             },
         });
     });
-    return exports.queryBool(ranges).query;
+    return (0, exports.queryBool)(ranges).query;
 };
-exports.buildHighlights = (queryField, noHighlightFields = null) => {
+exports.queryRange = queryRange;
+const buildHighlights = (queryField, noHighlightFields = null) => {
     const fields = typeof queryField === 'string' ? queryField.split(',') : queryField;
     const highlight = {};
     if (Array.isArray(fields)) {
@@ -156,6 +165,7 @@ exports.buildHighlights = (queryField, noHighlightFields = null) => {
     }
     return highlight;
 };
+exports.buildHighlights = buildHighlights;
 /*
 export const buildHighlights = (queryField: any, prePostTag: any = null, highlightQuery: boolean = false) => {
     const fields =
@@ -178,7 +188,7 @@ export const buildHighlights = (queryField: any, prePostTag: any = null, highlig
     return highlight;
 };
 */
-exports.highlightValue = (field, prePostTag, highlightQuery) => {
+const highlightValue = (field, prePostTag, highlightQuery) => {
     const highlightValue = {};
     if (prePostTag) {
         highlightValue['pre_tags'] = prePostTag[0];
@@ -195,7 +205,8 @@ exports.highlightValue = (field, prePostTag, highlightQuery) => {
     }
     return highlightValue;
 };
-exports.buildTeiHeaderResults = (headerResults) => {
+exports.highlightValue = highlightValue;
+const buildTeiHeaderResults = (headerResults) => {
     let stripped_doc = headerResults.replace(/<!DOCTYPE\s\w+>/g, '');
     let wrapped_doc = '<body>' + stripped_doc + '</body>';
     let convert = require('xml-js');
@@ -231,7 +242,8 @@ exports.buildTeiHeaderResults = (headerResults) => {
     }
     return matches_result;
 };
-exports.buildTextViewerResults = (docResults) => {
+exports.buildTeiHeaderResults = buildTeiHeaderResults;
+const buildTextViewerResults = (docResults) => {
     let stripped_doc = docResults.replace(/<!DOCTYPE\s\w+>/g, '');
     let wrapped_doc = '<body>' + stripped_doc + '</body>';
     let convert = require('xml-js');
@@ -358,7 +370,8 @@ exports.buildTextViewerResults = (docResults) => {
     }
     return matches_result;
 };
-exports.buildLink = (queryField, sourceField) => {
+exports.buildTextViewerResults = buildTextViewerResults;
+const buildLink = (queryField, sourceField) => {
     const linkToParse = queryField;
     const regExpUrl = /{(.*?)}/g;
     const matchUrl = linkToParse.match(regExpUrl);
@@ -371,15 +384,18 @@ exports.buildLink = (queryField, sourceField) => {
     });
     return url;
 };
-exports.queryExists = (termField) => {
+exports.buildLink = buildLink;
+const queryExists = (termField) => {
     return {
         exists: {
             field: termField,
         },
     };
 };
-exports.mergeTeiPublisherResults = () => { };
-exports.extractNestedFields = (fieldArray, obj) => {
+exports.queryExists = queryExists;
+const mergeTeiPublisherResults = () => { };
+exports.mergeTeiPublisherResults = mergeTeiPublisherResults;
+const extractNestedFields = (fieldArray, obj) => {
     let firstField = fieldArray.shift();
     if (obj.hasOwnProperty(firstField)) {
         let value = '';
@@ -405,7 +421,8 @@ exports.extractNestedFields = (fieldArray, obj) => {
         }
     }
 };
-exports.nestedQuery = (path, query, inner_hits = null) => {
+exports.extractNestedFields = extractNestedFields;
+const nestedQuery = (path, query, inner_hits = null) => {
     const nested = {
         "path": path,
         "query": query
@@ -443,7 +460,8 @@ exports.nestedQuery = (path, query, inner_hits = null) => {
     }
     return nested;
 };
-exports.checkMatchedQuery = (prop, matched_queries) => {
+exports.nestedQuery = nestedQuery;
+const checkMatchedQuery = (prop, matched_queries) => {
     if (matched_queries.filter(q => {
         const test = new RegExp("(.*\.)?" + q + "$", 'g');
         return test.test(prop);
@@ -454,7 +472,8 @@ exports.checkMatchedQuery = (prop, matched_queries) => {
         return true;
     }
 };
-exports.buildSortParam = (sort, sort_conf) => {
+exports.checkMatchedQuery = checkMatchedQuery;
+const buildSortParam = (sort, sort_conf) => {
     if (sort === '_score' || sort === 'sort_ASC') {
         return ['_score'];
     }
@@ -477,3 +496,4 @@ exports.buildSortParam = (sort, sort_conf) => {
         }
     }
 };
+exports.buildSortParam = buildSortParam;

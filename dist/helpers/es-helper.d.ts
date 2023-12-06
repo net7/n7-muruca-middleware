@@ -17,9 +17,7 @@ export declare const ESHelper: {
         nested: {
             path: any;
         };
-        aggs: {
-            [x: number]: any;
-        };
+        aggs: {};
     };
     buildTerm(term: any, size: any, extra?: any, sort?: string, global?: boolean, filterQuery?: any): {};
     distinctTerms(term: any): {

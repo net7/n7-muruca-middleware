@@ -1,11 +1,11 @@
-declare type LANG_CODE = string | null;
-declare type TRANSLATIONS = {
+type LANG_CODE = string | null;
+type TRANSLATIONS = {
     [key: string]: string;
 };
-declare type PLACEHOLDERS = {
+type PLACEHOLDERS = {
     [key: string]: string | number;
 };
-declare type CONDITION_FUNC = (key: string, placeholders: PLACEHOLDERS) => string;
+type CONDITION_FUNC = (key: string, placeholders: PLACEHOLDERS) => string;
 /**
  * class for translations
  *

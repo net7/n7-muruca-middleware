@@ -1,16 +1,15 @@
 {
-    "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "declaration": true,
-      "outDir": "./dist",
-      "skipLibCheck": true,
-      "typeRoots": [ 
-        "node_modules/@types", 
-        "node_modules/@n7-frontend/serverless"
-      ]
-    },
-    "include": [
-        "./src/**/*"
-        ]
-  }
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/@n7-frontend/serverless"
+    ],
+    "types": []
+  },
+  "include": ["./src/**/*"]
+}
