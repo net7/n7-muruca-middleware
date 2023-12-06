@@ -5,10 +5,7 @@
     "declaration": true,
     "outDir": "./dist",
     "skipLibCheck": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "node_modules/@n7-frontend/serverless"
-    ],
+    "typeRoots": ["node_modules/@types", "node_modules/@n7-frontend/express"],
     "types": []
   },
   "include": ["./src/**/*"]
