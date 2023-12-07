@@ -301,9 +301,10 @@ export class Controller {
   };
 
   /**
+   * Get a list of objects of the defined type.
    * @param request POST request
    */
-  getTypeList = async (request: Request) => {
+  getObjectsByType = async (request: Request) => {
     const { parsers, staticUrl } = this.config;
     const { type } = request.params;
     const body = JSON.parse(request.body);
@@ -385,7 +386,7 @@ export class Controller {
       getTranslation: this.getTranslation.bind(this),
       getStaticPage: this.getStaticPage.bind(this),
       getStaticPost: this.getStaticPost.bind(this),
-      getTypeList: this.getTypeList.bind(this),
+      getObjectsByType: this.getObjectsByType.bind(this),
       getItinerary: this.getItinerary.bind(this),
       getItineraries: this.getItineraries.bind(this),
       advancedSearchOptions: this.advancedSearchOptions.bind(this),
