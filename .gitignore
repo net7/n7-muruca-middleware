@@ -4,5 +4,4 @@ node_modules
 */.DS_Store
 .DS_Store
 # misc
-package-lock.json
 .nyc_output

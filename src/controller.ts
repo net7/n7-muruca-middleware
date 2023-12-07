@@ -10,17 +10,29 @@ export class Controller {
     this.config = config;
   }
 
+  /**
+   * Test if the post request is working.
+   * @param request POST request
+   */
   postTest = async (request: Request) => {
     const body = JSON.parse(request.body); //la richiesta che arriva all'API
     const response: any = body;
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Test if the get request is working.
+   * @param request GET request
+   */
   getTest = async (request: Request) => {
     const response: any = 'Hello from getTest!';
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Fetch the main menu of the app.
+   * @param request GET request
+   */
   getNavigation = async (request: Request) => {
     const { baseUrl, parsers } = this.config;
     const locale = request.query?.locale || '';
@@ -31,12 +43,15 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Fetch data for the home layout components.
+   * @param request POST request
+   */
   getHomeLayout = async (request: Request) => {
     const { baseUrl, parsers, configurations } = this.config;
     if (!request || !request?.body) {
       return HttpHelper.returnErrorResponse('Empty body from request', 400);
     }
-
     const keyOrder = JSON.parse(request.body);
     const locale = request.query?.locale || '';
     const path = locale ? 'layout/home?lang=' + locale : 'layout/home';
@@ -52,6 +67,10 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Fetch the description content of the search page.
+   * @param request GET request
+   */
   getSearchDescription = async (request: Request) => {
     const { baseUrl, parsers } = this.config;
     const { searchId } = request.params;
@@ -65,6 +84,10 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Fetch data for the timeline component.
+   * @param request GET request
+   */
   getTimeline = async (request: Request) => {
     const { baseUrl, parsers } = this.config;
     const { id } = request.params;
@@ -78,6 +101,10 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Fetch data for the map component.
+   * @param request GET request
+   */
   getMap = async (request: Request) => {
     const { baseUrl, parsers } = this.config;
     const { id } = request.params;
@@ -91,6 +118,10 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Fetch data for the resource layout.
+   * @param request POST request
+   */
   getResource = async (request: Request) => {
     const locale = request.query?.locale || '';
     const controller = new controllers.getResourceController();
@@ -103,6 +134,10 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Submit a query and fetch the results.
+   * @param request POST request
+   */
   search = async (request: Request) => {
     const { type } = request.params;
     const locale = request.query?.locale || '';
@@ -117,20 +152,26 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Submit a query and fetch the results.
+   * @param request POST request
+   */
   advancedSearch = async (request: Request) => {
     const body = JSON.parse(request.body); // cf. SEARCH-RESULTS in Postman
     const locale = request.query?.locale || '';
     const controller = new controllers.advancedSearchController();
-
     const response = await controller.search(
       body,
       this.config,
       locale as string
     );
-
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Submit a text query and fetch the results.
+   * @param request POST request
+   */
   advancedSearchTextSearch = async (request: Request) => {
     // const body = JSON.parse(request.body); // cf. SEARCH-RESULTS in Postman
     const locale = request.query?.locale || '';
@@ -142,6 +183,10 @@ export class Controller {
     );
   };
 
+  /**
+   * Fetch data for tei-publisher component.
+   * @param request POST request
+   */
   teiPubGetNodePath = async (request: Request) => {
     const body = JSON.parse(request.body);
     const locale = request.query?.locale || '';
@@ -149,6 +194,10 @@ export class Controller {
     return controller.teiPubGetNodePath(body, locale as string);
   };
 
+  /**
+   * Fetch the available filters for the search page.
+   * @param request GET request
+   */
   advancedSearchOptions = async (request: Request) => {
     const { configurations, baseUrl, advancedSearchParametersPath } =
       this.config;
@@ -174,6 +223,10 @@ export class Controller {
     }
   };
 
+  /**
+   * Fetch data for the footer component.
+   * @param request GET request
+   */
   getFooter = async (request: Request) => {
     const { baseUrl, parsers, configurations } = this.config;
     const locale = request.query?.locale || '';
@@ -184,6 +237,10 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Fetch the translation strings in the language specified by the "?lang" query parameter.
+   * @param request GET request
+   */
   getTranslation = async (request: Request) => {
     const { baseUrl, parsers } = this.config;
     const { lang } = request.params;
@@ -205,6 +262,10 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Fetch the content of a static resource.
+   * @param request GET request
+   */
   getStaticPage = async (request: Request) => {
     const { parsers, staticUrl } = this.config;
     const { slug } = request.params;
@@ -220,6 +281,10 @@ export class Controller {
     }
   };
 
+  /**
+   * Fetch the content of a static post.
+   * @param request GET request
+   */
   getStaticPost = async (request: Request) => {
     const { parsers, staticUrl } = this.config;
     const { slug } = request.params;
@@ -235,24 +300,23 @@ export class Controller {
     }
   };
 
+  /**
+   * @param request POST request
+   */
   getTypeList = async (request: Request) => {
     const { parsers, staticUrl } = this.config;
     const { type } = request.params;
     const body = JSON.parse(request.body);
-
     let params = '';
-
     if (body.results && body.results.limit) {
       params = 'per_page=' + body.results.limit;
     }
-
     if (body.results && body.results.offset) {
       params +=
         params == ''
           ? 'offset=' + body.results.offset
           : '&offset=' + body.results.offset;
     }
-
     const apiUrl =
       params != '' ? staticUrl + type + '?' + params : staticUrl + type;
     const data = JSON.parse(await HttpHelper.doRequest(apiUrl));
@@ -268,6 +332,10 @@ export class Controller {
     return HttpHelper.returnOkResponse(response);
   };
 
+  /**
+   * Fetch the list of available itineraries for geographic datasets.
+   * @param request GET request
+   */
   getItineraries = async (request: Request) => {
     const { parsers, baseUrl, configurations } = this.config;
     const data = JSON.parse(await HttpHelper.doRequest(baseUrl + 'itinerary'));
@@ -280,6 +348,10 @@ export class Controller {
     }*/
   };
 
+  /**
+   * Fetch the data of a specific itinerary.
+   * @param request GET request
+   */
   getItinerary = async (request: Request) => {
     const { parsers, baseUrl, configurations } = this.config;
     const { id } = request.params;
