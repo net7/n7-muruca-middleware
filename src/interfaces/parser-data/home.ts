@@ -27,9 +27,9 @@ export interface HeroData {
  */
 export interface CollectionData {
   /** InnerTitle data */
-  header: CollectionHeaderData,
+  header: CollectionHeaderData;
   /** ItemPreview data */
-  items: CollectionItem[]
+  items: CollectionItem[];
 }
 
 /**
@@ -40,7 +40,7 @@ export interface SliderData {
   /** InnerTitle data */
   // header: SliderHeaderData,
   /** ItemPreview data */
-  slides: SliderItem[]
+  slides: SliderItem[];
 }
 
 export interface CollectionHeaderData {
@@ -50,7 +50,7 @@ export interface CollectionHeaderData {
     title?: string; // FIXME: Useless key?
     text: string;
     link?: string;
-  }
+  };
 }
 
 export interface CollectionItem {

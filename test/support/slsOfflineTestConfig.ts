@@ -1,3 +1,3 @@
 module.exports.getSlsOfflinePort = () => {
-    return process.env.PORT || '3005';
- };
+  return process.env.PORT || '3005';
+};

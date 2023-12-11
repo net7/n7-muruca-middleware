@@ -6,8 +6,8 @@ export interface ResourceData {
     sections: any;
 }
 /**
-* Interface for the Metadata component
-*/
+ * Interface for the Metadata component
+ */
 export interface ResourceMetadata {
     group: {
         title: string;
@@ -18,14 +18,14 @@ export interface ResourceMetadata {
     }[];
 }
 /**
-* Interface for the Header component
-*/
+ * Interface for the Header component
+ */
 export interface ResourceHeader {
     title: string;
 }
 /**
-* Interface for the Collection component
-*/
+ * Interface for the Collection component
+ */
 export interface ResourceCollection {
     header: {
         title: string;

@@ -1,4 +1,4 @@
-import Parser, { Input } from "../interfaces/parser";
+import Parser, { Input } from '../interfaces/parser';
 export declare class ItineraryParser implements Parser {
     private config;
     constructor(config: any);

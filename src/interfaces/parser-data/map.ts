@@ -2,16 +2,20 @@
  * Interface for the Timeline component
  */
 export interface MapData {
-    dataSet: MapDataset;
+  dataSet: MapDataset;
 }
 
 export interface MapDataset {
-    coords: [number, number];
-    template?: string;
-    title?: string;
-} []
+  coords: [number, number];
+  template?: string;
+  title?: string;
+}
+[];
 
-interface Coords { lat: number; lng: number }
+interface Coords {
+  lat: number;
+  lng: number;
+}
 
 interface Marker extends Coords {
   label: string;
@@ -24,4 +28,5 @@ interface MapItem {
   zoom: number;
   map_center: Coords;
   markers: Marker[];
-}[]
+}
+[];

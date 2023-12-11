@@ -1,4 +1,4 @@
-import Parser from "../interfaces/parser";
+import Parser from '../interfaces/parser';
 
 export class TestParser implements Parser {
   parse(input: any) {

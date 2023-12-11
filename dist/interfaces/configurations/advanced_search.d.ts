@@ -57,31 +57,31 @@ export interface TermAdvancedSearch extends CommonSettingsAdvancedSearch {
     /**
      * term_value: search the input value into the fields
      * term_field_value: search the input value into the input field. Use the "field" as default
-    */
-    type: "term_value" | "term_field_value";
+     */
+    type: 'term_value' | 'term_field_value';
     /** the fields to query on. Ex: "["record-type", "author.name", "date.range"] */
     field: string;
     /** @default AND */
-    operator?: "OR" | "AND";
+    operator?: 'OR' | 'AND';
     /** only for "term_field_value" type */
     query_params?: {
         /**the query_param containing the field to search on */
-        "field": string;
+        field: string;
         /**the query_param containing the value to search */
-        "value": string;
+        value: string;
     };
     highlightField?: string;
     separator?: string;
 }
 /** fulltext query */
 export interface FulltextAdvancedSearch extends TextSettingsAdvancedSearch, CommonSettingsAdvancedSearch {
-    type: "fulltext";
+    type: 'fulltext';
     /** the field to query on. Ex: "["title", "description"] */
     field: string[];
 }
 /** exists query */
 export interface ExistsAdvancedSearch extends CommonSettingsAdvancedSearch {
-    type: "term_exists";
+    type: 'term_exists';
     /** the field to query */
     field: string;
 }
@@ -90,7 +90,7 @@ export interface TextSettingsAdvancedSearch {
      * @default true
      *  add \* to the begininning and end of a string
      *
-    */
+     */
     addStar?: boolean;
     /**
      * @default false
@@ -109,7 +109,7 @@ export interface CommonSettingsAdvancedSearch {
     /**
      *  @default false
      * exclude all field from highlights
-    */
+     */
     noHighlight?: boolean;
     noHighlightFields?: string[];
     /** sets a base query for this element */
@@ -125,7 +125,7 @@ export interface ResultsFormatData {
     label: string;
     /** metadata field. If the metadata is a link (see IsLink property) the field may be a string with placeholders like "/{record-type}/{id}/{slug}"  */
     field?: string;
-    "max-char"?: number;
+    'max-char'?: number;
     /** the value is a link */
     isLink?: boolean;
     /** set of fields */
@@ -134,11 +134,11 @@ export interface ResultsFormatData {
 export interface DynamicOptionField {
     key: string;
     content_type: string;
-    type?: "post" | "taxonomy";
-    value?: "slug" | "label" | "name";
+    type?: 'post' | 'taxonomy';
+    value?: 'slug' | 'label' | 'name';
 }
 export interface TextSearch {
-    type: "fulltext" | "xml_attribute";
+    type: 'fulltext' | 'xml_attribute';
     /** path of nested node */
     path?: string;
     /** the fields to query on */
@@ -156,16 +156,16 @@ export interface TextSearch {
             in_order?: boolean;
         };
     };
-    "data-value"?: string;
+    'data-value'?: string;
 }
 export interface InnerHitsOption {
     /** the fields to sort on. Example: ["_doc"] to use the occurences order */
     sort?: String[];
     /** the fields to include in results */
-    "source"?: String[];
-    "size"?: number;
-    "number_of_fragments"?: number;
-    "explain"?: boolean;
+    source?: String[];
+    size?: number;
+    number_of_fragments?: number;
+    explain?: boolean;
 }
 export interface SearchGroup {
     [key: string]: TextSearch;

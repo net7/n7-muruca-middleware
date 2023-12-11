@@ -7,37 +7,37 @@ export interface ResourceData {
 }
 
 /**
-* Interface for the Metadata component
-*/
+ * Interface for the Metadata component
+ */
 export interface ResourceMetadata {
-   group: {
-       title: string;
-       items: {
-           label: string;
-           value: string;
-       }[];
-   }[];
+  group: {
+    title: string;
+    items: {
+      label: string;
+      value: string;
+    }[];
+  }[];
 }
 
 /**
-* Interface for the Header component
-*/
+ * Interface for the Header component
+ */
 export interface ResourceHeader {
-   title: string;
+  title: string;
 }
 
 /**
-* Interface for the Collection component
-*/
+ * Interface for the Collection component
+ */
 export interface ResourceCollection {
-   header: {
-       title: string;
-   },
-   items: {
-       title: string;
-       link?: string;
-       type?: string;
-   }[]
+  header: {
+    title: string;
+  };
+  items: {
+    title: string;
+    link?: string;
+    type?: string;
+  }[];
 }
 
 export interface PreviewParent {

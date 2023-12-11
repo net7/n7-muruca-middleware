@@ -6,9 +6,9 @@ import homeConfig from './home_config';
 // import itineraryConfig from './itinerary_config';
 
 export default {
-    home: homeConfig
-    // footer: footerConfig,
-    // search: searchConfig,
-    // advanced_search: advancedSearchConfig,
-    // itineraries: itineraryConfig
-}
+  home: homeConfig,
+  // footer: footerConfig,
+  // search: searchConfig,
+  // advanced_search: advancedSearchConfig,
+  // itineraries: itineraryConfig
+};

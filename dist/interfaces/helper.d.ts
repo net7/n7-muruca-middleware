@@ -2,11 +2,11 @@
  * HTTP HELPER
  */
 export interface HTTPHeaders {
-    "Access-Control-Allow-Origin": string;
-    "Access-Control-Allow-Credentials": boolean;
-    "Access-Control-Allow-Methods": string;
-    "Access-Control-Allow-Headers": string;
-    "Content-Type"?: string;
+    'Access-Control-Allow-Origin': string;
+    'Access-Control-Allow-Credentials': boolean;
+    'Access-Control-Allow-Methods': string;
+    'Access-Control-Allow-Headers': string;
+    'Content-Type'?: string;
 }
 export interface HTTPResponse {
     statusCode: number;

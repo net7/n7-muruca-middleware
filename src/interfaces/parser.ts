@@ -1,5 +1,5 @@
 export interface SearchOptions {
-  results: { limit: number; offset: number; };
+  results: { limit: number; offset: number };
   keyOrder?: string[];
   searchId: string;
   searchGroup: any;
@@ -39,9 +39,14 @@ export interface TranslationOptions {
 
 export interface Input {
   data: any;
-  options?: HomeOptions | ResourceOptions | SearchOptions | StaticPageOptions | TranslationOptions;
+  options?:
+    | HomeOptions
+    | ResourceOptions
+    | SearchOptions
+    | StaticPageOptions
+    | TranslationOptions;
   conf?: any;
-};
+}
 
 export default interface Parser {
   parse: (input: Input) => object;

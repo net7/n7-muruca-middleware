@@ -1,4 +1,4 @@
-import { HTTPHeaders, HTTPResponse } from "../interfaces/helper";
+import { HTTPHeaders, HTTPResponse } from '../interfaces/helper';
 export declare const HttpHelper: {
     returnOkResponse(data: object | string, headerData?: HTTPHeaders): HTTPResponse;
     returnErrorResponse(message: string, code: number): HTTPResponse;

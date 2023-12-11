@@ -26,7 +26,7 @@ export interface SearchStruct {
         include?: string[];
     };
     /** list of facets. The keys must be the same received from the request */
-    "facets-aggs": {
+    'facets-aggs': {
         type: 'obj';
         aggregations: {
             [key: string]: SearchAggregation;
@@ -47,7 +47,7 @@ export interface SearchAggregation {
     /**the field to display as label. Ex: autore.name.keyword */
     title: string;
     /** set the alphatical sort order on aggregation term */
-    sort?: "term";
+    sort?: 'term';
     /** set manual order for facets. Ex: ["not defined", "before 1600", "1600-1650" ] */
     sortValues?: string[];
     /** The fields used for search inside the facet. Ex: ["taxonomies.place.name"] */
@@ -70,13 +70,13 @@ export interface SearchAggregation {
 }
 export interface SearchFilter {
     /** Sets filter type. use "fulltext" for free search filters, "multivalue" for facet, "range" for search inside ranges */
-    type: "fulltext" | "multivalue" | "range";
+    type: 'fulltext' | 'multivalue' | 'range';
     /** add \* characters at beginning and end of the term */
     addStar?: boolean;
     /** the field to query on. Ex: "author.keyword" */
     field: string | string[];
     /** @default AND */
-    operator?: "OR" | "AND";
+    operator?: 'OR' | 'AND';
     /** @default false set to true if aggregation is made on a nested field */
     nested?: boolean;
     /** The list of parent fields of a nested field. Ex: ["taxonomies", "place"] */
@@ -98,7 +98,7 @@ export interface SearchResults {
      * "routeId": id used to build the link to the record
      * "slug": the slug of the record
      */
-    label: "title" | "text" | "metadata" | "highlights" | "id" | "link" | "image" | "routeId" | "slug";
+    label: 'title' | 'text' | 'metadata' | 'highlights' | 'id' | 'link' | 'image' | 'routeId' | 'slug';
     /** the field value to return.
      * label: "metadata" it may be an array of fields. Ex.  ['curator', 'autore']
      * label:"link" the fields value are used to build the link to the record.Ex: field: ['id', 'slug']*/

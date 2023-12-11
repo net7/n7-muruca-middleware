@@ -3,11 +3,11 @@
  */
 
 export interface HTTPHeaders {
-  "Access-Control-Allow-Origin": string;
-  "Access-Control-Allow-Credentials": boolean;
-  "Access-Control-Allow-Methods": string;
-  "Access-Control-Allow-Headers": string;
-  "Content-Type"?: string;
+  'Access-Control-Allow-Origin': string;
+  'Access-Control-Allow-Credentials': boolean;
+  'Access-Control-Allow-Methods': string;
+  'Access-Control-Allow-Headers': string;
+  'Content-Type'?: string;
 }
 
 export interface HTTPResponse {
@@ -30,12 +30,13 @@ export interface DataType {
 }
 
 export interface DataTypeResults {
-  limit:number;
+  limit: number;
   offset: number;
 }
 
 export interface DataTypeFacets {
-  id:string;
-  limit:number;
+  id: string;
+  limit: number;
   offset: number;
-}[]
+}
+[];

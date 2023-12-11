@@ -77,7 +77,7 @@ export class Controller {
     const locale = request.query?.locale || '';
     const path = locale ? '?lang=' + locale : '';
     const data = JSON.parse(
-      await HttpHelper.doRequest(baseUrl + 'layout/' + searchId + path)
+      await HttpHelper.doRequest(baseUrl + 'layout/' + searchId + path),
     );
     const parser = new parsers.searchDescription();
     const response = parser.parse({ data });
@@ -94,7 +94,7 @@ export class Controller {
     const locale = request.query?.locale || '';
     const path = locale ? '?lang=' + locale : '';
     const data = JSON.parse(
-      await HttpHelper.doRequest(baseUrl + 'views/' + id + path)
+      await HttpHelper.doRequest(baseUrl + 'views/' + id + path),
     );
     const parser = new parsers.timeline();
     const response = parser.parse({ data });
@@ -111,7 +111,7 @@ export class Controller {
     const locale = request.query?.locale || '';
     const path = locale ? '?lang=' + locale : '';
     const data = JSON.parse(
-      await HttpHelper.doRequest(baseUrl + 'views/' + id + path)
+      await HttpHelper.doRequest(baseUrl + 'views/' + id + path),
     );
     const parser = new parsers.map();
     const response = parser.parse({ data });
@@ -129,7 +129,7 @@ export class Controller {
     const response = await controller.searchResource(
       body,
       this.config,
-      locale as string
+      locale as string,
     );
     return HttpHelper.returnOkResponse(response);
   };
@@ -147,7 +147,7 @@ export class Controller {
       body,
       this.config,
       type,
-      locale as string
+      locale as string,
     );
     return HttpHelper.returnOkResponse(response);
   };
@@ -163,7 +163,7 @@ export class Controller {
     const response = await controller.search(
       body,
       this.config,
-      locale as string
+      locale as string,
     );
     return HttpHelper.returnOkResponse(response);
   };
@@ -179,7 +179,7 @@ export class Controller {
     return controller.advancedSearchTextSearch(
       request.query,
       this.config,
-      locale as string
+      locale as string,
     );
   };
 
@@ -211,12 +211,12 @@ export class Controller {
       const path = locale ? '?lang=' + locale : '';
       const data: any = await HttpHelper.doPostRequest(
         requestURL + path,
-        advanced_search_options
+        advanced_search_options,
       );
       const options = data.data;
       for (const key in options) {
         options[key].options.map(
-          (option) => (option.value = option.value.toString())
+          (option) => (option.value = option.value.toString()),
         );
       }
       return HttpHelper.returnOkResponse(options);
@@ -250,7 +250,7 @@ export class Controller {
         lang === 'en' ? lang + '_US' : lang + '_' + lang.toUpperCase();
     }
     const data = JSON.parse(
-      await HttpHelper.doRequest(baseUrl + 'translations?lang=' + queryLang)
+      await HttpHelper.doRequest(baseUrl + 'translations?lang=' + queryLang),
     );
     const parser = new parsers.translation();
     const response = parser.parse({
@@ -270,7 +270,7 @@ export class Controller {
     const { parsers, staticUrl } = this.config;
     const { slug } = request.params;
     const data = JSON.parse(
-      await HttpHelper.doRequest(staticUrl + 'pages?' + 'slug=' + slug)
+      await HttpHelper.doRequest(staticUrl + 'pages?' + 'slug=' + slug),
     );
     const parser = new parsers.static();
     const response = parser.parse({ data });
@@ -289,7 +289,7 @@ export class Controller {
     const { parsers, staticUrl } = this.config;
     const { slug } = request.params;
     const data = JSON.parse(
-      await HttpHelper.doRequest(staticUrl + 'posts?' + 'slug=' + slug)
+      await HttpHelper.doRequest(staticUrl + 'posts?' + 'slug=' + slug),
     );
     const parser = new parsers.static();
     const response = parser.parse({ data });
@@ -359,7 +359,7 @@ export class Controller {
     const locale = request.query?.locale || '';
     const path = locale ? '?lang=' + locale : '';
     const data = JSON.parse(
-      await HttpHelper.doRequest(baseUrl + 'itinerary/' + id + path)
+      await HttpHelper.doRequest(baseUrl + 'itinerary/' + id + path),
     );
     const parser = new parsers.itinerary(configurations?.itineraries);
     const response = parser.parse({ data });
