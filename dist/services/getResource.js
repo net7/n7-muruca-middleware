@@ -38,8 +38,8 @@ class GetResourceService {
         this.getResource = (body, conf, locale) => __awaiter(this, void 0, void 0, function* () {
             const { type, id } = body;
             const { baseUrl } = conf;
-            const url = baseUrl + type + "/" + id;
-            const path = locale ? "?lang=" + locale : "";
+            const url = baseUrl + type + '/' + id;
+            const path = locale ? '?lang=' + locale : '';
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(url + path));
             return data;
         });

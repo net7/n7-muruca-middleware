@@ -53,7 +53,7 @@ exports.ESHelper = {
         const { searchId, results } = data; // searchId = "work", "results: {...}"
         const sort = results ? results.sort : data.sort; // sort = se ci sono i results è SEARCH-RESULTS e trova il sort dentro l'oggetto, altrimenti è SEARCH-FACETS e il sort è al primo livello
         const { limit, offset } = results || {}; // ci sono solo nel SEARCH-RESULTS, altrimenti vuoti
-        // QUERY ELASTICSEARCH ... costruisco la query per ES    
+        // QUERY ELASTICSEARCH ... costruisco la query per ES
         const sort_field = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.base_query) === null || _b === void 0 ? void 0 : _b.field)
             ? conf[searchId].base_query.field
             : 'slug.keyword';
@@ -68,7 +68,9 @@ exports.ESHelper = {
             aggregations: {},
         };
         if (conf[searchId].base_query && conf[searchId].base_query.value) {
-            main_query.query.bool.must.push({ match: { [sort_field]: conf[searchId].base_query.value } });
+            main_query.query.bool.must.push({
+                match: { [sort_field]: conf[searchId].base_query.value },
+            });
         }
         //ora deve produrre il sort e le aggregations
         //sorting
@@ -87,7 +89,7 @@ exports.ESHelper = {
                 }
             });
         }
-        sort_object.push({ 'slug.keyword': "ASC" });
+        sort_object.push({ 'slug.keyword': 'ASC' });
         if (sort) {
             sort === '_score'
                 ? (main_query.sort = ['_score'])
@@ -97,7 +99,7 @@ exports.ESHelper = {
             main_query.sort = sort_object; // aggiorna il sort della main query con es. "title.keyword": "DESC"
         }
         // pagination params
-        if (type === "facets") {
+        if (type === 'facets') {
             main_query.size = 0; // aggiunge proprietà "size" a main_query con il valore di results.limit (e.g. 10)
         }
         else if (limit) {
@@ -107,13 +109,13 @@ exports.ESHelper = {
             main_query.from = offset; // vd. sopra, aggiunge proprietà "from"
         }
         if ((_c = conf[searchId].options) === null || _c === void 0 ? void 0 : _c.exclude) {
-            main_query["_source"] = {
-                exclude: conf[searchId].options.exclude
+            main_query['_source'] = {
+                exclude: conf[searchId].options.exclude,
             };
         }
         if ((_d = conf[searchId].options) === null || _d === void 0 ? void 0 : _d.include) {
-            main_query["_source"] = {
-                include: conf[searchId].options.include
+            main_query['_source'] = {
+                include: conf[searchId].options.include,
             };
         }
         // aggregations filters
@@ -146,11 +148,11 @@ exports.ESHelper = {
                                 ? query_facets[filterId].nested // true || false
                                 : false;
                             if (data[filterId] && query_nested === false) {
-                                if (query_key.operator == "OR") {
+                                if (query_key.operator == 'OR') {
                                     const should = {
-                                        "bool": {
-                                            "should": []
-                                        }
+                                        bool: {
+                                            should: [],
+                                        },
                                     };
                                     data[filterId].map((value) => {
                                         should.bool.should.push({
@@ -172,17 +174,23 @@ exports.ESHelper = {
                                 }
                             }
                             else {
-                                const path = query_facets[filterId]['nestedFields'] ? query_facets[filterId]['nestedFields'].join(".") : filterId;
-                                const values = typeof data[filterId] === "string" ? [data[filterId]] : data[filterId];
-                                values.forEach($val => {
+                                const path = query_facets[filterId]['nestedFields']
+                                    ? query_facets[filterId]['nestedFields'].join('.')
+                                    : filterId;
+                                const values = typeof data[filterId] === 'string'
+                                    ? [data[filterId]]
+                                    : data[filterId];
+                                values.forEach(($val) => {
                                     const nested = {
                                         nested: {
                                             path: path,
                                             query: {
                                                 bool: {
                                                     must: [
-                                                        { term: { [query_facets[filterId].search]: $val } }
-                                                    ]
+                                                        {
+                                                            term: { [query_facets[filterId].search]: $val },
+                                                        },
+                                                    ],
                                                 },
                                             },
                                         },
@@ -191,18 +199,20 @@ exports.ESHelper = {
                                 });
                             }
                             break;
-                        case "range":
-                            const ranges = typeof data[filterId] === "string" ? [data[filterId]] : data[filterId];
-                            ranges.forEach(range => {
+                        case 'range':
+                            const ranges = typeof data[filterId] === 'string'
+                                ? [data[filterId]]
+                                : data[filterId];
+                            ranges.forEach((range) => {
                                 var _a, _b;
-                                const ranges = range.split("-");
+                                const ranges = range.split('-');
                                 const range_query = {
-                                    "range": {
+                                    range: {
                                         [query_key.field]: {
-                                            "gte": (_a = ranges[0]) !== null && _a !== void 0 ? _a : "*",
-                                            "lte": (_b = ranges[1]) !== null && _b !== void 0 ? _b : "*",
-                                        }
-                                    }
+                                            gte: (_a = ranges[0]) !== null && _a !== void 0 ? _a : '*',
+                                            lte: (_b = ranges[1]) !== null && _b !== void 0 ? _b : '*',
+                                        },
+                                    },
                                 };
                                 main_query.query.bool.must.push(range_query);
                             });
@@ -219,22 +229,28 @@ exports.ESHelper = {
     },
     buildAggs(facets_request, query_facets) {
         const main_query = {
-            aggregations: {}
+            aggregations: {},
         };
         for (const f in facets_request) {
-            const key = facets_request[f]["id"];
+            const key = facets_request[f]['id'];
             if (query_facets[key] === undefined)
                 continue;
-            const limit = (facets_request[f].limit != undefined) ? facets_request[f].limit : 100;
-            const offset = (facets_request[f].offset != undefined) ? facets_request[f].offset : 0;
+            const limit = facets_request[f].limit != undefined ? facets_request[f].limit : 100;
+            const offset = facets_request[f].offset != undefined ? facets_request[f].offset : 0;
             const size = offset + limit;
-            const filterTerm = (facets_request[f].query != undefined && facets_request[f].query != "") ? facets_request[f].query + "*" : "";
-            const minDocCount = query_facets[key].showEmpty != undefined && query_facets[key].showEmpty ? 0 : 1;
-            const sort = query_facets[key].sort != undefined ? "_" + query_facets[key].sort : "_count";
+            const filterTerm = facets_request[f].query != undefined && facets_request[f].query != ''
+                ? facets_request[f].query + '*'
+                : '';
+            const minDocCount = query_facets[key].showEmpty != undefined && query_facets[key].showEmpty
+                ? 0
+                : 1;
+            const sort = query_facets[key].sort != undefined
+                ? '_' + query_facets[key].sort
+                : '_count';
             const { nested, extra, ranges, global } = query_facets[key];
             if (nested) {
-                if (query_facets[key]["nestedFields"]) {
-                    const build_aggs = this.buildNested(query_facets[key]["nestedFields"], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]["innerFilterField"], extra, minDocCount, sort);
+                if (query_facets[key]['nestedFields']) {
+                    const build_aggs = this.buildNested(query_facets[key]['nestedFields'], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]['innerFilterField'], extra, minDocCount, sort);
                     main_query.aggregations[key] = build_aggs;
                 }
                 else {
@@ -246,14 +262,14 @@ exports.ESHelper = {
                                 terms: {
                                     size: size,
                                     order: {
-                                        [sort]: "asc"
+                                        [sort]: 'asc',
                                     },
                                     script: {
                                         source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
                                         lang: 'painless',
                                     },
                                 },
-                            }
+                            },
                         },
                     };
                 }
@@ -262,15 +278,15 @@ exports.ESHelper = {
                 const range_aggs = {
                     range: {
                         field: query_facets[key].search,
-                        ranges: query_facets[key].ranges
+                        ranges: query_facets[key].ranges,
                     },
                 };
                 if (global) {
                     main_query.aggregations[key] = {
                         global: {},
                         aggs: {
-                            [key]: range_aggs
-                        }
+                            [key]: range_aggs,
+                        },
                     };
                 }
                 else {
@@ -279,14 +295,15 @@ exports.ESHelper = {
             }
             else {
                 let filterQuery = null;
-                if ((filterTerm && filterTerm != "") || query_facets[key]['generalFilter']) {
+                if ((filterTerm && filterTerm != '') ||
+                    query_facets[key]['generalFilter']) {
                     filterQuery = this.buildAggsFilter(filterTerm, query_facets[key]);
                 }
                 let term_aggr = this.buildTerm(query_facets[key], size, extra, sort, global, filterQuery);
                 main_query.aggregations[key] = term_aggr;
                 if (!term_aggr.aggs) {
                     const distTerm = this.distinctTerms(query_facets[key]['search']);
-                    main_query.aggregations["distinctTerms_" + key] = distTerm;
+                    main_query.aggregations['distinctTerms_' + key] = distTerm;
                 }
             }
         }
@@ -294,14 +311,14 @@ exports.ESHelper = {
     },
     buildAggsFilter(filterTerm, facet_conf) {
         const must_array = [];
-        if ((filterTerm && filterTerm != "")) {
+        if (filterTerm && filterTerm != '') {
             must_array.push(ASHelper.queryString({
-                "value": filterTerm,
-                "fields": facet_conf["innerFilterField"]
+                value: filterTerm,
+                fields: facet_conf['innerFilterField'],
             }));
         }
         if (facet_conf['generalFilter']) {
-            must_array.push(ASHelper.queryString(facet_conf["generalFilter"]));
+            must_array.push(ASHelper.queryString(facet_conf['generalFilter']));
         }
         if (must_array.length > 0) {
             const bool = ASHelper.queryBool(must_array);
@@ -309,25 +326,25 @@ exports.ESHelper = {
         }
         return null;
     },
-    buildNested(terms, search, title, size = null, filterTerm = "", filterField = "", extraFields = null, minDocCount = 1, sort = "_count") {
+    buildNested(terms, search, title, size = null, filterTerm = '', filterField = '', extraFields = null, minDocCount = 1, sort = '_count') {
         if (terms.length > 1) {
             let term = terms.splice(0, 1);
-            terms[0] = term + "." + terms[0];
+            terms[0] = term + '.' + terms[0];
             return {
-                "nested": {
-                    "path": term[0]
+                nested: {
+                    path: term[0],
                 },
-                "aggs": {
-                    [term]: this.buildNested(terms, search, title, size, filterTerm, filterField, extraFields, minDocCount, sort)
-                }
+                aggs: {
+                    [term]: this.buildNested(terms, search, title, size, filterTerm, filterField, extraFields, minDocCount, sort),
+                },
             };
         }
         else {
             const nestedObj = {
-                "nested": {
-                    "path": terms[0]
+                nested: {
+                    path: terms[0],
                 },
-                "aggs": {}
+                aggs: {},
             };
             const nestedAgg = {
                 [terms[0]]: {
@@ -335,32 +352,32 @@ exports.ESHelper = {
                         size: size,
                         min_doc_count: minDocCount,
                         order: {
-                            [sort]: sort == "_count" ? "desc" : "asc"
+                            [sort]: sort == '_count' ? 'desc' : 'asc',
                         },
                         script: {
                             source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
                             lang: 'painless',
                         },
-                    }
+                    },
                 },
-                "distinctTerms": this.distinctTerms(search)
+                distinctTerms: this.distinctTerms(search),
             };
             if (extraFields) {
                 const extraAggs = {};
                 for (const key in extraFields) {
-                    extraAggs[key] = { "terms": { "field": extraFields[key] } };
+                    extraAggs[key] = { terms: { field: extraFields[key] } };
                 }
                 nestedAgg[terms[0]]['aggs'] = extraAggs;
             }
-            if (filterTerm && filterTerm != "") {
+            if (filterTerm && filterTerm != '') {
                 nestedObj.aggs['filter_term'] = {
-                    "filter": {
-                        "query_string": {
-                            "query": filterTerm,
-                            "fields": filterField
-                        }
+                    filter: {
+                        query_string: {
+                            query: filterTerm,
+                            fields: filterField,
+                        },
                     },
-                    "aggs": nestedAgg
+                    aggs: nestedAgg,
                 };
             }
             else {
@@ -369,13 +386,13 @@ exports.ESHelper = {
             return nestedObj;
         }
     },
-    buildTerm(term, size, extra = null, sort = "_count", global = false, filterQuery = null) {
+    buildTerm(term, size, extra = null, sort = '_count', global = false, filterQuery = null) {
         let term_query = {};
         const term_aggr = {
             terms: {
                 size: size,
                 order: {
-                    [sort]: sort == "_count" ? "desc" : "asc"
+                    [sort]: sort == '_count' ? 'desc' : 'asc',
                 },
                 script: {
                     source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '|||' + doc['${term.title}'].value`,
@@ -387,17 +404,17 @@ exports.ESHelper = {
         if (extra) {
             const extraAggs = {};
             for (const key in extra) {
-                extraAggs[key] = { "terms": { "field": extra[key] } };
+                extraAggs[key] = { terms: { field: extra[key] } };
             }
             term_aggr['aggs'] = extraAggs;
         }
         if (filterQuery) {
             term_query = {
-                "filter": filterQuery,
-                "aggs": {
-                    "term": term_aggr,
-                    "distinctTerms": distinct_term
-                }
+                filter: filterQuery,
+                aggs: {
+                    term: term_aggr,
+                    distinctTerms: distinct_term,
+                },
             };
         }
         else {
@@ -405,20 +422,20 @@ exports.ESHelper = {
         }
         if (global) {
             return {
-                "global": {},
-                "aggs": {
-                    "term": term_query,
-                    "distinctTerms": distinct_term
-                }
+                global: {},
+                aggs: {
+                    term: term_query,
+                    distinctTerms: distinct_term,
+                },
             };
         }
         return term_query;
     },
     distinctTerms(term) {
         return {
-            "cardinality": {
-                "field": term
-            }
+            cardinality: {
+                field: term,
+            },
         };
-    }
+    },
 };

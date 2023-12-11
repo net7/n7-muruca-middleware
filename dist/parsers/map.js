@@ -4,9 +4,9 @@ exports.MapParser = void 0;
 class MapParser {
     parse({ data }) {
         let map = {
-            dataSet: []
+            dataSet: [],
         };
-        data.map(item => {
+        data.map((item) => {
             map.dataSet.push(this.parseMapItem(item));
         });
         return map;
@@ -20,7 +20,7 @@ class MapParser {
             text: map.content,
             map_center: { lat: (_a = map.coords) === null || _a === void 0 ? void 0 : _a.center_lat, lng: (_b = map.coords) === null || _b === void 0 ? void 0 : _b.center_lng },
             markers: (_c = map.coords) === null || _c === void 0 ? void 0 : _c.markers,
-            zoom: (_d = map.coords) === null || _d === void 0 ? void 0 : _d.zoom
+            zoom: (_d = map.coords) === null || _d === void 0 ? void 0 : _d.zoom,
         };
     }
 }

@@ -14,15 +14,27 @@ const helpers_1 = require("./helpers");
 const controllers = require("./controllers");
 class Controller {
     constructor(config) {
+        /**
+         * Test if the post request is working.
+         * @param request POST request
+         */
         this.postTest = (request) => __awaiter(this, void 0, void 0, function* () {
             const body = JSON.parse(request.body); //la richiesta che arriva all'API
             const response = body;
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Test if the get request is working.
+         * @param request GET request
+         */
         this.getTest = (request) => __awaiter(this, void 0, void 0, function* () {
             const response = 'Hello from getTest!';
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Fetch the main menu of the app.
+         * @param request GET request
+         */
         this.getNavigation = (request) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const { baseUrl, parsers } = this.config;
@@ -33,6 +45,10 @@ class Controller {
             const response = parser.parse(data);
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Fetch data for the home layout components.
+         * @param request POST request
+         */
         this.getHomeLayout = (request) => __awaiter(this, void 0, void 0, function* () {
             var _b;
             const { baseUrl, parsers, configurations } = this.config;
@@ -53,6 +69,10 @@ class Controller {
             });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Fetch the description content of the search page.
+         * @param request GET request
+         */
         this.getSearchDescription = (request) => __awaiter(this, void 0, void 0, function* () {
             var _c;
             const { baseUrl, parsers } = this.config;
@@ -64,6 +84,10 @@ class Controller {
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Fetch data for the timeline component.
+         * @param request GET request
+         */
         this.getTimeline = (request) => __awaiter(this, void 0, void 0, function* () {
             var _d;
             const { baseUrl, parsers } = this.config;
@@ -75,6 +99,10 @@ class Controller {
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Fetch data for the map component.
+         * @param request GET request
+         */
         this.getMap = (request) => __awaiter(this, void 0, void 0, function* () {
             var _e;
             const { baseUrl, parsers } = this.config;
@@ -86,6 +114,10 @@ class Controller {
             const response = parser.parse({ data });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Fetch data for the resource layout.
+         * @param request POST request
+         */
         this.getResource = (request) => __awaiter(this, void 0, void 0, function* () {
             var _f;
             const locale = ((_f = request.query) === null || _f === void 0 ? void 0 : _f.locale) || '';
@@ -94,6 +126,10 @@ class Controller {
             const response = yield controller.searchResource(body, this.config, locale);
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Submit a query and fetch the results.
+         * @param request POST request
+         */
         this.search = (request) => __awaiter(this, void 0, void 0, function* () {
             var _g;
             const { type } = request.params;
@@ -103,6 +139,10 @@ class Controller {
             const response = yield controller.search(body, this.config, type, locale);
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Submit a query and fetch the results.
+         * @param request POST request
+         */
         this.advancedSearch = (request) => __awaiter(this, void 0, void 0, function* () {
             var _h;
             const body = JSON.parse(request.body); // cf. SEARCH-RESULTS in Postman
@@ -111,6 +151,10 @@ class Controller {
             const response = yield controller.search(body, this.config, locale);
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Submit a text query and fetch the results.
+         * @param request POST request
+         */
         this.advancedSearchTextSearch = (request) => __awaiter(this, void 0, void 0, function* () {
             var _j;
             // const body = JSON.parse(request.body); // cf. SEARCH-RESULTS in Postman
@@ -118,6 +162,10 @@ class Controller {
             const controller = new controllers.advancedSearchController();
             return controller.advancedSearchTextSearch(request.query, this.config, locale);
         });
+        /**
+         * Fetch data for tei-publisher component.
+         * @param request POST request
+         */
         this.teiPubGetNodePath = (request) => __awaiter(this, void 0, void 0, function* () {
             var _k;
             const body = JSON.parse(request.body);
@@ -125,6 +173,10 @@ class Controller {
             const controller = new controllers.teiPublisherController(this.config);
             return controller.teiPubGetNodePath(body, locale);
         });
+        /**
+         * Fetch the available filters for the search page.
+         * @param request GET request
+         */
         this.advancedSearchOptions = (request) => __awaiter(this, void 0, void 0, function* () {
             var _l, _m;
             const { configurations, baseUrl, advancedSearchParametersPath } = this.config;
@@ -141,6 +193,10 @@ class Controller {
                 return helpers_1.HttpHelper.returnOkResponse(options);
             }
         });
+        /**
+         * Fetch data for the footer component.
+         * @param request GET request
+         */
         this.getFooter = (request) => __awaiter(this, void 0, void 0, function* () {
             var _o;
             const { baseUrl, parsers, configurations } = this.config;
@@ -151,6 +207,10 @@ class Controller {
             const response = parser.parse(data, { conf: configurations.footer });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Fetch the translation strings in the language specified by the "?lang" query parameter.
+         * @param request GET request
+         */
         this.getTranslation = (request) => __awaiter(this, void 0, void 0, function* () {
             const { baseUrl, parsers } = this.config;
             const { lang } = request.params;
@@ -169,6 +229,10 @@ class Controller {
             });
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Fetch the content of a static resource.
+         * @param request GET request
+         */
         this.getStaticPage = (request) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
             const { slug } = request.params;
@@ -182,6 +246,10 @@ class Controller {
                 return helpers_1.HttpHelper.returnErrorResponse('page not found', 404);
             }
         });
+        /**
+         * Fetch the content of a static post.
+         * @param request GET request
+         */
         this.getStaticPost = (request) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
             const { slug } = request.params;
@@ -195,7 +263,11 @@ class Controller {
                 return helpers_1.HttpHelper.returnErrorResponse('page not found', 404);
             }
         });
-        this.getTypeList = (request) => __awaiter(this, void 0, void 0, function* () {
+        /**
+         * Get a list of objects of the defined type.
+         * @param request POST request
+         */
+        this.getObjectsByType = (request) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, staticUrl } = this.config;
             const { type } = request.params;
             const body = JSON.parse(request.body);
@@ -221,6 +293,10 @@ class Controller {
             };
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        /**
+         * Fetch the list of available itineraries for geographic datasets.
+         * @param request GET request
+         */
         this.getItineraries = (request) => __awaiter(this, void 0, void 0, function* () {
             const { parsers, baseUrl, configurations } = this.config;
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'itinerary'));
@@ -232,6 +308,10 @@ class Controller {
               return HttpHelper.returnErrorResponse("page not found", 404);
             }*/
         });
+        /**
+         * Fetch the data of a specific itinerary.
+         * @param request GET request
+         */
         this.getItinerary = (request) => __awaiter(this, void 0, void 0, function* () {
             var _p;
             const { parsers, baseUrl, configurations } = this.config;
@@ -266,7 +346,7 @@ class Controller {
             getTranslation: this.getTranslation.bind(this),
             getStaticPage: this.getStaticPage.bind(this),
             getStaticPost: this.getStaticPost.bind(this),
-            getTypeList: this.getTypeList.bind(this),
+            getObjectsByType: this.getObjectsByType.bind(this),
             getItinerary: this.getItinerary.bind(this),
             getItineraries: this.getItineraries.bind(this),
             advancedSearchOptions: this.advancedSearchOptions.bind(this),

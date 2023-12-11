@@ -10,7 +10,7 @@ class StaticPageParser {
                 content: d.content.rendered || '',
                 authors: d.author || '',
                 time_to_read: d.time_to_read || '',
-                slug: d.slug || ''
+                slug: d.slug || '',
             }))[0];
         }
         return {};
@@ -24,8 +24,8 @@ class StaticPageParser {
                 authors: d.author || '',
                 time_to_read: d.time_to_read || '',
                 slug: d.slug || '',
-                image: d.image || "",
-                link: options && options.type == "posts" ? "/post/" + d.slug : "/" + d.slug
+                image: d.image || '',
+                link: options && options.type == 'posts' ? '/post/' + d.slug : '/' + d.slug,
             }));
         }
         return {};

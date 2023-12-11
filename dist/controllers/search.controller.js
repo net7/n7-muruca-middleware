@@ -18,16 +18,16 @@ class searchController {
             const { parsers, searchIndex, elasticUri, configurations, defaultLang } = config;
             let searchLangIndex = searchIndex;
             if (locale && defaultLang && locale != defaultLang) {
-                searchLangIndex = searchIndex + "_" + locale;
+                searchLangIndex = searchIndex + '_' + locale;
             }
             const params = helpers_1.ESHelper.buildQuery(body, configurations.search, type); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
             // make query
             //console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
-            const data = type === "results" ? query_res.hits.hits : query_res.aggregations;
+            const data = type === 'results' ? query_res.hits.hits : query_res.aggregations;
             const parser = new parsers.search();
             const { searchId, facets } = body;
-            const { limit, offset, sort } = body.results ? body.results : "null";
+            const { limit, offset, sort } = body.results ? body.results : 'null';
             let total_count = query_res.hits.total.value;
             const response = parser.parse({
                 data,

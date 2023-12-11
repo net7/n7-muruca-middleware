@@ -6,7 +6,7 @@ const services_1 = require("../services");
 class XmlSearchParser {
     parseResponse(hit) {
         const hl = [];
-        hit.hits.hits.forEach(element => {
+        hit.hits.hits.forEach((element) => {
             if (element.highlight) {
                 const el = this.parseHighlight(element);
                 hl.push(el);
@@ -45,21 +45,23 @@ class XmlSearchParser {
         return {};
     }
     buildXmlNode(node, hl = true) {
-        let node_str = "";
-        let attrs = "";
+        let node_str = '';
+        let attrs = '';
         if (node._attr) {
             for (const attr in node._attr) {
-                attrs += " " + attr + "='" + node._attr[attr] + "' ";
+                attrs += ' ' + attr + "='" + node._attr[attr] + "' ";
             }
         }
         if (node.node && node.highlight) {
-            node_str = "<" + node.node + attrs + ">" + node.highlight + "</" + node.node + ">";
+            node_str =
+                '<' + node.node + attrs + '>' + node.highlight + '</' + node.node + '>';
         }
         else if (node.xml_text) {
             if (hl) {
                 attrs += " class='mrc__text-emph' ";
             }
-            node_str = "<" + node.node + attrs + ">" + node.xml_text + "</" + node.node + ">";
+            node_str =
+                '<' + node.node + attrs + '>' + node.xml_text + '</' + node.node + '>';
         }
         return node_str;
     }

@@ -8,14 +8,14 @@ class ItineraryParser {
     }
     parse({ data, options }) {
         const default_fields = {
-            'id': 'id',
-            'title': 'title',
-            'content': "content",
-            "slug": "slug",
-            "subtitle": "subtitle",
-            "author": "author",
-            "time_to_read": "time_to_read",
-            "image": "image"
+            id: 'id',
+            title: 'title',
+            content: 'content',
+            slug: 'slug',
+            subtitle: 'subtitle',
+            author: 'author',
+            time_to_read: 'time_to_read',
+            image: 'image',
         };
         const itinerary = { sections: {} };
         for (const field in default_fields) {
@@ -34,7 +34,7 @@ class ItineraryParser {
                             image: d.thumbnail || null,
                             slug: d.slug,
                             id: d.id,
-                            routeId: d['record-type']
+                            routeId: d['record-type'],
                         });
                     });
                 }
@@ -51,8 +51,8 @@ class ItineraryParser {
                 authors: d.author,
                 time_to_read: d.time_to_read,
                 slug: d.slug,
-                image: d.image || "",
-                link: options && options.type == "posts" ? "/post/" + d.slug : "/" + d.slug
+                image: d.image || '',
+                link: options && options.type == 'posts' ? '/post/' + d.slug : '/' + d.slug,
             }));
         }
         return {};

@@ -150,7 +150,9 @@ class Translate {
     getTranslation(key, placeholders, condition) {
         const currentTranslations = this.translations[this.currentLang];
         const translationKey = condition ? condition(key, placeholders) : key;
-        let translationString = currentTranslations ? currentTranslations[translationKey] : null;
+        let translationString = currentTranslations
+            ? currentTranslations[translationKey]
+            : null;
         // no translation use default
         if (!translationString) {
             const defaultTranslations = this.translations[this.defaultLang];

@@ -16,9 +16,9 @@ const services_1 = require("../services");
 class AdvancedSearchParser {
     constructor() {
         this.apparatus = {
-            key: "Voci di autorità"
+            key: 'Voci di autorità',
         };
-        this.text_separator = "<span class=\"mrc__text-divider\"></span>";
+        this.text_separator = '<span class="mrc__text-divider"></span>';
     }
     parse({ data, options }) {
         const { type } = options;
@@ -38,8 +38,9 @@ class AdvancedSearchParser {
                     for (let prop in highlight) {
                         //this check is for results coming from teipublisher. Not used after version 2.4.0
                         if (prop != 'text_matches') {
-                            if (conf[searchId]['noHighlightLabels'] && conf[searchId]['noHighlightLabels'].includes(prop)) {
-                                itemResult.highlights.push(["", highlight[prop]]);
+                            if (conf[searchId]['noHighlightLabels'] &&
+                                conf[searchId]['noHighlightLabels'].includes(prop)) {
+                                itemResult.highlights.push(['', highlight[prop]]);
                             }
                             else {
                                 itemResult.highlights.push([prop, highlight[prop]]);
@@ -53,12 +54,15 @@ class AdvancedSearchParser {
                 if (inner_hits && Object.keys(inner_hits)) {
                     for (var prop in inner_hits) {
                         const inn_hits = inner_hits[prop].hits.hits;
-                        const xml_filename = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.xml_search_options) === null || _b === void 0 ? void 0 : _b.field_filename) || "xml_filename";
-                        const doc = xml_filename.split('.').reduce((a, b) => a[b], source);
+                        const xml_filename = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.xml_search_options) === null || _b === void 0 ? void 0 : _b.field_filename) ||
+                            'xml_filename';
+                        const doc = xml_filename
+                            .split('.')
+                            .reduce((a, b) => a[b], source);
                         if (doc) {
                             const hh = yield this.parseXmlTextHighlight(inn_hits, teiPublisherUri, doc);
                             if (hh.length > 0 && ((_c = hh[0]) === null || _c === void 0 ? void 0 : _c.isTitle)) {
-                                itemResult["highlightsTitle"] = hh.shift().text;
+                                itemResult['highlightsTitle'] = hh.shift().text;
                             }
                             if (hh != null) {
                                 itemResult.highlights = itemResult.highlights.concat(hh);
@@ -133,40 +137,40 @@ class AdvancedSearchParser {
      * @param doc
      * @returns
      */
-    parseXmlTextHighlight(inn_hits, teiPublisherUri = "", doc = "") {
+    parseXmlTextHighlight(inn_hits, teiPublisherUri = '', doc = '') {
         return __awaiter(this, void 0, void 0, function* () {
             const highlights = [];
             const highlights_obj = this.buildHighlightObj(inn_hits);
             if (highlights_obj.totCount > 0) {
                 highlights.push({
-                    "isTitle": true,
-                    "text": "Occorrenze: " + highlights_obj.totCount,
-                    "link": ""
+                    isTitle: true,
+                    text: 'Occorrenze: ' + highlights_obj.totCount,
+                    link: '',
                 });
             }
             const objects = highlights_obj.highlights_obj;
             let xpath_root_id = [];
-            const xpaths = Object.values(objects).map(obj => obj['xpath']);
-            if (xpaths.length > 0 && doc != "") {
+            const xpaths = Object.values(objects).map((obj) => obj['xpath']);
+            if (xpaths.length > 0 && doc != '') {
                 xpath_root_id = yield this.getTeipublisherNodesRoot(teiPublisherUri, doc, [...new Set(xpaths)]);
             }
             for (let el in objects) {
                 if (objects[el]) {
                     let hl = {
-                        "link": {
-                            "params": "",
-                            "query_string": false
-                        }
+                        link: {
+                            params: '',
+                            query_string: false,
+                        },
                     };
                     if (xpath_root_id != null) {
-                        const root = xpath_root_id.find(x => x.xpath === objects[el].xpath).root_id;
-                        hl["link"] = {
-                            "params": "root=" + root + "&hq=1",
-                            "query_string": true
+                        const root = xpath_root_id.find((x) => x.xpath === objects[el].xpath).root_id;
+                        hl['link'] = {
+                            params: 'root=' + root + '&hq=1',
+                            query_string: true,
                         };
                     }
-                    hl["xpath"] = objects[el]["xpath"];
-                    hl["text"] = this.buildFinalHighlightSnippet(objects[el]);
+                    hl['xpath'] = objects[el]['xpath'];
+                    hl['text'] = this.buildFinalHighlightSnippet(objects[el]);
                     highlights.push(hl);
                 }
             }
@@ -174,12 +178,13 @@ class AdvancedSearchParser {
         });
     }
     buildFinalHighlightSnippet(el) {
-        let finaltext = "";
-        el.texts.forEach(text => {
-            finaltext = finaltext == "" ? text : finaltext + this.text_separator + text;
+        let finaltext = '';
+        el.texts.forEach((text) => {
+            finaltext =
+                finaltext == '' ? text : finaltext + this.text_separator + text;
         });
-        if (el["breadcrumb"]) {
-            finaltext = el["breadcrumb"] + finaltext;
+        if (el['breadcrumb']) {
+            finaltext = el['breadcrumb'] + finaltext;
         }
         return finaltext;
     }
@@ -207,7 +212,7 @@ class AdvancedSearchParser {
     buildHighlightObj(inn_hits) {
         let totCount = 0;
         let highlights_obj = {};
-        inn_hits.forEach(hit => {
+        inn_hits.forEach((hit) => {
             var _a;
             //array di tutti i testi evidenziati nel nodo
             const result = this.parseHighlightNode(hit);
@@ -218,7 +223,7 @@ class AdvancedSearchParser {
                     highlights_obj[last_div_path] = {
                         texts: [],
                         breadcrumb: this.getNodeBreadcrumb(hit._source._path),
-                        xpath: this.getNodeXpath(hit._source._path, hit._source.node)
+                        xpath: this.getNodeXpath(hit._source._path, hit._source.node),
                     };
                 }
                 totCount += result.length;
@@ -227,7 +232,7 @@ class AdvancedSearchParser {
         });
         return {
             totCount: totCount,
-            highlights_obj: highlights_obj
+            highlights_obj: highlights_obj,
         };
     }
     //parse Highlights of a single node (es: a `p` node )
@@ -239,7 +244,7 @@ class AdvancedSearchParser {
             const prop = Object.keys(hit.inner_hits)[0];
             let inn_hits = hit.inner_hits[prop].hits.hits;
             let res = [];
-            inn_hits.forEach(hit => {
+            inn_hits.forEach((hit) => {
                 if (hit.highlight) {
                     res.push(...this.parseHighlights(hit));
                 }
@@ -248,11 +253,12 @@ class AdvancedSearchParser {
         }
     }
     getNodeBreadcrumb(path) {
-        let breadcrumbs = "";
+        let breadcrumbs = '';
         if (path) {
             breadcrumbs = this.getXmlPathBreadcrumbs(path);
-            if (breadcrumbs != "") {
-                breadcrumbs = "<span class='mrc__text-breadcrumbs'>" + breadcrumbs + "</span> ";
+            if (breadcrumbs != '') {
+                breadcrumbs =
+                    "<span class='mrc__text-breadcrumbs'>" + breadcrumbs + '</span> ';
             }
         }
         return breadcrumbs;
@@ -265,19 +271,23 @@ class AdvancedSearchParser {
         const unique_hl = {
             xml_text: [],
             attr: [],
-            refs: []
+            refs: [],
         };
         for (let prop in hit.highlight) {
-            if (hit.matched_queries && !ASHelper.checkMatchedQuery(prop, hit.matched_queries)) {
+            if (hit.matched_queries &&
+                !ASHelper.checkMatchedQuery(prop, hit.matched_queries)) {
                 continue;
             }
             if (/xml_text$/.test(prop)) {
-                hit.highlight[prop].forEach(snippet => {
+                hit.highlight[prop].forEach((snippet) => {
                     var _a;
-                    let prefix = "";
+                    let prefix = '';
                     if ((_a = hit._source) === null || _a === void 0 ? void 0 : _a._refs) {
                         const references = this.parseReferences(hit._source._refs);
-                        prefix = "<span class='mrc__text-attr_value'>In: " + references + "</span> ";
+                        prefix =
+                            "<span class='mrc__text-attr_value'>In: " +
+                                references +
+                                '</span> ';
                     }
                     unique_hl.xml_text.push(prefix + snippet);
                     //h_snippets.push(prefix + snippet);
@@ -308,48 +318,52 @@ class AdvancedSearchParser {
         }
     }
     parseReferences(refs) {
-        let references = "";
-        refs.forEach(element => {
-            let r = "";
+        let references = '';
+        refs.forEach((element) => {
+            let r = '';
             for (const prop in element) {
-                r = r == "" ? element[prop] : r + ", " + element[prop];
+                r = r == '' ? element[prop] : r + ', ' + element[prop];
             }
-            references = references == "" ? r : references + "; " + r;
+            references = references == '' ? r : references + '; ' + r;
         });
         return references;
     }
     getXmlPathBreadcrumbs(path) {
-        let breadcrumbs = "";
-        path.forEach(node => {
+        let breadcrumbs = '';
+        path.forEach((node) => {
             if (node.label) {
-                breadcrumbs += breadcrumbs == "" ? node.label : " > " + node.label;
+                breadcrumbs += breadcrumbs == '' ? node.label : ' > ' + node.label;
             }
         });
         return breadcrumbs;
     }
     getXmlLastDivPath(path) {
-        let lastdiv = "";
+        let lastdiv = '';
         let divFound = false;
         for (let i = path.length - 1; i >= 0; i--) {
-            if (path[i] && path[i].node == "div" || divFound) {
+            if ((path[i] && path[i].node == 'div') || divFound) {
                 divFound = true;
-                const node = typeof path[i].position !== "undefined" ? path[i].node + "_" + path[i].position : path[i].node;
-                lastdiv = lastdiv == "" ? node : node + "." + lastdiv;
+                const node = typeof path[i].position !== 'undefined'
+                    ? path[i].node + '_' + path[i].position
+                    : path[i].node;
+                lastdiv = lastdiv == '' ? node : node + '.' + lastdiv;
             }
         }
         return lastdiv;
     }
-    getNodeXpath(path, last_el = "p") {
-        let xpath = "";
-        const ns = "tei:";
+    getNodeXpath(path, last_el = 'p') {
+        let xpath = '';
+        const ns = 'tei:';
         let foundlast = false;
-        path.forEach(node => {
+        path.forEach((node) => {
             if (node.node) {
                 foundlast = last_el == node.node;
                 if (foundlast)
                     return;
-                let elem = node.position || node.position === 0 ? ns + node.node + "[" + (node.position + 1) + "]" : ns + node.node;
-                xpath += xpath == "" ? elem : "/" + elem;
+                let elem = node.position || node.position === 0
+                    ? ns + node.node + '[' + (node.position + 1) + ']'
+                    : ns + node.node;
+                xpath += xpath == '' ? elem : '/' + elem;
             }
         });
         return xpath;
@@ -362,15 +376,20 @@ class AdvancedSearchParser {
             const node_attr = nodes === null || nodes === void 0 ? void 0 : nodes[3];
             let xml_text = (_a = hit._source) === null || _a === void 0 ? void 0 : _a.xml_text;
             const attr_parsed = [];
-            hit.highlight[prop].forEach(snippet => {
+            hit.highlight[prop].forEach((snippet) => {
                 if (!attr_parsed.includes(snippet)) {
                     attr_parsed.push(snippet);
                     let xmlService = new services_1.XmlService();
                     let decoded_text = xmlService.decodeEntity(xml_text);
                     const snippets = helpers_1.CommonHelper.getSnippetAroundTag(node_attr, snippet, decoded_text);
                     if (snippets) {
-                        snippets.forEach(element => {
-                            uniqueSnippets.push("<span class='mrc__text-attr_value'>" + this.apparatus[node_attr] + ": " + snippet + "</span>" + element);
+                        snippets.forEach((element) => {
+                            uniqueSnippets.push("<span class='mrc__text-attr_value'>" +
+                                this.apparatus[node_attr] +
+                                ': ' +
+                                snippet +
+                                '</span>' +
+                                element);
                         });
                     }
                 }

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MenuParser = void 0;
 class MenuParser {
     parse(data) {
-        data.map((p) => p.slug = p.slug.toLowerCase());
+        data.map((p) => (p.slug = p.slug.toLowerCase()));
         return data;
     }
 }

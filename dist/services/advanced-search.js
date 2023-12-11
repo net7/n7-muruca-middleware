@@ -16,7 +16,9 @@ class AdvancedSearchService {
     constructor(configurations) {
         this.parseResponse = (query_res, query_params, teiPublisherUri) => __awaiter(this, void 0, void 0, function* () {
             const { searchId } = query_params;
-            const { limit, offset, sort } = query_params.results ? query_params.results : 'null';
+            const { limit, offset, sort } = query_params.results
+                ? query_params.results
+                : 'null';
             const data = query_res.hits.hits;
             let total_count = query_res.hits.total.value;
             const parser = new parsers_1.AdvancedSearchParser();
@@ -32,8 +34,8 @@ class AdvancedSearchService {
                 options: {
                     searchId,
                     conf: this.configurations.advanced_search,
-                    teiPublisherUri
-                }
+                    teiPublisherUri,
+                },
             });
             response.results = results;
             return response;
@@ -42,7 +44,7 @@ class AdvancedSearchService {
             const data = query_res.hits.hits;
             const hl = [];
             const parser = new parsers_1.XmlSearchParser();
-            data.forEach(hit => {
+            data.forEach((hit) => {
                 var _a;
                 if (hit.inner_hits && ((_a = hit.inner_hits) === null || _a === void 0 ? void 0 : _a.xml_text)) {
                     hl.push(...parser.parseResponse(hit.inner_hits.xml_text));
@@ -66,18 +68,18 @@ class AdvancedSearchService {
                     post_tags: ['</em>'],
                 },
             };
-            //sorting        
+            //sorting
             if (sort) {
                 adv_query.sort = ASHelper.buildSortParam(sort, advanced_conf.sort);
             }
             if ((_a = advanced_conf === null || advanced_conf === void 0 ? void 0 : advanced_conf.options) === null || _a === void 0 ? void 0 : _a.exclude) {
-                adv_query["_source"] = {
-                    exclude: advanced_conf.options.exclude
+                adv_query['_source'] = {
+                    exclude: advanced_conf.options.exclude,
                 };
             }
             if ((_b = advanced_conf === null || advanced_conf === void 0 ? void 0 : advanced_conf.options) === null || _b === void 0 ? void 0 : _b.include) {
-                adv_query["_source"] = {
-                    include: advanced_conf.options.include
+                adv_query['_source'] = {
+                    include: advanced_conf.options.include,
                 };
             }
             //BASE QUERY
@@ -123,20 +125,20 @@ class AdvancedSearchService {
                             if (query_key.separator) {
                                 query_term = query_term.split(query_key.separator);
                             }
-                            const _name = query_key.field.replace("*", "");
+                            const _name = query_key.field.replace('*', '');
                             // from 2.3.1
                             const tv_query = ASHelper.queryTerm(query_key.field, query_term, _name);
-                            //until 2.2.0  
+                            //until 2.2.0
                             /*
-                            const query_term = ASHelper.buildQueryString(data[groupId], {
-                                allowWildCard: query_key.addStar,
-                                stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
-                            });
-                            const operator = query_key.operator ? query_key.operator : 'AND';
-                            const tv_query = ASHelper.queryString(
-                                { fields: query_key.field, value: query_term },
-                                operator
-                            );*/
+                                          const query_term = ASHelper.buildQueryString(data[groupId], {
+                                              allowWildCard: query_key.addStar,
+                                              stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
+                                          });
+                                          const operator = query_key.operator ? query_key.operator : 'AND';
+                                          const tv_query = ASHelper.queryString(
+                                              { fields: query_key.field, value: query_term },
+                                              operator
+                                          );*/
                             if (!query_key.noHighlight) {
                                 highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields)), highlight_fields);
                             }
@@ -154,7 +156,9 @@ class AdvancedSearchService {
                                 : query_key.field;
                             const query_field_value = ASHelper.buildQueryString(query_params[query_key.query_params.value], {
                                 allowWildCard: query_key.addStar,
-                                stripDoubleQuotes: query_key.stripDoubleQuotes != undefined ? query_key.stripDoubleQuotes : true,
+                                stripDoubleQuotes: query_key.stripDoubleQuotes != undefined
+                                    ? query_key.stripDoubleQuotes
+                                    : true,
                             });
                             const tf_query = ASHelper.queryString({
                                 fields: fields,
@@ -212,7 +216,7 @@ class AdvancedSearchService {
             if (advanced_conf['search_full_text']) {
                 const text_query = this.buildXmlTextQuery(advanced_conf.search_full_text, query_params);
                 if (text_query) {
-                    must_array.push({ "nested": text_query });
+                    must_array.push({ nested: text_query });
                 }
             }
             const bool_query = ASHelper.queryBool(must_array, [], [], must_not);
@@ -230,7 +234,9 @@ class AdvancedSearchService {
     buildFulltextQuery(query_conf, query_param) {
         const query_string = ASHelper.buildQueryString(query_param, {
             allowWildCard: query_conf.addStar,
-            stripDoubleQuotes: query_conf.stripDoubleQuotes != undefined ? query_conf.stripDoubleQuotes : true,
+            stripDoubleQuotes: query_conf.stripDoubleQuotes != undefined
+                ? query_conf.stripDoubleQuotes
+                : true,
         });
         const ft_query = ASHelper.queryString({ fields: query_conf.field, value: query_string }, 'AND');
         return ft_query;
@@ -238,7 +244,7 @@ class AdvancedSearchService {
     buildXmlTextQuery(advanced_conf, data) {
         const xml_query_should = [];
         const inner_hits = advanced_conf.inner_hits;
-        inner_hits['name'] = "xml_text";
+        inner_hits['name'] = 'xml_text';
         const q = this.parseQueryGroups(advanced_conf.search_groups, data, inner_hits);
         xml_query_should.push(...q);
         if (xml_query_should.length > 0) {
@@ -251,8 +257,7 @@ class AdvancedSearchService {
     parseQueryGroups(search_groups, data, inner_hits) {
         const xml_query_should = [];
         const nested_innerhits = Object.assign({}, inner_hits);
-        Object.keys(search_groups)
-            .forEach((groupId) => {
+        Object.keys(search_groups).forEach((groupId) => {
             var _a;
             const query_conf = search_groups[groupId];
             if (data[groupId] && !query_conf.search_groups) {
@@ -272,7 +277,9 @@ class AdvancedSearchService {
                             nested_innerhits['highlight'] = ASHelper.buildHighlights(query_conf.highlight);
                         }
                         nested_innerhits['name'] = groupId;
-                        const nested = { nested: ASHelper.nestedQuery(query_conf.options.nested, query_bool, nested_innerhits) };
+                        const nested = {
+                            nested: ASHelper.nestedQuery(query_conf.options.nested, query_bool, nested_innerhits),
+                        };
                         xml_query_should.push(nested);
                     }
                     else {
@@ -287,19 +294,20 @@ class AdvancedSearchService {
         var _a, _b;
         const xml_query_should = [];
         switch (query_conf.type) {
-            case "fulltext":
-            case "xml_attribute":
-                if (((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.proximity_search_param) && data[query_conf.options.proximity_search_param.field]) {
-                    query_conf.fields.forEach(field => {
+            case 'fulltext':
+            case 'xml_attribute':
+                if (((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.proximity_search_param) &&
+                    data[query_conf.options.proximity_search_param.field]) {
+                    query_conf.fields.forEach((field) => {
                         const q = this.buildProximityTextQuery(query_conf.options.proximity_search_param, data[groupId], data[query_conf.options.proximity_search_param.field], field);
-                        if (q && q != "") {
+                        if (q && q != '') {
                             xml_query_should.push(q);
                         }
                     });
                 }
                 else {
                     const q = this.buildTextQuery(data, query_conf, groupId, Object.assign({}, inner_hits));
-                    if (q && q != "") {
+                    if (q && q != '') {
                         xml_query_should.push(q);
                     }
                 }
@@ -312,22 +320,26 @@ class AdvancedSearchService {
     }
     buildTextQuery(data, query_conf, groupId, inner_hits) {
         var _a;
-        const value = query_conf['data-value'] ? data[query_conf['data-value']] : data[groupId];
+        const value = query_conf['data-value']
+            ? data[query_conf['data-value']]
+            : data[groupId];
         let queries;
-        if (value && value != "") {
-            queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value }, "AND", true);
+        if (value && value != '') {
+            queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value }, 'AND', true);
         }
         if ((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.nested) {
             if (query_conf.highlight) {
                 inner_hits['highlight'] = ASHelper.buildHighlights(query_conf.highlight);
             }
             inner_hits['name'] = groupId;
-            const nested = { nested: ASHelper.nestedQuery(query_conf.options.nested, queries, inner_hits) };
+            const nested = {
+                nested: ASHelper.nestedQuery(query_conf.options.nested, queries, inner_hits),
+            };
             queries = nested;
         }
         return queries;
     }
-    buildSingleTextQuery(query_params, id, field = "id") {
+    buildSingleTextQuery(query_params, id, field = 'id') {
         this.buildAdvancedQuery(query_params);
     }
     buildProximityTextQuery(proximity_param, value, distance, text_field) {
@@ -336,12 +348,12 @@ class AdvancedSearchService {
                 fields: text_field,
                 value: value,
                 distance: +distance,
-                in_order: proximity_param.in_order || true
+                in_order: proximity_param.in_order || true,
             });
             return pt_query;
         }
         else
-            return "";
+            return '';
     }
 }
 exports.AdvancedSearchService = AdvancedSearchService;

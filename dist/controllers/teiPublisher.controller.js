@@ -29,7 +29,7 @@ class teiPublisherController {
                 if (root)
                     return helpers_1.HttpHelper.returnOkResponse(root);
             }
-            return helpers_1.HttpHelper.returnErrorResponse("no xml root found", 400);
+            return helpers_1.HttpHelper.returnErrorResponse('no xml root found', 400);
         });
         this.configurations = configurations;
     }

@@ -16,7 +16,7 @@ const services_1 = require("../services");
 class advancedSearchController {
     constructor() {
         this.search = (body, config, locale) => __awaiter(this, void 0, void 0, function* () {
-            const { searchIndex, elasticUri, teiPublisherUri, configurations, defaultLang } = config;
+            const { searchIndex, elasticUri, teiPublisherUri, configurations, defaultLang, } = config;
             const service = new services_1.AdvancedSearchService(configurations);
             const params = service.buildAdvancedQuery(body);
             let searchLangIndex = searchIndex;
@@ -30,14 +30,13 @@ class advancedSearchController {
                 return response;
             }
             else
-                return { error: "error" };
+                return { error: 'error' };
         });
         /**
          * Search term in text and replaces the highlighted results in original xml file
-         *
          */
         this.advancedSearchTextSearch = (body, config, locale) => __awaiter(this, void 0, void 0, function* () {
-            const { searchIndex, elasticUri, teiPublisherUri, configurations, defaultLang } = config;
+            const { searchIndex, elasticUri, teiPublisherUri, configurations, defaultLang, } = config;
             const { xml, id, searchId } = body;
             const service = new services_1.AdvancedSearchService(configurations);
             const params = service.buildAdvancedQuery(body);
@@ -54,15 +53,15 @@ class advancedSearchController {
                 const xml_doc = yield teipubservice.getXmlDocument(xml);
                 const xml_hl = xmlService.replaceHlNodes(xml_doc, hlNodes);
                 return helpers_1.HttpHelper.returnOkResponse(xml_hl, {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Credentials": true,
-                    "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-                    "Access-Control-Allow-Headers": "X-Requested-With,content-type",
-                    "Content-Type": "application/xml"
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': true,
+                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
+                    'Access-Control-Allow-Headers': 'X-Requested-With,content-type',
+                    'Content-Type': 'application/xml',
                 });
             }
             else
-                return helpers_1.HttpHelper.returnErrorResponse("no xml root found", 400);
+                return helpers_1.HttpHelper.returnErrorResponse('no xml root found', 400);
         });
     }
 }

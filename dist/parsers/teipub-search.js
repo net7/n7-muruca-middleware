@@ -33,7 +33,11 @@ class TeipubSearchParser {
                                     break;
                                 const pagination = query_key['perPage'];
                                 const query = data[groupId];
-                                teiPubParams = teiPubParams == "" ? `query=${query}&start=1&per-page=${pagination}` : teiPubParams + `&query=${query}&start=1&per-page=${pagination}`;
+                                teiPubParams =
+                                    teiPubParams == ''
+                                        ? `query=${query}&start=1&per-page=${pagination}`
+                                        : teiPubParams +
+                                            `&query=${query}&start=1&per-page=${pagination}`;
                                 break;
                             case 'header-meta':
                                 if (!data[groupId])
@@ -46,7 +50,7 @@ class TeipubSearchParser {
                                 teiHeaderParams += `&field=${query_key.field}`;
                                 const collectionUri = conf.teiPublisherUri + 'mrcsearch';
                                 let tmpParams = teiHeaderParams;
-                                if (doc && teiHeaderParams && teiHeaderParams != "") {
+                                if (doc && teiHeaderParams && teiHeaderParams != '') {
                                     const docString = doc
                                         .map((filename) => {
                                         return 'doc=' + filename.replace('/', '%2F');
@@ -91,18 +95,20 @@ class TeipubSearchParser {
                                 //const pag = query_key['perPage'];
                                 const slop = (_c = data[query_key['query_params']['slop']]) !== null && _c !== void 0 ? _c : '';
                                 //const q2 = data[query_key['query_params']['value']];
-                                teiPubParams = teiPubParams == "" ? `slop=${slop}` : teiPubParams + `&slop=${slop}`;
+                                teiPubParams =
+                                    teiPubParams == ''
+                                        ? `slop=${slop}`
+                                        : teiPubParams + `&slop=${slop}`;
                             default:
                                 break;
                         }
                     }
                 }
-                ;
                 // console.log(teiPubParams);
                 return teiPubParams;
             });
             let teiPubParams = yield buildParameters();
-            if (doc && teiPubParams && teiPubParams != "") {
+            if (doc && teiPubParams && teiPubParams != '') {
                 const docString = doc
                     .map((filename) => {
                     return 'doc=' + filename.replace('/', '%2F');

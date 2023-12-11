@@ -46,28 +46,34 @@ const queryString = (queryField, default_operator = 'AND', boost = null) => {
     return x;
 };
 exports.queryString = queryString;
-const simpleQueryString = (queryField, default_operator = 'AND', replaceBoolean = true, _name = "") => {
+const simpleQueryString = (queryField, default_operator = 'AND', replaceBoolean = true, _name = '') => {
     const fields = typeof queryField.fields == 'string'
         ? queryField.fields.split(',')
         : queryField.fields;
-    _name = _name == "" && typeof queryField.fields == 'string' ? queryField.fields : _name;
+    _name =
+        _name == '' && typeof queryField.fields == 'string'
+            ? queryField.fields
+            : _name;
     let term = queryField.value;
-    if (replaceBoolean && term && term != "") {
-        term = term.replace(/\sAND\s/g, '+').replace(/\sOR\s/g, '|').replace(/\sNOT\s/g, '-');
+    if (replaceBoolean && term && term != '') {
+        term = term
+            .replace(/\sAND\s/g, '+')
+            .replace(/\sOR\s/g, '|')
+            .replace(/\sNOT\s/g, '-');
     }
     const x = {
         simple_query_string: {
             query: term,
             fields: fields,
             default_operator: default_operator,
-            _name: _name
+            _name: _name,
         },
     };
     return x;
 };
 exports.simpleQueryString = simpleQueryString;
 const spanNear = (queryField) => {
-    const in_order = typeof (queryField.in_order) !== "undefined" ? queryField.in_order : true;
+    const in_order = typeof queryField.in_order !== 'undefined' ? queryField.in_order : true;
     const x = {
         span_near: {
             clauses: [],
@@ -82,8 +88,8 @@ const spanNear = (queryField) => {
                 match: {
                     wildcard: {
                         [queryField.fields]: {
-                            "value": element,
-                            "case_insensitive": true
+                            value: element,
+                            case_insensitive: true,
                         },
                     },
                 },
@@ -123,14 +129,14 @@ const buildQueryString = (term, options = {}) => {
     return queryTerms;
 };
 exports.buildQueryString = buildQueryString;
-const queryTerm = (termField, termValue, _name = "") => {
-    _name = _name == "" && typeof termField == 'string' ? termField : _name;
+const queryTerm = (termField, termValue, _name = '') => {
+    _name = _name == '' && typeof termField == 'string' ? termField : _name;
     termValue = typeof termValue != 'object' ? [termValue] : termValue;
     return {
         terms: {
             [termField]: termValue,
-            _name
-        }
+            _name,
+        },
     };
 };
 exports.queryTerm = queryTerm;
@@ -153,7 +159,8 @@ const buildHighlights = (queryField, noHighlightFields = null) => {
     const highlight = {};
     if (Array.isArray(fields)) {
         fields.forEach((element) => {
-            if (!noHighlightFields || (noHighlightFields && !noHighlightFields.includes(element))) {
+            if (!noHighlightFields ||
+                (noHighlightFields && !noHighlightFields.includes(element))) {
                 if (element.field && element.field != '') {
                     highlight[element.field] = (element === null || element === void 0 ? void 0 : element.options) || {};
                 }
@@ -196,11 +203,11 @@ const highlightValue = (field, prePostTag, highlightQuery) => {
     }
     if (highlightQuery) {
         highlightValue['highlight_query'] = {
-            "regexp": {
+            regexp: {
                 [field]: {
-                    "value": ".*"
-                }
-            }
+                    value: '.*',
+                },
+            },
         };
     }
     return highlightValue;
@@ -296,14 +303,14 @@ const buildTextViewerResults = (docResults) => {
                         "<span class='mrc__text-breadcrumbs'>" + path + '</span>';
                 }
                 /*if(div.a.span && Array.isArray(div.a.span)){
-                                      div.a.span.forEach(element => {
-                                          if(element['_attributes'] && element['_attributes']['class'] === "mrc__text-emph"){
-                                              text_highlight += "<em class='mrc__text-emph'>" + element['_text'] + "</em>"
-                                          } else {
-                                              text_highlight += element['_text'] + " "
-                                          }
-                                      });
-                                  }*/
+                                              div.a.span.forEach(element => {
+                                                  if(element['_attributes'] && element['_attributes']['class'] === "mrc__text-emph"){
+                                                      text_highlight += "<em class='mrc__text-emph'>" + element['_text'] + "</em>"
+                                                  } else {
+                                                      text_highlight += element['_text'] + " "
+                                                  }
+                                              });
+                                          }*/
                 if (div.p) {
                     let paragraphs = Array.isArray(div.p) ? div.p : [div.p];
                     paragraphs.forEach((p) => {
@@ -424,24 +431,29 @@ const extractNestedFields = (fieldArray, obj) => {
 exports.extractNestedFields = extractNestedFields;
 const nestedQuery = (path, query, inner_hits = null) => {
     const nested = {
-        "path": path,
-        "query": query
+        path: path,
+        query: query,
     };
     const ih_defaults = {
-        "size": 30
+        size: 30,
     };
     if (inner_hits) {
         const ih = {};
-        ih.size = typeof inner_hits.size != "undefined" ? inner_hits.size : ih_defaults['size'];
+        ih.size =
+            typeof inner_hits.size != 'undefined'
+                ? inner_hits.size
+                : ih_defaults['size'];
         if (inner_hits.highlight) {
             ih['highlight'] = {
-                "fields": inner_hits.highlight,
-                "pre_tags": ["<em class='mrc__text-emph'>"],
-                "post_tags": ['</em>'],
-                "fragment_size": 500,
-                'type': 'plain',
-                "order": "none",
-                "number_of_fragments": inner_hits.number_of_fragments !== undefined ? inner_hits.number_of_fragments : 30
+                fields: inner_hits.highlight,
+                pre_tags: ["<em class='mrc__text-emph'>"],
+                post_tags: ['</em>'],
+                fragment_size: 500,
+                type: 'plain',
+                order: 'none',
+                number_of_fragments: inner_hits.number_of_fragments !== undefined
+                    ? inner_hits.number_of_fragments
+                    : 30,
             };
         }
         if (inner_hits.sort) {
@@ -462,8 +474,8 @@ const nestedQuery = (path, query, inner_hits = null) => {
 };
 exports.nestedQuery = nestedQuery;
 const checkMatchedQuery = (prop, matched_queries) => {
-    if (matched_queries.filter(q => {
-        const test = new RegExp("(.*\.)?" + q + "$", 'g');
+    if (matched_queries.filter((q) => {
+        const test = new RegExp('(.*.)?' + q + '$', 'g');
         return test.test(prop);
     }).length <= 0) {
         return false;
@@ -480,19 +492,19 @@ const buildSortParam = (sort, sort_conf) => {
     else {
         const lastIndex = sort.lastIndexOf('_');
         const field = sort.slice(0, lastIndex);
-        const order = sort.slice(lastIndex + 1) != "" ? sort.slice(lastIndex + 1) : "ASC";
+        const order = sort.slice(lastIndex + 1) != '' ? sort.slice(lastIndex + 1) : 'ASC';
         if (!sort_conf[field]) {
-            return { [field]: order }; // es. "title.keyword": "DESC"                       
+            return { [field]: order }; // es. "title.keyword": "DESC"
         }
         else if (sort_conf[field]) {
             const sortObj = {};
-            sort_conf[field].forEach(element => {
+            sort_conf[field].forEach((element) => {
                 sortObj[element] = order;
             });
             return sortObj;
         }
         else {
-            return {}; // es. "title.keyword": "DESC"                        
+            return {}; // es. "title.keyword": "DESC"
         }
     }
 };
