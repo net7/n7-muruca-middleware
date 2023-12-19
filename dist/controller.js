@@ -27,10 +27,7 @@ class Controller {
          * Test if the get request is working.
          * @param request GET request
          */
-        this.getTest = (request) => __awaiter(this, void 0, void 0, function* () {
-            const response = 'Hello from getTest!';
-            return helpers_1.HttpHelper.returnOkResponse(response);
-        });
+        this.getTest = (request) => __awaiter(this, void 0, void 0, function* () { return helpers_1.HttpHelper.returnOkResponse('Hello from getTest!'); });
         /**
          * Fetch the main menu of the app.
          * @param request GET request

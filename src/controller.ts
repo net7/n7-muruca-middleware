@@ -24,10 +24,8 @@ export class Controller {
    * Test if the get request is working.
    * @param request GET request
    */
-  getTest = async (request: Request) => {
-    const response: any = 'Hello from getTest!';
-    return HttpHelper.returnOkResponse(response);
-  };
+  getTest = async (request: Request) =>
+    HttpHelper.returnOkResponse('Hello from getTest!');
 
   /**
    * Fetch the main menu of the app.
