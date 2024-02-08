@@ -1,5 +1,5 @@
 {
-  "name": "@net7-main/neff-express",
+  "name": "@net7-main/n7-muruca-middleware",
   "version": "3.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -41,8 +41,5 @@
     "sinon": "^15.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.3.2"
-  },
-  "publishConfig": {
-    "@net7-main:registry": " https://gitlab.netseven.it/api/v4/projects/264/packages/npm/"
   }
 }
