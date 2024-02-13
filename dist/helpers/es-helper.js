@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ESHelper = void 0;
 const ASHelper = require("../helpers/advanced-helper");
+const AGGR_SEPARATOR = "     ||| ";
 exports.ESHelper = {
     bulkIndex(response, index, Client, ELASTIC_URI) {
         // client = const { Client } = require('@elastic/elasticsearch')
@@ -248,7 +249,7 @@ exports.ESHelper = {
                                         [sort]: "asc"
                                     },
                                     script: {
-                                        source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + ' ||| ' + doc['${query_facets[key].title}'].value`,
+                                        source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '${AGGR_SEPARATOR}' + doc['${query_facets[key].title}'].value`,
                                         lang: 'painless',
                                     },
                                 },
@@ -337,7 +338,7 @@ exports.ESHelper = {
                             [sort]: sort == "_count" ? "desc" : "asc"
                         },
                         script: {
-                            source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + ' ||| ' + doc['${title}'].value`,
+                            source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '${AGGR_SEPARATOR}' + doc['${title}'].value`,
                             lang: 'painless',
                         },
                     }
@@ -377,7 +378,7 @@ exports.ESHelper = {
                     [sort]: sort == "_count" ? "desc" : "asc"
                 },
                 script: {
-                    source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + ' ||| ' + doc['${term.title}'].value`,
+                    source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '${AGGR_SEPARATOR}' + doc['${term.title}'].value`,
                     lang: 'painless',
                 },
             },
