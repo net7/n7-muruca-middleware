@@ -107,14 +107,14 @@ class SearchParser {
                     }
                     buckets_data.buckets.forEach((agg, index) => {
                         var _a;
-                        const haystack_formatted = (agg.key.split("|||")[0] || '').toLowerCase();
-                        const haystack_notFormatted = (agg.key.split("|||")[1] || '').toLowerCase();
+                        const haystack_formatted = (agg.key.split("|||")[0] || '').toLowerCase().trim();
+                        const haystack_notFormatted = (agg.key.split("|||")[1] || '').toLowerCase().trim();
                         const needle = (query || '').toLowerCase();
                         if (haystack_formatted.includes(needle) || haystack_notFormatted.includes(needle)) {
                             const facet = {
-                                text: agg.key.split("|||")[1],
+                                text: agg.key.split("|||")[1].trim(),
                                 counter: agg.doc_count,
-                                payload: agg.key.split("|||")[0]
+                                payload: agg.key.split("|||")[0].trim()
                             };
                             if (query_facets[id]['extra']) {
                                 const extra_args = {};
