@@ -13,7 +13,7 @@ class ResourceParser {
             sections: {},
         };
         for (const block in conf) {
-            switch (block['type']) {
+            switch (conf[block].type) {
                 case "title":
                     parsed.title = "";
                     conf[block].fields.map((field) => {
