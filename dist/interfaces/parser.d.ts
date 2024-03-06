@@ -62,7 +62,7 @@ export interface OutputMetadata {
     "group": OutputMetadataGroup[];
 }
 export interface OutputMetadataGroup {
-    "title": string;
+    "title"?: string;
     "items": OutputMetadataItem[];
 }
 export interface OutputMetadataItem {
@@ -89,9 +89,11 @@ export interface OutputRelatedRecordsItem {
     "title": string;
     "link"?: string;
     "image"?: string;
+    "text"?: string;
     "slug": string;
     "id": number;
     "routeId": string;
+    "metadata"?: OutputMetadataGroup[];
 }
 export interface OutputTextViewer {
     "endpoint": string;
