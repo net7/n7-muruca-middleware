@@ -88,7 +88,7 @@ const defaultHandlers = {
     getMap: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         routeHandler(req, res, controller.getMap);
     }),
-    getResource: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    getResource: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         routeHandler(req, res, controller.getResource);
     }),
     search: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -150,4 +150,5 @@ router.get('/get_translation/:lang', (req, res) => defaultHandlers.getTranslatio
 router.post('/search/:type', (req, res) => defaultHandlers.search(req, res));
 router.post('/advanced_search', (req, res) => defaultHandlers.advancedSearch(req, res));
 router.post('/list/:type', (req, res) => defaultHandlers.getObjectsByType(req, res));
+// Exports
 exports.neffRouter = router;

@@ -81,7 +81,7 @@ const defaultHandlers: {
   getMap: () => async (req, res) => {
     routeHandler(req, res, controller.getMap);
   },
-  getResource: () => async (req, res) => {
+  getResource: async (req, res) => {
     routeHandler(req, res, controller.getResource);
   },
   search: () => async (req, res) => {

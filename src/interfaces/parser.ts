@@ -49,6 +49,38 @@ export interface Input {
 }
 
 export default interface Parser {
-  parse: (input: Input) => object;
+  parse: (input: Input, locale: String) => object;
   localeParse?: (input: any) => object;
+}
+
+export interface ParsedData {
+  title ?: string,
+  sections?: { 
+    [key: string] : OutputHeader | OutputBreadcrumbs[] | OutputMetadata | {}
+  }
+}
+
+
+export interface OutputHeader {
+  "title" : string,
+  "description" : string
+}
+
+export interface OutputBreadcrumbs {
+  "link" : string,
+  "title" :  string
+}
+
+export interface OutputMetadata {
+  "group" : OutputMetadataGroup[]
+}
+
+export interface OutputMetadataGroup{
+  "title" : string,
+  "items" : OutputMetadataItem[]
+}
+
+export interface OutputMetadataItem{
+  "label" : string,
+  "value" : string |  Array<Array<OutputMetadataItem>>;
 }
