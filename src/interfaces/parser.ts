@@ -56,10 +56,9 @@ export default interface Parser {
 export interface ParsedData {
   title ?: string,
   sections?: { 
-    [key: string] : OutputHeader | OutputBreadcrumbs[] | OutputMetadata | {}
+    [key: string] : OutputHeader | OutputBreadcrumbs[] | OutputMetadata | OutputImageViewer | OutputRelatedRecords | OutputTextViewer | {}
   }
 }
-
 
 export interface OutputHeader {
   "title" : string,
@@ -83,4 +82,44 @@ export interface OutputMetadataGroup{
 export interface OutputMetadataItem{
   "label" : string,
   "value" : string |  Array<Array<OutputMetadataItem>>;
+}
+
+export interface OutputImageViewer{
+  "images" : OutputImageViewerItem[],
+  "thumbs" : string[];
+}
+
+export interface OutputImageViewerItem{
+  "type": string,
+  "url": string,
+  "caption"?: string;
+}
+export interface OutputRelatedRecords{
+  "header": OutputRelatedRecordsHeader,
+  "items": OutputRelatedRecordsItem[],
+}
+
+export interface OutputRelatedRecordsHeader{
+  "title": string
+}
+export interface OutputRelatedRecordsItem{
+  "title": string,
+  "link"?: string,
+  "image"?: string,
+  "slug": string,
+  "id": number, 
+  "routeId": string 
+}
+export interface OutputTextViewer{
+  "endpoint": string,
+  "docs": OutputTextViewerDoc[],
+}
+export interface OutputTextViewerDoc{
+  "xml": string,
+  "odd": string,
+  "id"?: string,
+  "channel"?: string,
+  "translation"?: boolean,
+  "xpath"?: boolean,
+  "view"?: string
 }
