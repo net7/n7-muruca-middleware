@@ -3,6 +3,7 @@ export interface ConfigResource {
 }
 
 export interface ConfBlock{
+    title?: string
     type: "title" | "metadata" | "collection" | "text-viewer" | "image-viewer" | "map" | "breadcrumb",
     fields: string[],
 }

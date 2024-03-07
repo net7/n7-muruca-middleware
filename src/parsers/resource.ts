@@ -1,5 +1,5 @@
-import { Author } from '../interfaces';
-import Parser, { ParsedData } from '../interfaces/parser';
+import { Author, ConfBlock } from '../interfaces';
+import Parser, { OutputBreadcrumbs, OutputCollection, OutputHeader, OutputImageViewer, OutputMetadataItem, ParsedData } from '../interfaces/parser';
 
 export class ResourceParser implements Parser {
     parse({ data, options }: any, locale) {
@@ -15,17 +15,14 @@ export class ResourceParser implements Parser {
       };
   
       for (const block in conf) {
+        
         switch (conf[block].type) {
           case "title":
-            parsed.title = "";
-            conf[block].fields.map((field: string) => {
-              if (data[field] && data[field] != "") {
-                parsed.title = data[field];
-              }
-            });
+            parsed.title = this.parseTitle(conf[block], data);
             break;
   
           case "header":
+            //parsed.sections[block] = this.parseHeader(conf[block], data);
             parsed.sections[block] = {};
             let t = conf[block].fields;
             parsed.sections[block][t[0]] = data[t[0]]; // title
@@ -33,36 +30,11 @@ export class ResourceParser implements Parser {
             break;
   
           case "image-viewer":
-            parsed.sections[block] = {};
-            let v = { images: [], thumbs: [] };
-            let gallery = conf[block].fields[0]; // "gallery"
-            if (typeof data[gallery] === "string") {
-              v.images.push({
-                type: "image",
-                url: data[gallery],
-                description: "",
-              });
-            } else {
-              v.images = data[gallery].map((g: any) => ({
-                type: "image",
-                url: g.image,
-                description: g.description,
-              }));
-              v.thumbs = v.images;
-            }
-            parsed.sections[block] = v;
+            parsed.sections[block] = this.parseImageViewer(conf[block], data);
             break;
   
           case "breadcrumbs":
-            parsed.sections[block] = {};
-            conf[block].fields.forEach((field: string) => {
-              parsed.sections[block] = Array.isArray(data[field])
-                ? data[field].map(({ id, slug, title }) => ({
-                    title,
-                    link: `/${type}/${id}/${slug}`,
-                  }))
-                : [];
-            });
+            parsed.sections[block] = this.parseBreadcrumbs(conf[block], data, type);
             break;
   
           case "metadata":
@@ -74,37 +46,24 @@ export class ResourceParser implements Parser {
                   title: "Metadata",
                   items: conf[block].fields.map((field: string) => {
                     if (data[field]) {
-                      const filter = [
-                        "date",
-                        "author",
-                        "creator",
-                        "subject",
-                        "collocation",
-                        "linguaggio",
-                        "spatialCoverage",
-                        "temporalCoverage",
-                        "contenuti",
-                        "riproduzione_link",
-                        "riproduzione_link_2",
-                        "riproduzione",
-                        "edition",
-                      ];
-                      if (filter.indexOf(field) > -1) {
-                        return this.filter(data, field, type); // metadata
-                      } else {
-                        return {
+                      
+                      const metadataItem = {
                           label: field.replace(/_/g, " "),
                           value: data[field],
                         };
+                        return this.filterMetadata(field, metadataItem, type)
                       }
                     }
-                  }),
-                },
+                  )
+                }
               ],
             };
             m.group[0].items = m.group[0].items.filter((n: any) => n);
             parsed.sections[block] = { ...m };
             break;
+
+          case "collection":
+            parsed.sections[block] = this.parseCollection(conf[block], data);
   
           case "collection-keywords":
             parsed.sections[block] = {};
@@ -477,6 +436,7 @@ export class ResourceParser implements Parser {
               }
             }
             break;
+          
           case "collection-places": // mandare formattata in questo modo
           
             if (data[conf[block].fields]) {
@@ -496,109 +456,110 @@ export class ResourceParser implements Parser {
               });
             }
             break;
-          default:
+
+            default:
             break;
         }
       }
       return parsed;
     }
-
+    
     localeParse(data: any) {
-    const locale = data;
-    return locale;
-  }
-
-   /**
+      const locale = data;
+      return locale;
+    }
+    
+  /**
    * Data filters
    */
-   filter(data: any, field: string, page) {
-    let filter;
-    if (/date/.test(field)) {
-      filter = { label: field, value: data[field]["range"] };
-    }
-    if (/edition/.test(field)) {
-      filter = {
-        label: field,
-        value: data[field][0]["title"] + " " + data[field][0]["description"],
-      };
-    }
-
-    if (/contenuti/.test(field)) {
-      filter = {
-        label: field,
-        value: [],
-      };
-      data[field]
+  filter(data: any, field: string, page) {
+     let filter;
+     if (/date/.test(field)) {
+       filter = { label: field, value: data[field]["range"] };
+      }
+      if (/edition/.test(field)) {
+        filter = {
+          label: field,
+          value: data[field][0]["title"] + " " + data[field][0]["description"],
+        };
+      }
+      
+      if (/contenuti/.test(field)) {
+        filter = {
+          label: field,
+          value: [],
+        };
+        data[field]
         ? data[field].map((c) =>
-            filter.value.push(Object.keys(c).map((f) => ({ value: c[f] })))
-          )
+        filter.value.push(Object.keys(c).map((f) => ({ value: c[f] })))
+        )
         : null;
-    }
-
-    if (/author|collocation|creator|subject/.test(field)) {
-      filter = {
-        label: field,
-        value: Object.keys(data[field])
+      }
+      
+      if (/author|collocation|creator|subject/.test(field)) {
+        filter = {
+          label: field,
+          value: Object.keys(data[field])
           .map((n) => data[field][n].name)
           .join(", "),
-      };
-    }
-
-    if (/authors/.test(field)) {
-      filter = [];
-      switch (page) {
-        case "work":
-          Object.keys(data[field]).map((auth) => {
-            filter.push({
-              label: "author",
-              value: data[field][auth].name,
+        };
+      }
+      
+      if (/authors/.test(field)) {
+        filter = [];
+        switch (page) {
+          case "work":
+            Object.keys(data[field]).map((auth) => {
+              filter.push({
+                label: "author",
+                value: data[field][auth].name,
+              });
             });
-          });
-          break;
-        case "map":
-          data[field].map((auth: Author) => {
-            filter.push({
-              label: auth.role,
-              value: Object.keys(auth.author)
+            break;
+            case "map":
+            data[field].map((auth: Author) => {
+              filter.push({
+                label: auth.role,
+                value: Object.keys(auth.author)
                 .map((a) => auth.author[a].name)
                 .join(", "),
+              });
             });
-          });
-          break;
-      }
-    }
-    if (/spatialCoverage/.test(field)) {
-      filter = {
-        label: field,
+            break;
+          }
+        }
+        if (/spatialCoverage/.test(field)) {
+          filter = {
+            label: field,
         value: Object.keys(data[field])
-          .map((lang) => data[field][lang].title)
-          .join(""),
+        .map((lang) => data[field][lang].title)
+        .join(""),
       };
     }
     if (/temporalCoverage/.test(field)) {
       filter = {
         label: field,
         value: Object.keys(data[field])
-          .map((lang) => data[field][lang])
-          .join(""),
+        .map((lang) => data[field][lang])
+        .join(""),
       };
     }
-
+    
     if (/linguaggio/.test(field)) {
       filter = {
         label: field.replace(/_/g, " "),
         value: Object.keys(data[field])
-          .map((lang) => data[field][lang]["name"])
-          .join(", "),
+        .map((lang) => data[field][lang]["name"])
+        .join(", "),
       };
     }
-
+    
     if (/primary_sources|external_links/.test(field)) {
       filter = {
         label: field.replace(/_/g, " "),
         value: Object.keys(data[field])
-          .map((auth) => data[field][auth]["link"])
-          .join(", "),
+        .map((auth) => data[field][auth]["link"])
+        .join(", "),
       };
     }
     if (/riproduzione_link/.test(field)) {
@@ -606,8 +567,8 @@ export class ResourceParser implements Parser {
         label: "riproduzione".replace(/_/g, " "),
         value: `<a href="${data[field]}">${
           data["riproduzione"]
-            ? data["riproduzione"].map((item) => item.title).join(", ")
-            : null || "Vedi riproduzione"
+          ? data["riproduzione"].map((item) => item.title).join(", ")
+          : null || "Vedi riproduzione"
         }</a>`,
       };
     }
@@ -625,5 +586,86 @@ export class ResourceParser implements Parser {
     }
     return filter;
   }
-}
+  
+  filterMetadata(field: string, metadataItem: OutputMetadataItem, recordType: string ): OutputMetadataItem{
+    return metadataItem;
+  }
+  
+  /**
+   * Parsers
+   */
+  parseTitle(block: ConfBlock, data: any): string{
+   let title: string = "";
+   block.fields.map((field: string) => {
+     if (data[field] && data[field] != "") {
+       title = data[field];
+      }
+    });
+    return title;
+  }
+  
+  parseHeader(block: ConfBlock, data: any): OutputHeader{
+    let header: OutputHeader = {
+      title: "",
+      description: ""
+    }
+    return header;
+  }
+  
+  parseImageViewer(block: ConfBlock, data: any): OutputImageViewer{
+    let imageViewer = { images: [], thumbs: [] };
+    let gallery = block.fields[0]; // "gallery"
+    if (typeof data[gallery] === "string") {
+      imageViewer.images.push({
+        type: "image",
+        url: data[gallery],
+        description: "",
+      });
+    } else {
+      imageViewer.images = data[gallery].map((g: any) => ({
+        type: "image",
+        url: g.image,
+        description: g.description,
+      }));
+      imageViewer.thumbs = imageViewer.images;
+    }
+    return imageViewer;
+  }
+  
+  parseBreadcrumbs(block: ConfBlock, data: any, type:string): OutputBreadcrumbs{
+    let breadcrumbs = {link: "", title: ""};
+    block.fields.forEach((field: string) => {
+      breadcrumbs = Array.isArray(data[field])
+        ? data[field].map(({ id, slug, title }) => ({
+            title,
+            link: `/${type}/${id}/${slug}`,
+          }))
+        : [];
+    });
+    return breadcrumbs;
+    
+  }
 
+  parseCollection(block: ConfBlock, data: any): OutputCollection{
+    const collection = {
+      header: { title: block.title },
+      items: [],
+    };
+
+    block.fields.map((field: string) => {
+      if (data[field]) {
+        collection.items = data[field].map((f: any) => ({
+          title: f.title,
+          //image: f.image,
+          slug: f.slug,
+          id: f.id,
+          routeId: f['record-type'],
+        }));
+      }
+    });
+    return collection;
+    
+  }
+
+
+}

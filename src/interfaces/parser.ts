@@ -56,7 +56,7 @@ export default interface Parser {
 export interface ParsedData {
   title ?: string,
   sections?: { 
-    [key: string] : OutputHeader | OutputBreadcrumbs[] | OutputMetadata | OutputImageViewer | OutputRelatedRecords | OutputTextViewer | {}
+    [key: string] : OutputHeader | OutputBreadcrumbs[] | OutputMetadata | OutputImageViewer | OutputCollection | OutputTextViewer | {}
   }
 }
 
@@ -94,15 +94,15 @@ export interface OutputImageViewerItem{
   "url": string,
   "caption"?: string;
 }
-export interface OutputRelatedRecords{
-  "header": OutputRelatedRecordsHeader,
-  "items": OutputRelatedRecordsItem[],
+export interface OutputCollection{
+  "header": OutputCollectionHeader,
+  "items": OutputCollectionItems[],
 }
 
-export interface OutputRelatedRecordsHeader{
+export interface OutputCollectionHeader{
   "title": string
 }
-export interface OutputRelatedRecordsItem{
+export interface OutputCollectionItems{
   "title": string,
   "link"?: string,
   "image"?: string,
