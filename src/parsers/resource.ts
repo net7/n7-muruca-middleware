@@ -25,11 +25,7 @@ export class ResourceParser implements Parser {
             break;
   
           case "header":
-            //parsed.sections[block] = this.parseHeader(conf[block], data);
-            parsed.sections[block] = {};
-            let t = conf[block].fields;
-            parsed.sections[block][t[0]] = data[t[0]]; // title
-            parsed.sections[block][t[1]] = data[t[1]]; // description
+            parsed.sections[block] = this.parseHeader(conf[block], data);
             break;
   
           case "image-viewer":
@@ -556,9 +552,10 @@ export class ResourceParser implements Parser {
   }
 
   parseHeader(block: ConfBlock, data: any): OutputHeader{
-    let header: OutputHeader = {
-      title: "",
-      description: ""
+    const fields = block.fields;
+    const header: OutputHeader = {
+      title : data[fields[0]], // title
+      description: data[fields[1]] // description
     }
     return header;
   }
