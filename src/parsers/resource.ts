@@ -177,43 +177,11 @@ export class ResourceParser implements Parser {
             break;
   
           case "metadata-size":
-            parsed.sections[block] = {};
-            const m_2 = {
-              group: [
-                {
-                  title: "Dimensioni",
-                  items: [].concat(
-                    ...conf[block].fields // dimension
-                      .map((field: string) =>
-                        Object.keys(data[field]).map((f) => ({
-                          label: f,
-                          value:
-                            f === "image"
-                              ? "<img src='" + data[field][f] + "'>"
-                              : data[field][f],
-                        }))
-                      )
-                  ),
-                },
-              ],
-            };
-            parsed.sections[block] = { ...m_2 };
+            parsed.sections[block] = this.parseMetadataSize(conf[block], data);
             break;
   
           case "metadata-description":
-            parsed.sections[block] = {};
-            const m_3 = {
-              group: [
-                {
-                  title: "Descrizione",
-                  items: conf[block].fields // description
-                    .map((field: string) => {
-                      return { label: field, value: data[field] };
-                    }),
-                },
-              ],
-            };
-            parsed.sections[block] = { ...m_3 };
+            parsed.sections[block] = this.parseMetadataDescription(conf[block], data);
             break;
   
           case "collection-maps":
@@ -549,6 +517,44 @@ export class ResourceParser implements Parser {
     return m;
   }
   
+  parseMetadataSize(block: ConfBlock, data: any): OutputMetadata{
+    const metadataSize = {
+      group: [
+        {
+          title: "Dimensioni",
+          items: [].concat(
+            ...block.fields // dimension
+              .map((field: string) =>
+                Object.keys(data[field]).map((f) => ({
+                  label: f,
+                  value:
+                    f === "image"
+                      ? "<img src='" + data[field][f] + "'>"
+                      : data[field][f],
+                }))
+              )
+          ),
+        },
+      ],
+    };
+   return metadataSize;
+  }
+
+  parseMetadataDescription(block: ConfBlock, data: any): OutputMetadata{
+    const metadataDescription = {
+      group: [
+        {
+          title: "Descrizione",
+          items: block.fields // description
+            .map((field: string) => {
+              return { label: field, value: data[field] };
+            }),
+        },
+      ],
+    };
+   return metadataDescription;
+  }
+
   parseHeader(block: ConfBlock, data: any): OutputHeader{
     let header: OutputHeader = {
       title: "",
