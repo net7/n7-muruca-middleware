@@ -95,12 +95,12 @@ export interface OutputImageViewerItem{
   "caption"?: string;
 }
 export interface OutputCollection{
-  "header": OutputCollectionHeader,
+  "header": OutputCollectionHeader | undefined
   "items": OutputCollectionItems[],
 }
 
 export interface OutputCollectionHeader{
-  "title": string
+  "title"?: string
 }
 export interface OutputCollectionItems{
   "title": string,

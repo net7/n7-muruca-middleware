@@ -1,5 +1,5 @@
 import { Author, ConfBlock } from '../interfaces';
-import Parser, { OutputBreadcrumbs, OutputCollection, OutputHeader, OutputImageViewer, OutputMetadataItem, ParsedData } from '../interfaces/parser';
+import Parser, { OutputBreadcrumbs, OutputCollection, OutputHeader, OutputImageViewer, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
 
 export class ResourceParser implements Parser {
     parse({ data, options }: any, locale) {
@@ -15,7 +15,6 @@ export class ResourceParser implements Parser {
       };
   
       for (const block in conf) {
-        
         switch (conf[block].type) {
           case "title":
             parsed.title = this.parseTitle(conf[block], data);
@@ -38,28 +37,7 @@ export class ResourceParser implements Parser {
             break;
   
           case "metadata":
-            parsed.sections[block] = {};
-  
-            const m = {
-              group: [
-                {
-                  title: "Metadata",
-                  items: conf[block].fields.map((field: string) => {
-                    if (data[field]) {
-                      
-                      const metadataItem = {
-                          label: field.replace(/_/g, " "),
-                          value: data[field],
-                        };
-                        return this.filterMetadata(field, metadataItem, type)
-                      }
-                    }
-                  )
-                }
-              ],
-            };
-            m.group[0].items = m.group[0].items.filter((n: any) => n);
-            parsed.sections[block] = { ...m };
+            parsed.sections[block] = this.parseMetadata(conf[block], data, type);
             break;
 
           case "collection":
@@ -255,53 +233,11 @@ export class ResourceParser implements Parser {
             }
             break;
   
-          case "collection-bibliography":
-            parsed.sections[block] = {};
-            const c_b: any = {
-              header: {
-                title: "Bibliografie",
-              },
-              items: [],
-            };
-  
-            if (data["bibliographicCitation"] != null) {
-              conf[block].fields.map((field) => {
-                data[field].map((rif) => {
-                  rif["rif_biblio"].map((biblio) => {
-                    const text =
-                      biblio.title != ""
-                        ? `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`
-                        : `${biblio.description}: ${rif.rif_biblio_position}`;
-                    c_b.items.push({
-                      payload: {
-                        // action: "resource-modal",
-                        id: biblio.id,
-                        type: "bibliography_wit",
-                      },
-                      text: `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`,
-                    });
-                  });
-                });
-              });
-            } else if (data["timeline_bibliografia"] != null) {
-              data["timeline_bibliografia"].map((rif) => {
-                rif["mrc_timeline_bibliografia_rif_biblio"].map((biblio) => {
-                  c_b.items.push({
-                    payload: {
-                      action: "resource-modal",
-                      id: biblio.id,
-                      type: "bibliography_wit",
-                    },
-                    text: `${biblio.title}: ${biblio.description} ${rif["mrc_timeline_rif_biblio_position"]}`,
-                  });
-                });
-              });
-            }
-  
-            parsed.sections[block] = { ...c_b };
+          case "bibliography":
+            parsed.sections[block] = this.parseBibliography(conf[block], data);
             break;
   
-          case "collection-records":
+          case "collection-records": //obsoleta
             parsed.sections[block] = {};
             const r_2: any = {
               header: {
@@ -324,7 +260,7 @@ export class ResourceParser implements Parser {
             });
             break;
   
-          case "collection-works":
+          case "collection-works": //obsoleta
             parsed.sections[block] = {};
             const c_2: any = {
               header: {
@@ -415,26 +351,7 @@ export class ResourceParser implements Parser {
             break;
   
           case "text-viewer":
-            if (data["transcription"]) {
-              if (!data["transcription"]["filename"].endsWith("/")) {
-                parsed.sections[block] = {
-                  endpoint:
-                    data["transcription"]["teipublisher"] +
-                    "/exist/apps/tei-publisher",
-                  docs: [
-                    {
-                      xml: data["transcription"]["filename"],
-                      odd: data["transcription"]["odd"],
-                      id: data["slug"] + "_" + data["id"],
-                      channel: data["transcription"]["channel"] ?? false,
-                      translation : data["transcription"]["translation"] ?? false,
-                      xpath : data["transcription"]["xpath"] ?? false,
-                      view : data["transcription"]["view"] 
-                    },
-                  ],
-                };
-              }
-            }
+            parsed.sections[block] = this.parseTextViewer(conf[block], data)
             break;
           
           case "collection-places": // mandare formattata in questo modo
@@ -603,6 +520,30 @@ export class ResourceParser implements Parser {
     });
     return title;
   }
+
+  parseMetadata(block: ConfBlock, data: any, type: string): OutputMetadata{
+    const m = {
+      group: [
+        {
+          title: "Metadata",
+          items: block.fields.map((field: string) => {
+            if (data[field]) {
+              
+              const metadataItem = {
+                  label: field.replace(/_/g, " "),
+                  value: data[field],
+                };
+                return this.filterMetadata(field, metadataItem, type)
+              }
+            }
+          )
+        }
+      ],
+    };
+    m.group[0].items = m.group[0].items.filter((n: any) => n); //cancella i null
+
+    return m;
+  }
   
   parseHeader(block: ConfBlock, data: any): OutputHeader{
     let header: OutputHeader = {
@@ -647,15 +588,16 @@ export class ResourceParser implements Parser {
   }
 
   parseCollection(block: ConfBlock, data: any): OutputCollection{
+    const header = block.title ? {title: block.title} : {};
     const collection = {
-      header: { title: block.title },
+      header: header,
       items: [],
     };
 
     block.fields.map((field: string) => {
       if (data[field]) {
         collection.items = data[field].map((f: any) => ({
-          title: f.title,
+          title: f. title, //f.title.replace(/-/g, " "),
           //image: f.image,
           slug: f.slug,
           id: f.id,
@@ -665,6 +607,84 @@ export class ResourceParser implements Parser {
     });
     return collection;
     
+  }
+
+  parseBibliography(block: ConfBlock, data: any): OutputCollection{
+    const c_b: any = {
+      header: {
+        title: block.title,
+      },
+      items: [],
+    };
+
+    if (data["bibliographicCitation"] != null) {
+      block.fields.map((field) => {
+        data[field].map((rif) => {
+          rif["rif_biblio"].map((biblio) => {
+            const text =
+              biblio.title != ""
+                ? `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`
+                : `${biblio.description}: ${rif.rif_biblio_position}`;
+            c_b.items.push({
+              payload: {
+                // action: "resource-modal",
+                id: biblio.id,
+                type: "bibliography_wit",
+              },
+              text: `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`,
+            });
+          });
+        });
+      });
+    } else if (data["timeline_bibliografia"] != null) {
+      data["timeline_bibliografia"].map((rif) => {
+        rif["mrc_timeline_bibliografia_rif_biblio"].map((biblio) => {
+          c_b.items.push({
+            payload: {
+              action: "resource-modal",
+              id: biblio.id,
+              type: "bibliography_wit",
+            },
+            text: `${biblio.title}: ${biblio.description} ${rif["mrc_timeline_rif_biblio_position"]}`,
+          });
+        });
+      });
+    }
+
+    return {...c_b};
+
+  }
+
+  parseTextViewer(block: ConfBlock, data: any): OutputTextViewer{
+
+    let t_v = {
+      "endpoint": "",
+      "docs": []
+    };
+
+    if (data["bibliographicCitation"] != null) {
+      if (data["transcription"]) {
+        if (!data["transcription"]["filename"].endsWith("/")) {
+          t_v = {
+            endpoint:
+              data["transcription"]["teipublisher"] +
+              "/exist/apps/tei-publisher",
+            docs: [
+              {
+                xml: data["transcription"]["filename"],
+                odd: data["transcription"]["odd"],
+                id: data["slug"] + "_" + data["id"],
+                channel: data["transcription"]["channel"] ?? false,
+                translation : data["transcription"]["translation"] ?? false,
+                xpath : data["transcription"]["xpath"] ?? false,
+                view : data["transcription"]["view"] 
+              },
+            ],
+          };
+        }
+      }
+    }
+    return t_v;
   }
 
 
