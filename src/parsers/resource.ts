@@ -13,7 +13,11 @@ export class ResourceParser implements Parser {
         title: "",
         sections: {},
       };
-  
+
+      if(data?.error){
+        return parsed;
+      }
+
       for (const block in conf) {
         switch (conf[block].type) {
           case "title":
