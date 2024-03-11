@@ -42,6 +42,7 @@ export class ResourceParser implements Parser {
 
           case "collection":
             parsed.sections[block] = this.parseCollection(conf[block], data);
+            break;
   
           case "collection-keywords":
             parsed.sections[block] = {};
@@ -605,11 +606,13 @@ export class ResourceParser implements Parser {
       if (data[field]) {
         collection.items = data[field].map((f: any) => ({
           title: f. title, //f.title.replace(/-/g, " "),
-          //image: f.image,
           slug: f.slug,
           id: f.id,
           routeId: f['record-type'],
         }));
+        if(data[field]?.image){
+          collection.items['image'] = data[field].image 
+        }
       }
     });
     return collection;

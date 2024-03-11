@@ -4,7 +4,7 @@ export interface ConfigResource {
 
 export interface ConfBlock{
     title?: string
-    type: "title" | "header" | "metadata" | "metadata-size" | "metadata-description" | "collection" | "text-viewer" | "image-viewer" | "map" | "breadcrumb",
+    type: "title" | "header" | "metadata" | "metadata-size" | "metadata-description" | "collection" | "bibliography" |  "text-viewer" | "image-viewer" | "map" | "breadcrumb",
     fields: string[],
 }
   
