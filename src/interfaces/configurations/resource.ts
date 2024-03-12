@@ -1,5 +1,5 @@
 export interface ConfigResource {
-    [key:string]: ConfBlock
+    [key:string]: ConfBlock | ConfBlockTextViewer
 }
 
 export interface ConfBlock{
@@ -14,5 +14,10 @@ export interface ConfBlock{
     fields: string[],
     /** @default TRUE show thumbnail in collection row. */
     hasImage?: boolean
+}
+
+export interface ConfBlockTextViewer{
+    type: "text-viewer" ,
+    field: string,
 }
   

@@ -1,4 +1,4 @@
-import { Author, ConfBlock } from '../interfaces';
+import { Author, ConfBlock, ConfBlockTextViewer } from '../interfaces';
 import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputHeader, OutputImageViewer, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
 
 export class ResourceParser implements Parser {
@@ -668,35 +668,34 @@ export class ResourceParser implements Parser {
 
   }
 
-  parseTextViewer(block: ConfBlock, data: any): OutputTextViewer{
+  parseTextViewer(block: ConfBlockTextViewer, data: any): OutputTextViewer{
 
     let t_v = {
       "endpoint": "",
       "docs": []
     };
 
-    if (data["bibliographicCitation"] != null) {
-      if (data["transcription"]) {
-        if (!data["transcription"]["filename"].endsWith("/")) {
+      if (data[block.field]) {
+        if (!data[block.field]["filename"].endsWith("/")) {
           t_v = {
             endpoint:
-              data["transcription"]["teipublisher"] +
+              data[block.field]["teipublisher"] +
               "/exist/apps/tei-publisher",
             docs: [
               {
-                xml: data["transcription"]["filename"],
-                odd: data["transcription"]["odd"],
+                xml: data[block.field]["filename"],
+                odd: data[block.field]["odd"],
                 id: data["slug"] + "_" + data["id"],
-                channel: data["transcription"]["channel"] ?? false,
-                translation : data["transcription"]["translation"] ?? false,
-                xpath : data["transcription"]["xpath"] ?? false,
-                view : data["transcription"]["view"] 
+                channel: data[block.field]["channel"] ?? false,
+                translation : data[block.field]["translation"] ?? false,
+                xpath : data[block.field]["xpath"] ?? false,
+                view : data[block.field]["view"] 
               },
             ],
           };
         }
-      }
-    }
+      }else return
+
     return t_v;
   }
 
