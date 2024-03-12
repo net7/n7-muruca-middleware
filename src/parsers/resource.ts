@@ -1,5 +1,5 @@
 import { Author, ConfBlock } from '../interfaces';
-import Parser, { OutputBreadcrumbs, OutputCollection, OutputHeader, OutputImageViewer, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
+import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputHeader, OutputImageViewer, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
 
 export class ResourceParser implements Parser {
     parse({ data, options }: any, locale) {
@@ -602,7 +602,7 @@ export class ResourceParser implements Parser {
 
   parseCollection(block: ConfBlock, data: any): OutputCollection{
     const header = block.title ? {title: block.title} : {};
-    const collection = {
+    const collection : OutputCollection = {
       header: header,
       items: [],
     };
@@ -624,8 +624,8 @@ export class ResourceParser implements Parser {
     
   }
 
-  parseBibliography(block: ConfBlock, data: any): OutputCollection{
-    const c_b: any = {
+  parseBibliography(block: ConfBlock, data: any): OutputBibliography{
+    const c_b: OutputBibliography = {
       header: {
         title: block.title,
       },

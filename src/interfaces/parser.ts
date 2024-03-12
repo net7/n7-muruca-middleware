@@ -112,6 +112,23 @@ export interface OutputCollectionItems{
   "routeId": string ,
   "metadata"?: OutputMetadataGroup[]
 }
+
+export interface OutputBibliography{
+  "header": OutputHeader,
+  "items": OutputBibliographyItems[]
+}
+
+export interface OutputBibliographyItems{
+  "payload": OutputBibliographyPayload,
+  "text"?: string
+}
+
+export interface OutputBibliographyPayload{
+  "id": string,
+  "type": string,
+  "action"?: string
+}
+
 export interface OutputTextViewer{
   "endpoint": string,
   "docs": OutputTextViewerDoc[],
