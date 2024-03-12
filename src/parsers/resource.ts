@@ -601,9 +601,7 @@ export class ResourceParser implements Parser {
   }
 
   parseCollection(block: ConfBlock, data: any): OutputCollection{
-    const header = block.title ? {title: block.title} : {};
     const collection : OutputCollection = {
-      header: header,
       items: [],
     };
 

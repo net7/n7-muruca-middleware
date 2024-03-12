@@ -95,7 +95,6 @@ export interface OutputImageViewerItem{
   "caption"?: string;
 }
 export interface OutputCollection{
-  "header": OutputCollectionHeader | undefined
   "items": OutputCollectionItems[],
 }
 
