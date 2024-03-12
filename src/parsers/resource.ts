@@ -554,9 +554,14 @@ export class ResourceParser implements Parser {
 
   parseHeader(block: ConfBlock, data: any): OutputHeader{
     const fields = block.fields;
-    const header: OutputHeader = {
-      title : data[fields[0]], // title
-      description: data[fields[1]] // description
+    const header: OutputHeader = { 
+      title: ''
+     }
+    if(data[fields[0]]){
+      header.title = data[fields[0]];
+    }
+    if(data[fields[1]]){
+      header.description = data[fields[1]];
     }
     return header;
   }
@@ -610,7 +615,7 @@ export class ResourceParser implements Parser {
           id: f.id,
           routeId: f['record-type'],
         }));
-        if(data[field]?.image){
+        if(data[field]?.image){   //TODO
           collection.items['image'] = data[field].image 
         }
       }

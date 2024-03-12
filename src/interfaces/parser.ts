@@ -62,7 +62,7 @@ export interface ParsedData {
 
 export interface OutputHeader {
   "title" : string,
-  "description" : string
+  "description"? : string
 }
 
 export interface OutputBreadcrumbs {
