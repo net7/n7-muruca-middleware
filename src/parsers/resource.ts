@@ -1,5 +1,5 @@
 import { Author, ConfBlock, ConfBlockTextViewer } from '../interfaces';
-import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputHeader, OutputImageViewer, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
+import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputHeader, OutputImageViewer, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
 
 export class ResourceParser implements Parser {
     parse({ data, options }: any, locale) {
@@ -306,6 +306,7 @@ export class ResourceParser implements Parser {
   parseImageViewer(block: ConfBlock, data: any): OutputImageViewer{
     let imageViewer = { images: [], thumbs: [] };
     let gallery = block.fields[0]; // "gallery"
+    if(!data[gallery]) return
     if (typeof data[gallery] === "string") {
       imageViewer.images.push({
         type: "image",
@@ -313,10 +314,11 @@ export class ResourceParser implements Parser {
         description: "",
       });
     } else {
-      imageViewer.images = data[gallery].map((g: any) => ({
-        type: "image",
-        url: g.image,
+      imageViewer.images = data[gallery].map((g: OutputImageViewerItem) => ({
+        type: g.type,
+        url: g.url,
         description: g.description,
+        caption: g.caption
       }));
       imageViewer.thumbs = imageViewer.images;
     }

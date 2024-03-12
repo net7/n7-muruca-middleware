@@ -93,6 +93,7 @@ export interface OutputImageViewerItem{
   "type": string,
   "url": string,
   "caption"?: string;
+  "description"?: string
 }
 export interface OutputCollection{
   "items": OutputCollectionItems[],
