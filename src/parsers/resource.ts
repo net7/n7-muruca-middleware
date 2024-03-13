@@ -347,9 +347,6 @@ export class ResourceParser implements Parser {
 
   parseBibliography(block: ConfBlock, data: any): OutputBibliography{
     const c_b: OutputBibliography = {
-      header: {
-        title: block.title,
-      },
       items: [],
     };
 

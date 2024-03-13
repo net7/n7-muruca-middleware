@@ -111,7 +111,6 @@ export interface OutputCollectionItems{
 }
 
 export interface OutputBibliography{
-  "header": OutputHeader,
   "items": OutputBibliographyItems[]
 }
 
