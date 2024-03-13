@@ -99,9 +99,6 @@ export interface OutputCollection{
   "items": OutputCollectionItems[],
 }
 
-export interface OutputCollectionHeader{
-  "title"?: string
-}
 export interface OutputCollectionItems{
   "title": string,
   "link"?: string,
@@ -133,6 +130,7 @@ export interface OutputTextViewer{
   "endpoint": string,
   "docs": OutputTextViewerDoc[],
 }
+
 export interface OutputTextViewerDoc{
   "xml": string,
   "odd": string,
@@ -141,4 +139,18 @@ export interface OutputTextViewerDoc{
   "translation"?: boolean,
   "xpath"?: boolean,
   "view"?: string
+}
+
+export interface OutputCollectionMap{
+  "title": string,
+  "slug": string,
+  "text": string,
+  "map-center": OutputMapCoordinates,
+  "markers": string,
+  "zoom": string,
+}
+
+export interface OutputMapCoordinates{
+  "lng": string,
+  "lat": string,
 }

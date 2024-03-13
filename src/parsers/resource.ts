@@ -1,5 +1,5 @@
 import { Author, ConfBlock, ConfBlockTextViewer } from '../interfaces';
-import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputHeader, OutputImageViewer, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
+import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
 
 export class ResourceParser implements Parser {
     parse({ data, options }: any, locale) {
@@ -60,24 +60,8 @@ export class ResourceParser implements Parser {
             parsed.sections[block] = this.parseTextViewer(conf[block], data)
             break;
           
-          case "collection-places": // mandare formattata in questo modo
-          
-            if (data[conf[block].fields]) {
-              parsed.sections[block] = [];
-              data[conf[block].fields]?.forEach((element) => {
-                parsed.sections[block].push({
-                  title: element.title,
-                  slug: element.slug,
-                  text: element.text,
-                  map_center: {
-                    lat: element.coords.center_lat,
-                    lng: element.coords.center_lng,
-                  },
-                  markers: element.coords.markers,
-                  zoom: element.coords.zoom,
-                });
-              });
-            }
+          case "collection-places": 
+            parsed.sections[block] = this.parseCollectionMaps(conf[block], data);
             break;
 
             default:
@@ -438,5 +422,26 @@ export class ResourceParser implements Parser {
     return t_v;
   }
 
+  parseCollectionMaps(block: ConfBlock, data: any):  OutputCollectionMap[] {
+    const collectionMaps = [];
+    block?.fields?.forEach((field) => {
+      if (data[field]) {
+        data[field]?.forEach((element) => {
+          collectionMaps.push({
+            title: element.title,
+            slug: element.slug,
+            text: element.text,
+            map_center: {
+              lat: element.coords.center_lat,
+              lng: element.coords.center_lng,
+            },
+            markers: element.coords.markers,
+            zoom: element.coords.zoom,
+          });
+        });
+      }
+    });
+    return collectionMaps;
+  }
 
 }
