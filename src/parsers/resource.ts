@@ -316,11 +316,11 @@ export class ResourceParser implements Parser {
     } else {
       imageViewer.images = data[gallery].map((g: OutputImageViewerItem) => ({
         type: g.type,
-        url: g.url,
-        description: g.description,
-        caption: g.caption
+        url: g.url ? g.url : '',
+        description: g.description ? g.description : '',
+        caption: g.caption ? g.caption : ''
       }));
-      imageViewer.thumbs = imageViewer.images;
+      imageViewer.thumbs = data[gallery].map((g: any) => g.sizes.thumbnail);
     }
     return imageViewer;
   }
