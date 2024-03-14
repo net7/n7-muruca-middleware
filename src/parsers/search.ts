@@ -12,11 +12,6 @@ export abstract class SearchParser implements Parser {
       : this.parseFacets({ data, options });
   }
 
-  protected abstract parseResultsItems(
-    { data, options }: Input,
-    queryParams?,
-  ): SearchResultsItemData[];
-
   protected searchResultsMetadata(source, field, label) {
     const item = [];
     field.map((f) => {
@@ -94,7 +89,45 @@ export abstract class SearchParser implements Parser {
     // });
 
     return search_result;
-  }
+  }  protected parseResultsItems({ data, options }: Input, queryParams?,): SearchResultsItemData[]{
+    var { searchId, conf } = options as SearchOptions;
+    let items = [];
+    
+    data.forEach(({ _source: source }) => {
+      const item = {} as SearchResultsItemData;
+      conf.results.forEach((val: { label: string; field: any }) => {
+        
+        switch (val.label) {
+
+          case 'link':
+            item[
+              val.label
+            ] = `/${source['record-type']}/${source.id}/${source.slug}`; 
+            break;
+
+          case 'metadata': //
+            item[val.label] = [
+              {
+                items: this.searchResultsMetadata(source, val.field, val.label),
+              },
+            ];
+            break;
+          
+          case 'image': //TODO
+/*             item[val.label] = source.images[0].sizes.thumbnail || null;
+ */            break;
+
+          default:
+            item[val.label] = source[val.field] || null; 
+            break;
+        }
+      });
+      items.push(item);
+    })
+
+      return items;
+  
+  };
 
   protected parseFacets({ data, options }: Input): AggregationResult {
     let globalSum = 0;

@@ -80,6 +80,36 @@ class SearchParser {
         // });
         return search_result;
     }
+    parseResultsItems({ data, options }, queryParams) {
+        var { searchId, conf } = options;
+        let items = [];
+        data.forEach(({ _source: source }) => {
+            const item = {};
+            conf.results.forEach((val) => {
+                switch (val.label) {
+                    case 'link':
+                        item[val.label] = `/${source['record-type']}/${source.id}/${source.slug}`;
+                        break;
+                    case 'metadata': //
+                        item[val.label] = [
+                            {
+                                items: this.searchResultsMetadata(source, val.field, val.label),
+                            },
+                        ];
+                        break;
+                    case 'image': //TODO
+                        /*             item[val.label] = source.images[0].sizes.thumbnail || null;
+                         */ break;
+                    default:
+                        item[val.label] = source[val.field] || null;
+                        break;
+                }
+            });
+            items.push(item);
+        });
+        return items;
+    }
+    ;
     parseFacets({ data, options }) {
         let globalSum = 0;
         const { facets, conf, searchId } = options;
