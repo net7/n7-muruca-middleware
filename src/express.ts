@@ -41,7 +41,7 @@ const routeHandler = async (req, res, callback) => {
     }
     const result = await callback(req);
     if (result?.body) {
-      res.send(result.body);
+      res.json(JSON.parse(result.body));
     } else {
       // Handle the case where the callback didn't provide a response
       res.status(500).send('Internal Server Error');

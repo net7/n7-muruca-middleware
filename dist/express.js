@@ -48,7 +48,7 @@ const routeHandler = (req, res, callback) => __awaiter(void 0, void 0, void 0, f
         }
         const result = yield callback(req);
         if (result === null || result === void 0 ? void 0 : result.body) {
-            res.send(result.body);
+            res.json(JSON.parse(result.body));
         }
         else {
             // Handle the case where the callback didn't provide a response
