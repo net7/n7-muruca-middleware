@@ -1,7 +1,7 @@
 import { HttpHelper } from './helpers';
 import { SearchResultsData } from './interfaces';
 import * as controllers from './controllers';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 export class Controller {
   private config: any;
@@ -13,39 +13,43 @@ export class Controller {
   /**
    * Test if the post request is working.
    * @param request POST request
+   * @param res  Response
    */
-  postTest = async (request: Request) => {
+  postTest = async (request: Request, res: Response) => {
     const body = JSON.parse(request.body); //la richiesta che arriva all'API
     const response: any = body;
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Test if the get request is working.
    * @param request GET request
+   * @param res  Response
    */
-  getTest = async (request: Request) =>
-    HttpHelper.returnOkResponse('Hello from getTest!');
+  getTest = async (request: Request, res: Response) =>
+    res.send('Hello from getTest!');
 
   /**
    * Fetch the main menu of the app.
    * @param request GET request
+   * @param res  Response
    */
-  getNavigation = async (request: Request) => {
+  getNavigation = async (request: Request, res: Response) => {
     const { baseUrl, parsers } = this.config;
     const locale = request.query?.locale || '';
     const path = locale ? 'menu?lang=' + locale : 'menu';
     const data = JSON.parse(await HttpHelper.doRequest(baseUrl + path));
     const parser = new parsers.menu();
     const response = parser.parse(data);
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Fetch data for the home layout components.
    * @param request POST request
+   * @param res  Response
    */
-  getHomeLayout = async (request: Request) => {
+  getHomeLayout = async (request: Request, res: Response) => {
     const { baseUrl, parsers, configurations } = this.config;
     if (!request || !request?.body) {
       return HttpHelper.returnErrorResponse('Empty body from request', 400);
@@ -62,14 +66,15 @@ export class Controller {
         conf: configurations.home,
       },
     });
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Fetch the description content of the search page.
    * @param request GET request
+   * @param res  Response
    */
-  getSearchDescription = async (request: Request) => {
+  getSearchDescription = async (request: Request, res: Response) => {
     const { baseUrl, parsers } = this.config;
     const { searchId } = request.params;
     const locale = request.query?.locale || '';
@@ -79,14 +84,15 @@ export class Controller {
     );
     const parser = new parsers.searchDescription();
     const response = parser.parse({ data });
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Fetch data for the timeline component.
    * @param request GET request
+   * @param res  Response
    */
-  getTimeline = async (request: Request) => {
+  getTimeline = async (request: Request, res: Response) => {
     const { baseUrl, parsers } = this.config;
     const { id } = request.params;
     const locale = request.query?.locale || '';
@@ -96,14 +102,15 @@ export class Controller {
     );
     const parser = new parsers.timeline();
     const response = parser.parse({ data });
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Fetch data for the map component.
    * @param request GET request
+   * @param res  Response
    */
-  getMap = async (request: Request) => {
+  getMap = async (request: Request, res: Response) => {
     const { baseUrl, parsers } = this.config;
     const { id } = request.params;
     const locale = request.query?.locale || '';
@@ -113,14 +120,16 @@ export class Controller {
     );
     const parser = new parsers.map();
     const response = parser.parse({ data });
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Fetch data for the resource layout.
    * @param request POST request
+   * @param res  Response
+   * @param res response
    */
-  getResource = async (request: Request) => {
+  getResource = async (request: Request, res: Response) => {
     const locale = request.query?.locale || '';
     const controller = new controllers.getResourceController();
     const body = JSON.parse(request.body);
@@ -129,14 +138,15 @@ export class Controller {
       this.config,
       locale as string,
     );
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Submit a query and fetch the results.
    * @param request POST request
+   * @param res  Response
    */
-  search = async (request: Request) => {
+  search = async (request: Request, res: Response) => {
     const { type } = request.params;
     const locale = request.query?.locale || '';
     const body = JSON.parse(request.body);
@@ -147,14 +157,15 @@ export class Controller {
       type,
       locale as string,
     );
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Submit a query and fetch the results.
    * @param request POST request
+   * @param res  Response
    */
-  advancedSearch = async (request: Request) => {
+  advancedSearch = async (request: Request, res: Response) => {
     const body = JSON.parse(request.body); // cf. SEARCH-RESULTS in Postman
     const locale = request.query?.locale || '';
     const controller = new controllers.advancedSearchController();
@@ -163,14 +174,15 @@ export class Controller {
       this.config,
       locale as string,
     );
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Submit a text query and fetch the results.
    * @param request POST request
+   * @param res  Response
    */
-  advancedSearchTextSearch = async (request: Request) => {
+  advancedSearchTextSearch = async (request: Request, res: Response) => {
     // const body = JSON.parse(request.body); // cf. SEARCH-RESULTS in Postman
     const locale = request.query?.locale || '';
     const controller = new controllers.advancedSearchController();
@@ -184,8 +196,9 @@ export class Controller {
   /**
    * Fetch data for tei-publisher component.
    * @param request POST request
+   * @param res  Response
    */
-  teiPubGetNodePath = async (request: Request) => {
+  teiPubGetNodePath = async (request: Request, res: Response) => {
     const body = JSON.parse(request.body);
     const locale = request.query?.locale || '';
     const controller = new controllers.teiPublisherController(this.config);
@@ -195,8 +208,9 @@ export class Controller {
   /**
    * Fetch the available filters for the search page.
    * @param request GET request
+   * @param res  Response
    */
-  advancedSearchOptions = async (request: Request) => {
+  advancedSearchOptions = async (request: Request, res: Response) => {
     const { configurations, baseUrl, advancedSearchParametersPath } =
       this.config;
 
@@ -217,29 +231,31 @@ export class Controller {
           (option) => (option.value = option.value.toString()),
         );
       }
-      return HttpHelper.returnOkResponse(options);
+    return res.send(options);
     }
   };
 
   /**
    * Fetch data for the footer component.
    * @param request GET request
+   * @param res  Response
    */
-  getFooter = async (request: Request) => {
+  getFooter = async (request: Request, res: Response) => {
     const { baseUrl, parsers, configurations } = this.config;
     const locale = request.query?.locale || '';
     const path = locale ? 'footer?lang=' + locale : 'footer';
     const data = JSON.parse(await HttpHelper.doRequest(baseUrl + path));
     const parser = new parsers.footer();
     const response = parser.parse(data, { conf: configurations.footer });
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Fetch the translation strings in the language specified by the "?lang" query parameter.
    * @param request GET request
+   * @param res  Response
    */
-  getTranslation = async (request: Request) => {
+  getTranslation = async (request: Request, res: Response) => {
     const { baseUrl, parsers } = this.config;
     const { lang } = request.params;
     let queryLang = lang;
@@ -257,14 +273,15 @@ export class Controller {
         queryLang,
       },
     });
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Fetch the content of a static resource.
    * @param request GET request
+   * @param res  Response
    */
-  getStaticPage = async (request: Request) => {
+  getStaticPage = async (request: Request, res: Response) => {
     const { parsers, staticUrl } = this.config;
     const { slug } = request.params;
     const data = JSON.parse(
@@ -273,7 +290,7 @@ export class Controller {
     const parser = new parsers.static();
     const response = parser.parse({ data });
     if (response) {
-      return HttpHelper.returnOkResponse(response);
+    return res.send(response);
     } else {
       return HttpHelper.returnErrorResponse('page not found', 404);
     }
@@ -282,8 +299,9 @@ export class Controller {
   /**
    * Fetch the content of a static post.
    * @param request GET request
+   * @param res  Response
    */
-  getStaticPost = async (request: Request) => {
+  getStaticPost = async (request: Request, res: Response) => {
     const { parsers, staticUrl } = this.config;
     const { slug } = request.params;
     const data = JSON.parse(
@@ -292,7 +310,7 @@ export class Controller {
     const parser = new parsers.static();
     const response = parser.parse({ data });
     if (response) {
-      return HttpHelper.returnOkResponse(response);
+    return res.send(response);
     } else {
       return HttpHelper.returnErrorResponse('page not found', 404);
     }
@@ -301,8 +319,9 @@ export class Controller {
   /**
    * Get a list of objects of the defined type.
    * @param request POST request
+   * @param res  Response
    */
-  getObjectsByType = async (request: Request) => {
+  getObjectsByType = async (request: Request, res: Response) => {
     const { parsers, staticUrl } = this.config;
     const { type } = request.params;
     const body = JSON.parse(request.body);
@@ -328,20 +347,21 @@ export class Controller {
       total_count: data.length,
       sort: '',
     };
-    return HttpHelper.returnOkResponse(response);
+    return res.send(response);
   };
 
   /**
    * Fetch the list of available itineraries for geographic datasets.
    * @param request GET request
+   * @param res  Response
    */
-  getItineraries = async (request: Request) => {
+  getItineraries = async (request: Request, res: Response) => {
     const { parsers, baseUrl, configurations } = this.config;
     const data = JSON.parse(await HttpHelper.doRequest(baseUrl + 'itinerary'));
     /* const parser = new parsers.itineraries();
     const response = parser.parse({ data });
     if ( response ){
-      return HttpHelper.returnOkResponse(response);
+    return res.send(response);
     } else {
       return HttpHelper.returnErrorResponse("page not found", 404);
     }*/
@@ -350,8 +370,9 @@ export class Controller {
   /**
    * Fetch the data of a specific itinerary.
    * @param request GET request
+   * @param res  Response
    */
-  getItinerary = async (request: Request) => {
+  getItinerary = async (request: Request, res: Response) => {
     const { parsers, baseUrl, configurations } = this.config;
     const { id } = request.params;
     const locale = request.query?.locale || '';
@@ -362,7 +383,7 @@ export class Controller {
     const parser = new parsers.itinerary(configurations?.itineraries);
     const response = parser.parse({ data });
     if (response) {
-      return HttpHelper.returnOkResponse(response);
+    return res.send(response);
     } else {
       return HttpHelper.returnErrorResponse('page not found', 404);
     }

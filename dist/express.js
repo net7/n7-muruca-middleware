@@ -46,19 +46,23 @@ const routeHandler = (req, res, callback) => __awaiter(void 0, void 0, void 0, f
         if (req.body) {
             req.body = JSON.stringify(req.body);
         }
-        const result = yield callback(req);
-        if (result === null || result === void 0 ? void 0 : result.body) {
-            res.json(JSON.parse(result.body));
-        }
-        else {
-            // Handle the case where the callback didn't provide a response
-            res.status(500).send('Internal Server Error');
+        const result = yield callback(req, res);
+        if (!res.headersSent) {
+            if (result === null || result === void 0 ? void 0 : result.body) {
+                res.json(JSON.parse(result.body));
+            }
+            else {
+                // Handle the case where the callback didn't provide a response
+                res.status(500).send('Internal Server Error');
+            }
         }
         return result;
     }
     catch (error) {
         console.error('Error in routeHandler:', error);
-        res.status(500).send('Internal Server Error');
+        if (!res.headersSent) {
+            res.status(500).send('Internal Server Error');
+        }
     }
 });
 exports.routeHandler = routeHandler;
