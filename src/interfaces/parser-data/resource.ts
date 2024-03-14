@@ -56,8 +56,3 @@ export interface Author {
     };
   };
 }
-
-export interface ParsedData {
-  title: string;
-  sections: any;
-}

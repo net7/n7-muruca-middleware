@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 const { spawn } = require('child_process');
-const slsOfflineTestConfig = require('./support/slsOfflineTestConfig');
+
 
 let slsOfflineProcess;
 
@@ -10,14 +10,7 @@ before(function (done) {
 
   console.log('[Tests Bootstrap] Start');
 
-  startSlsOffline(function (err) {
-    if (err) {
-      return done(err);
-    }
 
-    console.log('[Tests Bootstrap] Done');
-    done();
-  });
 });
 
 after(function () {

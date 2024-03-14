@@ -1,6 +1,6 @@
 import Parser from '../interfaces/parser';
 
-export class FooterParser implements Parser {
+export class FooterParser {
   parse(data: any, options?: { conf: { poweredby: boolean } }) {
     let footer;
 

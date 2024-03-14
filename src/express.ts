@@ -69,55 +69,55 @@ const defaultHandlers: {
   getNavigation: async (req, res) => {
     routeHandler(req, res, controller.getNavigation);
   },
-  getHomeLayout: () => async (req, res) => {
+  getHomeLayout: async (req, res) => {
     routeHandler(req, res, controller.getHomeLayout);
   },
-  getSearchDescription: () => async (req, res) => {
+  getSearchDescription: async (req, res) => {
     routeHandler(req, res, controller.getSearchDescription);
   },
-  getTimeline: () => async (req, res) => {
+  getTimeline: async (req, res) => {
     routeHandler(req, res, controller.getTimeline);
   },
-  getMap: () => async (req, res) => {
+  getMap: async (req, res) => {
     routeHandler(req, res, controller.getMap);
   },
-  getResource: () => async (req, res) => {
+  getResource: async (req, res) => {
     routeHandler(req, res, controller.getResource);
   },
-  search: () => async (req, res) => {
+  search: async (req, res) => {
     routeHandler(req, res, controller.search);
   },
-  advancedSearch: () => async (req, res) => {
+  advancedSearch: async (req, res) => {
     routeHandler(req, res, controller.advancedSearch);
   },
-  advancedSearchTextSearch: () => async (req, res) => {
+  advancedSearchTextSearch: async (req, res) => {
     routeHandler(req, res, controller.advancedSearchTextSearch);
   },
-  teiPubGetNodePath: () => async (req, res) => {
+  teiPubGetNodePath: async (req, res) => {
     routeHandler(req, res, controller.teiPubGetNodePath);
   },
-  advancedSearchOptions: () => async (req, res) => {
+  advancedSearchOptions: async (req, res) => {
     routeHandler(req, res, controller.advancedSearchOptions);
   },
-  getFooter: () => async (req, res) => {
+  getFooter: async (req, res) => {
     routeHandler(req, res, controller.getFooter);
   },
-  getTranslation: () => async (req, res) => {
+  getTranslation: async (req, res) => {
     routeHandler(req, res, controller.getTranslation);
   },
-  getStaticPage: () => async (req, res) => {
+  getStaticPage: async (req, res) => {
     routeHandler(req, res, controller.getStaticPage);
   },
-  getStaticPost: () => async (req, res) => {
+  getStaticPost: async (req, res) => {
     routeHandler(req, res, controller.getStaticPost);
   },
-  getObjectsByType: () => async (req, res) => {
+  getObjectsByType: async (req, res) => {
     routeHandler(req, res, controller.getObjectsByType);
   },
-  getItineraries: () => async (req, res) => {
+  getItineraries: async (req, res) => {
     routeHandler(req, res, controller.getItineraries);
   },
-  getItinerary: () => async (req, res) => {
+  getItinerary: async (req, res) => {
     routeHandler(req, res, controller.getItinerary);
   },
 };
