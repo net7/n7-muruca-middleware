@@ -24,7 +24,7 @@ function initController(options: any): Controller {
 function setCustomHandler(
   // route must override one of the available default handlers
   route: keyof typeof defaultHandlers,
-  handler: (req: Request, res: Response) => void,
+  handler: (req: Request, res: Response) => Promise<void>,
 ) {
   defaultHandlers[route] = handler;
 }
@@ -58,67 +58,67 @@ const routeHandler = async (req, res, callback) => {
  * It's possible to override these handlers inside the project.
  */
 const defaultHandlers: {
-  [key: string]: (req: Request, res: Response) => void;
+  [key: string]: (req: Request, res: Response) => Promise<void>;
 } = {
   getTest: async (req, res) => {
-    routeHandler(req, res, controller.getTest);
+    await routeHandler(req, res, controller.getTest);
   },
   postTest: async (req, res) => {
-    routeHandler(req, res, controller.postTest);
+    await routeHandler(req, res, controller.postTest);
   },
   getNavigation: async (req, res) => {
-    routeHandler(req, res, controller.getNavigation);
+    await routeHandler(req, res, controller.getNavigation);
   },
   getHomeLayout: async (req, res) => {
-    routeHandler(req, res, controller.getHomeLayout);
+    await routeHandler(req, res, controller.getHomeLayout);
   },
   getSearchDescription: async (req, res) => {
-    routeHandler(req, res, controller.getSearchDescription);
+    await routeHandler(req, res, controller.getSearchDescription);
   },
   getTimeline: async (req, res) => {
-    routeHandler(req, res, controller.getTimeline);
+    await routeHandler(req, res, controller.getTimeline);
   },
   getMap: async (req, res) => {
-    routeHandler(req, res, controller.getMap);
+    await routeHandler(req, res, controller.getMap);
   },
   getResource: async (req, res) => {
-    routeHandler(req, res, controller.getResource);
+    await routeHandler(req, res, controller.getResource);
   },
   search: async (req, res) => {
-    routeHandler(req, res, controller.search);
+    await routeHandler(req, res, controller.search);
   },
   advancedSearch: async (req, res) => {
-    routeHandler(req, res, controller.advancedSearch);
+    await routeHandler(req, res, controller.advancedSearch);
   },
   advancedSearchTextSearch: async (req, res) => {
-    routeHandler(req, res, controller.advancedSearchTextSearch);
+    await routeHandler(req, res, controller.advancedSearchTextSearch);
   },
   teiPubGetNodePath: async (req, res) => {
-    routeHandler(req, res, controller.teiPubGetNodePath);
+    await routeHandler(req, res, controller.teiPubGetNodePath);
   },
   advancedSearchOptions: async (req, res) => {
-    routeHandler(req, res, controller.advancedSearchOptions);
+    await routeHandler(req, res, controller.advancedSearchOptions);
   },
   getFooter: async (req, res) => {
-    routeHandler(req, res, controller.getFooter);
+    await routeHandler(req, res, controller.getFooter);
   },
   getTranslation: async (req, res) => {
-    routeHandler(req, res, controller.getTranslation);
+    await routeHandler(req, res, controller.getTranslation);
   },
   getStaticPage: async (req, res) => {
-    routeHandler(req, res, controller.getStaticPage);
+    await routeHandler(req, res, controller.getStaticPage);
   },
   getStaticPost: async (req, res) => {
-    routeHandler(req, res, controller.getStaticPost);
+    await routeHandler(req, res, controller.getStaticPost);
   },
   getObjectsByType: async (req, res) => {
-    routeHandler(req, res, controller.getObjectsByType);
+    await routeHandler(req, res, controller.getObjectsByType);
   },
   getItineraries: async (req, res) => {
-    routeHandler(req, res, controller.getItineraries);
+    await routeHandler(req, res, controller.getItineraries);
   },
   getItinerary: async (req, res) => {
-    routeHandler(req, res, controller.getItinerary);
+    await routeHandler(req, res, controller.getItinerary);
   },
 };
 
@@ -162,6 +162,10 @@ router.get('/get_translation/:lang', (req, res) =>
 router.post('/search/:type', (req, res) => defaultHandlers.search(req, res));
 router.post('/advanced_search', (req, res) =>
   defaultHandlers.advancedSearch(req, res),
+);
+
+router.get('/advanced_search_options', (req, res) =>
+  defaultHandlers.advancedSearchOptions(req, res),
 );
 router.post('/list/:type', (req, res) =>
   defaultHandlers.getObjectsByType(req, res),

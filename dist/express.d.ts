@@ -11,7 +11,7 @@ declare function initController(options: any): Controller;
  * });
  * ```
  */
-declare function setCustomHandler(route: keyof typeof defaultHandlers, handler: (req: Request, res: Response) => void): void;
+declare function setCustomHandler(route: keyof typeof defaultHandlers, handler: (req: Request, res: Response) => Promise<void>): void;
 /**
  * Create a route handler middleware that handles common logic for controller methods.
  * @param {Function} callback - The controller method to be executed.
@@ -23,7 +23,7 @@ declare const routeHandler: (req: any, res: any, callback: any) => Promise<any>;
  * It's possible to override these handlers inside the project.
  */
 declare const defaultHandlers: {
-    [key: string]: (req: Request, res: Response) => void;
+    [key: string]: (req: Request, res: Response) => Promise<void>;
 };
 export declare const neffRouter: import("express-serve-static-core").Router;
 export { initController, routeHandler, setCustomHandler };
