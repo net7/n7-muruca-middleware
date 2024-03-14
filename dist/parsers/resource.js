@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResourceParser = void 0;
 class ResourceParser {
     parse({ data, options }, locale) {
-        var _a, _b, _c, _d;
         if (!("type" in options)) {
             return;
         }
@@ -12,445 +11,43 @@ class ResourceParser {
             title: "",
             sections: {},
         };
+        if (data === null || data === void 0 ? void 0 : data.error) {
+            return parsed;
+        }
         for (const block in conf) {
             switch (conf[block].type) {
                 case "title":
-                    parsed.title = "";
-                    conf[block].fields.map((field) => {
-                        if (data[field] && data[field] != "") {
-                            parsed.title = data[field];
-                        }
-                    });
+                    parsed.title = this.parseTitle(conf[block], data);
                     break;
                 case "header":
-                    parsed.sections[block] = {};
-                    let t = conf[block].fields;
-                    parsed.sections[block][t[0]] = data[t[0]]; // title
-                    parsed.sections[block][t[1]] = data[t[1]]; // description
+                    parsed.sections[block] = this.parseHeader(conf[block], data);
                     break;
                 case "image-viewer":
-                    parsed.sections[block] = {};
-                    let v = { images: [], thumbs: [] };
-                    let gallery = conf[block].fields[0]; // "gallery"
-                    if (typeof data[gallery] === "string") {
-                        v.images.push({
-                            type: "image",
-                            url: data[gallery],
-                            description: "",
-                        });
-                    }
-                    else {
-                        v.images = data[gallery].map((g) => ({
-                            type: "image",
-                            url: g.image,
-                            description: g.description,
-                        }));
-                        v.thumbs = v.images;
-                    }
-                    parsed.sections[block] = v;
+                    parsed.sections[block] = this.parseImageViewer(conf[block], data);
                     break;
                 case "breadcrumbs":
-                    parsed.sections[block] = {};
-                    conf[block].fields.forEach((field) => {
-                        parsed.sections[block] = Array.isArray(data[field])
-                            ? data[field].map(({ id, slug, title }) => ({
-                                title,
-                                link: `/${type}/${id}/${slug}`,
-                            }))
-                            : [];
-                    });
+                    parsed.sections[block] = this.parseBreadcrumbs(conf[block], data, type);
                     break;
                 case "metadata":
-                    parsed.sections[block] = {};
-                    const m = {
-                        group: [
-                            {
-                                title: "Metadata",
-                                items: conf[block].fields.map((field) => {
-                                    if (data[field]) {
-                                        const filter = [
-                                            "date",
-                                            "author",
-                                            "creator",
-                                            "subject",
-                                            "collocation",
-                                            "linguaggio",
-                                            "spatialCoverage",
-                                            "temporalCoverage",
-                                            "contenuti",
-                                            "riproduzione_link",
-                                            "riproduzione_link_2",
-                                            "riproduzione",
-                                            "edition",
-                                        ];
-                                        if (filter.indexOf(field) > -1) {
-                                            return this.filter(data, field, type); // metadata
-                                        }
-                                        else {
-                                            return {
-                                                label: field.replace(/_/g, " "),
-                                                value: data[field],
-                                            };
-                                        }
-                                    }
-                                }),
-                            },
-                        ],
-                    };
-                    m.group[0].items = m.group[0].items.filter((n) => n);
-                    parsed.sections[block] = Object.assign({}, m);
+                    parsed.sections[block] = this.parseMetadata(conf[block], data, type);
                     break;
-                case "collection-keywords":
-                    parsed.sections[block] = {};
-                    const keywords = {
-                        header: { title: "Keywords collegate" },
-                        items: [],
-                    };
-                    conf[block].fields.forEach((field) => {
-                        if (data[field]) {
-                            keywords.items = data[field].map((f) => ({
-                                title: f.title,
-                                link: `/keyword/${f.id}/${f.slug}`,
-                                type: field,
-                            }));
-                        }
-                    });
-                    parsed.sections[block] = keywords; // keywords
-                    break;
-                case "collection-toponyms":
-                    parsed.sections[block] = {};
-                    const toponyms = {
-                        header: { title: "Toponimi collegati" },
-                        items: [],
-                    };
-                    conf[block].fields.map((field) => {
-                        if (data[field]) {
-                            toponyms.items = data[field].map((f) => ({
-                                title: f.title,
-                                link: "/" + type + "/" + f.id + "/" + f.slug,
-                                type: field,
-                            }));
-                        }
-                    });
-                    parsed.sections[block] = toponyms; //toponyms
-                    break;
-                case "collection-witnesses":
-                    parsed.sections[block] = {};
-                    const witnesses = {
-                        header: { title: "Testimoni collegati" },
-                        items: [],
-                    };
-                    conf[block].fields.map((field) => {
-                        if (data[field]) {
-                            witnesses.items = data[field].map((f) => ({
-                                title: f.title,
-                                link: "/" + "testimone" + "/" + f.id + "/" + f.slug,
-                                type: field,
-                            }));
-                        }
-                    });
-                    parsed.sections[block] = witnesses; //witnesses
-                    break;
-                case "related_motifs":
-                    parsed.sections[block] = {};
-                    const relatedRecord = {
-                        header: {},
-                        items: [],
-                    };
-                    conf[block].fields.map((field) => {
-                        //for (let element in data[field]) {
-                        if (data[field]) {
-                            // console.log(data[field]);
-                            //FIX ME
-                            relatedRecord.items = data[field].map((f) => ({
-                                title: f.title.replace(/-/g, " "),
-                                link: f['record-type'] + "/" + f.id + "/" + f.slug,
-                                slug: f.slug,
-                                id: f.id,
-                                routeId: f['record-type'],
-                                //type: f.taxonomy,
-                            }));
-                            // }
-                        }
-                    });
-                    parsed.sections[block] = relatedRecord; //taxonomies
-                    break;
-                // case "collection-taxonomies":
-                // parsed.sections[block] = {};
-                // const taxonomies = {
-                //   header: { title: "Motivi collegati" },
-                //   items: [],
-                // };
-                // conf[block].fields.map((field: string) => {
-                //   for (let element in data[field]) {
-                //     if (data[field] && data[field][element]) {
-                //       //FIX ME
-                //       taxonomies.items.push(
-                //         data[field][element].map((f: any) => ({
-                //           title: f.name.replace(/-/g, " "),
-                //           link: "/taxonomy/" + f.id + "/" + f.key,
-                //           type: f.taxonomy,
-                //         }))
-                //       );
-                //     }
-                //   }
-                // });
-                // parsed.sections[block] = taxonomies; //taxonomies
-                // break;
-                case "related_records":
-                    parsed.sections[block] = {};
-                    const records = {
-                        header: { title: "Fiabe collegate" },
-                        items: [],
-                    };
-                    conf[block].fields.map((field) => {
-                        if (data[field]) {
-                            records.items = data[field].map((f) => ({
-                                title: f.title,
-                                link: "/" + "record" + "/" + f.id + "/" + f.slug,
-                                image: f.image,
-                                slug: f.slug,
-                                id: f.id,
-                                routeId: f['record-type'],
-                                //type: field,
-                            }));
-                        }
-                    });
-                    parsed.sections[block] = records;
+                case "collection":
+                    parsed.sections[block] = this.parseCollection(conf[block], data);
                     break;
                 case "metadata-size":
-                    parsed.sections[block] = {};
-                    const m_2 = {
-                        group: [
-                            {
-                                title: "Dimensioni",
-                                items: [].concat(...conf[block].fields // dimension
-                                    .map((field) => Object.keys(data[field]).map((f) => ({
-                                    label: f,
-                                    value: f === "image"
-                                        ? "<img src='" + data[field][f] + "'>"
-                                        : data[field][f],
-                                })))),
-                            },
-                        ],
-                    };
-                    parsed.sections[block] = Object.assign({}, m_2);
+                    parsed.sections[block] = this.parseMetadataSize(conf[block], data);
                     break;
                 case "metadata-description":
-                    parsed.sections[block] = {};
-                    const m_3 = {
-                        group: [
-                            {
-                                title: "Descrizione",
-                                items: conf[block].fields // description
-                                    .map((field) => {
-                                    return { label: field, value: data[field] };
-                                }),
-                            },
-                        ],
-                    };
-                    parsed.sections[block] = Object.assign({}, m_3);
+                    parsed.sections[block] = this.parseMetadataDescription(conf[block], data);
                     break;
-                case "collection-maps":
-                    {
-                        parsed.sections[block] = {};
-                        const relatedMaps = {
-                            header: { title: "Second level maps" },
-                            items: [],
-                        };
-                        conf[block].fields.map((field) => {
-                            if (data[field]) {
-                                relatedMaps.items = data[field].map((f) => ({
-                                    title: f.title,
-                                    link: "/" + type + "/" + f.id + "/" + f.slug,
-                                    image: f.image,
-                                    type: f.type,
-                                }));
-                            }
-                        });
-                        parsed.sections[block] = relatedMaps; //toponyms
-                    }
-                    break;
-                case "collection-bibliography":
-                    parsed.sections[block] = {};
-                    const c_b = {
-                        header: {
-                            title: "Bibliografie",
-                        },
-                        items: [],
-                    };
-                    if (data["bibliographicCitation"] != null) {
-                        conf[block].fields.map((field) => {
-                            data[field].map((rif) => {
-                                rif["rif_biblio"].map((biblio) => {
-                                    const text = biblio.title != ""
-                                        ? `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`
-                                        : `${biblio.description}: ${rif.rif_biblio_position}`;
-                                    c_b.items.push({
-                                        payload: {
-                                            // action: "resource-modal",
-                                            id: biblio.id,
-                                            type: "bibliography_wit",
-                                        },
-                                        text: `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`,
-                                    });
-                                });
-                            });
-                        });
-                    }
-                    else if (data["timeline_bibliografia"] != null) {
-                        data["timeline_bibliografia"].map((rif) => {
-                            rif["mrc_timeline_bibliografia_rif_biblio"].map((biblio) => {
-                                c_b.items.push({
-                                    payload: {
-                                        action: "resource-modal",
-                                        id: biblio.id,
-                                        type: "bibliography_wit",
-                                    },
-                                    text: `${biblio.title}: ${biblio.description} ${rif["mrc_timeline_rif_biblio_position"]}`,
-                                });
-                            });
-                        });
-                    }
-                    parsed.sections[block] = Object.assign({}, c_b);
-                    break;
-                case "collection-records":
-                    parsed.sections[block] = {};
-                    const r_2 = {
-                        header: {
-                            title: "Bibliografia",
-                        },
-                        items: [],
-                    };
-                    conf[block].fields.forEach((field, i) => {
-                        // work collection
-                        if (data[field]) {
-                            r_2.items.push({
-                                // image: data[field][i].gallery[0].image,
-                                image: data[field][i].image,
-                                title: data[field][i].title,
-                                // text: data[field][i].description,
-                                link: `/${type}/${data[field][i].slug}`,
-                            });
-                            parsed.sections[block] = Object.assign({}, r_2);
-                        }
-                    });
-                    break;
-                case "collection-works":
-                    parsed.sections[block] = {};
-                    const c_2 = {
-                        header: {
-                            title: "Bibliografia",
-                        },
-                        items: [],
-                    };
-                    conf[block].fields.forEach((field, i) => {
-                        // work collection
-                        if (data[field] && field !== "related_records") {
-                            // console.log(data[field]);
-                            c_2.items.push({
-                                image: data[field][i].gallery[0].image
-                                    ? data[field][i].gallery[0].image
-                                    : data[field][i].image,
-                                title: data[field][i].title,
-                                text: data[field][i].description,
-                                link: `/${type}/${data[field][i].slug}`,
-                                slug: data[field][i].slug,
-                                id: data[field][i].id,
-                                routeId: data[field][i]['record-type'],
-                                metadata: [
-                                    {
-                                        items: [
-                                            {
-                                                label: "Autore/i",
-                                                value: Object.keys(data[field][i].authors)
-                                                    .map((auth) => data[field][i].authors[auth]["name"])
-                                                    .join(", "),
-                                            },
-                                            { label: "Lingua", value: data[field][i].language },
-                                            { label: "Entry ID", value: data[field][i].id },
-                                            {
-                                                label: "Livello bibliografico",
-                                                value: data[field][i].bibliographic_level,
-                                            },
-                                            { label: "Anno", value: data[field][i].year },
-                                        ],
-                                    },
-                                ],
-                            });
-                        }
-                        else {
-                            if (data[field] && field === "related_records") {
-                                // console.log(data[field]);
-                                c_2.header.title = "Fiabe collegate";
-                                c_2.items = data[field].map((f) => ({
-                                    title: f.title,
-                                    link: "/" + f['record-type'] + "/" + f.id + "/" + f.slug,
-                                    image: f.image,
-                                    slug: f.slug,
-                                    id: f.id,
-                                    routeId: f['record-type'],
-                                    //type: field,
-                                }));
-                            }
-                        }
-                        parsed.sections[block] = Object.assign({}, c_2);
-                    });
-                    break;
-                case "preview-parent":
-                    parsed.sections[block] = {};
-                    conf[block].fields.map((field) => {
-                        // preview parent
-                        if (data[field]) {
-                            const previewItem = data[field].map((f) => ({
-                                title: f.title,
-                                description: f.description,
-                                image: f.image,
-                                link: `/${type}/${f.id}/${f.slug}`,
-                                classes: "is-fullwidth",
-                            }));
-                            parsed.sections[block] = Object.assign({}, previewItem);
-                        }
-                    });
+                case "bibliography":
+                    parsed.sections[block] = this.parseBibliography(conf[block], data);
                     break;
                 case "text-viewer":
-                    if (data["transcription"]) {
-                        if (!data["transcription"]["filename"].endsWith("/")) {
-                            parsed.sections[block] = {
-                                endpoint: data["transcription"]["teipublisher"] +
-                                    "/exist/apps/tei-publisher",
-                                docs: [
-                                    {
-                                        xml: data["transcription"]["filename"],
-                                        odd: data["transcription"]["odd"],
-                                        id: data["slug"] + "_" + data["id"],
-                                        channel: (_a = data["transcription"]["channel"]) !== null && _a !== void 0 ? _a : false,
-                                        translation: (_b = data["transcription"]["translation"]) !== null && _b !== void 0 ? _b : false,
-                                        xpath: (_c = data["transcription"]["xpath"]) !== null && _c !== void 0 ? _c : false,
-                                        view: data["transcription"]["view"]
-                                    },
-                                ],
-                            };
-                        }
-                    }
+                    parsed.sections[block] = this.parseTextViewer(conf[block], data);
                     break;
-                case "collection-places": // mandare formattata in questo modo
-                    if (data[conf[block].fields]) {
-                        parsed.sections[block] = [];
-                        (_d = data[conf[block].fields]) === null || _d === void 0 ? void 0 : _d.forEach((element) => {
-                            parsed.sections[block].push({
-                                title: element.title,
-                                slug: element.slug,
-                                text: element.text,
-                                map_center: {
-                                    lat: element.coords.center_lat,
-                                    lng: element.coords.center_lng,
-                                },
-                                markers: element.coords.markers,
-                                zoom: element.coords.zoom,
-                            });
-                        });
-                    }
+                case "collection-places":
+                    parsed.sections[block] = this.parseCollectionMaps(conf[block], data);
                     break;
                 default:
                     break;
@@ -463,8 +60,8 @@ class ResourceParser {
         return locale;
     }
     /**
-    * Data filters
-    */
+     * Data filters
+     */
     filter(data, field, page) {
         let filter;
         if (/date/.test(field)) {
@@ -569,6 +166,231 @@ class ResourceParser {
             });
         }
         return filter;
+    }
+    filterMetadata(field, metadataItem, recordType) {
+        return metadataItem;
+    }
+    /**
+     * Parsers
+     */
+    parseTitle(block, data) {
+        let title = "";
+        block.fields.map((field) => {
+            if (data[field] && data[field] != "") {
+                title = data[field];
+            }
+        });
+        return title;
+    }
+    parseMetadata(block, data, type) {
+        const m = {
+            group: [
+                {
+                    title: "Metadata",
+                    items: block.fields.map((field) => {
+                        if (data[field]) {
+                            const metadataItem = {
+                                label: field.replace(/_/g, " "),
+                                value: data[field],
+                            };
+                            return this.filterMetadata(field, metadataItem, type);
+                        }
+                    })
+                }
+            ],
+        };
+        m.group[0].items = m.group[0].items.filter((n) => n); //cancella i null
+        return m;
+    }
+    parseMetadataSize(block, data) {
+        const metadataSize = {
+            group: [
+                {
+                    title: "Dimensioni",
+                    items: [].concat(...block.fields // dimension
+                        .map((field) => Object.keys(data[field]).map((f) => ({
+                        label: f,
+                        value: f === "image"
+                            ? "<img src='" + data[field][f] + "'>"
+                            : data[field][f],
+                    })))),
+                },
+            ],
+        };
+        return metadataSize;
+    }
+    parseMetadataDescription(block, data) {
+        const metadataDescription = {
+            group: [
+                {
+                    title: "Descrizione",
+                    items: block.fields // description
+                        .map((field) => {
+                        return { label: field, value: data[field] };
+                    }),
+                },
+            ],
+        };
+        return metadataDescription;
+    }
+    parseHeader(block, data) {
+        const fields = block.fields;
+        const header = {
+            title: ''
+        };
+        if (data[fields[0]]) {
+            header.title = data[fields[0]];
+        }
+        if (data[fields[1]]) {
+            header.description = data[fields[1]];
+        }
+        return header;
+    }
+    parseImageViewer(block, data) {
+        let imageViewer = { images: [], thumbs: [] };
+        let gallery = block.fields[0]; // "gallery"
+        if (!data[gallery])
+            return;
+        if (typeof data[gallery] === "string") {
+            imageViewer.images.push({
+                type: "image",
+                url: data[gallery],
+                description: "",
+            });
+        }
+        else {
+            imageViewer.images = data[gallery].map((g) => ({
+                type: g.type,
+                url: g.url ? g.url : '',
+                description: g.description ? g.description : '',
+                caption: g.caption ? g.caption : ''
+            }));
+            imageViewer.thumbs = data[gallery].map((g) => g.sizes.thumbnail);
+        }
+        return imageViewer;
+    }
+    parseBreadcrumbs(block, data, type) {
+        let breadcrumbs = { link: "", title: "" };
+        block.fields.forEach((field) => {
+            breadcrumbs = Array.isArray(data[field])
+                ? data[field].map(({ id, slug, title }) => ({
+                    title,
+                    link: `/${type}/${id}/${slug}`,
+                }))
+                : [];
+        });
+        return breadcrumbs;
+    }
+    parseCollection(block, data) {
+        const collection = {
+            items: [],
+        };
+        block.fields.map((field) => {
+            var _a;
+            if (data[field]) {
+                collection.items = data[field].map((f) => ({
+                    title: f.title, //f.title.replace(/-/g, " "),
+                    slug: f.slug,
+                    id: f.id,
+                    routeId: f['record-type'],
+                }));
+                if ((_a = data[field]) === null || _a === void 0 ? void 0 : _a.image) { //TODO
+                    collection.items['image'] = data[field].image;
+                }
+            }
+        });
+        return collection;
+    }
+    parseBibliography(block, data) {
+        const c_b = {
+            items: [],
+        };
+        if (data["bibliographicCitation"] != null) {
+            block.fields.map((field) => {
+                data[field].map((rif) => {
+                    rif["rif_biblio"].map((biblio) => {
+                        const text = biblio.title != ""
+                            ? `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`
+                            : `${biblio.description}: ${rif.rif_biblio_position}`;
+                        c_b.items.push({
+                            payload: {
+                                // action: "resource-modal",
+                                id: biblio.id,
+                                type: "bibliography_wit",
+                            },
+                            text: `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`,
+                        });
+                    });
+                });
+            });
+        }
+        else if (data["timeline_bibliografia"] != null) {
+            data["timeline_bibliografia"].map((rif) => {
+                rif["mrc_timeline_bibliografia_rif_biblio"].map((biblio) => {
+                    c_b.items.push({
+                        payload: {
+                            action: "resource-modal",
+                            id: biblio.id,
+                            type: "bibliography_wit",
+                        },
+                        text: `${biblio.title}: ${biblio.description} ${rif["mrc_timeline_rif_biblio_position"]}`,
+                    });
+                });
+            });
+        }
+        return Object.assign({}, c_b);
+    }
+    parseTextViewer(block, data) {
+        var _a, _b, _c;
+        let t_v = {
+            "endpoint": "",
+            "docs": []
+        };
+        if (data[block.field]) {
+            if (!data[block.field]["filename"].endsWith("/")) {
+                t_v = {
+                    endpoint: data[block.field]["teipublisher"] +
+                        "/exist/apps/tei-publisher",
+                    docs: [
+                        {
+                            xml: data[block.field]["filename"],
+                            odd: data[block.field]["odd"],
+                            id: data["slug"] + "_" + data["id"],
+                            channel: (_a = data[block.field]["channel"]) !== null && _a !== void 0 ? _a : false,
+                            translation: (_b = data[block.field]["translation"]) !== null && _b !== void 0 ? _b : false,
+                            xpath: (_c = data[block.field]["xpath"]) !== null && _c !== void 0 ? _c : false,
+                            view: data[block.field]["view"]
+                        },
+                    ],
+                };
+            }
+        }
+        else
+            return;
+        return t_v;
+    }
+    parseCollectionMaps(block, data) {
+        var _a;
+        const collectionMaps = [];
+        (_a = block === null || block === void 0 ? void 0 : block.fields) === null || _a === void 0 ? void 0 : _a.forEach((field) => {
+            var _a;
+            if (data[field]) {
+                (_a = data[field]) === null || _a === void 0 ? void 0 : _a.forEach((element) => {
+                    collectionMaps.push({
+                        title: element.title,
+                        slug: element.slug,
+                        text: element.text,
+                        map_center: {
+                            lat: element.coords.center_lat,
+                            lng: element.coords.center_lng,
+                        },
+                        markers: element.coords.markers,
+                        zoom: element.coords.zoom,
+                    });
+                });
+            }
+        });
+        return collectionMaps;
     }
 }
 exports.ResourceParser = ResourceParser;
