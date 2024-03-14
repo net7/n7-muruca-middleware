@@ -153,3 +153,15 @@ export interface OutputMapCoordinates{
   "lng": string,
   "lat": string,
 }
+
+export interface AggregationResult {
+  total_count: number;
+  facets: { [key: string]: any };
+}
+
+export interface Bucket {
+  key: string;
+  doc_count: number;
+  from?: any;
+  to?: any;
+}
