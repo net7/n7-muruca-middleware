@@ -25,6 +25,8 @@ class searchController {
             //console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
             const data = type === 'results' ? query_res.hits.hits : query_res.aggregations;
+            if (!data)
+                return {};
             const parser = new parsers.search();
             const { searchId, facets } = body;
             const { limit, offset, sort } = body.results ? body.results : 'null';

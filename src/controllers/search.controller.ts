@@ -20,6 +20,7 @@ export class searchController {
     );
     const data =
       type === 'results' ? query_res.hits.hits : query_res.aggregations;
+    if(!data) return {}
     const parser = new parsers.search();
     const { searchId, facets } = body;
     const { limit, offset, sort } = body.results ? body.results : 'null';
