@@ -46,19 +46,23 @@ const routeHandler = (req, res, callback) => __awaiter(void 0, void 0, void 0, f
         if (req.body) {
             req.body = JSON.stringify(req.body);
         }
-        const result = yield callback(req);
-        if (result === null || result === void 0 ? void 0 : result.body) {
-            res.send(result.body);
-        }
-        else {
-            // Handle the case where the callback didn't provide a response
-            res.status(500).send('Internal Server Error');
+        const result = yield callback(req, res);
+        if (!res.headersSent) {
+            if (result === null || result === void 0 ? void 0 : result.body) {
+                res.json(JSON.parse(result.body));
+            }
+            else {
+                // Handle the case where the callback didn't provide a response
+                res.status(500).send('Internal Server Error');
+            }
         }
         return result;
     }
     catch (error) {
         console.error('Error in routeHandler:', error);
-        res.status(500).send('Internal Server Error');
+        if (!res.headersSent) {
+            res.status(500).send('Internal Server Error');
+        }
     }
 });
 exports.routeHandler = routeHandler;
@@ -68,64 +72,64 @@ exports.routeHandler = routeHandler;
  */
 const defaultHandlers = {
     getTest: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getTest);
+        yield routeHandler(req, res, controller.getTest);
     }),
     postTest: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.postTest);
+        yield routeHandler(req, res, controller.postTest);
     }),
     getNavigation: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getNavigation);
+        yield routeHandler(req, res, controller.getNavigation);
     }),
-    getHomeLayout: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getHomeLayout);
+    getHomeLayout: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getHomeLayout);
     }),
-    getSearchDescription: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getSearchDescription);
+    getSearchDescription: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getSearchDescription);
     }),
-    getTimeline: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getTimeline);
+    getTimeline: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getTimeline);
     }),
-    getMap: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getMap);
+    getMap: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getMap);
     }),
-    getResource: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getResource);
+    getResource: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getResource);
     }),
-    search: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.search);
+    search: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.search);
     }),
-    advancedSearch: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.advancedSearch);
+    advancedSearch: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.advancedSearch);
     }),
-    advancedSearchTextSearch: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.advancedSearchTextSearch);
+    advancedSearchTextSearch: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.advancedSearchTextSearch);
     }),
-    teiPubGetNodePath: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.teiPubGetNodePath);
+    teiPubGetNodePath: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.teiPubGetNodePath);
     }),
-    advancedSearchOptions: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.advancedSearchOptions);
+    advancedSearchOptions: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.advancedSearchOptions);
     }),
-    getFooter: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getFooter);
+    getFooter: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getFooter);
     }),
-    getTranslation: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getTranslation);
+    getTranslation: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getTranslation);
     }),
-    getStaticPage: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getStaticPage);
+    getStaticPage: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getStaticPage);
     }),
-    getStaticPost: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getStaticPost);
+    getStaticPost: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getStaticPost);
     }),
-    getObjectsByType: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getObjectsByType);
+    getObjectsByType: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getObjectsByType);
     }),
-    getItineraries: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getItineraries);
+    getItineraries: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getItineraries);
     }),
-    getItinerary: () => (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        routeHandler(req, res, controller.getItinerary);
+    getItinerary: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getItinerary);
     }),
 };
 /* -------------- *
@@ -149,5 +153,7 @@ router.get('/get_timeline/:id', (req, res) => defaultHandlers.getTimeline(req, r
 router.get('/get_translation/:lang', (req, res) => defaultHandlers.getTranslation(req, res));
 router.post('/search/:type', (req, res) => defaultHandlers.search(req, res));
 router.post('/advanced_search', (req, res) => defaultHandlers.advancedSearch(req, res));
+router.get('/advanced_search_options', (req, res) => defaultHandlers.advancedSearchOptions(req, res));
 router.post('/list/:type', (req, res) => defaultHandlers.getObjectsByType(req, res));
+// Exports
 exports.neffRouter = router;
