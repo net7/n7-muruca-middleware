@@ -1,4 +1,4 @@
-import Parser, { Input, SearchOptions, AggregationResult, Bucket } from '../interfaces/parser';
+import Parser, { Input, SearchOptions, AggregationResult, Bucket, OutputMetadataItem } from '../interfaces/parser';
 import {
   SearchResultsData,
   SearchResultsItemData,
@@ -8,23 +8,31 @@ export abstract class SearchParser implements Parser {
   parse({ data, options }: Input, queryParams = null) {
     const { type } = options as SearchOptions;
     return type === 'results'
-      ? this.parseResults({ data, options }, queryParams)
+      ? this.parseResults({ data, options }, queryParams, type)
       : this.parseFacets({ data, options });
   }
 
-  protected searchResultsMetadata(source, field, label) {
-    const item = [];
+  protected searchResultsMetadata(source, field, label, type) {
+    const items = [];
     field.map((f) => {
-      item[label][0].items.push({
+
+      const metadataItem = {
         label: source[f] ? f : null,
-        // value: f === 'contenuti' ? (source[f] || []).map(sf => sf['contenuto']) : source[f]
         value: source[f],
-      });
+      }
+
+      items.push(
+        this.filterResultsMetadata(f, metadataItem, type)
+      );
     });
-    return item;
+    return items;
   }
 
-  protected parseResults({ data, options }: Input, queryParams = null) {
+  protected filterResultsMetadata(field: string, metadataItem: OutputMetadataItem, recordType: string ): OutputMetadataItem{
+    return metadataItem;
+  }
+
+  protected parseResults({ data, options }: Input, queryParams = null, type) {
     if (options && 'limit' in options) {
       var { offset, limit, sort, total_count } = options;
     }
@@ -36,8 +44,7 @@ export abstract class SearchParser implements Parser {
       results: [],
     };
     search_result.results = this.parseResultsItems(
-      { data, options },
-      queryParams,
+      { data, options }, type,  queryParams, 
     );
     // implementare
     // data.forEach(({ _source: source }) => {
@@ -89,7 +96,9 @@ export abstract class SearchParser implements Parser {
     // });
 
     return search_result;
-  }  protected parseResultsItems({ data, options }: Input, queryParams?,): SearchResultsItemData[]{
+  }  
+  
+  protected parseResultsItems({ data, options }: Input, type, queryParams?, ): SearchResultsItemData[]{
     var { searchId, conf } = options as SearchOptions;
     let items = [];
     
@@ -99,26 +108,39 @@ export abstract class SearchParser implements Parser {
         
         switch (val.label) {
 
+          case "title":
+            item[val.label] = this.parseResultsTitle(source, val.field);
+
           case 'link':
-            item[
-              val.label
-            ] = `/${source['record-type']}/${source.id}/${source.slug}`; 
+            item[val.label] = this.parseResultsLink(source); 
             break;
 
-          case 'metadata': //
+          case 'metadata': 
             item[val.label] = [
               {
-                items: this.searchResultsMetadata(source, val.field, val.label),
+                items: this.searchResultsMetadata(source, val.field, val.label, type),
               },
-            ];
+            ];  
             break;
           
-          case 'image': //TODO
-/*             item[val.label] = source.images[0].sizes.thumbnail || null;
- */            break;
+          case 'image': 
+            item[val.label] = this.parseResultsImage(source, val.field);
+            break;
+          
+          case 'id':
+            item[val.label] = this.parseResultsId(source, val.field);
+            break;
 
+          case 'routeId':
+            item[val.label] = this.parseResultsTitle(source, val.field);
+            break;
+            
+          case 'slug':
+            item[val.label] = this.parseResultsRouteId(source, val.field);
+            break;
+          
           default:
-            item[val.label] = source[val.field] || null; 
+            item[val.label] = this.parseResultsDefault(source, val.field) 
             break;
         }
       });
@@ -126,8 +148,42 @@ export abstract class SearchParser implements Parser {
     })
 
       return items;
-  
   };
+
+  protected parseResultsDefault(source, field: string): any{
+    return source[field] || null;
+  }
+
+  protected parseResultsId(source, field: string): any{
+    return this.parseResultsDefault(source, field);
+  }
+  
+  protected parseResultsRouteId(source, field: string): any{
+    return this.parseResultsDefault(source, field);
+  }
+
+  protected parseResultsSlug(source, field: string): any{
+    return this.parseResultsDefault(source, field);
+  }
+
+  protected parseResultsTitle(source, field: string): any{
+    return this.parseResultsDefault(source, field);
+  }
+
+  protected parseResultsImage(source, field: string): string{
+    let image = "";
+    if(source["images"]){
+      image = source["images"][0].sizes[field];
+    }
+    else{
+      image = source[field];
+    }
+    return image;
+  }
+
+  protected parseResultsLink(source): string{
+    return `/${source['record-type']}/${source.id}/${source.slug}`
+  }
 
   protected parseFacets({ data, options }: Input): AggregationResult {
     let globalSum = 0;

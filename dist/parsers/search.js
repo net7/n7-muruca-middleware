@@ -5,21 +5,24 @@ class SearchParser {
     parse({ data, options }, queryParams = null) {
         const { type } = options;
         return type === 'results'
-            ? this.parseResults({ data, options }, queryParams)
+            ? this.parseResults({ data, options }, queryParams, type)
             : this.parseFacets({ data, options });
     }
-    searchResultsMetadata(source, field, label) {
-        const item = [];
+    searchResultsMetadata(source, field, label, type) {
+        const items = [];
         field.map((f) => {
-            item[label][0].items.push({
+            const metadataItem = {
                 label: source[f] ? f : null,
-                // value: f === 'contenuti' ? (source[f] || []).map(sf => sf['contenuto']) : source[f]
                 value: source[f],
-            });
+            };
+            items.push(this.filterResultsMetadata(f, metadataItem, type));
         });
-        return item;
+        return items;
     }
-    parseResults({ data, options }, queryParams = null) {
+    filterResultsMetadata(field, metadataItem, recordType) {
+        return metadataItem;
+    }
+    parseResults({ data, options }, queryParams = null, type) {
         if (options && 'limit' in options) {
             var { offset, limit, sort, total_count } = options;
         }
@@ -30,7 +33,7 @@ class SearchParser {
             total_count,
             results: [],
         };
-        search_result.results = this.parseResultsItems({ data, options }, queryParams);
+        search_result.results = this.parseResultsItems({ data, options }, type, queryParams);
         // implementare
         // data.forEach(({ _source: source }) => {
         //   const item = {} as SearchResultsItemData;
@@ -80,28 +83,39 @@ class SearchParser {
         // });
         return search_result;
     }
-    parseResultsItems({ data, options }, queryParams) {
+    parseResultsItems({ data, options }, type, queryParams) {
         var { searchId, conf } = options;
         let items = [];
         data.forEach(({ _source: source }) => {
             const item = {};
             conf.results.forEach((val) => {
                 switch (val.label) {
+                    case "title":
+                        item[val.label] = this.parseResultsTitle(source, val.field);
                     case 'link':
-                        item[val.label] = `/${source['record-type']}/${source.id}/${source.slug}`;
+                        item[val.label] = this.parseResultsLink(source);
                         break;
-                    case 'metadata': //
+                    case 'metadata':
                         item[val.label] = [
                             {
-                                items: this.searchResultsMetadata(source, val.field, val.label),
+                                items: this.searchResultsMetadata(source, val.field, val.label, type),
                             },
                         ];
                         break;
-                    case 'image': //TODO
-                        /*             item[val.label] = source.images[0].sizes.thumbnail || null;
-                         */ break;
+                    case 'image':
+                        item[val.label] = this.parseResultsImage(source, val.field);
+                        break;
+                    case 'id':
+                        item[val.label] = this.parseResultsId(source, val.field);
+                        break;
+                    case 'routeId':
+                        item[val.label] = this.parseResultsTitle(source, val.field);
+                        break;
+                    case 'slug':
+                        item[val.label] = this.parseResultsRouteId(source, val.field);
+                        break;
                     default:
-                        item[val.label] = source[val.field] || null;
+                        item[val.label] = this.parseResultsDefault(source, val.field);
                         break;
                 }
             });
@@ -110,6 +124,34 @@ class SearchParser {
         return items;
     }
     ;
+    parseResultsDefault(source, field) {
+        return source[field] || null;
+    }
+    parseResultsId(source, field) {
+        return this.parseResultsDefault(source, field);
+    }
+    parseResultsRouteId(source, field) {
+        return this.parseResultsDefault(source, field);
+    }
+    parseResultsSlug(source, field) {
+        return this.parseResultsDefault(source, field);
+    }
+    parseResultsTitle(source, field) {
+        return this.parseResultsDefault(source, field);
+    }
+    parseResultsImage(source, field) {
+        let image = "";
+        if (source["images"]) {
+            image = source["images"][0].sizes[field];
+        }
+        else {
+            image = source[field];
+        }
+        return image;
+    }
+    parseResultsLink(source) {
+        return `/${source['record-type']}/${source.id}/${source.slug}`;
+    }
     parseFacets({ data, options }) {
         let globalSum = 0;
         const { facets, conf, searchId } = options;
