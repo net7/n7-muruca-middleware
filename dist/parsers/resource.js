@@ -25,7 +25,7 @@ class ResourceParser {
                 case "image-viewer":
                     parsed.sections[block] = this.parseImageViewer(conf[block], data);
                     break;
-                case "breadcrumbs":
+                case "breadcrumb":
                     parsed.sections[block] = this.parseBreadcrumbs(conf[block], data, type);
                     break;
                 case "metadata":

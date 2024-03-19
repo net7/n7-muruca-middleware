@@ -32,7 +32,7 @@ export class ResourceParser implements Parser {
             parsed.sections[block] = this.parseImageViewer(conf[block], data);
             break;
   
-          case "breadcrumbs":
+          case "breadcrumb":
             parsed.sections[block] = this.parseBreadcrumbs(conf[block], data, type);
             break;
   
