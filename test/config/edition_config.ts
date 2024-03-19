@@ -30,7 +30,7 @@ const editionConfig : ConfigResource = {
   },
   "breadcrumb": {
     type: "breadcrumb",
-    fields: ["breadcrumb"]
+    fields: ["breadcrumbs"]
   },
   "image-viewer": {
     type: "image-viewer",
