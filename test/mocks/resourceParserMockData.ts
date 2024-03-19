@@ -117,7 +117,13 @@ export const data = {
       "name": "Filosofia",
       "key": "filosofia",
       "taxonomy": "subject"
-      }
+      },
+      {
+      "id": 11,
+      "name": "Testo",
+      "key": "testo",
+      "taxonomy": "subject"
+      },
       ],
     spatialCoverage: null,
     temporalCoverage: null,
