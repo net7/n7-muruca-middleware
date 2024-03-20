@@ -206,11 +206,11 @@ export const data = {
     taxonomies: [
     ],
     transcription: {
-      filename: "aitia/aitia_esempio_codifica-2_1710242042.xml",
-      odd: "",
+      filename: "aitia/aitia_aitia_esempio_codifica-2_1710242042_1710836804.xml",
+      odd: "demo_1-1",
       teipublisher: "https://teipublisher.muruca.cloud",
-      view: "div",
-    },
+      view: "page"
+  }
   }
 
 export const dataEmpty = {
