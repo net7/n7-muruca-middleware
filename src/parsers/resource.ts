@@ -32,7 +32,7 @@ export class ResourceParser implements Parser {
             parsed.sections[block] = this.parseImageViewer(conf[block], data);
             break;
   
-          case "breadcrumbs":
+          case "breadcrumb":
             parsed.sections[block] = this.parseBreadcrumbs(conf[block], data, type);
             break;
   
@@ -218,21 +218,48 @@ export class ResourceParser implements Parser {
           title: "Metadata",
           items: block.fields.map((field: string) => {
             if (data[field]) {
-              
-              const metadataItem = {
-                  label: field.replace(/_/g, " "),
-                  value: data[field],
-                };
-                return this.filterMetadata(field, metadataItem, type)
+              let metadataItem = {
+                label: field.replace(/_/g, " "),
+                value: data[field],
+              };
+
+              if(field === "creator"){
+                metadataItem  = this.parseMetadataCreator(data, field);
+
               }
+              else if(field === "subject"){
+                metadataItem  = this.parseMetadataSubject(data, field);
+              }
+              
+              return this.filterMetadata(field, metadataItem, type);
             }
-          )
+          })
         }
       ],
     };
-    m.group[0].items = m.group[0].items.filter((n: any) => n); //cancella i null
+    m.group[0].items = m.group[0].items.filter((n: any) => n); 
 
     return m;
+  }
+  
+  parseMetadataCreator(data, field): OutputMetadataItem {
+    const filter = {
+      label: field,
+      value: Object.keys(data[field])
+      .map((n) => data[field][n].title)
+      .join(", "),
+    };
+    return filter;
+  }
+
+  parseMetadataSubject(data, field): OutputMetadataItem {
+    const filter = {
+      label: field,
+      value: Object.keys(data[field])
+      .map((n) => data[field][n].name)
+      .join(", "),
+    };
+    return filter;
   }
   
   parseMetadataSize(block: ConfBlock, data: any): OutputMetadata{
