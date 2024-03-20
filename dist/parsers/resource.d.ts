@@ -13,8 +13,6 @@ export declare class ResourceParser implements Parser {
      */
     parseTitle(block: ConfBlock, data: any): string;
     parseMetadata(block: ConfBlock, data: any, type: string): OutputMetadata;
-    parseMetadataCreator(data: any, field: any): OutputMetadataItem;
-    parseMetadataSubject(data: any, field: any): OutputMetadataItem;
     parseMetadataSize(block: ConfBlock, data: any): OutputMetadata;
     parseMetadataDescription(block: ConfBlock, data: any): OutputMetadata;
     parseHeader(block: ConfBlock, data: any): OutputHeader;

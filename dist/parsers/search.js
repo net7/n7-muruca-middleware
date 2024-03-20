@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SearchParser = void 0;
+const parseMetadataFunctions_1 = require("../utils/parseMetadataFunctions");
 class SearchParser {
     parse({ data, options }, queryParams = null) {
         const { type } = options;
@@ -11,10 +12,16 @@ class SearchParser {
     searchResultsMetadata(source, field, label, type) {
         const items = [];
         field.map((f) => {
-            const metadataItem = {
+            let metadataItem = {
                 label: source[f] ? f : null,
                 value: source[f],
             };
+            if (f === "creator") {
+                metadataItem = (0, parseMetadataFunctions_1.parseMetadataCreator)(source, f);
+            }
+            else if (f === "subject") {
+                metadataItem = (0, parseMetadataFunctions_1.parseMetadataSubject)(source, f);
+            }
             items.push(this.filterResultsMetadata(f, metadataItem, type));
         });
         return items;

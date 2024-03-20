@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResourceParser = void 0;
+const parseMetadataFunctions_1 = require("../utils/parseMetadataFunctions");
 class ResourceParser {
     parse({ data, options }, locale) {
         if (!("type" in options)) {
@@ -194,10 +195,10 @@ class ResourceParser {
                                 value: data[field],
                             };
                             if (field === "creator") {
-                                metadataItem = this.parseMetadataCreator(data, field);
+                                metadataItem = (0, parseMetadataFunctions_1.parseMetadataCreator)(data, field);
                             }
                             else if (field === "subject") {
-                                metadataItem = this.parseMetadataSubject(data, field);
+                                metadataItem = (0, parseMetadataFunctions_1.parseMetadataSubject)(data, field);
                             }
                             return this.filterMetadata(field, metadataItem, type);
                         }
@@ -207,24 +208,6 @@ class ResourceParser {
         };
         m.group[0].items = m.group[0].items.filter((n) => n);
         return m;
-    }
-    parseMetadataCreator(data, field) {
-        const filter = {
-            label: field,
-            value: Object.keys(data[field])
-                .map((n) => data[field][n].title)
-                .join(", "),
-        };
-        return filter;
-    }
-    parseMetadataSubject(data, field) {
-        const filter = {
-            label: field,
-            value: Object.keys(data[field])
-                .map((n) => data[field][n].name)
-                .join(", "),
-        };
-        return filter;
     }
     parseMetadataSize(block, data) {
         const metadataSize = {

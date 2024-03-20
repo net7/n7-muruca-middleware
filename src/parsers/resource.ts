@@ -1,5 +1,6 @@
 import { Author, ConfBlock, ConfBlockTextViewer } from '../interfaces';
 import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
+import { parseMetadataCreator, parseMetadataSubject } from '../utils/parseMetadataFunctions';
 
 export class ResourceParser implements Parser {
     parse({ data, options }: any, locale) {
@@ -224,11 +225,11 @@ export class ResourceParser implements Parser {
               };
 
               if(field === "creator"){
-                metadataItem  = this.parseMetadataCreator(data, field);
+                metadataItem  = parseMetadataCreator(data, field);
 
               }
               else if(field === "subject"){
-                metadataItem  = this.parseMetadataSubject(data, field);
+                metadataItem  = parseMetadataSubject(data, field);
               }
               
               return this.filterMetadata(field, metadataItem, type);
@@ -240,26 +241,6 @@ export class ResourceParser implements Parser {
     m.group[0].items = m.group[0].items.filter((n: any) => n); 
 
     return m;
-  }
-  
-  parseMetadataCreator(data, field): OutputMetadataItem {
-    const filter = {
-      label: field,
-      value: Object.keys(data[field])
-      .map((n) => data[field][n].title)
-      .join(", "),
-    };
-    return filter;
-  }
-
-  parseMetadataSubject(data, field): OutputMetadataItem {
-    const filter = {
-      label: field,
-      value: Object.keys(data[field])
-      .map((n) => data[field][n].name)
-      .join(", "),
-    };
-    return filter;
   }
   
   parseMetadataSize(block: ConfBlock, data: any): OutputMetadata{

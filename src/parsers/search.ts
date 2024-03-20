@@ -3,6 +3,7 @@ import {
   SearchResultsData,
   SearchResultsItemData,
 } from '../interfaces';
+import { parseMetadataCreator, parseMetadataSubject } from '../utils/parseMetadataFunctions';
 
 export abstract class SearchParser implements Parser {
   parse({ data, options }: Input, queryParams = null) {
@@ -16,9 +17,17 @@ export abstract class SearchParser implements Parser {
     const items = [];
     field.map((f) => {
 
-      const metadataItem = {
+      let metadataItem = {
         label: source[f] ? f : null,
         value: source[f],
+      }
+
+      if(f === "creator"){
+        metadataItem  = parseMetadataCreator(source, f);
+
+      }
+      else if(f === "subject"){
+        metadataItem  = parseMetadataSubject(source, f);
       }
 
       items.push(
