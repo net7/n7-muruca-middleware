@@ -90,7 +90,7 @@ class SearchParser {
             const item = {};
             conf.results.forEach((val) => {
                 switch (val.label) {
-                    case "title":
+                    case 'title':
                         item[val.label] = this.parseResultsTitle(source, val.field);
                     case 'link':
                         item[val.label] = this.parseResultsLink(source);

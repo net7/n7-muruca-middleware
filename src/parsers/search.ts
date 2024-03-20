@@ -108,7 +108,7 @@ export abstract class SearchParser implements Parser {
         
         switch (val.label) {
 
-          case "title":
+          case 'title':
             item[val.label] = this.parseResultsTitle(source, val.field);
 
           case 'link':
