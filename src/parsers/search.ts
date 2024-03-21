@@ -117,7 +117,7 @@ export abstract class SearchParser implements Parser {
         const bucketsData = this.getBucket(facetData);
         if (bucketsData && bucketsData.buckets) {
           const buckets = offset && offset > 0 ? bucketsData.buckets.slice(offset) : bucketsData.buckets;
-          filteredTotal = bucketsData['distinct_doc_count'] || data['distinctTerms_' + id]?.value || 0;
+          filteredTotal = bucketsData['distinct_doc_count'] || data['distinctTerms_' + id]?.value || bucketsData['doc_count'] || 0;
 
           buckets.forEach((bucket: Bucket) => {
             const [payload, text] = bucket.key.split('|||').map(part => part.toLowerCase());
