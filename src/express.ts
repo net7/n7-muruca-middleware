@@ -39,17 +39,21 @@ const routeHandler = async (req, res, callback) => {
     if (req.body) {
       req.body = JSON.stringify(req.body);
     }
-    const result = await callback(req);
-    if (result?.body) {
-      res.json(JSON.parse(result.body));
-    } else {
-      // Handle the case where the callback didn't provide a response
-      res.status(500).send('Internal Server Error');
+    const result = await callback(req, res);
+    if (!res.headersSent) {
+      if (result?.body) {
+        res.json(JSON.parse(result.body));
+      } else {
+        // Handle the case where the callback didn't provide a response
+        res.status(500).send('Internal Server Error');
+      }
     }
     return result;
   } catch (error) {
     console.error('Error in routeHandler:', error);
-    res.status(500).send('Internal Server Error');
+    if (!res.headersSent) {
+      res.status(500).send('Internal Server Error');
+    }
   }
 };
 
