@@ -18,9 +18,12 @@ export class searchController {
       Client,
       elasticUri,
     );
+    if(query_res?.error?.root_cause) return query_res?.error;
     const data =
       type === 'results' ? query_res.hits.hits : query_res.aggregations;
-    if(!data) return {}
+    if (!data){
+      return 'error'   
+  }
     const parser = new parsers.search();
     const { searchId, facets } = body;
     const { limit, offset, sort } = body.results ? body.results : 'null';
