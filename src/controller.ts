@@ -157,6 +157,9 @@ export class Controller {
       type,
       locale as string,
     );
+    if (response === 'error') res.status(404).send({
+      message: 'Nessuno dei parametri inviati è presente all\'interno di Elastic Search ' 
+  })
     return res.send(response);
   };
 
