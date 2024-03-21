@@ -18,11 +18,17 @@ export class searchController {
       Client,
       elasticUri,
     );
-    if(query_res?.error?.root_cause) return query_res?.error;
+    if(query_res?.error?.root_cause) return {
+      message: query_res?.error,
+      error: 'error-query'
+    }
     const data =
       type === 'results' ? query_res.hits.hits : query_res.aggregations;
     if (!data){
-      return 'error'   
+      return {
+        message: 'Nessuno dei parametri inviati è presente all\'interno di Elastic Search',
+        error: 'error-empty',
+    }
   }
     const parser = new parsers.search();
     const { searchId, facets } = body;

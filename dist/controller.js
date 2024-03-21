@@ -144,9 +144,13 @@ class Controller {
             const body = JSON.parse(request.body);
             const controller = new controllers.searchController();
             const response = yield controller.search(body, this.config, type, locale);
-            if (response === 'error')
+            if ((response === null || response === void 0 ? void 0 : response.error) === 'error-query')
+                res.status(400).send({
+                    message: response === null || response === void 0 ? void 0 : response.message
+                });
+            else if ((response === null || response === void 0 ? void 0 : response.error) === 'error-empty')
                 res.status(404).send({
-                    message: 'Nessuno dei parametri inviati è presente all\'interno di Elastic Search '
+                    message: response === null || response === void 0 ? void 0 : response.message
                 });
             return res.send(response);
         });

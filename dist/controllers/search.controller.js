@@ -26,10 +26,16 @@ class searchController {
             //console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
             if ((_a = query_res === null || query_res === void 0 ? void 0 : query_res.error) === null || _a === void 0 ? void 0 : _a.root_cause)
-                return query_res === null || query_res === void 0 ? void 0 : query_res.error;
+                return {
+                    message: query_res === null || query_res === void 0 ? void 0 : query_res.error,
+                    error: 'error-query'
+                };
             const data = type === 'results' ? query_res.hits.hits : query_res.aggregations;
             if (!data) {
-                return 'error';
+                return {
+                    message: 'Nessuno dei parametri inviati è presente all\'interno di Elastic Search',
+                    error: 'error-empty',
+                };
             }
             const parser = new parsers.search();
             const { searchId, facets } = body;
