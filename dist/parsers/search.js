@@ -99,7 +99,7 @@ class SearchParser {
                 const bucketsData = this.getBucket(facetData);
                 if (bucketsData && bucketsData.buckets) {
                     const buckets = offset && offset > 0 ? bucketsData.buckets.slice(offset) : bucketsData.buckets;
-                    filteredTotal = bucketsData['distinct_doc_count'] || ((_a = data['distinctTerms_' + id]) === null || _a === void 0 ? void 0 : _a.value) || bucketsData['doc_count'] || 0;
+                    filteredTotal = bucketsData['distinct_doc_count'] || ((_a = data['distinctTerms_' + id]) === null || _a === void 0 ? void 0 : _a.value) || 0;
                     buckets.forEach((bucket) => {
                         const [payload, text] = bucket.key.split('|||').map(part => part.toLowerCase());
                         const searchQuery = (query || '').toLowerCase();
@@ -114,7 +114,7 @@ class SearchParser {
                 }
             }
             globalSum += facetSum;
-            aggregationResult.facets[id] = { total_count: filteredTotal, filtered_total_count: filteredTotal, values };
+            aggregationResult.facets[id] = { total_count: filteredTotal || globalSum, filtered_total_count: filteredTotal || values.length, values };
         });
         aggregationResult.total_count = globalSum;
         return this.applyFacetResultsFilter(aggregationResult); // With this function you can handle different exceptions the total results
