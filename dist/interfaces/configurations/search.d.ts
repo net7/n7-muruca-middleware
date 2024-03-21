@@ -22,7 +22,7 @@ export interface SearchStruct {
     options?: {
         /** esclude some fields from result */
         exclude?: string[];
-        /** esclude some fields from result */
+        /** include some fields from result */
         include?: string[];
     };
     /** list of facets. The keys must be the same received from the request */
@@ -91,7 +91,7 @@ export interface SearchResults {
      * "title": used to show the title of the record
      * "text": used to show a short description of the record
      * "metadata": used to show a set of metadata of the record
-     * "metadata": used to show a set of highlights terms of the record
+     * "highlights": used to show a set of highlights terms of the record
      * "link": used to build the link to the record
      * "image": used to show a thumbnail of the record
      * "id": the id of the record

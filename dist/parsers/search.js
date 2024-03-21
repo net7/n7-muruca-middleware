@@ -1,25 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SearchParser = void 0;
+const parseMetadataFunctions_1 = require("../utils/parseMetadataFunctions");
 class SearchParser {
     parse({ data, options }, queryParams = null) {
         const { type } = options;
         return type === 'results'
-            ? this.parseResults({ data, options }, queryParams)
+            ? this.parseResults({ data, options }, queryParams, type)
             : this.parseFacets({ data, options });
     }
-    searchResultsMetadata(source, field, label) {
-        const item = [];
-        field.map((f) => {
-            item[label][0].items.push({
-                label: source[f] ? f : null,
-                // value: f === 'contenuti' ? (source[f] || []).map(sf => sf['contenuto']) : source[f]
-                value: source[f],
-            });
-        });
-        return item;
-    }
-    parseResults({ data, options }, queryParams = null) {
+    parseResults({ data, options }, queryParams = null, type) {
         if (options && 'limit' in options) {
             var { offset, limit, sort, total_count } = options;
         }
@@ -30,55 +20,51 @@ class SearchParser {
             total_count,
             results: [],
         };
-        search_result.results = this.parseResultsItems({ data, options }, queryParams);
-        // implementare
-        // data.forEach(({ _source: source }) => {
-        //   const item = {} as SearchResultsItemData;
-        //   conf.results.forEach((val: { label: string; field: any }) => {
-        //     switch (val.label) {
-        //       case 'title':
-        //       case 'text':
-        //         item[val.label] = source[val.field] || null;
-        //         break;
-        //       case 'metadata':
-        //         item[val.label] = [
-        //           {
-        //             items: [],
-        //           },
-        //         ];
-        //         val.field.map((f) => {
-        //           item[val.label][0].items.push({
-        //             label: source[f] ? f : null,
-        //             // value: f === 'contenuti' ? (source[f] || []).map(sf => sf['contenuto']) : source[f]
-        //             value:
-        //               f === 'origine' && source[f]
-        //                 ? source[f].replace(/(<([^>]+)>)/gi, '')
-        //                 : source[f],
-        //           });
-        //         });
-        //         break;
-        //       case 'image':
-        //         item[val.label] = source[val.field] || null;
-        //         break;
-        //       case 'link':
-        //         item[
-        //           val.label
-        //         ] = `/${source['record-type']}/${source.id}/${source.slug}`;
-        //         break;
-        //       case 'id':
-        //         item[val.label] = source.id;
-        //         break;
-        //       case 'routeId':
-        //           item[val.label] = source[val.field];
-        //       case 'slug':
-        //         item[val.label] = source[val.field];
-        //       default:
-        //         break;
-        //     }
-        //   });
-        //   items.push(item);
-        // });
+        search_result.results = this.parseResultsItems({ data, options }, type, queryParams);
         return search_result;
+    }
+    parseResultsItems({ data, options }, type, queryParams) {
+        var { searchId, conf } = options;
+        let items = [];
+        data.forEach(({ _source: source }) => {
+            const item = {};
+            conf.results.forEach((val) => {
+                switch (val.label) {
+                    case 'metadata':
+                        item[val.label] = [
+                            {
+                                items: this.searchResultsMetadata(source, val.field, val.label, type),
+                            },
+                        ];
+                        break;
+                    default:
+                        item[val.label] = this.parseResultsDefault(source, val.field);
+                        break;
+                }
+            });
+            items.push(item);
+        });
+        return items;
+    }
+    ;
+    parseResultsDefault(source, field) {
+        return source[field] || null;
+    }
+    searchResultsMetadata(source, field, label, type) {
+        const items = [];
+        field.map((f) => {
+            if (source[f]) {
+                let metadataItem = {
+                    label: source[f] ? f : null,
+                    value: (0, parseMetadataFunctions_1.parseMetadataValue)(source, f)
+                };
+                items.push(this.filterResultsMetadata(f, metadataItem, source));
+            }
+        });
+        return items;
+    }
+    filterResultsMetadata(field, metadataItem, source) {
+        return metadataItem;
     }
     parseFacets({ data, options }) {
         let globalSum = 0;
@@ -114,7 +100,7 @@ class SearchParser {
                 }
             }
             globalSum += facetSum;
-            aggregationResult.facets[id] = { total_count: filteredTotal, filtered_total_count: filteredTotal, values };
+            aggregationResult.facets[id] = { total_count: filteredTotal || globalSum, filtered_total_count: filteredTotal || values.length, values };
         });
         aggregationResult.total_count = globalSum;
         return this.applyFacetResultsFilter(aggregationResult); // With this function you can handle different exceptions the total results
