@@ -1,35 +1,44 @@
 import { OutputMetadataItem } from "../interfaces";
 
-export const parseMetadataCreator = (data, field): OutputMetadataItem => {
-    let filter = {
-        label: null,
-        value: null
-    }
+export const parseMetadataValue = (data: any, field: string): string | OutputMetadataItem[][] => {
 
     if(data[field]){
-        filter = {
-         label: field,
-         value: Object.keys(data[field])
-         .map((n) => data[field][n].title)
-         .join(", "),
-       };
+        let value = data[field];
+
+        if(typeof data[field] === ('string' || 'number')){
+            value = data[field];
+        }
+    
+        else if(data[field][0]['record-type']){
+          value  = parseMetadataRecord(data, field);
+    
+        }
+        else if(data[field][0]['taxonomy']){
+          value  = parseMetadataTaxonomy(data, field);
+        }
+    
+        return value;
     }
-   return filter;
   }
 
-export const parseMetadataSubject = (data, field): OutputMetadataItem => {
-    let filter = {
-        label: null,
-        value: null
-    }
+export const parseMetadataRecord = (data: any, field: string): OutputMetadataItem => {
+    let value;
 
     if(data[field]){
-        filter = {
-         label: field,
-         value: Object.keys(data[field])
-         .map((n) => data[field][n].name)
-         .join(", "),
-       };
+        value = Object.keys(data[field])
+         .map((n) => data[field][n].title)
+         .join(", ")
     }
-   return filter;
+   return value;
+  }
+
+export const parseMetadataTaxonomy = (data: any, field: string): OutputMetadataItem => {
+    let value;
+
+    if(data[field]){
+        value = Object.keys(data[field])
+         .map((n) => data[field][n].name)
+         .join(", ")
+    }
+   return value;
   }

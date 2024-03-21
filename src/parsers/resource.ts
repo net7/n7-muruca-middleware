@@ -1,6 +1,6 @@
 import { Author, ConfBlock, ConfBlockTextViewer } from '../interfaces';
 import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
-import { parseMetadataCreator, parseMetadataSubject } from '../utils/parseMetadataFunctions';
+import { parseMetadataValue } from '../utils/parseMetadataFunctions';
 
 export class ResourceParser implements Parser {
     parse({ data, options }: any, locale) {
@@ -221,17 +221,9 @@ export class ResourceParser implements Parser {
             if (data[field]) {
               let metadataItem = {
                 label: field.replace(/_/g, " "),
-                value: data[field],
-              };
-
-              if(field === "creator"){
-                metadataItem  = parseMetadataCreator(data, field);
-
-              }
-              else if(field === "subject"){
-                metadataItem  = parseMetadataSubject(data, field);
-              }
-              
+                value: parseMetadataValue(data, field)
+                };
+        
               return this.filterMetadata(field, metadataItem, type);
             }
           })
@@ -242,6 +234,7 @@ export class ResourceParser implements Parser {
 
     return m;
   }
+ 
   
   parseMetadataSize(block: ConfBlock, data: any): OutputMetadata{
     const metadataSize = {

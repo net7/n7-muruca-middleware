@@ -9,26 +9,6 @@ class SearchParser {
             ? this.parseResults({ data, options }, queryParams, type)
             : this.parseFacets({ data, options });
     }
-    searchResultsMetadata(source, field, label, type) {
-        const items = [];
-        field.map((f) => {
-            let metadataItem = {
-                label: source[f] ? f : null,
-                value: source[f],
-            };
-            if (f === "creator") {
-                metadataItem = (0, parseMetadataFunctions_1.parseMetadataCreator)(source, f);
-            }
-            else if (f === "subject") {
-                metadataItem = (0, parseMetadataFunctions_1.parseMetadataSubject)(source, f);
-            }
-            items.push(this.filterResultsMetadata(f, metadataItem, type));
-        });
-        return items;
-    }
-    filterResultsMetadata(field, metadataItem, recordType) {
-        return metadataItem;
-    }
     parseResults({ data, options }, queryParams = null, type) {
         if (options && 'limit' in options) {
             var { offset, limit, sort, total_count } = options;
@@ -99,6 +79,7 @@ class SearchParser {
                 switch (val.label) {
                     case 'title':
                         item[val.label] = this.parseResultsTitle(source, val.field);
+                        break;
                     case 'link':
                         item[val.label] = this.parseResultsLink(source);
                         break;
@@ -116,10 +97,10 @@ class SearchParser {
                         item[val.label] = this.parseResultsId(source, val.field);
                         break;
                     case 'routeId':
-                        item[val.label] = this.parseResultsTitle(source, val.field);
+                        item[val.label] = this.parseResultsRouteId(source, val.field);
                         break;
                     case 'slug':
-                        item[val.label] = this.parseResultsRouteId(source, val.field);
+                        item[val.label] = this.parseResultsSlug(source, val.field);
                         break;
                     default:
                         item[val.label] = this.parseResultsDefault(source, val.field);
@@ -133,6 +114,20 @@ class SearchParser {
     ;
     parseResultsDefault(source, field) {
         return source[field] || null;
+    }
+    searchResultsMetadata(source, field, label, type) {
+        const items = [];
+        field.map((f) => {
+            let metadataItem = {
+                label: source[f] ? f : null,
+                value: (0, parseMetadataFunctions_1.parseMetadataValue)(source, f)
+            };
+            items.push(this.filterResultsMetadata(f, metadataItem, source));
+        });
+        return items;
+    }
+    filterResultsMetadata(field, metadataItem, source) {
+        return metadataItem;
     }
     parseResultsId(source, field) {
         return this.parseResultsDefault(source, field);

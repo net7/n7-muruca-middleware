@@ -1,35 +1,39 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseMetadataSubject = exports.parseMetadataCreator = void 0;
-const parseMetadataCreator = (data, field) => {
-    let filter = {
-        label: null,
-        value: null
-    };
+exports.parseMetadataTaxonomy = exports.parseMetadataRecord = exports.parseMetadataValue = void 0;
+const parseMetadataValue = (data, field) => {
     if (data[field]) {
-        filter = {
-            label: field,
-            value: Object.keys(data[field])
-                .map((n) => data[field][n].title)
-                .join(", "),
-        };
+        let value = data[field];
+        if (typeof data[field] === ('string' || 'number')) {
+            value = data[field];
+        }
+        else if (data[field][0]['record-type']) {
+            value = (0, exports.parseMetadataRecord)(data, field);
+        }
+        else if (data[field][0]['taxonomy']) {
+            value = (0, exports.parseMetadataTaxonomy)(data, field);
+        }
+        return value;
     }
-    return filter;
 };
-exports.parseMetadataCreator = parseMetadataCreator;
-const parseMetadataSubject = (data, field) => {
-    let filter = {
-        label: null,
-        value: null
-    };
+exports.parseMetadataValue = parseMetadataValue;
+const parseMetadataRecord = (data, field) => {
+    let value;
     if (data[field]) {
-        filter = {
-            label: field,
-            value: Object.keys(data[field])
-                .map((n) => data[field][n].name)
-                .join(", "),
-        };
+        value = Object.keys(data[field])
+            .map((n) => data[field][n].title)
+            .join(", ");
     }
-    return filter;
+    return value;
 };
-exports.parseMetadataSubject = parseMetadataSubject;
+exports.parseMetadataRecord = parseMetadataRecord;
+const parseMetadataTaxonomy = (data, field) => {
+    let value;
+    if (data[field]) {
+        value = Object.keys(data[field])
+            .map((n) => data[field][n].name)
+            .join(", ");
+    }
+    return value;
+};
+exports.parseMetadataTaxonomy = parseMetadataTaxonomy;

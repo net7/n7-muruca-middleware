@@ -192,14 +192,8 @@ class ResourceParser {
                         if (data[field]) {
                             let metadataItem = {
                                 label: field.replace(/_/g, " "),
-                                value: data[field],
+                                value: (0, parseMetadataFunctions_1.parseMetadataValue)(data, field)
                             };
-                            if (field === "creator") {
-                                metadataItem = (0, parseMetadataFunctions_1.parseMetadataCreator)(data, field);
-                            }
-                            else if (field === "subject") {
-                                metadataItem = (0, parseMetadataFunctions_1.parseMetadataSubject)(data, field);
-                            }
                             return this.filterMetadata(field, metadataItem, type);
                         }
                     })

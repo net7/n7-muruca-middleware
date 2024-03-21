@@ -1,3 +1,4 @@
 import { OutputMetadataItem } from "../interfaces";
-export declare const parseMetadataCreator: (data: any, field: any) => OutputMetadataItem;
-export declare const parseMetadataSubject: (data: any, field: any) => OutputMetadataItem;
+export declare const parseMetadataValue: (data: any, field: string) => string | OutputMetadataItem[][];
+export declare const parseMetadataRecord: (data: any, field: string) => OutputMetadataItem;
+export declare const parseMetadataTaxonomy: (data: any, field: string) => OutputMetadataItem;
