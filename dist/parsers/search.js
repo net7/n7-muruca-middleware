@@ -21,53 +21,6 @@ class SearchParser {
             results: [],
         };
         search_result.results = this.parseResultsItems({ data, options }, type, queryParams);
-        // implementare
-        // data.forEach(({ _source: source }) => {
-        //   const item = {} as SearchResultsItemData;
-        //   conf.results.forEach((val: { label: string; field: any }) => {
-        //     switch (val.label) {
-        //       case 'title':
-        //       case 'text':
-        //         item[val.label] = source[val.field] || null;
-        //         break;
-        //       case 'metadata':
-        //         item[val.label] = [
-        //           {
-        //             items: [],
-        //           },
-        //         ];
-        //         val.field.map((f) => {
-        //           item[val.label][0].items.push({
-        //             label: source[f] ? f : null,
-        //             // value: f === 'contenuti' ? (source[f] || []).map(sf => sf['contenuto']) : source[f]
-        //             value:
-        //               f === 'origine' && source[f]
-        //                 ? source[f].replace(/(<([^>]+)>)/gi, '')
-        //                 : source[f],
-        //           });
-        //         });
-        //         break;
-        //       case 'image':
-        //         item[val.label] = source[val.field] || null;
-        //         break;
-        //       case 'link':
-        //         item[
-        //           val.label
-        //         ] = `/${source['record-type']}/${source.id}/${source.slug}`;
-        //         break;
-        //       case 'id':
-        //         item[val.label] = source.id;
-        //         break;
-        //       case 'routeId':
-        //           item[val.label] = source[val.field];
-        //       case 'slug':
-        //         item[val.label] = source[val.field];
-        //       default:
-        //         break;
-        //     }
-        //   });
-        //   items.push(item);
-        // });
         return search_result;
     }
     parseResultsItems({ data, options }, type, queryParams) {
@@ -77,30 +30,12 @@ class SearchParser {
             const item = {};
             conf.results.forEach((val) => {
                 switch (val.label) {
-                    case 'title':
-                        item[val.label] = this.parseResultsTitle(source, val.field);
-                        break;
-                    case 'link':
-                        item[val.label] = this.parseResultsLink(source);
-                        break;
                     case 'metadata':
                         item[val.label] = [
                             {
                                 items: this.searchResultsMetadata(source, val.field, val.label, type),
                             },
                         ];
-                        break;
-                    case 'image':
-                        item[val.label] = this.parseResultsImage(source, val.field);
-                        break;
-                    case 'id':
-                        item[val.label] = this.parseResultsId(source, val.field);
-                        break;
-                    case 'routeId':
-                        item[val.label] = this.parseResultsRouteId(source, val.field);
-                        break;
-                    case 'slug':
-                        item[val.label] = this.parseResultsSlug(source, val.field);
                         break;
                     default:
                         item[val.label] = this.parseResultsDefault(source, val.field);
@@ -118,41 +53,18 @@ class SearchParser {
     searchResultsMetadata(source, field, label, type) {
         const items = [];
         field.map((f) => {
-            let metadataItem = {
-                label: source[f] ? f : null,
-                value: (0, parseMetadataFunctions_1.parseMetadataValue)(source, f)
-            };
-            items.push(this.filterResultsMetadata(f, metadataItem, source));
+            if (source[f]) {
+                let metadataItem = {
+                    label: source[f] ? f : null,
+                    value: (0, parseMetadataFunctions_1.parseMetadataValue)(source, f)
+                };
+                items.push(this.filterResultsMetadata(f, metadataItem, source));
+            }
         });
         return items;
     }
     filterResultsMetadata(field, metadataItem, source) {
         return metadataItem;
-    }
-    parseResultsId(source, field) {
-        return this.parseResultsDefault(source, field);
-    }
-    parseResultsRouteId(source, field) {
-        return this.parseResultsDefault(source, field);
-    }
-    parseResultsSlug(source, field) {
-        return this.parseResultsDefault(source, field);
-    }
-    parseResultsTitle(source, field) {
-        return this.parseResultsDefault(source, field);
-    }
-    parseResultsImage(source, field) {
-        let image = "";
-        if (source["images"]) {
-            image = source["images"][0].sizes[field];
-        }
-        else {
-            image = source[field];
-        }
-        return image;
-    }
-    parseResultsLink(source) {
-        return `/${source['record-type']}/${source.id}/${source.slug}`;
     }
     parseFacets({ data, options }) {
         let globalSum = 0;

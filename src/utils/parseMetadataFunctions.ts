@@ -8,13 +8,16 @@ export const parseMetadataValue = (data: any, field: string): string | OutputMet
         if(typeof data[field] === ('string' || 'number')){
             value = data[field];
         }
-    
-        else if(data[field][0]['record-type']){
-          value  = parseMetadataRecord(data, field);
-    
-        }
-        else if(data[field][0]['taxonomy']){
-          value  = parseMetadataTaxonomy(data, field);
+
+        else if(Array.isArray(data[field])){
+
+          if(data[field][0]['record-type']){
+            value  = parseMetadataRecord(data, field);
+      
+          }
+          else if(data[field][0]['taxonomy']){
+            value  = parseMetadataTaxonomy(data, field);
+          }
         }
     
         return value;

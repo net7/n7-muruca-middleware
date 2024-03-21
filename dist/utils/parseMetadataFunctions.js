@@ -7,11 +7,13 @@ const parseMetadataValue = (data, field) => {
         if (typeof data[field] === ('string' || 'number')) {
             value = data[field];
         }
-        else if (data[field][0]['record-type']) {
-            value = (0, exports.parseMetadataRecord)(data, field);
-        }
-        else if (data[field][0]['taxonomy']) {
-            value = (0, exports.parseMetadataTaxonomy)(data, field);
+        else if (Array.isArray(data[field])) {
+            if (data[field][0]['record-type']) {
+                value = (0, exports.parseMetadataRecord)(data, field);
+            }
+            else if (data[field][0]['taxonomy']) {
+                value = (0, exports.parseMetadataTaxonomy)(data, field);
+            }
         }
         return value;
     }
