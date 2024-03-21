@@ -217,3 +217,38 @@ export const dataEmpty = {
   error: "post_type",
   message: "no resource found for this type",
 }
+
+export const dataParseMetadata = {
+  creator: [
+    {
+      id: 48,
+      "record-type": "person",
+      title: "Paul Valéry",
+      slug: "nietzsche-2-5",
+      description: "<!-- wp:paragraph -->\n<p>Morbi mollis tellus ac sapien. Sed lectus. Donec vitae orci sed dolor rutrum auctor. Fusce neque. Etiam ultricies nisi vel augue.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Cras dapibus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Cras varius. Proin magna.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Praesent vestibulum dapibus nibh. In ut quam vitae odio lacinia tincidunt. Sed lectus. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Fusce risus nisl, viverra et, tempor et, pretium in, sapien.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Nullam accumsan lorem in dui. Ut a nisl id ante tempus hendrerit. Curabitur at lacus ac velit ornare lobortis. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum.</p>\n<!-- /wp:paragraph -->",
+      thumbnail: "http://aitia.muruca.cloud/wp-content/uploads/2022/02/Paul-Valery-people-300x300.png",
+      taxonomies: [
+      ],
+    },
+  ],
+  subject: [
+    {
+    "id": 10,
+    "name": "Filosofia",
+    "key": "filosofia",
+    "taxonomy": "subject"
+    },
+    {
+    "id": 11,
+    "name": "Testo",
+    "key": "testo",
+    "taxonomy": "subject"
+    },
+    ],
+  number: 23,
+  numbers: [23, 45, 67],
+  string: "prova",
+  strings: ["prova", "array", "di", "stringhe"],
+  object: { foo: "bar"},
+  emptyCreator: null
+}
