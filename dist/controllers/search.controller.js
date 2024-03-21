@@ -15,6 +15,7 @@ const helpers_1 = require("../helpers");
 class searchController {
     constructor() {
         this.search = (body, config, type, locale) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const { parsers, searchIndex, elasticUri, configurations, defaultLang } = config;
             let searchLangIndex = searchIndex;
             if (locale && defaultLang && locale != defaultLang) {
@@ -24,9 +25,18 @@ class searchController {
             // make query
             //console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
+            if ((_a = query_res === null || query_res === void 0 ? void 0 : query_res.error) === null || _a === void 0 ? void 0 : _a.root_cause)
+                return {
+                    message: query_res === null || query_res === void 0 ? void 0 : query_res.error,
+                    error: 'error-query'
+                };
             const data = type === 'results' ? query_res.hits.hits : query_res.aggregations;
-            if (!data)
-                return {};
+            if (!data) {
+                return {
+                    message: 'Nessuno dei parametri inviati è presente all\'interno di Elastic Search',
+                    error: 'error-empty',
+                };
+            }
             const parser = new parsers.search();
             const { searchId, facets } = body;
             const { limit, offset, sort } = body.results ? body.results : 'null';

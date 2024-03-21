@@ -100,7 +100,7 @@ class SearchParser {
                 }
             }
             globalSum += facetSum;
-            aggregationResult.facets[id] = { total_count: filteredTotal, filtered_total_count: filteredTotal, values };
+            aggregationResult.facets[id] = { total_count: filteredTotal || globalSum, filtered_total_count: filteredTotal || values.length, values };
         });
         aggregationResult.total_count = globalSum;
         return this.applyFacetResultsFilter(aggregationResult); // With this function you can handle different exceptions the total results
