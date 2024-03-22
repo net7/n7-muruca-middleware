@@ -87,8 +87,8 @@ class SearchParser {
                     const buckets = offset && offset > 0 ? bucketsData.buckets.slice(offset) : bucketsData.buckets;
                     filteredTotal = bucketsData['distinct_doc_count'] || ((_a = data['distinctTerms_' + id]) === null || _a === void 0 ? void 0 : _a.value) || 0;
                     buckets.forEach((bucket) => {
-                        const [payload, text] = bucket.key.split('|||').map(part => part.toLowerCase());
-                        const searchQuery = (query || '').toLowerCase();
+                        const [payload, text] = bucket.key.split('|||').map(part => part);
+                        const searchQuery = (query || '');
                         if (payload.includes(searchQuery) || text.includes(searchQuery)) {
                             const facet = this.createFacet(bucket, text, payload, queryFacets[id]);
                             const modifiedFacet = this.applyFacetFilter(facet); // With this function you can handle different exceptions on the single facet
