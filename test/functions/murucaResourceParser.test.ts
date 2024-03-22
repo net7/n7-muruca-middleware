@@ -1,9 +1,10 @@
 const expect = require('chai').expect;
 import { ResourceParser } from '../../src/parsers/resource';
-import { data, dataEmpty } from '../mocks/resourceParserMockData';
+import { data, dataEmpty, dataParseMetadata } from '../mocks/resource/resourceParserMockData';
 import editionConfig from '../config/edition_config';
 import { ConfBlock, ConfBlockTextViewer, OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputHeader, OutputImageViewer, OutputMetadata, OutputMetadataItem, OutputTextViewer } from '../../src/interfaces';
-import { parsed } from '../mocks/resourceParserMockResults';
+import { parsed } from '../mocks/resource/resourceParserMockResults';
+import editionConfigParseMetadata, { expectedResults } from '../config/edition_config_parseMetaData';
 
 describe('Resource parser', function murucaResourceParser() {
     
@@ -23,7 +24,7 @@ describe('Resource parser', function murucaResourceParser() {
       it('should return the correctly parsed title', async function () {
         let result: string = parser.parseTitle(editionConfig["title"] as ConfBlock, data);
         expect(result).to.be.a("string");
-        expect(result).to.be.eq("Essai d'une conquête méthodique");
+        expect(result).to.be.eq(parsed.title);
       });
     });
     
@@ -86,22 +87,16 @@ describe('Resource parser', function murucaResourceParser() {
     
   
     context('Parse full data', function () {
-      it('should return the expected result in the case of a correct data', async function () {
+      it('should return the expected result in the case of a correct data input', async function () {
         let result = parser.parse( {data: data, options: {conf: editionConfig, type: "edition" }}, "en");
         expect(result).to.deep.equal(parsed);
       });
     });
-        
-    context('Utils parseMetadataItem functions test', function () {
-      it('should return the correctly parsed metadataItem creator', async function () {
-        let result: OutputMetadataItem = parser.parseMetadataCreator(data, "creator");
-        expect(parsed.sections.metadata.group[0].items).to.deep.include(result);
-      });
 
-      it('should return the correctly parsed metadataItem subject', async function () {
-        let result: OutputMetadataItem = parser.parseMetadataSubject(data, "subject");
-        expect(parsed.sections.metadata.group[0].items).to.deep.include(result);
+    context('Metadata value parser', function () {
+      it('should parse all the value correctly', async function () {
+        let result = parser.parseMetadata(editionConfigParseMetadata["metadata"] as ConfBlock, dataParseMetadata, "edition");
+        expect(result).to.deep.equal(expectedResults);
       });
     });
-
   });
