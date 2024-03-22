@@ -129,7 +129,7 @@ export abstract class SearchParser implements Parser {
       }
 
       globalSum += facetSum;
-      aggregationResult.facets[id] = { total_count: filteredTotal || globalSum, filtered_total_count: filteredTotal || values.length, values };
+      aggregationResult.facets[id] = { total_count: filteredTotal || facetSum, filtered_total_count: filteredTotal || values.length, values };
     });
 
     aggregationResult.total_count = globalSum;
