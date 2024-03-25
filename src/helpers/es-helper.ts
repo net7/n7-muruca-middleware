@@ -65,7 +65,7 @@ export const ESHelper = {
     const { limit, offset } = results || {}; // ci sono solo nel SEARCH-RESULTS, altrimenti vuoti
 
     // QUERY ELASTICSEARCH ... costruisco la query per ES
-    const sort_field = conf[searchId]?.base_query?.field
+    const main_query_field = conf[searchId]?.base_query?.field
       ? conf[searchId].base_query.field
       : 'slug.keyword';
 
@@ -82,7 +82,7 @@ export const ESHelper = {
 
     if (conf[searchId].base_query && conf[searchId].base_query.value) {
       main_query.query.bool.must.push({
-        match: { [sort_field]: conf[searchId].base_query.value },
+        match: { [main_query_field]: conf[searchId].base_query.value },
       });
     }
 
