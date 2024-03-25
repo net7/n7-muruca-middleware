@@ -114,9 +114,9 @@ export abstract class SearchParser implements Parser {
           filteredTotal = bucketsData['distinct_doc_count'] || data['distinctTerms_' + id]?.value || 0;
 
           buckets.forEach((bucket: Bucket) => {
-            const [payload, text] = bucket.key.split('|||').map(part => part);
-            const searchQuery = (query || '');
-            if (payload.includes(searchQuery) || text.includes(searchQuery)) {
+            const [payload, text] = bucket.key.split('|||').map(part => part.trim());
+            const searchQuery = (query || '').toLowerCase();
+            if (payload.toLowerCase().includes(searchQuery) || text.toLowerCase().includes(searchQuery)) {
               const facet = this.createFacet(bucket, text, payload, queryFacets[id]);
               const modifiedFacet = this.applyFacetFilter(facet); // With this function you can handle different exceptions on the single facet
               values.push(modifiedFacet);
