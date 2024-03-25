@@ -3,6 +3,7 @@ import * as ASHelper from '../helpers/advanced-helper';
 import { SearchResponse } from 'elasticsearch';
 import { validateLocaleAndSetLanguage } from 'typescript';
 import { filter } from 'lodash';
+import { ConfigSearch } from '../interfaces';
 
 export const ESHelper = {
   bulkIndex(response: string, index: string, Client: any, ELASTIC_URI: string) {
@@ -36,6 +37,7 @@ export const ESHelper = {
       return response;
     });
   },
+
   makeSearch(
     index: string,
     body: string,
@@ -88,24 +90,7 @@ export const ESHelper = {
 
     //ora deve produrre il sort e le aggregations
     //sorting
-    const sort_object = [];
-    if (conf[searchId].sort) {
-      conf[searchId].sort.forEach((f) => {
-        // ad es. nella search_config.ts di theatheor abbiamo [ "sort_title.keyword", "slug.keyword" ]
-
-        if (typeof sort != 'undefined') {
-          // es. "sort_DESC"
-          const lastIndex = sort.lastIndexOf('_');
-          const before = sort.slice(0, lastIndex);
-          const after = sort.slice(lastIndex + 1);
-
-          if (f === before) {
-            sort_object.push({ [f]: after }); // es. "title.keyword": "DESC"
-          }
-        }
-      });
-    }
-    sort_object.push({ 'slug.keyword': 'ASC' });
+    const sort_object = buildSortObj(conf, searchId, sort);
 
     if (sort) {
       sort === '_score'
@@ -248,6 +233,7 @@ export const ESHelper = {
 
     return main_query;
   },
+  
   buildAggs(facets_request, query_facets) {
     const main_query = {
       aggregations: {},
@@ -370,6 +356,7 @@ export const ESHelper = {
     }
     return null;
   },
+
   buildNested(
     terms,
     search,
@@ -517,3 +504,23 @@ export const ESHelper = {
     };
   },
 };
+
+const buildSortObj = (conf: ConfigSearch, searchId: string, sort: string) => {
+  const sort_object = []
+  const conf_sort = conf[searchId].sort;
+  if (conf_sort) {
+    const f = Object.keys(conf_sort).toString();
+    if (typeof sort != 'undefined') {
+      const lastIndex = sort.lastIndexOf('_');
+      const before = sort.slice(0, lastIndex);
+      const after = sort.slice(lastIndex + 1);
+
+      if (f || f === before) {
+        sort_object.push({ [conf_sort[f].field]: after }); 
+      } else {
+        sort_object.push({ 'slug.keyword': 'ASC' });
+      }
+    }
+  }
+  return sort_object;
+}
