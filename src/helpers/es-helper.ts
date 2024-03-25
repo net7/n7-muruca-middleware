@@ -3,6 +3,7 @@ import * as ASHelper from '../helpers/advanced-helper';
 import { SearchResponse } from 'elasticsearch';
 import { validateLocaleAndSetLanguage } from 'typescript';
 import { filter } from 'lodash';
+const AGGR_SEPARATOR = " ||| ";
 import { ConfigSearch } from '../interfaces';
 
 export const ESHelper = {
@@ -285,7 +286,7 @@ export const ESHelper = {
                     [sort]: 'asc',
                   },
                   script: {
-                    source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
+                    source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '${AGGR_SEPARATOR}' + doc['${query_facets[key].title}'].value`,
                     lang: 'painless',
                   },
                 },
@@ -407,7 +408,7 @@ export const ESHelper = {
               [sort]: sort == '_count' ? 'desc' : 'asc',
             },
             script: {
-              source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
+              source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '${AGGR_SEPARATOR}' + doc['${title}'].value`,
               lang: 'painless',
             },
           },
@@ -457,7 +458,7 @@ export const ESHelper = {
           [sort]: sort == '_count' ? 'desc' : 'asc',
         },
         script: {
-          source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '|||' + doc['${term.title}'].value`,
+          source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '${AGGR_SEPARATOR}' + doc['${term.title}'].value`,
           lang: 'painless',
         },
       },
