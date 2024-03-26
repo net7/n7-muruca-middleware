@@ -99,7 +99,8 @@ describe('Advanced search helpers', function commonHelpersTest() {
         .to.have.property('match')
         .to.have.property('wildcard');
       const wildcard0 = clause0.span_multi.match.wildcard;
-      expect(wildcard0).to.have.property('text').eq('lorem*');
+      expect(wildcard0).to.have.property('text');
+      expect(wildcard0.text).to.have.property('value').eq('lorem*');
 
       const clause1 = spanNear.span_near.clauses[1];
       expect(clause1)
@@ -107,7 +108,8 @@ describe('Advanced search helpers', function commonHelpersTest() {
         .to.have.property('match')
         .to.have.property('wildcard');
       const wildcard1 = clause1.span_multi.match.wildcard;
-      expect(wildcard1).to.have.property('text').eq('impsum');
+      expect(wildcard1).to.have.property('text');
+      expect(wildcard1.text).to.have.property('value').eq('impsum');
     });
 
     it('should return a span near with in_order false', async function () {

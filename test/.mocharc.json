@@ -5,5 +5,5 @@
   "exit": true,
   "extension": ["ts"],
   "require": "ts-node/register",
-  "spec": ["test/functions/murucaResourceParser.test"]
+  "spec": ["test/**/*"]
 }

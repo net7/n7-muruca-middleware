@@ -55,7 +55,7 @@ exports.ESHelper = {
         const sort = results ? results.sort : data.sort; // sort = se ci sono i results è SEARCH-RESULTS e trova il sort dentro l'oggetto, altrimenti è SEARCH-FACETS e il sort è al primo livello
         const { limit, offset } = results || {}; // ci sono solo nel SEARCH-RESULTS, altrimenti vuoti
         // QUERY ELASTICSEARCH ... costruisco la query per ES
-        const sort_field = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.base_query) === null || _b === void 0 ? void 0 : _b.field)
+        const main_query_field = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.base_query) === null || _b === void 0 ? void 0 : _b.field)
             ? conf[searchId].base_query.field
             : 'slug.keyword';
         const main_query = {
@@ -70,27 +70,12 @@ exports.ESHelper = {
         };
         if (conf[searchId].base_query && conf[searchId].base_query.value) {
             main_query.query.bool.must.push({
-                match: { [sort_field]: conf[searchId].base_query.value },
+                match: { [main_query_field]: conf[searchId].base_query.value },
             });
         }
         //ora deve produrre il sort e le aggregations
         //sorting
-        const sort_object = [];
-        if (conf[searchId].sort) {
-            conf[searchId].sort.forEach((f) => {
-                // ad es. nella search_config.ts di theatheor abbiamo [ "sort_title.keyword", "slug.keyword" ]
-                if (typeof sort != 'undefined') {
-                    // es. "sort_DESC"
-                    const lastIndex = sort.lastIndexOf('_');
-                    const before = sort.slice(0, lastIndex);
-                    const after = sort.slice(lastIndex + 1);
-                    if (f === before) {
-                        sort_object.push({ [f]: after }); // es. "title.keyword": "DESC"
-                    }
-                }
-            });
-        }
-        sort_object.push({ 'slug.keyword': 'ASC' });
+        const sort_object = this.buildSortObj(conf, searchId, sort);
         if (sort) {
             sort === '_score'
                 ? (main_query.sort = ['_score'])
@@ -227,6 +212,24 @@ exports.ESHelper = {
             main_query.aggregations = this.buildAggs(data.facets, query_facets);
         }
         return main_query;
+    },
+    buildSortObj(conf, searchId, sort) {
+        const sort_object = [];
+        if (sort != undefined) {
+            const conf_sort = conf[searchId].sort;
+            if (conf_sort) {
+                if (typeof sort != 'undefined') {
+                    const lastIndex = sort.lastIndexOf('_');
+                    const before = sort.slice(0, lastIndex);
+                    const after = sort.slice(lastIndex + 1);
+                    if (conf_sort[before]) {
+                        sort_object.push({ [conf_sort[before].field]: after });
+                    }
+                }
+            }
+        }
+        sort_object.push({ 'slug.keyword': 'ASC' });
+        return sort_object;
     },
     buildAggs(facets_request, query_facets) {
         const main_query = {
