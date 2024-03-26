@@ -75,7 +75,7 @@ exports.ESHelper = {
         }
         //ora deve produrre il sort e le aggregations
         //sorting
-        const sort_object = buildSortObj(conf, searchId, sort);
+        const sort_object = this.buildSortObj(conf, searchId, sort);
         if (sort) {
             sort === '_score'
                 ? (main_query.sort = ['_score'])
@@ -212,6 +212,24 @@ exports.ESHelper = {
             main_query.aggregations = this.buildAggs(data.facets, query_facets);
         }
         return main_query;
+    },
+    buildSortObj(conf, searchId, sort) {
+        const sort_object = [];
+        if (sort != undefined) {
+            const conf_sort = conf[searchId].sort;
+            if (conf_sort) {
+                if (typeof sort != 'undefined') {
+                    const lastIndex = sort.lastIndexOf('_');
+                    const before = sort.slice(0, lastIndex);
+                    const after = sort.slice(lastIndex + 1);
+                    if (conf_sort[before]) {
+                        sort_object.push({ [conf_sort[before].field]: after });
+                    }
+                }
+            }
+        }
+        sort_object.push({ 'slug.keyword': 'ASC' });
+        return sort_object;
     },
     buildAggs(facets_request, query_facets) {
         const main_query = {
@@ -424,23 +442,4 @@ exports.ESHelper = {
             },
         };
     },
-};
-const buildSortObj = (conf, searchId, sort) => {
-    const sort_object = [];
-    const conf_sort = conf[searchId].sort;
-    if (conf_sort) {
-        const f = Object.keys(conf_sort).toString();
-        if (typeof sort != 'undefined') {
-            const lastIndex = sort.lastIndexOf('_');
-            const before = sort.slice(0, lastIndex);
-            const after = sort.slice(lastIndex + 1);
-            if (f || f === before) {
-                sort_object.push({ [conf_sort[f].field]: after });
-            }
-            else {
-                sort_object.push({ 'slug.keyword': 'ASC' });
-            }
-        }
-    }
-    return sort_object;
 };

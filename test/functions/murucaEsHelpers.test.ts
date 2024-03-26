@@ -84,7 +84,7 @@ describe('Common Helpers', function commonHelpersTest() {
     });
 
     it('should return a term aggregation with filter', async function () {
-      let query = ESHelper.buildTerm(config, 50, null, '', false, filter_query);
+      let query = ESHelper.buildTerm(config, 50, null, '', false, filter_query as any);
       expect(query).to.have.property('filter');
       expect(query).to.have.property('aggs').to.have.property('distinctTerms');
       const term_aggr = query['aggs']['term'];
@@ -92,7 +92,7 @@ describe('Common Helpers', function commonHelpersTest() {
     });
 
     it('should return a global term aggregation with filter term', async function () {
-      let query = ESHelper.buildTerm(config, 50, null, '', true, filter_query);
+      let query = ESHelper.buildTerm(config, 50, null, '', true, filter_query as any);
       expect(query).to.have.property('global');
       expect(query).to.have.property('aggs').to.have.property('term');
       expect(query).to.have.property('aggs').to.have.property('distinctTerms');
@@ -105,5 +105,57 @@ describe('Common Helpers', function commonHelpersTest() {
       const term_aggr = query['aggs']['term']['aggs']['term'];
       expect(term_aggr).to.have.property('terms').to.have.property('script');
     });
+  });
+
+  context('Building ElasticSearch query', function () {
+
+    const configSortObj = {
+      edition: {
+        sort: {title: {field: "title.sort"}, date: { field: "date.sort"}}
+      }
+    };
+
+    const configSortObjEmpty = {
+      edition: {
+        sort: {}
+      }
+    };
+
+    it('should build the sort object correctly title ASC', async function () {
+      const expectedResTitleASC = [{ 'title.sort': 'ASC' }, { 'slug.keyword': 'ASC' }]
+      const resultTitleASC = ESHelper.buildSortObj(configSortObj, "edition", "title_ASC");
+      expect(resultTitleASC).to.be.deep.equal(expectedResTitleASC);
+    });
+    
+    it('should build the sort object correctly title DESC', async function () {
+      const expectedResTitleDESC = [{ 'title.sort': 'DESC' }, { 'slug.keyword': 'ASC' }]
+      const resultTitleDESC = ESHelper.buildSortObj(configSortObj, "edition", "title_DESC");
+      expect(resultTitleDESC).to.be.deep.equal(expectedResTitleDESC);
+    });
+
+    it('should build the sort object correctly with date ASC', async function () {
+      const expectedResDateASC = [{ 'date.sort': 'ASC' }, { 'slug.keyword': 'ASC' }]
+      const resultDateASC = ESHelper.buildSortObj(configSortObj, "edition", "date_ASC");
+      expect(resultDateASC).to.be.deep.equal(expectedResDateASC);
+    });
+
+    it('building the sort object in case of sort from request not in config', async function () {
+      const expectedRes = [{ 'slug.keyword': 'ASC' }]
+      const result = ESHelper.buildSortObj(configSortObj, "edition", "id_ASC");
+      expect(result).to.be.deep.equal(expectedRes);
+    });
+
+    it('building the sort object in case of sort from request being null', async function () {
+      const expectedRes = [{ 'slug.keyword': 'ASC' }]
+      const result = ESHelper.buildSortObj(configSortObj, "edition", null);
+      expect(result).to.be.deep.equal(expectedRes);
+    });
+
+    it('building the sort object in case of empty sort from config', async function () {
+      const expectedRes = [{ 'slug.keyword': 'ASC' }]
+      const result = ESHelper.buildSortObj(configSortObjEmpty, "edition", "title_ASC");
+      expect(result).to.be.deep.equal(expectedRes);
+    });
+    
   });
 });

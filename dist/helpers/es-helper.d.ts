@@ -4,6 +4,7 @@ export declare const ESHelper: {
     bulkIndex(response: string, index: string, Client: any, ELASTIC_URI: string): void;
     makeSearch(index: string, body: string, Client: any, ELASTIC_URI: string): Promise<SearchResponse<any>>;
     buildQuery(data: DataType, conf: any, type: string): any;
+    buildSortObj(conf: any, searchId: any, sort: any): any[];
     buildAggs(facets_request: any, query_facets: any): {};
     buildAggsFilter(filterTerm: any, facet_conf: any): {
         bool: {
