@@ -3,6 +3,8 @@ import * as ASHelper from '../helpers/advanced-helper';
 import { SearchResponse } from 'elasticsearch';
 import { validateLocaleAndSetLanguage } from 'typescript';
 import { filter } from 'lodash';
+const AGGR_SEPARATOR = " ||| ";
+import { ConfigSearch } from '../interfaces';
 
 export const ESHelper = {
   bulkIndex(response: string, index: string, Client: any, ELASTIC_URI: string) {
@@ -36,6 +38,7 @@ export const ESHelper = {
       return response;
     });
   },
+
   makeSearch(
     index: string,
     body: string,
@@ -65,7 +68,7 @@ export const ESHelper = {
     const { limit, offset } = results || {}; // ci sono solo nel SEARCH-RESULTS, altrimenti vuoti
 
     // QUERY ELASTICSEARCH ... costruisco la query per ES
-    const sort_field = conf[searchId]?.base_query?.field
+    const main_query_field = conf[searchId]?.base_query?.field
       ? conf[searchId].base_query.field
       : 'slug.keyword';
 
@@ -82,30 +85,13 @@ export const ESHelper = {
 
     if (conf[searchId].base_query && conf[searchId].base_query.value) {
       main_query.query.bool.must.push({
-        match: { [sort_field]: conf[searchId].base_query.value },
+        match: { [main_query_field]: conf[searchId].base_query.value },
       });
     }
 
     //ora deve produrre il sort e le aggregations
     //sorting
-    const sort_object = [];
-    if (conf[searchId].sort) {
-      conf[searchId].sort.forEach((f) => {
-        // ad es. nella search_config.ts di theatheor abbiamo [ "sort_title.keyword", "slug.keyword" ]
-
-        if (typeof sort != 'undefined') {
-          // es. "sort_DESC"
-          const lastIndex = sort.lastIndexOf('_');
-          const before = sort.slice(0, lastIndex);
-          const after = sort.slice(lastIndex + 1);
-
-          if (f === before) {
-            sort_object.push({ [f]: after }); // es. "title.keyword": "DESC"
-          }
-        }
-      });
-    }
-    sort_object.push({ 'slug.keyword': 'ASC' });
+    const sort_object = this.buildSortObj(conf, searchId, sort);
 
     if (sort) {
       sort === '_score'
@@ -248,6 +234,27 @@ export const ESHelper = {
 
     return main_query;
   },
+
+  buildSortObj(conf, searchId, sort){
+    const sort_object = [];
+
+    if(sort!=undefined){
+      const conf_sort = conf[searchId].sort;
+      if (conf_sort) {
+        if (typeof sort != 'undefined') {
+          const lastIndex = sort.lastIndexOf('_');
+          const before = sort.slice(0, lastIndex);
+          const after = sort.slice(lastIndex + 1);
+          if (conf_sort[before]) {
+            sort_object.push({ [conf_sort[before].field]: after }); 
+          } 
+        }
+      }
+    }
+    sort_object.push({ 'slug.keyword': 'ASC' });
+    return sort_object;
+  },
+  
   buildAggs(facets_request, query_facets) {
     const main_query = {
       aggregations: {},
@@ -299,7 +306,7 @@ export const ESHelper = {
                     [sort]: 'asc',
                   },
                   script: {
-                    source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '|||' + doc['${query_facets[key].title}'].value`,
+                    source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '${AGGR_SEPARATOR}' + doc['${query_facets[key].title}'].value`,
                     lang: 'painless',
                   },
                 },
@@ -370,6 +377,7 @@ export const ESHelper = {
     }
     return null;
   },
+
   buildNested(
     terms,
     search,
@@ -420,7 +428,7 @@ export const ESHelper = {
               [sort]: sort == '_count' ? 'desc' : 'asc',
             },
             script: {
-              source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '|||' + doc['${title}'].value`,
+              source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '${AGGR_SEPARATOR}' + doc['${title}'].value`,
               lang: 'painless',
             },
           },
@@ -470,7 +478,7 @@ export const ESHelper = {
           [sort]: sort == '_count' ? 'desc' : 'asc',
         },
         script: {
-          source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '|||' + doc['${term.title}'].value`,
+          source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '${AGGR_SEPARATOR}' + doc['${term.title}'].value`,
           lang: 'painless',
         },
       },

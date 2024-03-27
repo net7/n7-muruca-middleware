@@ -1,5 +1,6 @@
 import { Author, ConfBlock, ConfBlockTextViewer } from '../interfaces';
 import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
+import { parseMetadataValue } from '../utils/parseMetadataFunctions';
 
 export class ResourceParser implements Parser {
     parse({ data, options }: any, locale) {
@@ -32,7 +33,7 @@ export class ResourceParser implements Parser {
             parsed.sections[block] = this.parseImageViewer(conf[block], data);
             break;
   
-          case "breadcrumbs":
+          case "breadcrumb":
             parsed.sections[block] = this.parseBreadcrumbs(conf[block], data, type);
             break;
   
@@ -218,22 +219,22 @@ export class ResourceParser implements Parser {
           title: "Metadata",
           items: block.fields.map((field: string) => {
             if (data[field]) {
-              
-              const metadataItem = {
-                  label: field.replace(/_/g, " "),
-                  value: data[field],
+              let metadataItem = {
+                label: field.replace(/_/g, " "),
+                value: parseMetadataValue(data, field)
                 };
-                return this.filterMetadata(field, metadataItem, type)
-              }
+        
+              return this.filterMetadata(field, metadataItem, type);
             }
-          )
+          })
         }
       ],
     };
-    m.group[0].items = m.group[0].items.filter((n: any) => n); //cancella i null
+    m.group[0].items = m.group[0].items.filter((n: any) => n); 
 
     return m;
   }
+ 
   
   parseMetadataSize(block: ConfBlock, data: any): OutputMetadata{
     const metadataSize = {

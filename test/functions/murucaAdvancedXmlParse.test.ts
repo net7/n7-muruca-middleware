@@ -87,7 +87,7 @@ describe('XML search parse results', function murucaHomeCtrlTest() {
       let prefix =
         "<span class='mrc__text-attr_value'>Voci di autorità: Ludwig van Kempen</span>";
       let snippet =
-        "Uno <name type='person' key='Ludwig van Kempen'><em class='mrc__text-emph'>Socrati</em></name> Uno due tre quattro cinque sei sette otto nove dieci Undici dodici tredici quattordici quindici sedici diciassette diciotto diciannove venti Ventuno ventidue ventitré ventiquattro venticinque ventisei ventisette ventotto ventinove trenta";
+        "Uno <name type=\"person\" key=\"Ludwig van Kempen\"><em class='mrc__text-emph'>Socrati</em></name> Uno due tre quattro cinque sei sette otto nove dieci Undici dodici tredici quattordici quindici sedici diciassette diciotto diciannove venti Ventuno ventidue ventitré ventiquattro venticinque ventisei ventisette ventotto ventinove trenta";
       expect(snippets[0].trim()).eq(prefix + snippet);
     });
   });

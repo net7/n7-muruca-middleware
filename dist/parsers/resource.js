@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResourceParser = void 0;
+const parseMetadataFunctions_1 = require("../utils/parseMetadataFunctions");
 class ResourceParser {
     parse({ data, options }, locale) {
         if (!("type" in options)) {
@@ -25,7 +26,7 @@ class ResourceParser {
                 case "image-viewer":
                     parsed.sections[block] = this.parseImageViewer(conf[block], data);
                     break;
-                case "breadcrumbs":
+                case "breadcrumb":
                     parsed.sections[block] = this.parseBreadcrumbs(conf[block], data, type);
                     break;
                 case "metadata":
@@ -189,9 +190,9 @@ class ResourceParser {
                     title: "Metadata",
                     items: block.fields.map((field) => {
                         if (data[field]) {
-                            const metadataItem = {
+                            let metadataItem = {
                                 label: field.replace(/_/g, " "),
-                                value: data[field],
+                                value: (0, parseMetadataFunctions_1.parseMetadataValue)(data, field)
                             };
                             return this.filterMetadata(field, metadataItem, type);
                         }
@@ -199,7 +200,7 @@ class ResourceParser {
                 }
             ],
         };
-        m.group[0].items = m.group[0].items.filter((n) => n); //cancella i null
+        m.group[0].items = m.group[0].items.filter((n) => n);
         return m;
     }
     parseMetadataSize(block, data) {

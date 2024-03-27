@@ -157,6 +157,12 @@ export class Controller {
       type,
       locale as string,
     );
+    if (response?.error === 'error-query') res.status(400).send({
+      message: response?.message
+    })
+    else if (response?.error === 'error-empty') res.status(404).send({
+      message: response?.message
+    })
     return res.send(response);
   };
 

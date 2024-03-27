@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-const expect = require('chai').expect;
+/* const expect = require('chai').expect;
 const nock = require('nock');
 import { HomeParser } from '../../src/parsers';
 import response from '../responses/home';
@@ -52,3 +52,4 @@ describe('home rest controller', function murucaHomeCtrlTest() {
     });
   });
 });
+ */

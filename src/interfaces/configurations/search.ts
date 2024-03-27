@@ -11,8 +11,8 @@ export interface SearchStruct {
     /** the values to search for. Ex: "record" */
     value?: string;
   };
-  /** sort fields. Ex: ['slug.keyword', 'sort_title.keyword']*/
-  sort: string[];
+  /** sort title. Ex: {title: {field: title.sort}}*/
+  sort: SortConfObjects;
   lang: {
     query: {
       type: string;
@@ -23,7 +23,7 @@ export interface SearchStruct {
   options?: {
     /** esclude some fields from result */
     exclude?: string[];
-    /** esclude some fields from result */
+    /** include some fields from result */
     include?: string[];
   };
   /** list of facets. The keys must be the same received from the request */
@@ -37,6 +37,13 @@ export interface SearchStruct {
   filters: {
     [key: string]: SearchFilter;
   };
+}
+
+export interface SortConfObjects {
+  [key: string]: SortField
+}
+export interface SortField {
+    field: string;
 }
 
 export interface SearchAggregation {
@@ -96,7 +103,7 @@ export interface SearchResults {
    * "title": used to show the title of the record
    * "text": used to show a short description of the record
    * "metadata": used to show a set of metadata of the record
-   * "metadata": used to show a set of highlights terms of the record
+   * "highlights": used to show a set of highlights terms of the record
    * "link": used to build the link to the record
    * "image": used to show a thumbnail of the record
    * "id": the id of the record

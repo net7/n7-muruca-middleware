@@ -4,23 +4,23 @@ const { spawn } = require('child_process');
 
 let slsOfflineProcess;
 
-before(function (done) {
+/* before(function (done) {
   // increase mocha timeout for this hook to allow sls offline to start
   this.timeout(30000);
 
   console.log('[Tests Bootstrap] Start');
 
 
-});
+}); */
 
-after(function () {
+/* after(function () {
   console.log('[Tests Teardown] Start');
 
   stopSlsOffline();
 
   console.log('[Tests Teardown] Done');
 });
-
+ */
 // Helper functions
 
 function startSlsOffline(done) {
