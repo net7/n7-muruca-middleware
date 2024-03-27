@@ -76,7 +76,7 @@ export const simpleQueryString = (
     }
     
     const x = {
-        simple_query_string: {
+      query_string: {
             query: term,
             fields: fields,
             default_operator: default_operator,

@@ -52,7 +52,7 @@ exports.simpleQueryString = (queryField, default_operator = 'AND', replaceBoolea
         term = term.replace(/\sAND\s/g, '+').replace(/\sOR\s/g, '|').replace(/\sNOT\s/g, '-');
     }
     const x = {
-        simple_query_string: {
+        query_string: {
             query: term,
             fields: fields,
             default_operator: default_operator,
