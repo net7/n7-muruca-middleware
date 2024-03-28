@@ -46,7 +46,7 @@ exports.simpleQueryString = (queryField, default_operator = 'AND', replaceBoolea
     const fields = typeof queryField.fields == 'string'
         ? queryField.fields.split(',')
         : queryField.fields;
-    _name = _name == "" && typeof queryField.fields == 'string' ? queryField.fields : _name;
+    _name = _name == "" && typeof queryField.fields == 'string' ? queryField.fields : queryField.fields.join("_");
     let term = queryField.value;
     if (replaceBoolean && term && term != "") {
         term = term.replace(/\sAND\s/g, '+').replace(/\sOR\s/g, '|').replace(/\sNOT\s/g, '-');
@@ -445,6 +445,7 @@ exports.nestedQuery = (path, query, inner_hits = null) => {
 };
 exports.checkMatchedQuery = (prop, matched_queries) => {
     if (matched_queries.filter(q => {
+        q = q.replace("*", "");
         const test = new RegExp("(.*\.)?" + q + "$", 'g');
         return test.test(prop);
     }).length <= 0) {

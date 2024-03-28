@@ -315,7 +315,7 @@ class AdvancedSearchService {
         const value = query_conf['data-value'] ? data[query_conf['data-value']] : data[groupId];
         let queries;
         if (value && value != "") {
-            queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value }, "AND", true);
+            queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value }, "AND", false);
         }
         if ((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.nested) {
             if (query_conf.highlight) {

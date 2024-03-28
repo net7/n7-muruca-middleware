@@ -389,7 +389,7 @@ export class AdvancedSearchService {
       const value =  query_conf['data-value'] ? data[ query_conf['data-value'] ] : data[groupId];
       let queries;
       if(value && value != ""){
-        queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value}, "AND", true);
+        queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value}, "AND", false);
       } 
       
       if( query_conf.options?.nested ){

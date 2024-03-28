@@ -68,7 +68,7 @@ export const simpleQueryString = (
             ? queryField.fields.split(',')
             : queryField.fields;
             
-    _name = _name == "" &&  typeof queryField.fields == 'string' ? queryField.fields : _name;
+    _name = _name == "" &&  typeof queryField.fields == 'string' ? queryField.fields : queryField.fields.join("_");
     
     let term = queryField.value;
     if ( replaceBoolean && term && term != "" ){
@@ -499,6 +499,7 @@ export const nestedQuery = (path: string, query: any, inner_hits:any = null) => 
 
 export const checkMatchedQuery =(prop, matched_queries) => {
     if( matched_queries.filter( q => {
+        q = q.replace("*", "");
         const test = new RegExp("(.*\.)?" + q + "$", 'g');
         return test.test(prop);
     } ).length <= 0 ){
