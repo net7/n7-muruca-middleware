@@ -62,7 +62,7 @@ export const simpleQueryString = (
     default_operator = 'AND',
     replaceBoolean: boolean = true,
     _name: string =""
-): any => {
+    ): any => {
     const fields =
         typeof queryField.fields == 'string'
             ? queryField.fields.split(',')
@@ -74,7 +74,7 @@ export const simpleQueryString = (
     if ( replaceBoolean && term && term != "" ){
         term = term.replace(/\sAND\s/g, '+').replace(/\sOR\s/g, '|').replace(/\sNOT\s/g, '-');
     }
-    
+     
     const x = {
       query_string: {
             query: term,

@@ -356,10 +356,16 @@ export class AdvancedSearchService {
       switch (query_conf.type) {
         case "fulltext": 
         case "xml_attribute":
+          
+        let query_term =  query_conf['data-value'] ? data[ query_conf['data-value'] ] : data[groupId];
+          if(query_conf.options?.exact_match){
+            query_term = "\"" + query_term + "\""
+        }       
+           
         if( query_conf.options?.proximity_search_param && data[query_conf.options.proximity_search_param.field] ){
           
           query_conf.fields.forEach(field => {
-            const q = this.buildProximityTextQuery(query_conf.options.proximity_search_param, data[groupId], data[query_conf.options.proximity_search_param.field], field);
+            const q = this.buildProximityTextQuery(query_conf.options.proximity_search_param, query_term, data[query_conf.options.proximity_search_param.field], field);
             if( q && q != "" ){
               xml_query_should.push(q);        
             }                    
@@ -368,7 +374,7 @@ export class AdvancedSearchService {
           
         }
         else {
-          const q = this.buildTextQuery(data, query_conf, groupId,  {...inner_hits});           
+          const q = this.buildTextQuery(query_term, query_conf, groupId,  {...inner_hits});           
           if(q && q != "" ){
             xml_query_should.push(q);         
           }                    
@@ -385,11 +391,11 @@ export class AdvancedSearchService {
     }
     
     
-    buildTextQuery(data, query_conf, groupId, inner_hits){    
-      const value =  query_conf['data-value'] ? data[ query_conf['data-value'] ] : data[groupId];
+    buildTextQuery(value, query_conf, groupId, inner_hits){    
+     // const value =  query_conf['data-value'] ? data[ query_conf['data-value'] ] : data[groupId];
       let queries;
       if(value && value != ""){
-        queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value}, "AND", false);
+        queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value}, "AND", false, "");
       } 
       
       if( query_conf.options?.nested ){

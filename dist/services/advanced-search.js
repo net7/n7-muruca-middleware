@@ -284,38 +284,42 @@ class AdvancedSearchService {
         return xml_query_should;
     }
     buildGroupQuery(query_conf, data, groupId, inner_hits) {
-        var _a, _b;
+        var _a, _b, _c;
         const xml_query_should = [];
         switch (query_conf.type) {
             case "fulltext":
             case "xml_attribute":
-                if (((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.proximity_search_param) && data[query_conf.options.proximity_search_param.field]) {
+                let query_term = query_conf['data-value'] ? data[query_conf['data-value']] : data[groupId];
+                if ((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.exact_match) {
+                    query_term = "\"" + query_term + "\"";
+                }
+                if (((_b = query_conf.options) === null || _b === void 0 ? void 0 : _b.proximity_search_param) && data[query_conf.options.proximity_search_param.field]) {
                     query_conf.fields.forEach(field => {
-                        const q = this.buildProximityTextQuery(query_conf.options.proximity_search_param, data[groupId], data[query_conf.options.proximity_search_param.field], field);
+                        const q = this.buildProximityTextQuery(query_conf.options.proximity_search_param, query_term, data[query_conf.options.proximity_search_param.field], field);
                         if (q && q != "") {
                             xml_query_should.push(q);
                         }
                     });
                 }
                 else {
-                    const q = this.buildTextQuery(data, query_conf, groupId, Object.assign({}, inner_hits));
+                    const q = this.buildTextQuery(query_term, query_conf, groupId, Object.assign({}, inner_hits));
                     if (q && q != "") {
                         xml_query_should.push(q);
                     }
                 }
-                if (query_conf.highlight && !((_b = query_conf.options) === null || _b === void 0 ? void 0 : _b.nested)) {
+                if (query_conf.highlight && !((_c = query_conf.options) === null || _c === void 0 ? void 0 : _c.nested)) {
                     inner_hits['highlight'] = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_conf.highlight)), inner_hits['highlight']);
                 }
                 break;
         }
         return xml_query_should;
     }
-    buildTextQuery(data, query_conf, groupId, inner_hits) {
+    buildTextQuery(value, query_conf, groupId, inner_hits) {
         var _a;
-        const value = query_conf['data-value'] ? data[query_conf['data-value']] : data[groupId];
+        // const value =  query_conf['data-value'] ? data[ query_conf['data-value'] ] : data[groupId];
         let queries;
         if (value && value != "") {
-            queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value }, "AND", false);
+            queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value }, "AND", false, "");
         }
         if ((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.nested) {
             if (query_conf.highlight) {
