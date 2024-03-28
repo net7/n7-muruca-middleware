@@ -5,7 +5,7 @@ import {
 } from '../interfaces';
 import { parseMetadataValue } from '../utils/parseMetadataFunctions';
 
-export abstract class SearchParser implements Parser {
+export class SearchParser implements Parser {
   parse({ data, options }: Input, queryParams = null) {
     const { type } = options as SearchOptions;
     return type === 'results'
@@ -13,7 +13,7 @@ export abstract class SearchParser implements Parser {
       : this.parseFacets({ data, options });
   }
 
-  protected parseResults({ data, options }: Input, queryParams = null, type) {
+   parseResults({ data, options }: Input, queryParams = null, type) {
     if (options && 'limit' in options) {
       var { offset, limit, sort, total_count } = options;
     }
@@ -31,7 +31,7 @@ export abstract class SearchParser implements Parser {
     return search_result;
   }  
   
-  protected parseResultsItems({ data, options }: Input, type, queryParams?, ): SearchResultsItemData[]{
+   parseResultsItems({ data, options }: Input, type, queryParams?, ): SearchResultsItemData[]{
     var { searchId, conf } = options as SearchOptions;
     let items = [];
     
@@ -44,7 +44,7 @@ export abstract class SearchParser implements Parser {
           case 'metadata': 
             item[val.label] = [
               {
-                items: this.searchResultsMetadata(source, val.field, val.label, type),
+                items: this.searchResultsMetadata(source, val.field),
               },
             ];  
             break;
@@ -60,11 +60,11 @@ export abstract class SearchParser implements Parser {
       return items;
   };
 
-  protected parseResultsDefault(source, field: string): any{
+   parseResultsDefault(source, field: string): any{
     return source[field] || null;
   }
 
-  protected searchResultsMetadata(source, field, label, type) {
+   searchResultsMetadata(source, field) {
     const items = [];
     field.map((f) => {
 
@@ -73,7 +73,6 @@ export abstract class SearchParser implements Parser {
         let metadataItem = {
           label: source[f] ? f : null,
           value: parseMetadataValue(source, f)
-  
         }
   
         items.push(
@@ -85,12 +84,12 @@ export abstract class SearchParser implements Parser {
     return items;
   }
 
-  protected filterResultsMetadata(field: string, metadataItem: OutputMetadataItem, source?: any ): OutputMetadataItem{
+   filterResultsMetadata(field: string, metadataItem: OutputMetadataItem, source?: any ): OutputMetadataItem{
     
     return metadataItem;
   }
 
-  protected parseFacets({ data, options }: Input): AggregationResult {
+   parseFacets({ data, options }: Input): AggregationResult {
     let globalSum = 0;
     const { facets, conf, searchId } = options as SearchOptions;
     const queryFacets = conf[searchId]['facets-aggs'].aggregations;
@@ -136,14 +135,14 @@ export abstract class SearchParser implements Parser {
     return this.applyFacetResultsFilter(aggregationResult); // With this function you can handle different exceptions the total results
   }
 
-  private createFacet(bucket: Bucket, text: string, payload: string, queryFacet: any) {
+   createFacet(bucket: Bucket, text: string, payload: string, queryFacet: any) {
     const facet = { text, counter: bucket.doc_count, payload };
     this.addExtraArgsToFacet(facet, bucket, queryFacet['extra']);
     this.addRangeToFacet(facet, bucket, queryFacet['ranges']);
     return facet;
   }
 
-  private addExtraArgsToFacet(facet: any, bucket: Bucket, extra?: any) {
+   addExtraArgsToFacet(facet: any, bucket: Bucket, extra?: any) {
     if (extra) {
       const extraArgs = {};
       for (const key in extra) {
@@ -158,7 +157,7 @@ export abstract class SearchParser implements Parser {
     }
   }
 
-  private addRangeToFacet(facet: any, bucket: Bucket, ranges?: any[]) {
+   addRangeToFacet(facet: any, bucket: Bucket, ranges?: any[]) {
     if (ranges) {
       if (bucket.from) {
         facet['text'] = ranges['from'];
@@ -170,13 +169,13 @@ export abstract class SearchParser implements Parser {
     }
   }
 
-  private sortFacetValues(values: any[], sortValues?: any) {
+   sortFacetValues(values: any[], sortValues?: any) {
     if (sortValues) {
       values.sort((a, b) => sortValues.indexOf(a['payload']) - sortValues.indexOf(b['payload']));
     }
   }
 
-  private getBucket(data, docCount = null, distinctDocCount = null) {
+   getBucket(data, docCount = null, distinctDocCount = null) {
     const keys = Object.keys(data);
 
     if (keys.includes('buckets')) {
@@ -204,11 +203,11 @@ export abstract class SearchParser implements Parser {
     }
   }
 
-  protected applyFacetFilter(facet: any): any {
+   applyFacetFilter(facet: any): any {
     return facet
   }
 
-  protected applyFacetResultsFilter(result: AggregationResult): AggregationResult {
+   applyFacetResultsFilter(result: AggregationResult): AggregationResult {
     return result;
   }
 

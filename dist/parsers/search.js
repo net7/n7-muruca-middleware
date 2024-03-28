@@ -33,7 +33,7 @@ class SearchParser {
                     case 'metadata':
                         item[val.label] = [
                             {
-                                items: this.searchResultsMetadata(source, val.field, val.label, type),
+                                items: this.searchResultsMetadata(source, val.field),
                             },
                         ];
                         break;
@@ -50,7 +50,7 @@ class SearchParser {
     parseResultsDefault(source, field) {
         return source[field] || null;
     }
-    searchResultsMetadata(source, field, label, type) {
+    searchResultsMetadata(source, field) {
         const items = [];
         field.map((f) => {
             if (source[f]) {
