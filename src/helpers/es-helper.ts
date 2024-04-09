@@ -315,10 +315,11 @@ export const ESHelper = {
           };
         }
       } else if (ranges) {
+        const ranges = query_facets[key].ranges || this.buildRanges(query_facets[key].options);
         const range_aggs = {
           range: {
             field: query_facets[key].search,
-            ranges: query_facets[key].ranges,
+            ranges: ranges,
           },
         };
         if (global) {
@@ -356,6 +357,25 @@ export const ESHelper = {
     }
 
     return main_query.aggregations;
+  },
+
+  buildRanges(options){
+    const { from, to, step } = options;
+    const result = [];
+    
+    let currentFrom = from;
+    let currentTo = from + step;
+    
+    while (currentTo < to) {
+        result.push({ from: currentFrom, to: currentTo });
+        currentFrom = currentTo;
+        currentTo += step;
+    }
+    
+    // Add the last interval
+    result.push({ from: currentFrom, to: to });
+    
+    return result;
   },
 
   buildAggsFilter(filterTerm, facet_conf) {

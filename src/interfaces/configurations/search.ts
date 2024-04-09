@@ -76,6 +76,8 @@ export interface SearchAggregation {
   ranges?: RangeAggregation[];
   /** @default false sets if the aggregations is global (not based on current query) */
   global?: boolean;
+
+  options?: RangeAggregation;
 }
 
 export interface SearchFilter {
@@ -96,6 +98,7 @@ export interface SearchFilter {
 export interface RangeAggregation {
   from: number;
   to: number;
+  step?: number;
 }
 
 export interface SearchResults {
