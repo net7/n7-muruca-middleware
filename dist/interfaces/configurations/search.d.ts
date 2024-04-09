@@ -73,6 +73,7 @@ export interface SearchAggregation {
     ranges?: RangeAggregation[];
     /** @default false sets if the aggregations is global (not based on current query) */
     global?: boolean;
+    options?: RangeAggregation;
 }
 export interface SearchFilter {
     /** Sets filter type. use "fulltext" for free search filters, "multivalue" for facet, "range" for search inside ranges */
@@ -91,6 +92,7 @@ export interface SearchFilter {
 export interface RangeAggregation {
     from: number;
     to: number;
+    step?: number;
 }
 export interface SearchResults {
     /** the label to show in results list
