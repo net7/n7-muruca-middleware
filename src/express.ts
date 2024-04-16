@@ -40,14 +40,14 @@ const routeHandler = async (req, res, callback) => {
       req.body = JSON.stringify(req.body);
     }
     const result = await callback(req, res);
-    if (!res.headersSent) {
+/*     if (!res.headersSent) {
       if (result?.body) {
         res.json(JSON.parse(result.body));
       } else {
         // Handle the case where the callback didn't provide a response
         res.status(500).send('Internal Server Error');
       }
-    }
+    } */
     return result;
   } catch (error) {
     console.error('Error in routeHandler:', error);
@@ -124,6 +124,9 @@ const defaultHandlers: {
   getItinerary: async (req, res) => {
     await routeHandler(req, res, controller.getItinerary);
   },
+  getPDF: async (req, res) => {
+    await routeHandler(req, res, controller.getPDF);
+  },
 };
 
 /* -------------- *
@@ -173,6 +176,9 @@ router.get('/advanced_search_options', (req, res) =>
 );
 router.post('/list/:type', (req, res) =>
   defaultHandlers.getObjectsByType(req, res),
+);
+router.get('/getPDF/:siteName/:id', (req, res) =>
+  defaultHandlers.getPDF(req, res),
 );
 
 // Exports

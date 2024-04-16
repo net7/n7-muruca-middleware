@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Controller = void 0;
 const helpers_1 = require("./helpers");
 const controllers = require("./controllers");
+const getPDF_controller_1 = require("./controllers/getPDF.controller");
 class Controller {
     constructor(config) {
         /**
@@ -353,6 +354,15 @@ class Controller {
             else {
                 return helpers_1.HttpHelper.returnErrorResponse('page not found', 404);
             }
+        });
+        /**
+         * Generates the pdf from a certain resource
+         * @param request GET request
+         * @param res  Response
+         */
+        this.getPDF = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const controller = new getPDF_controller_1.getPDFController;
+            controller.getPDF(req, res);
         });
         this.config = config;
     }

@@ -19,3 +19,5 @@ __exportStar(require("./teipublisher"), exports);
 __exportStar(require("./xml"), exports);
 __exportStar(require("./getResource"), exports);
 __exportStar(require("./translate"), exports);
+__exportStar(require("./pdf-generator/pdf-generator"), exports);
+__exportStar(require("./pdf-generator/auteso"), exports);

@@ -47,15 +47,14 @@ const routeHandler = (req, res, callback) => __awaiter(void 0, void 0, void 0, f
             req.body = JSON.stringify(req.body);
         }
         const result = yield callback(req, res);
-        if (!res.headersSent) {
-            if (result === null || result === void 0 ? void 0 : result.body) {
+        /*     if (!res.headersSent) {
+              if (result?.body) {
                 res.json(JSON.parse(result.body));
-            }
-            else {
+              } else {
                 // Handle the case where the callback didn't provide a response
                 res.status(500).send('Internal Server Error');
-            }
-        }
+              }
+            } */
         return result;
     }
     catch (error) {
@@ -131,6 +130,9 @@ const defaultHandlers = {
     getItinerary: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         yield routeHandler(req, res, controller.getItinerary);
     }),
+    getPDF: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getPDF);
+    }),
 };
 /* -------------- *
  * DEFAULT ROUTES
@@ -155,5 +157,6 @@ router.post('/search/:type', (req, res) => defaultHandlers.search(req, res));
 router.post('/advanced_search', (req, res) => defaultHandlers.advancedSearch(req, res));
 router.get('/advanced_search_options', (req, res) => defaultHandlers.advancedSearchOptions(req, res));
 router.post('/list/:type', (req, res) => defaultHandlers.getObjectsByType(req, res));
+router.get('/getPDF/:siteName/:id', (req, res) => defaultHandlers.getPDF(req, res));
 // Exports
 exports.neffRouter = router;

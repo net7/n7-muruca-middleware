@@ -123,6 +123,12 @@ export declare class Controller {
      * @param res  Response
      */
     getItinerary: (request: Request, res: Response) => Promise<import("./interfaces/helper").HTTPResponse | Response<any, Record<string, any>>>;
+    /**
+     * Generates the pdf from a certain resource
+     * @param request GET request
+     * @param res  Response
+     */
+    getPDF: (req: Request, res: Response) => Promise<void>;
     getSlsMethods(): {
         postTest: any;
         getTest: any;

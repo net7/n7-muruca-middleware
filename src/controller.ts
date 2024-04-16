@@ -2,6 +2,7 @@ import { HttpHelper } from './helpers';
 import { SearchResultsData } from './interfaces';
 import * as controllers from './controllers';
 import { Request, Response } from 'express';
+import { getPDFController } from './controllers/getPDF.controller';
 
 export class Controller {
   private config: any;
@@ -393,6 +394,16 @@ export class Controller {
     } else {
       return HttpHelper.returnErrorResponse('page not found', 404);
     }
+  };
+
+  /**
+   * Generates the pdf from a certain resource
+   * @param request GET request
+   * @param res  Response
+   */
+  getPDF = async (req: Request, res: Response) => {
+    const controller = new getPDFController;
+    controller.getPDF(req, res)
   };
 
   getSlsMethods() {
