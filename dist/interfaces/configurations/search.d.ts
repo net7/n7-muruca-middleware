@@ -70,10 +70,9 @@ export interface SearchAggregation {
         [key: string]: string;
     };
     /** gives a set of ranges to use for aggragations. Ex: [{from: 1200, to: 1225}, {from: 1225, to: 1250}]  */
-    ranges?: RangeAggregation[];
+    ranges?: RangeAggregation[] | RangeOption;
     /** @default false sets if the aggregations is global (not based on current query) */
     global?: boolean;
-    options?: RangeAggregation;
 }
 export interface SearchFilter {
     /** Sets filter type. use "fulltext" for free search filters, "multivalue" for facet, "range" for search inside ranges */
@@ -92,7 +91,11 @@ export interface SearchFilter {
 export interface RangeAggregation {
     from: number;
     to: number;
-    step?: number;
+}
+export interface RangeOption {
+    from: number;
+    to: number;
+    step: number;
 }
 export interface SearchResults {
     /** the label to show in results list

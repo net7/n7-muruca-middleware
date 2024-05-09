@@ -279,7 +279,11 @@ exports.ESHelper = {
                 }
             }
             else if (ranges) {
-                const ranges = query_facets[key].ranges || this.buildRanges(query_facets[key].options);
+                let ranges = query_facets[key].ranges;
+                if (query_facets[key].ranges.step) {
+                    let options = query_facets[key].ranges;
+                    ranges = this.buildRanges(options);
+                }
                 const range_aggs = {
                     range: {
                         field: query_facets[key].search,

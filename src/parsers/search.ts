@@ -158,7 +158,7 @@ export abstract class SearchParser implements Parser {
     }
   }
 
-  private addRangeToFacet(facet: any, bucket: Bucket, ranges?: any[]) {
+addRangeToFacet(facet: any, bucket: Bucket, ranges?: any[]) {
     if (ranges) {
       if (bucket.from) {
         facet['text'] = ranges['from'];
