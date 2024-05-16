@@ -109,7 +109,7 @@ export const ESHelper = {
     } 
     
     if(conf[searchId].sort_default){
-      sort_object.push({conf[searchId].sort_default: "ASC"}); 
+      sort_object.push({[conf[searchId].sort_default]: "ASC"}); 
     } else {
       sort_object.push({'slug.keyword': "ASC"}); 
     }
