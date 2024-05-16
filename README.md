@@ -4,6 +4,8 @@
  `npm run build`
  
  Vanno committati sia i file .ts che i file generati dentro la dist
+## [2.8.1] - 16-05-2024
+- added default sort field
 
 ## [2.8.0] - 27-07-2023
 - added locale to resource parser
