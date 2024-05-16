@@ -87,7 +87,12 @@ exports.ESHelper = {
                 }
             });
         }
-        sort_object.push({ 'slug.keyword': "ASC" });
+        if (conf[searchId].sort_default) {
+            sort_object.push({ [conf[searchId].sort_default]: "ASC" });
+        }
+        else {
+            sort_object.push({ 'slug.keyword': "ASC" });
+        }
         if (sort) {
             sort === '_score'
                 ? (main_query.sort = ['_score'])
