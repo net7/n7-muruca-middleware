@@ -157,6 +157,6 @@ router.post('/search/:type', (req, res) => defaultHandlers.search(req, res));
 router.post('/advanced_search', (req, res) => defaultHandlers.advancedSearch(req, res));
 router.get('/advanced_search_options', (req, res) => defaultHandlers.advancedSearchOptions(req, res));
 router.post('/list/:type', (req, res) => defaultHandlers.getObjectsByType(req, res));
-router.get('/getPDF/:siteName/:id', (req, res) => defaultHandlers.getPDF(req, res));
+router.post('/getPDF', (req, res) => defaultHandlers.getPDF(req, res));
 // Exports
 exports.neffRouter = router;

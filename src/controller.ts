@@ -403,7 +403,7 @@ export class Controller {
    */
   getPDF = async (req: Request, res: Response) => {
     const controller = new getPDFController;
-    controller.getPDF(req, res)
+    controller.getPDF(req, res, this.config)
   };
 
   getSlsMethods() {

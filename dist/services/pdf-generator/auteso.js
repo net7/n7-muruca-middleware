@@ -238,7 +238,6 @@ function createPDFAuteso(req, res) {
         })
             .then((response) => response.json())
             .then((opera) => __awaiter(this, void 0, void 0, function* () {
-            console.log(opera.title);
             if (!opera.title) {
                 res.status(404).send({
                     status: 404,

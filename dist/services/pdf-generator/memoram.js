@@ -77,7 +77,7 @@ function addContent(motive) {
         return pdfContent;
     });
 }
-function createPDFMemoram(req, res) {
+function createPDFMemoram(req, res, config) {
     return __awaiter(this, void 0, void 0, function* () {
         // get the opera from the server
         yield fetch("https://memoram-sls.mappingchivalry.dlls.univr.it/get_resource?locale=es", {

@@ -1,1 +1,1 @@
-export default function createPDFMemoram(req: any, res: any): Promise<void>;
+export default function createPDFMemoram(req: any, res: any, config: any): Promise<void>;

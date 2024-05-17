@@ -177,7 +177,7 @@ router.get('/advanced_search_options', (req, res) =>
 router.post('/list/:type', (req, res) =>
   defaultHandlers.getObjectsByType(req, res),
 );
-router.get('/getPDF/:siteName/:id', (req, res) =>
+router.post('/getPDF', (req, res) =>
   defaultHandlers.getPDF(req, res),
 );
 

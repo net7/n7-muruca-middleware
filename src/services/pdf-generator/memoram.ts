@@ -78,7 +78,7 @@ async function addContent(motive) {
   return pdfContent;
 }
 
-export default async function createPDFMemoram(req, res) {
+export default async function createPDFMemoram(req, res, config) {
   // get the opera from the server
   await fetch(
     "https://memoram-sls.mappingchivalry.dlls.univr.it/get_resource?locale=es",

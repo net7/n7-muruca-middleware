@@ -362,7 +362,7 @@ class Controller {
          */
         this.getPDF = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const controller = new getPDF_controller_1.getPDFController;
-            controller.getPDF(req, res);
+            controller.getPDF(req, res, this.config);
         });
         this.config = config;
     }
