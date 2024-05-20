@@ -1,5 +1,5 @@
 import { getResourceController } from "../../controllers";
-import { createPdfBinary, getTextObject } from "./common";
+import { cleanText, columnsAdd, createPdfBinary, getTextObject } from "./common";
 
 /**
  * Add the content to the pdfContent object. This content will the be transformed into a pdf
@@ -36,10 +36,91 @@ async function addContent(motive) {
     text: sections.header.title,
     style: "header",
   });
-  
- 
+
+  pdfContent = await addMetadata(
+    sections["metadata"].group[0].items,
+    "metadata",
+    pdfContent
+  );
 
   return pdfContent;
+}
+
+const labels = {
+  bibliographyData: {
+    author: "Autor",
+    type: "Tipología",
+    date: "Fecha",
+    collocation: "Localización",
+    signature: "Signatura",
+    source: "Procedencia",
+    note: "Crítica",
+    "censors licenses": "Censuras y licencias",
+    troupe: "Compañía teatral",
+    "troupe note": "Notas a la compañía teatral",
+    facsimile: "Facsímil",
+  },
+  licenses: {
+    censoring: "Censor",
+    place: "Ciudad",
+    date: "Fecha",
+    texto: "Texto",
+  },
+  sections: {
+    metadata: "metadata"
+  }
+}
+
+async function addMetadata(metadata, section, pdfContent) {
+
+  pdfContent.content.push({
+    text: labels.sections[section],
+    style: "subheader",
+  });
+
+  console.log(metadata)
+
+  for (let i = 0, n = metadata.length; i < n; i++) {
+    if (Array.isArray(metadata[i].value)) {
+      pdfContent.content.push({
+        text: labels.bibliographyData[metadata[i].label],
+        bold: true,
+        margin: [0, 3, 0, 0],
+      });
+
+      for (let j = 0, n = metadata[i].value.length; j < n; j++) {
+        for (let k = 0, m = metadata[i].value[j].length; k < m; k++) {
+          if (metadata[i].value[j][k].value !== "") {
+            pdfContent = await columnsAdd(
+              pdfContent,
+              metadata[i].value[j][k].label,
+              cleanText(metadata[i].value[j][k].value),
+              [10, 3]
+            );
+          }
+        }
+        if (j < n - 1) {
+          // divider image
+          pdfContent.content.push({
+            image:
+              "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAAKCAQAAADmpvIuAAAAMElEQVR42u3BQQEAMAgEoIuy/iUWwUp28KlAAAAAAAAAYOSl1NV/AAAAAAAAAIC7GtqVk53qw1CjAAAAAElFTkSuQmCC",
+            alignment: "center",
+            margin: [0, 0, 38, 0],
+          });
+        }
+      }
+    } else {
+      pdfContent = await columnsAdd(
+        pdfContent,
+        metadata[i].label,
+        metadata[i].value
+      );
+    }
+  }
+    // spacing
+    pdfContent.content.push(" ");
+
+    return pdfContent;
 }
 
 async function createPDF(req, res, config) {
@@ -60,7 +141,7 @@ async function createPDF(req, res, config) {
         "Content-Disposition",
         "attachment; filename=" +
           encodeURIComponent(
-            res.sections.header.title + ".pdf"
+            result.sections.header.title + ".pdf"
           )
       );
       res.send(binary);
