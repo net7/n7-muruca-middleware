@@ -90,7 +90,7 @@ function addMetadata(metadata, section, pdfContent) {
                 for (let j = 0, n = metadata[i].value.length; j < n; j++) {
                     for (let k = 0, m = metadata[i].value[j].length; k < m; k++) {
                         if (metadata[i].value[j][k].value !== "") {
-                            pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labels.licenses[metadata[i].value[j][k].label], (0, common_1.cleanText)(metadata[i].value[j][k].value), [10, 3]);
+                            pdfContent = yield (0, common_1.columnsAdd)(pdfContent, metadata[i].value[j][k].label, (0, common_1.cleanText)(metadata[i].value[j][k].value), [10, 3]);
                         }
                     }
                     if (j < n - 1) {
