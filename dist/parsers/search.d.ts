@@ -1,4 +1,4 @@
-import Parser, { Input, AggregationResult, OutputMetadataItem } from '../interfaces/parser';
+import Parser, { Input, AggregationResult, Bucket, OutputMetadataItem } from '../interfaces/parser';
 import { SearchResultsData, SearchResultsItemData } from '../interfaces';
 export declare abstract class SearchParser implements Parser {
     parse({ data, options }: Input, queryParams?: any): AggregationResult | SearchResultsData;
@@ -10,7 +10,7 @@ export declare abstract class SearchParser implements Parser {
     protected parseFacets({ data, options }: Input): AggregationResult;
     private createFacet;
     private addExtraArgsToFacet;
-    private addRangeToFacet;
+    addRangeToFacet(facet: any, bucket: Bucket, ranges?: any[]): void;
     private sortFacetValues;
     private getBucket;
     protected applyFacetFilter(facet: any): any;

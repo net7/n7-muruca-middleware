@@ -90,6 +90,7 @@ export const HttpHelper = {
         })
         .catch((error) => {
           console.error(error);
+          reject(error)
         });
     });
   },

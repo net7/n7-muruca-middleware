@@ -279,10 +279,15 @@ exports.ESHelper = {
                 }
             }
             else if (ranges) {
+                let ranges = query_facets[key].ranges;
+                if (query_facets[key].ranges.step) {
+                    let options = query_facets[key].ranges;
+                    ranges = this.buildRanges(options);
+                }
                 const range_aggs = {
                     range: {
                         field: query_facets[key].search,
-                        ranges: query_facets[key].ranges,
+                        ranges: ranges,
                     },
                 };
                 if (global) {
@@ -312,6 +317,20 @@ exports.ESHelper = {
             }
         }
         return main_query.aggregations;
+    },
+    buildRanges(options) {
+        const { from, to, step } = options;
+        const result = [];
+        let currentFrom = from;
+        let currentTo = from + step;
+        while (currentTo < to) {
+            result.push({ from: currentFrom, to: currentTo });
+            currentFrom = currentTo;
+            currentTo += step;
+        }
+        // Add the last interval
+        result.push({ from: currentFrom, to: to });
+        return result;
     },
     buildAggsFilter(filterTerm, facet_conf) {
         const must_array = [];

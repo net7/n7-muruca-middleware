@@ -6,6 +6,7 @@ export declare const ESHelper: {
     buildQuery(data: DataType, conf: any, type: string): any;
     buildSortObj(conf: any, searchId: any, sort: any): any[];
     buildAggs(facets_request: any, query_facets: any): {};
+    buildRanges(options: any): any[];
     buildAggsFilter(filterTerm: any, facet_conf: any): {
         bool: {
             must: any[];

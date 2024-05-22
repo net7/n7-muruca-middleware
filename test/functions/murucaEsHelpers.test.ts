@@ -4,6 +4,8 @@ const expect = require('chai').expect;
 const nock = require('nock');
 import { config } from 'process';
 import { ESHelper } from '../../src/helpers/es-helper';
+import expected_ranges from '../config/mock_buildRanges';
+import mock_buildRanges from '../config/mock_buildRanges';
 
 describe('Common Helpers', function commonHelpersTest() {
   /*beforeEach(() => {
@@ -157,5 +159,14 @@ describe('Common Helpers', function commonHelpersTest() {
       expect(result).to.be.deep.equal(expectedRes);
     });
     
+  });
+
+  context('Build Ranges', function () {
+   
+    it('should return an array from to with correct step', async function () {
+      const expectedRes = mock_buildRanges.expected_ranges.ranges;
+      const res = ESHelper.buildRanges(mock_buildRanges.ranges.options);
+      expect(res).to.be.deep.equal(expectedRes);
+    });
   });
 });
