@@ -14,31 +14,33 @@ const common_1 = require("./common");
 /**
  * Add the content to the pdfContent object. This content will the be transformed into a pdf
  */
-function addContent(motive) {
+function addContent(motive, pdfContent) {
     return __awaiter(this, void 0, void 0, function* () {
-        // setup the pdf content
-        let pdfContent = {
-            content: [],
-            styles: {
-                header: {
-                    fontSize: 18,
-                    bold: true,
-                    color: "#641d1d",
+        if (!pdfContent) {
+            // setup the default pdf content
+            pdfContent = {
+                content: [],
+                styles: {
+                    header: {
+                        fontSize: 18,
+                        bold: true,
+                        color: "#641d1d",
+                    },
+                    subheader: {
+                        fontSize: 15,
+                        bold: true,
+                        color: "#641d1d",
+                    },
+                    bold: {
+                        bold: true,
+                    },
                 },
-                subheader: {
-                    fontSize: 15,
-                    bold: true,
-                    color: "#641d1d",
+                defaultStyle: {
+                    font: "Helvetica",
+                    lineHeight: 1.5,
                 },
-                bold: {
-                    bold: true,
-                },
-            },
-            defaultStyle: {
-                font: "Helvetica",
-                lineHeight: 1.5,
-            },
-        };
+            };
+        }
         let sections = motive.sections;
         // add the title of the motive and the description of the information
         pdfContent.content.push({
@@ -46,6 +48,7 @@ function addContent(motive) {
             style: "header",
         });
         pdfContent = yield addMetadata(sections["metadata"].group[0].items, "metadata", pdfContent);
+        pdfContent = yield imgViewer(sections["image-viewer"], "imageViewer", pdfContent);
         return pdfContent;
     });
 }
@@ -112,16 +115,35 @@ function addMetadata(metadata, section, pdfContent) {
         return pdfContent;
     });
 }
+function imgViewer(imgViewer, section, pdfContent) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let base64 = yield (0, common_1.convertImageToBase64)(imgViewer["images"][0]["url"]);
+            pdfContent.content.push({
+                image: base64,
+                width: 400,
+                alignment: "center",
+                margin: [0, 3],
+            });
+        }
+        catch (error) {
+            console.error("Error converting image to base64:", error);
+        }
+        // spacing
+        pdfContent.content.push(" ");
+        return pdfContent;
+    });
+}
 function createPDF(req, res, config) {
-    var _a;
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         module.exports = createPDF;
         const locale = ((_a = req.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
         const body = JSON.parse(req.body);
         const controller = new controllers_1.getResourceController();
         let result = yield controller.searchResource(body, config, locale);
-        console.log(result);
-        let pdfContent = yield addContent(result);
+        console.log(result, config);
+        let pdfContent = yield addContent(result, (_b = config.configurations) === null || _b === void 0 ? void 0 : _b.getPDF);
         (0, common_1.createPdfBinary)(pdfContent, function (binary) {
             res.contentType("application/pdf");
             res.setHeader("Content-Disposition", "attachment; filename=" +

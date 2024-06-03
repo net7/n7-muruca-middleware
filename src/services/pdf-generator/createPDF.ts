@@ -1,33 +1,37 @@
 import { getResourceController } from "../../controllers";
-import { cleanText, columnsAdd, createPdfBinary, getTextObject } from "./common";
+import { PDFContent } from "../../interfaces/configurations/getPDF";
+import { cleanText, columnsAdd, convertImageToBase64, createPdfBinary, getTextObject } from "./common";
 
 /**
  * Add the content to the pdfContent object. This content will the be transformed into a pdf
  */
-async function addContent(motive) {
-  // setup the pdf content
-  let pdfContent = {
-    content: [],
-    styles: {
-      header: {
-        fontSize: 18,
-        bold: true,
-        color: "#641d1d",
+async function addContent(motive, pdfContent?: PDFContent) {
+
+  if (!pdfContent) {
+    // setup the default pdf content
+    pdfContent = {
+      content: [],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          color: "#641d1d",
+        },
+        subheader: {
+          fontSize: 15,
+          bold: true,
+          color: "#641d1d",
+        },
+        bold: {
+          bold: true,
+        },
       },
-      subheader: {
-        fontSize: 15,
-        bold: true,
-        color: "#641d1d",
+      defaultStyle: {
+        font: "Helvetica",
+        lineHeight: 1.5,
       },
-      bold: {
-        bold: true,
-      },
-    },
-    defaultStyle: {
-      font: "Helvetica",
-      lineHeight: 1.5,
-    },
-  };
+    };
+  }
 
   let sections = motive.sections;
 
@@ -42,6 +46,12 @@ async function addContent(motive) {
     "metadata",
     pdfContent
   );
+
+  pdfContent = await imgViewer(
+    sections["image-viewer"],
+    "imageViewer",
+    pdfContent
+  )
 
   return pdfContent;
 }
@@ -122,6 +132,25 @@ async function addMetadata(metadata, section, pdfContent) {
 
     return pdfContent;
 }
+async function imgViewer(imgViewer, section, pdfContent) {
+
+  try {
+    let base64 = await convertImageToBase64(imgViewer["images"][0]["url"]);
+
+    pdfContent.content.push({
+      image: base64,
+      width: 400,
+      alignment: "center",
+      margin: [0, 3],
+    });
+  } catch (error) {
+    console.error("Error converting image to base64:", error);
+  }
+    // spacing
+    pdfContent.content.push(" ");
+
+    return pdfContent;
+}
 
 async function createPDF(req, res, config) {
   module.exports = createPDF;
@@ -130,8 +159,8 @@ async function createPDF(req, res, config) {
   const body = JSON.parse(req.body);
   const controller = new getResourceController();
   let result = await controller.searchResource(body, config, locale as string) 
-  console.log(result)
-  let pdfContent = await addContent(result);
+  console.log(result, config)
+  let pdfContent = await addContent(result, config.configurations?.getPDF);
   createPdfBinary(
     pdfContent,
     function (binary) {
