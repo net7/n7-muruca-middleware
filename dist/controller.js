@@ -98,6 +98,12 @@ class Controller {
             const response = yield controller.searchResource(body, this.config, locale);
             return helpers_1.HttpHelper.returnOkResponse(response);
         });
+        this.getPDF = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : "";
+            const controller = new controllers.getPDFController();
+            const body = JSON.parse(event.body);
+            controller.getPDF(event, _callback, this.config);
+        });
         this.search = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { type } = event.pathParameters;
             const { locale } = event.queryStringParameters ? event.queryStringParameters : "";
@@ -276,6 +282,7 @@ class Controller {
             advancedSearchOptions: this.advancedSearchOptions.bind(this),
             teiPubGetNodePath: this.teiPubGetNodePath.bind(this),
             advancedSearchTextSearch: this.advancedSearchTextSearch.bind(this),
+            getPDF: this.getPDF.bind(this),
         };
     }
 }

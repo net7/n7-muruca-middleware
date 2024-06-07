@@ -5,7 +5,7 @@ const expect = require('chai').expect;
 const nock = require('nock');
 import { AdvancedSearchParser } from '../../src/parsers';
 import inner_hits from "../responses/inner_hits";
-//const serverless = require("@n7-frontend/serverless");
+//const serverless = require("@n7-frontend/n7-muruca-middleware");
 import config from '../config';
 
 
