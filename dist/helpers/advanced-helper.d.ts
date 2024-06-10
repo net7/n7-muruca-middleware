@@ -63,6 +63,4 @@ export declare const nestedQuery: (path: string, query: any, inner_hits?: any) =
     query: any;
 };
 export declare const checkMatchedQuery: (prop: any, matched_queries: any) => boolean;
-export declare const buildSortParam: (sort: string, sort_conf: any) => string[] | {
-    [x: string]: string;
-};
+export declare const buildSortParam: (sort: string, sort_conf: any) => {};

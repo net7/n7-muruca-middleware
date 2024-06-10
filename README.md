@@ -3,6 +3,10 @@
   
  `npm run build`
  
+##Node version
+
+`v18.19.1` 
+ 
  Vanno committati sia i file .ts che i file generati dentro la dist
 ## [2.8.1] - 16-05-2024
 - added default sort field
