@@ -130,3 +130,9 @@ functions:
       - http:
           path: get_node_path
           method: post
+  getPDF:
+    handler: ${file(${opt:stage, 'prod'}.yml):CONTROLLER_PATH}.getPDF
+    events:
+      - http:
+          path: getPDF
+          method: post
