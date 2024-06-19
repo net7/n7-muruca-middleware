@@ -10,16 +10,16 @@ class GetPDFService {
     constructor() {
         this.createPDF = (req, res, config) => {
             console.log(config);
-            createPDF_1.default(req, res, config);
+            (0, createPDF_1.default)(req, res, config);
         };
         this.createPDFAuteso = (req, res) => {
-            auteso_1.default(req, res);
+            (0, auteso_1.default)(req, res);
         };
         this.createPDFCalderon = (req, res) => {
-            calderon_1.default(req, res);
+            (0, calderon_1.default)(req, res);
         };
         this.createPDFMemoram = (req, res, config) => {
-            memoram_1.default(req, res, config);
+            (0, memoram_1.default)(req, res, config);
         };
     }
 }

@@ -87,7 +87,7 @@ function nestedCollections(pdfContent, metadata, keys, collectionTypes) {
                 for (const key of keys) {
                     if (key in metadata[collection][i] &&
                         metadata[collection][i][key] !== "") {
-                        pdfContent = yield common_1.columnsAdd(pdfContent, labels[key], metadata[collection][i][key], [10, 3], key === "url");
+                        pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labels[key], metadata[collection][i][key], [10, 3], key === "url");
                     }
                 }
                 if (i < n - 1) {
@@ -109,20 +109,20 @@ function biblioMain(metadata, pdfContent) {
             text: "Datos bibliográficos",
             style: "subheader",
         });
-        pdfContent = yield common_1.columnsAdd(pdfContent, labels.title, metadata.title);
-        pdfContent = yield common_1.columnsAdd(pdfContent, labels.authorship, metadata.authorship);
+        pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labels.title, metadata.title);
+        pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labels.authorship, metadata.authorship);
         pdfContent.content.push({
             text: "Parte",
             bold: true,
             margin: [0, 3, 0, 0],
         });
-        pdfContent.content.push(yield common_1.getTextObject(metadata.parts.part, pdfContent));
-        pdfContent.content.push(yield common_1.getTextObject(metadata.parts.description, pdfContent));
+        pdfContent.content.push(yield (0, common_1.getTextObject)(metadata.parts.part, pdfContent));
+        pdfContent.content.push(yield (0, common_1.getTextObject)(metadata.parts.description, pdfContent));
         pdfContent.content.push({
             text: metadata.parts.url_parte,
             link: metadata.parts.url_parte,
         });
-        pdfContent = yield common_1.simpleAdd(pdfContent, labels.notes_datos_bibliografico, metadata.notes_datos_bibliografico);
+        pdfContent = yield (0, common_1.simpleAdd)(pdfContent, labels.notes_datos_bibliografico, metadata.notes_datos_bibliografico);
         let keys = [
             "title",
             "authors",
@@ -158,19 +158,19 @@ function fechaComputoEstrofas(metadata, pdfContent) {
             text: "Fecha, cómputo de versos y estrofas",
             style: "subheader",
         });
-        pdfContent = yield common_1.columnsAdd(pdfContent, labels.data, metadata.data);
-        pdfContent = yield common_1.columnsAdd(pdfContent, labels.notes, metadata.notes);
+        pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labels.data, metadata.data);
+        pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labels.notes, metadata.notes);
         pdfContent.content.push({
             text: "Cómputo métrico",
             bold: true,
             margin: [0, 10, 0, 0],
             color: "#cb5432",
         });
-        pdfContent = yield common_1.columnsAdd(pdfContent, labels.numberOfVerses, metadata.numberOfVerses);
+        pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labels.numberOfVerses, metadata.numberOfVerses);
         let keys = ["metric", "verses", "notes"];
         for (let i = 0, n = metadata.metricComposition.length; i < n; i++) {
             for (const key of keys) {
-                pdfContent = yield common_1.columnsAdd(pdfContent, labels[key], metadata.metricComposition[i][key], [10, 3]);
+                pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labels[key], metadata.metricComposition[i][key], [10, 3]);
             }
             if (i < n - 1) {
                 pdfContent.content.push({
@@ -191,9 +191,9 @@ function personajesEspacioTiempo(metadata, pdfContent) {
             text: "Personajes, espacio y tiempo",
             style: "subheader",
         });
-        pdfContent = yield common_1.simpleAdd(pdfContent, labels.computableCharacters, metadata.computableCharacters);
-        pdfContent = yield common_1.simpleAdd(pdfContent, labels.notComputableCharacters, metadata.notComputableCharacters.join("\n"));
-        pdfContent = yield common_1.simpleAdd(pdfContent, labels.socialUniverse, metadata.socialUniverse.join("\n"));
+        pdfContent = yield (0, common_1.simpleAdd)(pdfContent, labels.computableCharacters, metadata.computableCharacters);
+        pdfContent = yield (0, common_1.simpleAdd)(pdfContent, labels.notComputableCharacters, metadata.notComputableCharacters.join("\n"));
+        pdfContent = yield (0, common_1.simpleAdd)(pdfContent, labels.socialUniverse, metadata.socialUniverse.join("\n"));
         let subSections = [
             "chronologicalSettings",
             "dramaticSpaceFirstDay",
@@ -218,7 +218,7 @@ function personajesEspacioTiempo(metadata, pdfContent) {
             color: "#cb5432",
         });
         pdfContent.content.push(`${metadata.durationDuration} ${metadata.durationWork}`);
-        pdfContent.content.push(common_1.cleanText(metadata.durationWorkNote));
+        pdfContent.content.push((0, common_1.cleanText)(metadata.durationWorkNote));
         let keys = [
             "durationFirstActPeriod",
             "durationFirstActNote",
@@ -233,8 +233,8 @@ function personajesEspacioTiempo(metadata, pdfContent) {
         ];
         for (let i = 0, n = keys.length; i < n; i += 2) {
             let key = keys[i];
-            pdfContent = yield common_1.columnsAdd(pdfContent, labels[key], metadata[key], [0, 3]);
-            pdfContent = yield common_1.simpleAdd(pdfContent, labels[keys[i + 1]], metadata[keys[i + 1]]);
+            pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labels[key], metadata[key], [0, 3]);
+            pdfContent = yield (0, common_1.simpleAdd)(pdfContent, labels[keys[i + 1]], metadata[keys[i + 1]]);
         }
         // spacing
         pdfContent.content.push(" ");
@@ -247,10 +247,10 @@ function generoSinopsis(metadata, pdfContent) {
             text: "Género y sinopsis",
             style: "subheader",
         });
-        pdfContent = common_1.listAdd(pdfContent, labels.primaryProposal, metadata.primaryProposal);
-        pdfContent = common_1.listAdd(pdfContent, labels.secondaryProposal, metadata.secondaryProposal);
-        pdfContent = yield common_1.simpleAdd(pdfContent, labels.proposalNotes, metadata.proposalNotes);
-        pdfContent = yield common_1.simpleAdd(pdfContent, labels.sinossi, metadata.sinossi);
+        pdfContent = (0, common_1.listAdd)(pdfContent, labels.primaryProposal, metadata.primaryProposal);
+        pdfContent = (0, common_1.listAdd)(pdfContent, labels.secondaryProposal, metadata.secondaryProposal);
+        pdfContent = yield (0, common_1.simpleAdd)(pdfContent, labels.proposalNotes, metadata.proposalNotes);
+        pdfContent = yield (0, common_1.simpleAdd)(pdfContent, labels.sinossi, metadata.sinossi);
         return pdfContent;
     });
 }
@@ -259,7 +259,7 @@ function addHeader(pdfContent, motive) {
         text: motive.title,
         style: "header",
     });
-    const doi = common_1.cleanText(motive.doi);
+    const doi = (0, common_1.cleanText)(motive.doi);
     let link = motive.doi.match(/href='([^']*)/);
     if (link) {
         pdfContent.content.push({ text: doi, link: link[1], margin: [0, 3] });
@@ -319,7 +319,7 @@ function createPDFCalderon(req, res) {
             }
             let pdfContent = yield addContent(motive);
             // create the pdf and send it to the client
-            common_1.createPdfBinary(pdfContent, function (binary) {
+            (0, common_1.createPdfBinary)(pdfContent, function (binary) {
                 res.contentType("application/pdf");
                 // use the name of the motive as the name of the file
                 res.setHeader("Content-Disposition", "attachment; filename=" +

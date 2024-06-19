@@ -82,8 +82,8 @@ exports.cleanText = cleanText;
  * @param {boolean} replaceSpaces - if true, multiple spaces will be replaced by a newline character
  * @returns {object} - the object with the text added
  */
-function getTextObject(text, pdfContent, isLink = false, replaceSpaces = false) {
-    return __awaiter(this, void 0, void 0, function* () {
+function getTextObject(text_1, pdfContent_1) {
+    return __awaiter(this, arguments, void 0, function* (text, pdfContent, isLink = false, replaceSpaces = false) {
         let toRtn = [];
         let splitText = text.split(/(<i>|<\/i>|<em>|<\/em>|<sup>|<\/sup>|<img.*?>|<strong>|<\/strong>)/g);
         for (let i = 0; i < splitText.length; i++) {
@@ -138,8 +138,8 @@ exports.getTextObject = getTextObject;
  * @param {boolean} isLink
  * @returns {object} - the pdfContent object with the text added
  */
-function simpleAdd(pdfContent, label, rawText, isLink = false) {
-    return __awaiter(this, void 0, void 0, function* () {
+function simpleAdd(pdfContent_1, label_1, rawText_1) {
+    return __awaiter(this, arguments, void 0, function* (pdfContent, label, rawText, isLink = false) {
         pdfContent.content.push({
             text: label,
             bold: true,
@@ -159,8 +159,8 @@ exports.simpleAdd = simpleAdd;
  * @param {boolean} isLink
  * @returns {object} - the pdfContent object with the text added
  */
-function columnsAdd(pdfContent, label, text, margin = [0, 3], isLink = false) {
-    return __awaiter(this, void 0, void 0, function* () {
+function columnsAdd(pdfContent_1, label_1, text_1) {
+    return __awaiter(this, arguments, void 0, function* (pdfContent, label, text, margin = [0, 3], isLink = false) {
         pdfContent.content.push({
             columns: [
                 {

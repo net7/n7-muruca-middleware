@@ -68,7 +68,7 @@ function addContent(motive) {
                         style: "bold",
                     });
                     // add clean text
-                    pdfContent.content.push(yield common_1.getTextObject(chapters[j].value, {}, false, true));
+                    pdfContent.content.push(yield (0, common_1.getTextObject)(chapters[j].value, {}, false, true));
                 }
             }
             //spacing
@@ -101,7 +101,7 @@ function createPDFMemoram(req, res, config) {
             // add the content to the pdf
             let pdfContent = yield addContent(motive);
             // create the pdf and send it to the client
-            common_1.createPdfBinary(pdfContent, function (binary) {
+            (0, common_1.createPdfBinary)(pdfContent, function (binary) {
                 res.contentType("application/pdf");
                 // use the name of the motive as the name of the file
                 res.setHeader("Content-Disposition", "attachment; filename=" +

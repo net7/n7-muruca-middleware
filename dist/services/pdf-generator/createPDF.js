@@ -93,7 +93,7 @@ function addMetadata(metadata, section, pdfContent) {
                 for (let j = 0, n = metadata[i].value.length; j < n; j++) {
                     for (let k = 0, m = metadata[i].value[j].length; k < m; k++) {
                         if (metadata[i].value[j][k].value !== "") {
-                            pdfContent = yield common_1.columnsAdd(pdfContent, metadata[i].value[j][k].label, common_1.cleanText(metadata[i].value[j][k].value), [10, 3]);
+                            pdfContent = yield (0, common_1.columnsAdd)(pdfContent, metadata[i].value[j][k].label, (0, common_1.cleanText)(metadata[i].value[j][k].value), [10, 3]);
                         }
                     }
                     if (j < n - 1) {
@@ -107,7 +107,7 @@ function addMetadata(metadata, section, pdfContent) {
                 }
             }
             else {
-                pdfContent = yield common_1.columnsAdd(pdfContent, metadata[i].label, metadata[i].value);
+                pdfContent = yield (0, common_1.columnsAdd)(pdfContent, metadata[i].label, metadata[i].value);
             }
         }
         // spacing
@@ -118,7 +118,7 @@ function addMetadata(metadata, section, pdfContent) {
 function imgViewer(imgViewer, section, pdfContent) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let base64 = yield common_1.convertImageToBase64(imgViewer["images"][0]["url"]);
+            let base64 = yield (0, common_1.convertImageToBase64)(imgViewer["images"][0]["url"]);
             pdfContent.content.push({
                 image: base64,
                 width: 400,
@@ -135,8 +135,8 @@ function imgViewer(imgViewer, section, pdfContent) {
     });
 }
 function createPDF(req, res, config) {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
         module.exports = createPDF;
         const locale = ((_a = req.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
         const body = JSON.parse(req.body);
@@ -144,7 +144,7 @@ function createPDF(req, res, config) {
         let result = yield controller.searchResource(body, config, locale);
         console.log(result, config);
         let pdfContent = yield addContent(result, (_b = config.configurations) === null || _b === void 0 ? void 0 : _b.getPDF);
-        common_1.createPdfBinary(pdfContent, function (binary) {
+        (0, common_1.createPdfBinary)(pdfContent, function (binary) {
             res.contentType("application/pdf");
             res.setHeader("Content-Disposition", "attachment; filename=" +
                 encodeURIComponent(result.sections.header.title + ".pdf"));

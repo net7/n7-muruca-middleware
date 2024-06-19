@@ -59,7 +59,7 @@ function bibliografiaCitada(metadata, pdfContent) {
             style: "subheader",
         });
         for (let i = 0, n = metadata.length; i < n; i++) {
-            pdfContent.content.push(yield common_1.getTextObject(metadata[i].text.replaceAll("\n", "").replaceAll("\r", ""), pdfContent));
+            pdfContent.content.push(yield (0, common_1.getTextObject)(metadata[i].text.replaceAll("\n", "").replaceAll("\r", ""), pdfContent));
         }
         return pdfContent;
     });
@@ -97,7 +97,7 @@ function biblioMain(metadata, pdfContent) {
                 for (let j = 0, n = metadata[i].value.length; j < n; j++) {
                     for (let k = 0, m = metadata[i].value[j].length; k < m; k++) {
                         if (metadata[i].value[j][k].value !== "") {
-                            pdfContent = yield common_1.columnsAdd(pdfContent, labels.licenses[metadata[i].value[j][k].label], common_1.cleanText(metadata[i].value[j][k].value), [10, 3]);
+                            pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labels.licenses[metadata[i].value[j][k].label], (0, common_1.cleanText)(metadata[i].value[j][k].value), [10, 3]);
                         }
                     }
                     if (j < n - 1) {
@@ -111,7 +111,7 @@ function biblioMain(metadata, pdfContent) {
                 }
             }
             else {
-                pdfContent = yield common_1.columnsAdd(pdfContent, labels.bibliographyData[metadata[i].label], metadata[i].value);
+                pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labels.bibliographyData[metadata[i].label], metadata[i].value);
             }
         }
         // spacing
@@ -137,10 +137,10 @@ function codicologicoYComposicion(metadata, pdfContent, headerText, simpleLabels
         });
         for (let i = 0, n = metadata.length; i < n; i++) {
             if (simpleLabels.has(metadata[i].label)) {
-                pdfContent = yield common_1.simpleAdd(pdfContent, labelsConversion[metadata[i].label], metadata[i].value);
+                pdfContent = yield (0, common_1.simpleAdd)(pdfContent, labelsConversion[metadata[i].label], metadata[i].value);
             }
             else {
-                pdfContent = yield common_1.columnsAdd(pdfContent, labelsConversion[metadata[i].label], common_1.cleanText(metadata[i].value));
+                pdfContent = yield (0, common_1.columnsAdd)(pdfContent, labelsConversion[metadata[i].label], (0, common_1.cleanText)(metadata[i].value));
             }
         }
         // spacing
@@ -156,17 +156,17 @@ function addHeader(pdfContent, sections) {
         });
         const scientificEditor = sections.metadata.group[0].items[0].value;
         const sourceEditor = sections.metadata.group[0].items[1]
-            ? common_1.cleanText(sections.metadata.group[0].items[1].value).replace("\n", "")
+            ? (0, common_1.cleanText)(sections.metadata.group[0].items[1].value).replace("\n", "")
             : "";
         const doi = sections.metadata.group[0].items[2]
-            ? common_1.cleanText(sections.metadata.group[0].items[2].value).replace("\n", "")
+            ? (0, common_1.cleanText)(sections.metadata.group[0].items[2].value).replace("\n", "")
             : "";
-        pdfContent = yield common_1.columnsAdd(pdfContent, "Editor científico", scientificEditor);
+        pdfContent = yield (0, common_1.columnsAdd)(pdfContent, "Editor científico", scientificEditor);
         if (sourceEditor !== "") {
-            pdfContent = yield common_1.columnsAdd(pdfContent, "Editor de la fuente", sourceEditor);
+            pdfContent = yield (0, common_1.columnsAdd)(pdfContent, "Editor de la fuente", sourceEditor);
         }
         if (doi !== "") {
-            pdfContent = yield common_1.columnsAdd(pdfContent, "DOI", doi);
+            pdfContent = yield (0, common_1.columnsAdd)(pdfContent, "DOI", doi);
         }
         pdfContent.content.push(" ");
         return pdfContent;
@@ -247,7 +247,7 @@ function createPDFAuteso(req, res) {
             }
             let pdfContent = yield addContent(opera);
             // create the pdf and send it to the client
-            common_1.createPdfBinary(pdfContent, function (binary) {
+            (0, common_1.createPdfBinary)(pdfContent, function (binary) {
                 res.contentType("application/pdf");
                 // use the name of the opera as the name of the file
                 res.setHeader("Content-Disposition", "attachment; filename=" +
