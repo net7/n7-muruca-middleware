@@ -9,6 +9,7 @@ export declare class Controller {
     getTimeline: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getMap: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getResource: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
+    getPDF: (event: any, _context: any, _callback: any) => Promise<void>;
     search: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     advancedSearch: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     advancedSearchTextSearch: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
@@ -42,5 +43,6 @@ export declare class Controller {
         advancedSearchOptions: any;
         teiPubGetNodePath: any;
         advancedSearchTextSearch: any;
+        getPDF: any;
     };
 }
