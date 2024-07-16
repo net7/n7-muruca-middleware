@@ -255,7 +255,7 @@ exports.ESHelper = {
                                         [sort]: "asc"
                                     },
                                     script: {
-                                        source: `if(doc['${query_facets[key].search}'].size() > 0 ) doc['${query_facets[key].search}'].value + '${AGGR_SEPARATOR}' + doc['${query_facets[key].title}'].value`,
+                                        source: this.getESAggrScript(query_facets[key].search, query_facets[key].title),
                                         lang: 'painless',
                                     },
                                 },
@@ -344,7 +344,7 @@ exports.ESHelper = {
                             [sort]: sort == "_count" ? "desc" : "asc"
                         },
                         script: {
-                            source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '${AGGR_SEPARATOR}' + doc['${title}'].value`,
+                            source: this.getESAggrScript(search, title),
                             lang: 'painless',
                         },
                     }
@@ -384,7 +384,7 @@ exports.ESHelper = {
                     [sort]: sort == "_count" ? "desc" : "asc"
                 },
                 script: {
-                    source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '${AGGR_SEPARATOR}' + doc['${term.title}'].value`,
+                    source: this.getESAggrScript(term.search, term.title),
                     lang: 'painless',
                 },
             },
@@ -426,5 +426,8 @@ exports.ESHelper = {
                 "field": term
             }
         };
+    },
+    getESAggrScript(term, label) {
+        return `if(doc['${term}'].size() > 0 ) doc['${term}'].value + '${AGGR_SEPARATOR}' + doc['${label}'].value`;
     }
 };

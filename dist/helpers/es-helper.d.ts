@@ -25,4 +25,5 @@ export declare const ESHelper: {
             field: any;
         };
     };
+    getESAggrScript(term: any, label: any): string;
 };
