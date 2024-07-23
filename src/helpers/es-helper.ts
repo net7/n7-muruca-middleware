@@ -469,6 +469,6 @@ export const ESHelper = {
   },
   
   getESAggrScript(term, label){
-    return `if(doc['${term}'].size() > 0 ){ List result = new ArrayList(); for (int i = 0; i < doc['${term}'].length; i++) { result.add(doc['languages.keyword'][i] + '${AGGR_SEPARATOR}'  + doc['${label}'][i]); } return result;}`;   
+    return `if(doc['${term}'].size() > 0 ){ List result = new ArrayList(); for (int i = 0; i < doc['${term}'].length; i++) { result.add(doc['${term}'][i] + '${AGGR_SEPARATOR}'  + doc['${label}'][i]); } return result;}`;   
   }
 };
