@@ -1,6 +1,11 @@
 export declare class GetPDFService {
-    createPDF: (req: any, res: any, config: any) => void;
-    createPDFAuteso: (req: any, res: any) => void;
-    createPDFCalderon: (req: any, res: any) => void;
-    createPDFMemoram: (req: any, res: any, config: any) => void;
+    createPDF: (req: any, res: any, config: any, labels: any) => Promise<import("../../interfaces/helper").HTTPResponse | {
+        statusCode: number;
+        headers: {
+            "Content-Type": string;
+            "Content-Disposition": string;
+        };
+        body: unknown;
+        isBase64Encoded: boolean;
+    }>;
 }

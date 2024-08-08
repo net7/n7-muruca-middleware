@@ -111,9 +111,9 @@ export class Controller {
   getPDF = async (event: any, _context: any, _callback: any) => {
     const { locale } = event.queryStringParameters ? event.queryStringParameters : "";
     const controller = new controllers.getPDFController();
-    const body= JSON.parse(event.body)
-    controller.getPDF(event, _callback, this.config)
-
+    const body= JSON.parse(event.body);
+    const labels = await controller.getLabels(event, _callback, this.config, locale);
+    return controller.getPDF(event, _callback, this.config, locale, labels);
   };
 
   search = async (event: any, _context: any, _callback: any) => {

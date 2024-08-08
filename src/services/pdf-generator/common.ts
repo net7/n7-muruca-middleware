@@ -83,6 +83,7 @@ export async function getTextObject(
   );
   for (let i = 0; i < splitText.length; i++) {
     let current = splitText[i];
+    current = current.replace(/\n/g, "");
 
     if (current === "<i>" || current === "<em>") {
       let italicText = splitText[++i];
@@ -93,6 +94,9 @@ export async function getTextObject(
     } else if (current === "<strong>") {
       let boldText = splitText[++i];
       toRtn.push({ text: cleanText(boldText, replaceSpaces), bold: true });
+    } else if (current.startsWith("<a")) {
+      let href = current.match(/href="(.*?)"/)[1];
+      toRtn.push({ text: cleanText(href, replaceSpaces)});
     } else if (current.startsWith("<img")) {
       let imgSrc = current.match(/src="(.*?)"/)[1];
       try {
@@ -211,20 +215,26 @@ export function listAdd(pdfContent, label, list) {
  * @param {object} pdfDoc
  * @param {Function} callback
  */
-export function createPdfBinary(pdfDoc, callback) {
-  var printer = new pdfprinter(fonts);
-  var doc = printer.createPdfKitDocument(pdfDoc);
+export function createPdfBinary(pdfDoc) {
+  return new Promise((resolve, reject) => {
+    try {
+      var printer = new pdfprinter(fonts);
+      var doc = printer.createPdfKitDocument(pdfDoc);
 
-  var chunks = [];
-  var result;
+      var chunks = [];
 
-  doc.on("data", function (chunk) {
-    chunks.push(chunk);
+      doc.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+
+      doc.on("end", function () {
+        var result = Buffer.concat(chunks);
+        resolve(result.toString("base64"));
+      });
+
+      doc.end();
+    } catch (error) {
+      reject(error);
+    }
   });
-  doc.on("end", function () {
-    result = Buffer.concat(chunks);
-
-    callback(result);
-  });
-  doc.end();
 }

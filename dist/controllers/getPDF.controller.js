@@ -10,12 +10,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPDFController = void 0;
+const helpers_1 = require("../helpers");
 const pdf_generator_1 = require("../services/pdf-generator/pdf-generator");
 class getPDFController {
     constructor() {
-        this.getPDF = (req, res, config, locale) => __awaiter(this, void 0, void 0, function* () {
+        this.getPDF = (req, res, config, locale, labels) => __awaiter(this, void 0, void 0, function* () {
             const service = new pdf_generator_1.GetPDFService();
-            service.createPDF(req, res, config);
+            let response = yield service.createPDF(req, res, config, labels);
+            return response;
+        });
+        this.getLabels = (req, res, config, locale) => __awaiter(this, void 0, void 0, function* () {
+            const { baseUrl, parsers } = config;
+            let queryLang = locale;
+            if (locale && locale.length < 5) {
+                queryLang =
+                    locale === "en" ? locale + "_US" : locale + "_" + locale.toUpperCase();
+            }
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + "translations?lang=" + queryLang));
+            const parser = new parsers.translation();
+            const response = parser.parse({
+                data,
+                options: {
+                    queryLang,
+                },
+            });
+            return response;
         });
     }
 }

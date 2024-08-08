@@ -303,36 +303,42 @@ function addContent(motive) {
         return pdfContent;
     });
 }
-function createPDFCalderon(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // get the opera from the server
-        yield fetch("https://admin.calderondigital.tespasiglodeoro.it/wp-json/v1/works/" +
-            req.params.id)
-            .then((response) => response.json())
-            .then((motive) => __awaiter(this, void 0, void 0, function* () {
-            if (motive.error) {
-                res.status(404).send({
-                    status: 404,
-                    message: motive.error,
-                });
-                return;
-            }
-            let pdfContent = yield addContent(motive);
-            // create the pdf and send it to the client
-            (0, common_1.createPdfBinary)(pdfContent, function (binary) {
-                res.contentType("application/pdf");
-                // use the name of the motive as the name of the file
-                res.setHeader("Content-Disposition", "attachment; filename=" +
-                    encodeURIComponent("Motivo - " + motive.title + ".pdf"));
-                res.send(binary);
-            });
-        }))
-            .catch(() => {
-            res.status(404).send({
-                status: 404,
-                message: "Resource not found.",
-            });
-        });
-    });
-}
-exports.default = createPDFCalderon;
+// async function createPDFCalderon(req, res) {
+//   // get the opera from the server
+//   await fetch(
+//     "https://admin.calderondigital.tespasiglodeoro.it/wp-json/v1/works/" +
+//       req.params.id
+//   )
+//     .then((response) => response.json())
+//     .then(async (motive) => {
+//       if (motive.error) {
+//         res.status(404).send({
+//           status: 404,
+//           message: motive.error,
+//         });
+//         return;
+//       }
+//       let pdfContent = await addContent(motive);
+//       // create the pdf and send it to the client
+//       createPdfBinary(
+//         pdfContent,
+//         function (binary) {
+//           res.contentType("application/pdf");
+//           // use the name of the motive as the name of the file
+//           res.setHeader(
+//             "Content-Disposition",
+//             "attachment; filename=" +
+//               encodeURIComponent("Motivo - " + motive.title + ".pdf")
+//           );
+//           res.send(binary);
+//         }
+//       );
+//     })
+//     .catch(() => {
+//       res.status(404).send({
+//         status: 404,
+//         message: "Resource not found.",
+//       });
+//     });
+// }
+// export default createPDFCalderon;

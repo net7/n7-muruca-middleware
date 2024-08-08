@@ -102,7 +102,8 @@ class Controller {
             const { locale } = event.queryStringParameters ? event.queryStringParameters : "";
             const controller = new controllers.getPDFController();
             const body = JSON.parse(event.body);
-            controller.getPDF(event, _callback, this.config);
+            const labels = yield controller.getLabels(event, _callback, this.config, locale);
+            return controller.getPDF(event, _callback, this.config, locale, labels);
         });
         this.search = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
             const { type } = event.pathParameters;

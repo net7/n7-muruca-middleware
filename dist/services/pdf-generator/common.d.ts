@@ -62,4 +62,4 @@ export declare function listAdd(pdfContent: any, label: any, list: any): any;
  * @param {object} pdfDoc
  * @param {Function} callback
  */
-export declare function createPdfBinary(pdfDoc: any, callback: any): void;
+export declare function createPdfBinary(pdfDoc: any): Promise<unknown>;

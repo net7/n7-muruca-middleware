@@ -9,7 +9,15 @@ export declare class Controller {
     getTimeline: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getMap: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     getResource: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
-    getPDF: (event: any, _context: any, _callback: any) => Promise<void>;
+    getPDF: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse | {
+        statusCode: number;
+        headers: {
+            "Content-Type": string;
+            "Content-Disposition": string;
+        };
+        body: unknown;
+        isBase64Encoded: boolean;
+    }>;
     search: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     advancedSearch: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;
     advancedSearchTextSearch: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse>;

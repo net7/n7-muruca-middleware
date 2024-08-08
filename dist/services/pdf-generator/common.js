@@ -82,12 +82,13 @@ exports.cleanText = cleanText;
  * @param {boolean} replaceSpaces - if true, multiple spaces will be replaced by a newline character
  * @returns {object} - the object with the text added
  */
-function getTextObject(text_1, pdfContent_1) {
-    return __awaiter(this, arguments, void 0, function* (text, pdfContent, isLink = false, replaceSpaces = false) {
+function getTextObject(text, pdfContent, isLink = false, replaceSpaces = false) {
+    return __awaiter(this, void 0, void 0, function* () {
         let toRtn = [];
         let splitText = text.split(/(<i>|<\/i>|<em>|<\/em>|<sup>|<\/sup>|<img.*?>|<strong>|<\/strong>)/g);
         for (let i = 0; i < splitText.length; i++) {
             let current = splitText[i];
+            current = current.replace(/\n/g, "");
             if (current === "<i>" || current === "<em>") {
                 let italicText = splitText[++i];
                 toRtn.push({ text: cleanText(italicText, replaceSpaces), italics: true });
@@ -99,6 +100,10 @@ function getTextObject(text_1, pdfContent_1) {
             else if (current === "<strong>") {
                 let boldText = splitText[++i];
                 toRtn.push({ text: cleanText(boldText, replaceSpaces), bold: true });
+            }
+            else if (current.startsWith("<a")) {
+                let href = current.match(/href="(.*?)"/)[1];
+                toRtn.push({ text: cleanText(href, replaceSpaces) });
             }
             else if (current.startsWith("<img")) {
                 let imgSrc = current.match(/src="(.*?)"/)[1];
@@ -138,8 +143,8 @@ exports.getTextObject = getTextObject;
  * @param {boolean} isLink
  * @returns {object} - the pdfContent object with the text added
  */
-function simpleAdd(pdfContent_1, label_1, rawText_1) {
-    return __awaiter(this, arguments, void 0, function* (pdfContent, label, rawText, isLink = false) {
+function simpleAdd(pdfContent, label, rawText, isLink = false) {
+    return __awaiter(this, void 0, void 0, function* () {
         pdfContent.content.push({
             text: label,
             bold: true,
@@ -159,8 +164,8 @@ exports.simpleAdd = simpleAdd;
  * @param {boolean} isLink
  * @returns {object} - the pdfContent object with the text added
  */
-function columnsAdd(pdfContent_1, label_1, text_1) {
-    return __awaiter(this, arguments, void 0, function* (pdfContent, label, text, margin = [0, 3], isLink = false) {
+function columnsAdd(pdfContent, label, text, margin = [0, 3], isLink = false) {
+    return __awaiter(this, void 0, void 0, function* () {
         pdfContent.content.push({
             columns: [
                 {
@@ -215,18 +220,24 @@ exports.listAdd = listAdd;
  * @param {object} pdfDoc
  * @param {Function} callback
  */
-function createPdfBinary(pdfDoc, callback) {
-    var printer = new pdfprinter(fonts);
-    var doc = printer.createPdfKitDocument(pdfDoc);
-    var chunks = [];
-    var result;
-    doc.on("data", function (chunk) {
-        chunks.push(chunk);
+function createPdfBinary(pdfDoc) {
+    return new Promise((resolve, reject) => {
+        try {
+            var printer = new pdfprinter(fonts);
+            var doc = printer.createPdfKitDocument(pdfDoc);
+            var chunks = [];
+            doc.on("data", function (chunk) {
+                chunks.push(chunk);
+            });
+            doc.on("end", function () {
+                var result = Buffer.concat(chunks);
+                resolve(result.toString("base64"));
+            });
+            doc.end();
+        }
+        catch (error) {
+            reject(error);
+        }
     });
-    doc.on("end", function () {
-        result = Buffer.concat(chunks);
-        callback(result);
-    });
-    doc.end();
 }
 exports.createPdfBinary = createPdfBinary;

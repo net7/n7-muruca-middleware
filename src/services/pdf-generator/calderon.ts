@@ -400,45 +400,45 @@ async function addContent(motive) {
   return pdfContent;
 }
 
-async function createPDFCalderon(req, res) {
-  // get the opera from the server
-  await fetch(
-    "https://admin.calderondigital.tespasiglodeoro.it/wp-json/v1/works/" +
-      req.params.id
-  )
-    .then((response) => response.json())
-    .then(async (motive) => {
-      if (motive.error) {
-        res.status(404).send({
-          status: 404,
-          message: motive.error,
-        });
-        return;
-      }
+// async function createPDFCalderon(req, res) {
+//   // get the opera from the server
+//   await fetch(
+//     "https://admin.calderondigital.tespasiglodeoro.it/wp-json/v1/works/" +
+//       req.params.id
+//   )
+//     .then((response) => response.json())
+//     .then(async (motive) => {
+//       if (motive.error) {
+//         res.status(404).send({
+//           status: 404,
+//           message: motive.error,
+//         });
+//         return;
+//       }
 
-      let pdfContent = await addContent(motive);
+//       let pdfContent = await addContent(motive);
 
-      // create the pdf and send it to the client
-      createPdfBinary(
-        pdfContent,
-        function (binary) {
-          res.contentType("application/pdf");
-          // use the name of the motive as the name of the file
-          res.setHeader(
-            "Content-Disposition",
-            "attachment; filename=" +
-              encodeURIComponent("Motivo - " + motive.title + ".pdf")
-          );
-          res.send(binary);
-        }
-      );
-    })
-    .catch(() => {
-      res.status(404).send({
-        status: 404,
-        message: "Resource not found.",
-      });
-    });
-}
+//       // create the pdf and send it to the client
+//       createPdfBinary(
+//         pdfContent,
+//         function (binary) {
+//           res.contentType("application/pdf");
+//           // use the name of the motive as the name of the file
+//           res.setHeader(
+//             "Content-Disposition",
+//             "attachment; filename=" +
+//               encodeURIComponent("Motivo - " + motive.title + ".pdf")
+//           );
+//           res.send(binary);
+//         }
+//       );
+//     })
+//     .catch(() => {
+//       res.status(404).send({
+//         status: 404,
+//         message: "Resource not found.",
+//       });
+//     });
+// }
 
-export default createPDFCalderon;
+// export default createPDFCalderon;
