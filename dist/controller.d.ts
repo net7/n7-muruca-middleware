@@ -56,6 +56,15 @@ export declare class Controller {
      * @param request POST request
      * @param res  Response
      */
+    getPDF: (event: any, _context: any, _callback: any) => Promise<import("./interfaces/helper").HTTPResponse | {
+        statusCode: number;
+        headers: {
+            "Content-Type": string;
+            "Content-Disposition": string;
+        };
+        body: unknown;
+        isBase64Encoded: boolean;
+    }>;
     search: (request: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
     /**
      * Submit a query and fetch the results.
@@ -144,5 +153,6 @@ export declare class Controller {
         advancedSearchOptions: any;
         teiPubGetNodePath: any;
         advancedSearchTextSearch: any;
+        getPDF: any;
     };
 }

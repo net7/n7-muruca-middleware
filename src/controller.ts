@@ -146,6 +146,14 @@ export class Controller {
    * @param request POST request
    * @param res  Response
    */
+  getPDF = async (event: any, _context: any, _callback: any) => {
+    const { locale } = event.queryStringParameters ? event.queryStringParameters : "";
+    const controller = new controllers.getPDFController();
+    const body= JSON.parse(event.body);
+    const labels = await controller.getLabels(event, _callback, this.config, locale);
+    return controller.getPDF(event, _callback, this.config, locale, labels);
+  };
+
   search = async (request: Request, res: Response) => {
     const { type } = request.params;
     const locale = request.query?.locale || '';
@@ -417,6 +425,7 @@ export class Controller {
       advancedSearchOptions: this.advancedSearchOptions.bind(this),
       teiPubGetNodePath: this.teiPubGetNodePath.bind(this),
       advancedSearchTextSearch: this.advancedSearchTextSearch.bind(this),
+            getPDF: this.getPDF.bind(this),
     };
   }
 }

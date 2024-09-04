@@ -1,58 +1,51 @@
-# Example Usage
+##How to compile 
+ Dopo ogni modifica ai file .ts della libreria questa va compilata con il comando
+  
+ `npm run build`
+ 
+##Node version
 
-```ts
-// app.ts
+`v18.19.1` 
+ 
+ Vanno committati sia i file .ts che i file generati dentro la dist
+## [2.8.1] - 16-05-2024
+- added default sort field
 
-import {
-  neffRouter,
-  initController,
-  setCustomHandler,
-} from '@n7-frontend/express';
-import parsers from './src/parsers';
-import configurations from './src/configurations';
-require('dotenv').config();
-import * as cors from 'cors';
-import * as express from 'express';
+## [2.8.0] - 27-07-2023
+- added locale to resource parser
 
-const app = express();
+## [2.7.1] - 27-07-2023
+- fix html entities in XML snippet
+- fix empty query in advanced search
 
-// Initialize the controller using config files
-initController({
-  parsers,
-  configurations,
-  baseUrl: process.env.BASE_URL,
-  staticUrl: process.env.STATIC_URL,
-  searchIndex: process.env.SEARCH_INDEX,
-  elasticUri: process.env.ELASTIC_URI,
-  defaultLang: process.env.DEFAULT_LANG,
-});
+## [2.7.0] - 03-07-2023
+- advanced search proximity search
+- added test
+- change sort configuration
 
-// For parsing application/json
-app.use(express.json(), cors());
-// For parsing application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
-// Load default routes and handlers from NEFF framework
-app.use(neffRouter);
+## [2.6.0] - 21-11-2022
+- added teipublisher call API to get node root
+- added link to highlight text
+- get result not async
+- added advanced search occurrences
+## [2.5.0] - 21-11-2022
+- advanced search in XML text
+- tag replacement with highlight
+## [2.4.0] - 19-10-2022
+- refactor of advanced search controller
+- new directory organization
+- added XML-Json based advanced search
+## [2.3.0] - 04-08-2022
+- Advanced search add 'highlightField' options 
+- Advanced search **BREAKING CHANGE**  modified `term_value` search query. See new options or convert to `fulltext` query
 
-// Override default handlers if necessary
-setCustomHandler('getTest', async (req, res) => {
-  res.send('this is the custom get test handler');
-});
+## [2.2.0] - 26-07-2022
+- Added dynamic options
+- Added search config for manual sorting of facets
+- Added interfaces for search and andvanced search configurations files.
 
-// Start the express server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-```
+## [2.1.0] - 01-03-2022
+- Minor upgrade: set timeline time format to YYYY-MM-DDThh:mm:ss
 
-```yml
-# dev.yml
-
-ELASTIC_URI: 'http://<ElasticSearch-URI>/'
-SEARCH_INDEX: '<search-index-string>'
-STATIC_URL: 'http://<WordPress-URL>/wp/v2/'
-BASE_URL: 'http://<WordPress-URL>/muruca-core-v2/v1/'
-PORT: 3126
-CONTROLLER_PATH: './src/controller'
-```
+## [1.0.0] - 18-12-2020
+- First stable version of serverless core framework

@@ -14,7 +14,9 @@
     "dist"
   ],
   "dependencies": {
-    "@elastic/elasticsearch": "^7.9.1",
+    "@elastic/elasticsearch": "^7.17.13",
+    "@types/elasticsearch": "^5.0.36",
+    "@types/lodash": "^4.17.4",
     "@types/request": "^2.48.5",
     "axios": "^0.27.2",
     "elasticsearch": "^16.7.1",
@@ -24,6 +26,7 @@
     "lodash": "^4.17.21",
     "nock": "^13.3.0",
     "node-fetch": "^3.2.8",
+    "pdfmake": "^0.2.10",
     "request": "^2.88.2",
     "sort-object": "^3.0.3",
     "xml-js": "^1.6.11",

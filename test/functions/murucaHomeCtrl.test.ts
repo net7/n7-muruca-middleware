@@ -5,7 +5,7 @@ const nock = require('nock');
 import { HomeParser } from '../../src/parsers';
 import response from '../responses/home';
 import { Controller } from '../../src';
-//const serverless = require("@n7-frontend/serverless");
+//const serverless = require("@n7-frontend/n7-muruca-middleware");
 import config from '../config/';
 
 const controller = new Controller({

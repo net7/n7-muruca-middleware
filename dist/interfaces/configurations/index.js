@@ -17,3 +17,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./advanced_search"), exports);
 __exportStar(require("./search"), exports);
 __exportStar(require("./resource"), exports);
+__exportStar(require("./getPDF"), exports);

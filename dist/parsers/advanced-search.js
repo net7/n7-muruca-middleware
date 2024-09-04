@@ -25,12 +25,12 @@ class AdvancedSearchParser {
         return [];
     }
     // protected parseResultsItems({ data, options }: Input): SearchResultsItemData[];
-    advancedParseResultsItems({ data, options }) {
-        return __awaiter(this, void 0, void 0, function* () {
+    advancedParseResultsItems(_a) {
+        return __awaiter(this, arguments, void 0, function* ({ data, options }) {
             var { searchId, conf, teiPublisherUri } = options;
             let items = [];
-            yield Promise.all(data.map(({ _source: source, highlight, inner_hits, matched_queries }) => __awaiter(this, void 0, void 0, function* () {
-                var _a, _b, _c;
+            yield Promise.all(data.map((_b) => __awaiter(this, [_b], void 0, function* ({ _source: source, highlight, inner_hits, matched_queries }) {
+                var _c, _d, _e;
                 let itemResult = {
                     highlights: [],
                 };
@@ -54,14 +54,14 @@ class AdvancedSearchParser {
                 if (inner_hits && Object.keys(inner_hits)) {
                     for (var prop in inner_hits) {
                         const inn_hits = inner_hits[prop].hits.hits;
-                        const xml_filename = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.xml_search_options) === null || _b === void 0 ? void 0 : _b.field_filename) ||
+                        const xml_filename = ((_d = (_c = conf[searchId]) === null || _c === void 0 ? void 0 : _c.xml_search_options) === null || _d === void 0 ? void 0 : _d.field_filename) ||
                             'xml_filename';
                         const doc = xml_filename
                             .split('.')
                             .reduce((a, b) => a[b], source);
                         if (doc) {
                             const hh = yield this.parseXmlTextHighlight(inn_hits, teiPublisherUri, doc);
-                            if (hh.length > 0 && ((_c = hh[0]) === null || _c === void 0 ? void 0 : _c.isTitle)) {
+                            if (hh.length > 0 && ((_e = hh[0]) === null || _e === void 0 ? void 0 : _e.isTitle)) {
                                 itemResult['highlightsTitle'] = hh.shift().text;
                             }
                             if (hh != null) {
@@ -137,8 +137,8 @@ class AdvancedSearchParser {
      * @param doc
      * @returns
      */
-    parseXmlTextHighlight(inn_hits, teiPublisherUri = '', doc = '') {
-        return __awaiter(this, void 0, void 0, function* () {
+    parseXmlTextHighlight(inn_hits_1) {
+        return __awaiter(this, arguments, void 0, function* (inn_hits, teiPublisherUri = '', doc = '') {
             const highlights = [];
             const highlights_obj = this.buildHighlightObj(inn_hits);
             if (highlights_obj.totCount > 0) {

@@ -137,6 +137,13 @@ class Controller {
          * @param request POST request
          * @param res  Response
          */
+        this.getPDF = (event, _context, _callback) => __awaiter(this, void 0, void 0, function* () {
+            const { locale } = event.queryStringParameters ? event.queryStringParameters : "";
+            const controller = new controllers.getPDFController();
+            const body = JSON.parse(event.body);
+            const labels = yield controller.getLabels(event, _callback, this.config, locale);
+            return controller.getPDF(event, _callback, this.config, locale, labels);
+        });
         this.search = (request, res) => __awaiter(this, void 0, void 0, function* () {
             var _g;
             const { type } = request.params;
@@ -378,6 +385,7 @@ class Controller {
             advancedSearchOptions: this.advancedSearchOptions.bind(this),
             teiPubGetNodePath: this.teiPubGetNodePath.bind(this),
             advancedSearchTextSearch: this.advancedSearchTextSearch.bind(this),
+            getPDF: this.getPDF.bind(this),
         };
     }
 }
