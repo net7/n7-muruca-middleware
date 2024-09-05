@@ -169,12 +169,17 @@ function columnsAdd(pdfContent_1, label_1, text_1) {
         pdfContent.content.push({
             columns: [
                 {
-                    width: 150,
+                    width: 130,
                     text: label,
                     bold: true,
                 },
                 {
-                    width: 350,
+                    // Colonna per spaziare
+                    width: 5,
+                    text: ""
+                },
+                {
+                    width: 365,
                     text: yield getTextObject(text, pdfContent, isLink),
                 },
             ],

@@ -162,12 +162,17 @@ export async function columnsAdd(
   pdfContent.content.push({
     columns: [
       {
-        width: 150,
+        width: 130,
         text: label,
         bold: true,
       },
       {
-        width: 350,
+        // Colonna per spaziare
+        width: 5,
+        text: ""
+      },
+      {
+        width: 365,
         text: await getTextObject(text, pdfContent, isLink),
       },
     ],

@@ -1,15 +1,13 @@
 import { capitalize } from "lodash";
-import { getPDFController, getResourceController } from "../../controllers";
+import { getResourceController } from "../../controllers";
 import { HttpHelper } from "../../helpers";
 import { PDFContent } from "../../interfaces/configurations/getPDF";
-import { cleanText, columnsAdd, convertImageToBase64, createPdfBinary, getTextObject } from "./common";
-import { Controller } from "../../controller";
+import { columnsAdd, convertImageToBase64, createPdfBinary, getTextObject } from "./common";
 
 /**
  * Add the content to the pdfContent object. This content will the be transformed into a pdf
  */
 async function addContent(resource, configurations, type, labels) {
-  // console.log(labels);
 
   const config = configurations.configurations.resources[type];
 
@@ -54,11 +52,25 @@ async function addContent(resource, configurations, type, labels) {
           break;
         }
         pdfContent.content.push({
-          text: data.title,
+          text: await getTextObject(
+            data.title,
+            pdfContent
+          ),
           style: "header",
         });
         // spacing
         pdfContent.content.push(" ");
+        break;
+
+      case 'editor-metadata':
+        if (!data) {
+          break;
+        }
+        pdfContent = await addEditor(
+          data.group[0].items,
+          pdfContent,
+          labels
+        );
         break;
 
       case 'metadata':
@@ -66,20 +78,20 @@ async function addContent(resource, configurations, type, labels) {
           break;
         }
         pdfContent = await addMetadata(
-          data.group[0].items, 
-          "metadata", 
+          data.group[0].items,
           pdfContent,
-        labels);
+          labels
+        );
         break;
 
       case 'image-viewer':
         if (!data) {
           break;
         }
-        pdfContent = await imgViewer(
+        pdfContent = await addImgViewer(
           data,
-          "imageViewer",
-          pdfContent)
+          pdfContent
+        )
         break;
         
       case 'image-viewer-iiif':
@@ -88,8 +100,8 @@ async function addContent(resource, configurations, type, labels) {
         }
         await addIIIF(
           data,
-          "image-viewer-iiif",
-          pdfContent)
+          pdfContent
+        )
         break;
 
       case 'collection':
@@ -98,66 +110,104 @@ async function addContent(resource, configurations, type, labels) {
         }
         pdfContent = await addCollection(
           data,
-          "collection",
-          pdfContent)
+          pdfContent
+        )
         break;
     }
   }
   return pdfContent;
 }
 
-const labels = {
-  bibliographyData: {
-    author: "Autor",
-    type: "Tipología",
-    date: "Fecha",
-    collocation: "Localización",
-    signature: "Signatura",
-    source: "Procedencia",
-    note: "Crítica",
-    "censors licenses": "Censuras y licencias",
-    troupe: "Compañía teatral",
-    "troupe note": "Notas a la compañía teatral",
-    facsimile: "Facsímil",
-  },
-  licenses: {
-    censoring: "Censor",
-    place: "Ciudad",
-    date: "Fecha",
-    texto: "Texto",
-  },
-  sections: {
-    metadata: "metadata"
+async function addEditor(editor, pdfContent, labels){
+  for (let i = 0, n = editor?.length; i < n; i++) {
+    pdfContent = await columnsAdd(
+      pdfContent,
+      (labels[editor[i].label]) ? capitalize(labels[editor[i].label]) : capitalize(editor[i].label),
+      editor[i].value
+    );
   }
+
+  return pdfContent;
+};
+
+async function addImgViewer(imgViewer, pdfContent) {
+  try {
+    for (let image of imgViewer["images"]) {
+      let base64 = await convertImageToBase64(image["url"]);
+      pdfContent.content.push({
+        image: base64,
+        width: 250,
+        alignment: "center",
+        margin: [0, 3],
+      });
+    }
+    // spacing
+    pdfContent.content.push(" ");
+  } catch (error) {
+    console.error("Error converting image to base64:", error);
+  }
+
+  return pdfContent;
 }
 
-async function addMetadata(metadata, section, pdfContent, labels) {
-
-  if (metadata.length) {
-    pdfContent.content.push({
-      text: 'Metadata',
-      style: "subheader",
-      margin: [0, 10, 0, 0]
-    });
+async function addIIIF(iiif, pdfContent) {
+  const{ manifestUrl } = iiif["iiif-manifests"][0];
+  if (manifestUrl) {
+    pdfContent = await columnsAdd(
+      pdfContent,
+      'Link IIIF',
+      manifestUrl.replaceAll("\n", "").replaceAll("\r", ""),
+    );
   }
 
+  return pdfContent;
+}
+
+async function addMetadata(metadata, pdfContent, labels) {
   for (let i = 0, n = metadata?.length; i < n; i++) {
     if (Array.isArray(metadata[i].value)) {
-      pdfContent.content.push({
-        text: (labels[metadata[i].label]) ? labels[metadata[i].label] : metadata[i].label,
-        bold: true,
-        margin: [0, 3, 0, 0],
-      });
+      let jStart = 0;
+      let kStart = 0;
 
-      for (let j = 0, n = metadata[i].value.length; j < n; j++) {
-        for (let k = 0, m = metadata[i].value[j].length; k < m; k++) {
+      if (!(metadata[i].value[0][0].label)) {
+        // se i dati annidati non hanno label si affiancano al livello del label principale
+        if (metadata[i].value[0]?.length > 1) {
+          kStart = 1;
+        } else {
+          jStart = 1;
+        }
+        pdfContent = await columnsAdd(
+          pdfContent,
+          (labels[metadata[i].label]) ? capitalize(labels[metadata[i].label]) : capitalize(metadata[i].label),
+          metadata[i].value[0][0].value
+        );
+        if (metadata[i].value?.length > 1) {
+          // divider image
+          pdfContent.content.push({
+            image:
+              "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAAKCAQAAADmpvIuAAAAMElEQVR42u3BQQEAMAgEoIuy/iUWwUp28KlAAAAAAAAAYOSl1NV/AAAAAAAAAIC7GtqVk53qw1CjAAAAAElFTkSuQmCC",
+            alignment: "right",
+            margin: [0, 0, -40, 0],
+            opacity: 0.4,
+            width: 595
+          });
+        }  
+      } else {
+        // se i dati annidati hanno label si lascia uno spazio vuoto accanto al label principale
+        pdfContent.content.push({
+          text: (labels[metadata[i].label]) ? capitalize(labels[metadata[i].label]) : capitalize(metadata[i].label),
+          bold: true,
+          // margin: [0, 3, 0, 0],
+        });
+      }
+
+      for (let j = jStart, n = metadata[i].value.length; j < n; j++) {
+        for (let k = kStart, m = metadata[i].value[j].length; k < m; k++) {
           if (metadata[i].value[j][k].value !== "") {
             pdfContent = await columnsAdd(
               pdfContent,
-              (labels[metadata[i].value[j][k].label]) ? labels[metadata[i].value[j][k].label] : metadata[i].value[j][k].label,
-              // metadata[i].value[j][k].label,
-              cleanText(metadata[i].value[j][k].value),
-              [10, 3]
+              (labels[metadata[i].value[j][k].label]) ? capitalize(labels[metadata[i].value[j][k].label]) : capitalize(metadata[i].value[j][k].label),
+              metadata[i].value[j][k].value
             );
           }
         }
@@ -169,92 +219,62 @@ async function addMetadata(metadata, section, pdfContent, labels) {
             alignment: "right",
             margin: [0, 0, -40, 0],
             opacity: 0.4,
-            width: 580
+            width: 595
           });
         }
       }
     } else {
       pdfContent = await columnsAdd(
         pdfContent,
-        // metadata[i].label,
-        (labels[metadata[i].label]) ? labels[metadata[i].label] : metadata[i].label,
+        (labels[metadata[i].label]) ? capitalize(labels[metadata[i].label]) : capitalize(metadata[i].label),
         metadata[i].value
       );
     }
   }
-    // spacing
-    pdfContent.content.push(" ");
-
-    return pdfContent;
-}
-
-async function imgViewer(imgViewer, section, pdfContent) {
-  try {
-    for (let image of imgViewer["images"]) {
-      let base64 = await convertImageToBase64(image["url"]);
-      pdfContent.content.push({
-        image: base64,
-        width: 250,
-        alignment: "center",
-        margin: [0, 3],
-      });
-    }
-  } catch (error) {
-    console.error("Error converting image to base64:", error);
-  }
-    // spacing
-    pdfContent.content.push(" ");
-
-    return pdfContent;
-}
-
-async function addCollection(collection, section, pdfContent) {
-  const items = collection["items"];
-
-  if (items.length) {
-    pdfContent.content.push({
-      text: capitalize(collection["header"].title),
-      style: "subheader",
-      margin: [0, 10, 0, 0]
-    });
-  }
-
-  for (let i = 0, n = items?.length; i < n; i++) {
-    pdfContent.content.push(
-      await getTextObject(
-        items[i].text.replaceAll("\n", "").replaceAll("\r", ""),
-        pdfContent
-      )
-    );
-  }
-
-  // spacing
-  pdfContent.content.push(" ");
 
   return pdfContent;
 }
 
-async function addIIIF(iiif, section, pdfContent) {
+async function addCollection(collection, pdfContent) {
 
-  const{ manifestUrl } = iiif["iiif-manifests"][0];
-
-  if (manifestUrl) {
-    pdfContent.content.push({
-      text: 'Link IIIF',
-      style: "subheader",
-      margin: [0, 10, 0, 0]
-    });
-
-    pdfContent.content.push(
-      await getTextObject(
-        manifestUrl.replaceAll("\n", "").replaceAll("\r", ""),
-        pdfContent
-      )
+  const items = collection["items"];
+  if (items.length) {
+    // aggiunge primo elemento accanto al label principale
+    pdfContent = await columnsAdd(
+      pdfContent,
+      capitalize(collection["header"].title),
+      (items[0].text) ? items[0].text : (items[0].title) ? items[0].title : ""
     );
+
+    for (let i = 1, n = items?.length; i < n; i++) {
+      pdfContent = await columnsAdd(
+        pdfContent,
+        "",
+        (items[i].text) ? items[i].text : (items[i].title) ? items[i].title : ""
+      );
+    }
   }
 
   // spacing
-  pdfContent.content.push(" ");
+  // pdfContent.content.push(" ");
+
+  // const items = collection["items"];
+  // if (items.length) {
+  //   pdfContent.content.push({
+  //     text: capitalize(collection["header"].title),
+  //     style: "subheader",
+  //     margin: [0, 3, 0, 0]
+  //   });
+  // }
+
+  // for (let i = 0, n = items?.length; i < n; i++) {
+  //   pdfContent.content.push(
+  //     await getTextObject(
+  //       items[i].text.replaceAll("\n", "").replaceAll("\r", ""),
+  //       pdfContent
+  //     )
+  //   );
+  // }
 
   return pdfContent;
 }
