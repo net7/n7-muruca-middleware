@@ -5,6 +5,7 @@ const expect = require('chai').expect;
 const nock = require('nock');
 import { AdvancedSearchParser } from '../../src/parsers';
 import inner_hits from "../responses/inner_hits";
+import quote_in_quote from "../responses/quote_in_quote";
 //const serverless = require("@n7-frontend/n7-muruca-middleware");
 import config from '../config';
 
@@ -73,7 +74,8 @@ describe('XML search parse results', function murucaHomeCtrlTest() {
       let snippets: string[] = parser.parseAttributeHighlight(element, 'xml_transcription_texts_json.name._attr.key');          
       expect(snippets).with.lengthOf(1);
       let prefix = "<span class='mrc__text-attr_value'>Voci di autorità: Ludwig van Kempen</span>";
-      let snippet = "Uno <name type='person' key='Ludwig van Kempen'><em class='mrc__text-emph'>Socrati</em></name> Uno due tre quattro cinque sei sette otto nove dieci Undici dodici tredici quattordici quindici sedici diciassette diciotto diciannove venti Ventuno ventidue ventitré ventiquattro venticinque ventisei ventisette ventotto ventinove trenta"
+                   "<span class='mrc__text-attr_value'>Voci di autorità: Ludwig van Kempen</span>"
+      let snippet = "Uno <name type=\"person\" key=\"Ludwig van Kempen\"><em class='mrc__text-emph'>Socrati</em></name> Uno due tre quattro cinque sei sette otto nove dieci Undici dodici tredici quattordici quindici sedici diciassette diciotto diciannove venti Ventuno ventidue ventitré ventiquattro venticinque ventisei ventisette ventotto ventinove trenta"
       expect(snippets[0].trim()).eq(prefix + snippet);
       
     });
@@ -104,6 +106,15 @@ describe('XML search parse results', function murucaHomeCtrlTest() {
     });
   });
   
+  context('Find references', function () {
+    it('should return correct reference', async function () {    
+      const hit = quote_in_quote;
+      const prop = "xml_transcription_texts_json.quote.quote._refs.label.keyword";
+      const ref = parser.findXmlTextByPath(hit, prop);       
+      let snippet = "triginta argenteis";
+      expect(ref).eq(snippet);
+    })
   
+  })
 
 })

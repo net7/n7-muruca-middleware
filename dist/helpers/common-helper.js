@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommonHelper = void 0;
+const linkedom_1 = require("linkedom");
 exports.CommonHelper = {
     buildLink(linkToParse, data) {
         const regExpUrl = /{(.*?)}/g;
@@ -52,5 +53,12 @@ exports.CommonHelper = {
         const regex_str = '^(.{' + size + '}[^\\s]*).*';
         const regex = new RegExp(regex_str, 'g');
         return text.replace(regex, "$1");
+    },
+    sanitizeHtml(input) {
+        const parser = new linkedom_1.DOMParser();
+        // Tenta di parsare il contenuto HTML come documento
+        const doc = parser.parseFromString(input, 'text/html');
+        // Restituisce solo il contenuto "sanificato", privo di HTML non valido
+        return doc.body.innerHTML;
     }
 };

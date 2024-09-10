@@ -6,4 +6,5 @@ export declare const CommonHelper: {
     getSnippetAroundTag(node_attr: any, snippet: any, text: any): any[];
     HighlightTagInXml(node_name: any, node_attr: any, snippet: any, text: any): any;
     makeXmlTextSnippet(xml: any, size?: number): any;
+    sanitizeHtml(input: string): string;
 };

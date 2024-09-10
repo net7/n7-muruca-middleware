@@ -148,7 +148,7 @@ const queryRange = (termFields, termValue) => {
     return (0, exports.queryBool)(ranges).query;
 };
 exports.queryRange = queryRange;
-const buildHighlights = (queryField, noHighlightFields = null) => {
+const buildHighlights = (queryField, noHighlightFields = null, highlightOptions = null) => {
     const fields = typeof queryField === 'string' ? queryField.split(',') : queryField;
     const highlight = {};
     if (Array.isArray(fields)) {
@@ -158,7 +158,7 @@ const buildHighlights = (queryField, noHighlightFields = null) => {
                     highlight[element.field] = (element === null || element === void 0 ? void 0 : element.options) || {};
                 }
                 else {
-                    highlight[element] = {};
+                    highlight[element] = highlightOptions || {};
                 }
             }
         });

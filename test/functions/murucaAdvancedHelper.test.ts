@@ -107,12 +107,12 @@ describe('Advanced search helpers', function commonHelpersTest() {
       const clause0 = spanNear.span_near.clauses[0];
       expect(clause0).to.have.property("span_multi").to.have.property("match").to.have.property("wildcard");
       const wildcard0 = clause0.span_multi.match.wildcard;      
-      expect(wildcard0).to.have.property("text").eq("lorem*");
+      expect(wildcard0).to.have.property("text").to.have.property("value").eq("lorem*");
       
       const clause1 = spanNear.span_near.clauses[1];
       expect(clause1).to.have.property("span_multi").to.have.property("match").to.have.property("wildcard");
       const wildcard1 = clause1.span_multi.match.wildcard;      
-      expect(wildcard1).to.have.property("text").eq("impsum");    
+      expect(wildcard1).to.have.property("text").to.have.property("value").eq("impsum");    
       
     });    
     

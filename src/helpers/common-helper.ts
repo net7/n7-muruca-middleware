@@ -1,3 +1,5 @@
+import {DOMParser} from 'linkedom';
+
 export const CommonHelper = {
     buildLink (linkToParse, data){
         const regExpUrl = /{(.*?)}/g;
@@ -55,5 +57,14 @@ export const CommonHelper = {
       const regex_str = '^(.{' + size + '}[^\\s]*).*';
       const regex = new RegExp(regex_str, 'g');            
       return text.replace(regex, "$1");     
+    },
+    
+    sanitizeHtml(input: string): string {
+      const parser = new DOMParser();
+      // Tenta di parsare il contenuto HTML come documento
+      const doc = parser.parseFromString(input, 'text/html');
+      
+      // Restituisce solo il contenuto "sanificato", privo di HTML non valido
+      return doc.body.innerHTML;
     }
 }

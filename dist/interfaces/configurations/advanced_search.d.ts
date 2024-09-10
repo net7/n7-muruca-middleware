@@ -119,6 +119,8 @@ export interface CommonSettingsAdvancedSearch {
         /** the values to search for. Ex: "record" */
         value: string[];
     };
+    /** additional highlight options */
+    highlightOptions?: String[] | Object;
 }
 export interface ResultsFormatData {
     /** label for metadata */

@@ -180,7 +180,7 @@ export const queryRange = (termFields: [], termValue: any) => {
     return queryBool(ranges).query;
 };
 
-export const buildHighlights = (queryField: any, noHighlightFields:string[] = null) => {
+export const buildHighlights = (queryField: any, noHighlightFields:string[] = null, highlightOptions:any = null) => {
     const fields =
         typeof queryField === 'string' ? queryField.split(',') : queryField;
     const highlight = {};
@@ -190,7 +190,7 @@ export const buildHighlights = (queryField: any, noHighlightFields:string[] = nu
                 if (element.field && element.field != '') {
                     highlight[element.field] = element?.options || {};
                 } else {
-                    highlight[element] = {};
+                    highlight[element] = highlightOptions || {};
                 }
             }
         });

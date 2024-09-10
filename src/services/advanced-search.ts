@@ -126,7 +126,7 @@ export class AdvancedSearchService {
                             
                             if (!query_key.noHighlight) {
                                 highlight_fields = {
-                                    ...ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields),
+                                    ...ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields, query_key.highlightOptions),
                                     ...highlight_fields,
                                 };
                             }
@@ -167,7 +167,7 @@ export class AdvancedSearchService {
 
                             if (!query_key.noHighlight) {
                                 highlight_fields = {
-                                    ...ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields ),
+                                    ...ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields, query_key.highlightOptions ),
                                     ...highlight_fields,
                                 };
                             }
