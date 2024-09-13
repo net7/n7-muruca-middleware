@@ -4,6 +4,7 @@ export declare class AdvancedSearchParser implements Parser {
         key: string;
     };
     text_separator: string;
+    xml_json_property: string;
     parse({ data, options }: Input): any[];
     advancedParseResultsItems({ data, options }: {
         data: any;
@@ -41,4 +42,5 @@ export declare class AdvancedSearchParser implements Parser {
     getXmlLastDivPath(path: any): string;
     getNodeXpath(path: any, last_el?: string): string;
     parseAttributeHighlight(hit: any, prop: any): any[];
+    findXmlTextByPath(data: any, prop: string): string[];
 }

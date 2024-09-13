@@ -72,6 +72,19 @@ describe('Common Helpers', function commonHelpersTest() {
       let hl= CommonHelper.makeXmlTextSnippet(xml_text);
       expect(hl).eq("La vita è imprevedibile. Accetta gli errori e le sfide, sii coraggioso e non dimenticare di apprezzare");
     });
+    it('should return a snippet of text with [...]', async function () {
+   
+      let xml_text = "La vita è <name>imprevedibile.</name> Accetta gli errori e le sfide, sii coraggioso e non dimenticare di apprezzare le cose belle. La vita è imprevedibile. Accetta gli errori e le sfide, sii coraggioso e non dimenticare di apprezzare le cose belle.";
+      let hl= CommonHelper.makeXmlTextSnippet(xml_text, 100, "[...]");
+      expect(hl).eq("La vita è imprevedibile. Accetta gli errori e le sfide, sii coraggioso e non dimenticare di apprezzare [...]");
+    });
+    
+    it('should return a snippet of text without [...]', async function () {
+   
+      let xml_text = "ut ceteros sileam, quid Atilio Regulo felicius";
+      let hl= CommonHelper.makeXmlTextSnippet(xml_text, 100, "[...]");
+      expect(hl).eq("ut ceteros sileam, quid Atilio Regulo felicius");
+    });
   })
 
 })

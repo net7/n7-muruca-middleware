@@ -11,6 +11,7 @@ export class AdvancedSearchParser implements Parser {
   }
 
   text_separator = "<span class=\"mrc__text-divider\"></span>";
+  xml_json_property = "xml_transcription_texts_json";
 
   parse({ data, options }: Input) {
     const { type } = options as SearchOptions;
@@ -287,9 +288,19 @@ export class AdvancedSearchParser implements Parser {
         unique_hl.attr.push(...this.parseAttributeHighlight(hit, prop));
         //h_snippets.push(...this.parseAttributeHighlight(hit, prop));
       } else if(/.*\._refs\.\w*/.test(prop)) {
-        if(hit._source?.xml_text){
-          unique_hl.refs.push(CommonHelper.makeXmlTextSnippet(hit._source.xml_text, 250)); 
-          //h_snippets.push(CommonHelper.makeXmlTextSnippet(hit._source.xml_text))
+        
+        const quotes = this.findXmlTextByPath(hit, prop);
+        let prefix = "";
+        
+        if(quotes && quotes.length > 0){
+          quotes.forEach(  quote => {
+            if (quote._refs) {
+              const references = this.parseReferences(quote['_refs']);
+              prefix = "<span class='mrc__text-attr_value'>In: " + references + "</span> ";
+            }
+            unique_hl.refs.push(prefix + CommonHelper.makeXmlTextSnippet(quote['xml_text'], 250, "[...]"));             
+          })
+          //h_snippets.push(CommonHelper.makeXmlTextSnippet(hit._source.xml_text))*/
         }
       }      
     }
@@ -305,7 +316,7 @@ export class AdvancedSearchParser implements Parser {
       return unique_hl.xml_text;
     }
     if( unique_hl.refs.length > 0){
-      return [unique_hl.refs[0]];
+      return unique_hl.refs;
     }
   }
   
@@ -313,11 +324,14 @@ export class AdvancedSearchParser implements Parser {
     let references = "";
     refs.forEach(element => {
       let r = "";
-      for( const prop in element ){
-        r = r == "" ? element[prop] : r + ", " + element[prop];
+      if(element['label']){
+        r = element['label'];
+      } else {
+        for( const prop in element ){
+          r = r == "" ? element[prop] : r + ", " + element[prop];
+        }        
       }
-      references = references == "" ? r : references +"; " + r; 
-      
+      references = references == "" ? r : references +"; " + r;       
     });
     return references;
   }
@@ -385,4 +399,61 @@ export class AdvancedSearchParser implements Parser {
     return uniqueSnippets;
 
   }
+  
+  findXmlTextByPath(data,  prop: string) {
+  const keys = prop.substring("xml_transcription_texts_json.".length).split(".");  
+  
+  //tolgo il primo elemento perché corrisponde alla root
+  keys.shift();
+  const targetValue = data['highlight'][prop][0].toString();
+  
+    let elem = data["_source"];
+    
+    function recursiveSearch(currentData, remainingKeys: string[]): string[] | null {
+      let results = [];
+      
+      if (remainingKeys.length === 0) {
+        return null;
+      }
+  
+      // Se currentData è un array, itero su ciascun elemento dell'array
+      if (Array.isArray(currentData)) {
+        for (const item of currentData) {
+          results = results.concat(recursiveSearch(item, remainingKeys));
+        }
+        return results;
+      }
+      
+      if (!remainingKeys.length) {
+        return results;
+      }
+      
+      const key = remainingKeys[0];
+      
+      // Se siamo al livello in cui si trova _refs, cerco il targetValue
+      if (key === "_refs" && Array.isArray(currentData[key])) {
+        for (const item of currentData[key]) {
+          if (item.label === targetValue) {
+            // Se corrisponde, aggiungiamo il valore di xml_text
+            if (currentData.xml_text) {
+              results.push(currentData);
+            }
+          }
+        }
+      }
+  
+      // Continua a cercare ricorsivamente se non siamo ancora all'ultima chiave
+      if (remainingKeys.length > 1 && currentData[key]) {
+        results = results.concat(recursiveSearch(currentData[key], remainingKeys.slice(1)));
+      }
+  
+      return results;
+    }
+  
+    return recursiveSearch(elem, keys);  
+    
+  
+  }
+  
+  
 }

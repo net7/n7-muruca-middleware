@@ -108,7 +108,7 @@ class AdvancedSearchService {
                                 break;
                             let ft_query = this.buildFulltextQuery(query_key, query_params[groupId]);
                             if (!query_key.noHighlight) {
-                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields)), highlight_fields);
+                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields, query_key.highlightOptions)), highlight_fields);
                             }
                             must_array.push(ft_query); // aggiunge oggetto dopo "match" in "must" es. "query_string": { "query": "*bbb*", "fields": [ "title", "description" ] }
                             if (query_key.baseQuery) {
@@ -138,7 +138,7 @@ class AdvancedSearchService {
                                 operator
                             );*/
                             if (!query_key.noHighlight) {
-                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields)), highlight_fields);
+                                highlight_fields = Object.assign(Object.assign({}, ASHelper.buildHighlights(query_key.field, query_key.noHighlightFields, query_key.highlightOptions)), highlight_fields);
                             }
                             if (query_key.baseQuery) {
                                 const base_query = ASHelper.queryTerm(query_key.baseQuery.field, query_key.baseQuery.value);

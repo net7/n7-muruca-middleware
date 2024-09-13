@@ -48,11 +48,15 @@ exports.CommonHelper = {
         const text_hl = text.replace(regex, "<em class='mrc__text-emph'>$1</em>");
         return text_hl;
     },
-    makeXmlTextSnippet(xml, size = 100) {
+    makeXmlTextSnippet(xml, size = 100, ellipsis = "") {
         let text = this.stripTags(xml);
         const regex_str = '^(.{' + size + '}[^\\s]*).*';
         const regex = new RegExp(regex_str, 'g');
-        return text.replace(regex, "$1");
+        let snippet = text.replace(regex, "$1");
+        if (ellipsis !== "" && snippet.length < text.length) {
+            snippet += " " + ellipsis;
+        }
+        return snippet;
     },
     sanitizeHtml(input) {
         const parser = new linkedom_1.DOMParser();

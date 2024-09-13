@@ -19,18 +19,19 @@ class AdvancedSearchParser {
             key: "Voci di autorità"
         };
         this.text_separator = "<span class=\"mrc__text-divider\"></span>";
+        this.xml_json_property = "xml_transcription_texts_json";
     }
     parse({ data, options }) {
         const { type } = options;
         return [];
     }
     // protected parseResultsItems({ data, options }: Input): SearchResultsItemData[];
-    advancedParseResultsItems({ data, options }) {
-        return __awaiter(this, void 0, void 0, function* () {
+    advancedParseResultsItems(_a) {
+        return __awaiter(this, arguments, void 0, function* ({ data, options }) {
             var { searchId, conf, teiPublisherUri } = options;
             let items = [];
-            yield Promise.all(data.map(({ _source: source, highlight, inner_hits, matched_queries }) => __awaiter(this, void 0, void 0, function* () {
-                var _a, _b, _c;
+            yield Promise.all(data.map((_b) => __awaiter(this, [_b], void 0, function* ({ _source: source, highlight, inner_hits, matched_queries }) {
+                var _c, _d, _e;
                 let itemResult = {
                     highlights: [],
                 };
@@ -53,11 +54,11 @@ class AdvancedSearchParser {
                 if (inner_hits && Object.keys(inner_hits)) {
                     for (var prop in inner_hits) {
                         const inn_hits = inner_hits[prop].hits.hits;
-                        const xml_filename = ((_b = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.xml_search_options) === null || _b === void 0 ? void 0 : _b.field_filename) || "xml_filename";
+                        const xml_filename = ((_d = (_c = conf[searchId]) === null || _c === void 0 ? void 0 : _c.xml_search_options) === null || _d === void 0 ? void 0 : _d.field_filename) || "xml_filename";
                         const doc = xml_filename.split('.').reduce((a, b) => a[b], source);
                         if (doc) {
                             const hh = yield this.parseXmlTextHighlight(inn_hits, teiPublisherUri, doc);
-                            if (hh.length > 0 && ((_c = hh[0]) === null || _c === void 0 ? void 0 : _c.isTitle)) {
+                            if (hh.length > 0 && ((_e = hh[0]) === null || _e === void 0 ? void 0 : _e.isTitle)) {
                                 itemResult["highlightsTitle"] = hh.shift().text;
                             }
                             if (hh != null) {
@@ -133,8 +134,8 @@ class AdvancedSearchParser {
      * @param doc
      * @returns
      */
-    parseXmlTextHighlight(inn_hits, teiPublisherUri = "", doc = "") {
-        return __awaiter(this, void 0, void 0, function* () {
+    parseXmlTextHighlight(inn_hits_1) {
+        return __awaiter(this, arguments, void 0, function* (inn_hits, teiPublisherUri = "", doc = "") {
             const highlights = [];
             const highlights_obj = this.buildHighlightObj(inn_hits);
             if (highlights_obj.totCount > 0) {
@@ -261,7 +262,6 @@ class AdvancedSearchParser {
       parse ES highlight property (may be an array of strings)
     */
     parseHighlights(hit) {
-        var _a;
         const unique_hl = {
             xml_text: [],
             attr: [],
@@ -288,9 +288,17 @@ class AdvancedSearchParser {
                 //h_snippets.push(...this.parseAttributeHighlight(hit, prop));
             }
             else if (/.*\._refs\.\w*/.test(prop)) {
-                if ((_a = hit._source) === null || _a === void 0 ? void 0 : _a.xml_text) {
-                    unique_hl.refs.push(helpers_1.CommonHelper.makeXmlTextSnippet(hit._source.xml_text, 250));
-                    //h_snippets.push(CommonHelper.makeXmlTextSnippet(hit._source.xml_text))
+                const quotes = this.findXmlTextByPath(hit, prop);
+                let prefix = "";
+                if (quotes && quotes.length > 0) {
+                    quotes.forEach(quote => {
+                        if (quote._refs) {
+                            const references = this.parseReferences(quote['_refs']);
+                            prefix = "<span class='mrc__text-attr_value'>In: " + references + "</span> ";
+                        }
+                        unique_hl.refs.push(prefix + helpers_1.CommonHelper.makeXmlTextSnippet(quote['xml_text'], 250, "[...]"));
+                    });
+                    //h_snippets.push(CommonHelper.makeXmlTextSnippet(hit._source.xml_text))*/
                 }
             }
         }
@@ -304,15 +312,20 @@ class AdvancedSearchParser {
             return unique_hl.xml_text;
         }
         if (unique_hl.refs.length > 0) {
-            return [unique_hl.refs[0]];
+            return unique_hl.refs;
         }
     }
     parseReferences(refs) {
         let references = "";
         refs.forEach(element => {
             let r = "";
-            for (const prop in element) {
-                r = r == "" ? element[prop] : r + ", " + element[prop];
+            if (element['label']) {
+                r = element['label'];
+            }
+            else {
+                for (const prop in element) {
+                    r = r == "" ? element[prop] : r + ", " + element[prop];
+                }
             }
             references = references == "" ? r : references + "; " + r;
         });
@@ -377,6 +390,47 @@ class AdvancedSearchParser {
             });
         }
         return uniqueSnippets;
+    }
+    findXmlTextByPath(data, prop) {
+        const keys = prop.substring("xml_transcription_texts_json.".length).split(".");
+        //tolgo il primo elemento perché corrisponde alla root
+        keys.shift();
+        const targetValue = data['highlight'][prop][0].toString();
+        let elem = data["_source"];
+        function recursiveSearch(currentData, remainingKeys) {
+            let results = [];
+            if (remainingKeys.length === 0) {
+                return null;
+            }
+            // Se currentData è un array, itero su ciascun elemento dell'array
+            if (Array.isArray(currentData)) {
+                for (const item of currentData) {
+                    results = results.concat(recursiveSearch(item, remainingKeys));
+                }
+                return results;
+            }
+            if (!remainingKeys.length) {
+                return results;
+            }
+            const key = remainingKeys[0];
+            // Se siamo al livello in cui si trova _refs, cerco il targetValue
+            if (key === "_refs" && Array.isArray(currentData[key])) {
+                for (const item of currentData[key]) {
+                    if (item.label === targetValue) {
+                        // Se corrisponde, aggiungiamo il valore di xml_text
+                        if (currentData.xml_text) {
+                            results.push(currentData);
+                        }
+                    }
+                }
+            }
+            // Continua a cercare ricorsivamente se non siamo ancora all'ultima chiave
+            if (remainingKeys.length > 1 && currentData[key]) {
+                results = results.concat(recursiveSearch(currentData[key], remainingKeys.slice(1)));
+            }
+            return results;
+        }
+        return recursiveSearch(elem, keys);
     }
 }
 exports.AdvancedSearchParser = AdvancedSearchParser;

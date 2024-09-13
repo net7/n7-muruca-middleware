@@ -52,11 +52,15 @@ export const CommonHelper = {
         return text_hl ;
     },
     
-    makeXmlTextSnippet(xml, size = 100) {
+    makeXmlTextSnippet(xml, size = 100, ellipsis = "") {
       let text = this.stripTags(xml);
       const regex_str = '^(.{' + size + '}[^\\s]*).*';
-      const regex = new RegExp(regex_str, 'g');            
-      return text.replace(regex, "$1");     
+      const regex = new RegExp(regex_str, 'g');   
+      let snippet = text.replace(regex, "$1");  
+      if(ellipsis !== "" && snippet.length < text.length ){
+        snippet += " " + ellipsis;
+      }     
+      return snippet
     },
     
     sanitizeHtml(input: string): string {

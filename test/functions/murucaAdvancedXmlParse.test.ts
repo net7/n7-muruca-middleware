@@ -6,6 +6,7 @@ const nock = require('nock');
 import { AdvancedSearchParser } from '../../src/parsers';
 import inner_hits from "../responses/inner_hits";
 import quote_in_quote from "../responses/quote_in_quote";
+import quote_in_quote_double from "../responses/quote_in_quote_double_ref";
 //const serverless = require("@n7-frontend/n7-muruca-middleware");
 import config from '../config';
 
@@ -112,7 +113,17 @@ describe('XML search parse results', function murucaHomeCtrlTest() {
       const prop = "xml_transcription_texts_json.quote.quote._refs.label.keyword";
       const ref = parser.findXmlTextByPath(hit, prop);       
       let snippet = "triginta argenteis";
-      expect(ref).eq(snippet);
+      expect(ref).with.lengthOf(1);
+      expect(ref[0]["xml_text"]).eq(snippet);
+    })
+    
+    it('should return correct reference 2', async function () {    
+      const hit = quote_in_quote_double;
+      const prop = "xml_transcription_texts_json.quote.quote._refs.label.keyword";
+      const ref = parser.findXmlTextByPath(hit, prop);       
+      let snippet = "quorum pars exigua patri suffecerat";
+      expect(ref).with.lengthOf(2);
+      expect(ref[1]["xml_text"]).eq(snippet);
     })
   
   })
