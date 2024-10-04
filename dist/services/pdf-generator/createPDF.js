@@ -17,8 +17,8 @@ const common_1 = require("./common");
  * Add the content to the pdfContent object. This content will the be transformed into a pdf
  */
 function addContent(resource, configurations, type, labels) {
-    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b, _c, _d;
         const config = configurations.configurations.resources[type];
         let pdfContent = (_a = config.configurations) === null || _a === void 0 ? void 0 : _a.getPDF;
         if (!pdfContent) {
@@ -41,7 +41,7 @@ function addContent(resource, configurations, type, labels) {
                     },
                 },
                 defaultStyle: {
-                    font: "Helvetica",
+                    font: "OpenSans",
                     lineHeight: 1.5,
                 },
             };
@@ -139,8 +139,8 @@ function addIIIF(iiif, pdfContent) {
     });
 }
 function addMetadata(metadata, pdfContent, labels) {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
         for (let i = 0, n = metadata === null || metadata === void 0 ? void 0 : metadata.length; i < n; i++) {
             if (Array.isArray(metadata[i].value)) {
                 let jStart = 0;
@@ -161,7 +161,7 @@ function addMetadata(metadata, pdfContent, labels) {
                             alignment: "right",
                             margin: [0, 0, -40, 0],
                             opacity: 0.4,
-                            width: 595
+                            width: 583
                         });
                     }
                 }
@@ -186,7 +186,7 @@ function addMetadata(metadata, pdfContent, labels) {
                             alignment: "right",
                             margin: [0, 0, -40, 0],
                             opacity: 0.4,
-                            width: 595
+                            width: 583
                         });
                     }
                 }
@@ -230,8 +230,8 @@ function addCollection(collection, pdfContent) {
     });
 }
 function createPDF(req, res, config, labels) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         try {
             module.exports = createPDF;
             const locale = ((_a = req.query) === null || _a === void 0 ? void 0 : _a.locale) || '';

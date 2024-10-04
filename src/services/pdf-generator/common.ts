@@ -1,9 +1,18 @@
+import { pdfMakeVfs } from './fonts/fonts-vfs';
 let pdfprinter = require("pdfmake");
 const jsdom = require("jsdom");
 const { document } = new jsdom.JSDOM().window;
 
+pdfprinter.vfs = pdfMakeVfs;
+
 // default font, should be included in any system
 let fonts = {
+  OpenSans: {
+    normal: Buffer.from(pdfprinter.vfs["OpenSans-Regular.ttf"], "base64"),
+    bold: Buffer.from(pdfprinter.vfs["OpenSans-Bold.ttf"], "base64"),
+    italics: Buffer.from(pdfprinter.vfs["OpenSans-Italic.ttf"], "base64"),
+    bolditalics: Buffer.from(pdfprinter.vfs["OpenSans-BoldItalic.ttf"], "base64"),
+  },
   Helvetica: {
     normal: "Helvetica",
     bold: "Helvetica-Bold",
@@ -162,7 +171,7 @@ export async function columnsAdd(
   pdfContent.content.push({
     columns: [
       {
-        width: 130,
+        width: 140,
         text: label,
         bold: true,
       },
@@ -172,7 +181,7 @@ export async function columnsAdd(
         text: ""
       },
       {
-        width: 365,
+        width: 355,
         text: await getTextObject(text, pdfContent, isLink),
       },
     ],
