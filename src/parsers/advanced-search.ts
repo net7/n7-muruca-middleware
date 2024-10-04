@@ -294,7 +294,7 @@ export class AdvancedSearchParser implements Parser {
         
         if(quotes && quotes.length > 0){
           quotes.forEach(  quote => {
-            if (quote._refs) {
+            if (quote['_refs']) {
               const references = this.parseReferences(quote['_refs']);
               prefix = "<span class='mrc__text-attr_value'>In: " + references + "</span> ";
             }
