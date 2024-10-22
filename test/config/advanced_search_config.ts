@@ -166,7 +166,7 @@ const advancedConfig: ConfigAdvancedSearch = {
                   "field": '*.xml_text'
                 },
                 {
-                  "field": '*._refs.*',
+                  "field": '*._refs.label.*',
                   "options": {
                     "pre_tags": [""],
                     "post_tags": [""]

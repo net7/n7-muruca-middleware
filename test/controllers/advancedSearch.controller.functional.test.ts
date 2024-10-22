@@ -269,6 +269,54 @@ describe('advancedSearchController - Functional Tests', () => {
     expect(firstResult.slug).to.equal(testSearchBodies.quoteInSource.expectedResponse.results[0].slug);
     expect(firstResult.id).to.equal(testSearchBodies.quoteInSource.expectedResponse.results[0].id);
   });
+  
+  it('Search result: quotes in source', async () => {
+    const testConfig = {
+      searchIndex: testIndex,
+      elasticUri: 'http://localhost:9200',
+      teiPublisherUri: 'http://localhost:8080',
+      configurations: config, // Aggiungi le configurazioni necessarie
+      defaultLang: 'en'
+    };
+
+   
+    const result = await controller.search(testSearchBodies.quotesInSource.body, testConfig);
+
+    expect(result).to.be.an('object');
+    if ('error' in result) {
+      throw new Error(`Unexpected error: ${result.error}`);
+    }
+    expect(result.limit).to.equal(12);
+    expect(result.offset).to.equal(0);
+    expect(result.sort).to.equal("sort_ASC");
+    expect(result.total_count).to.equal(1);
+    expect(result.results).to.be.an('array');
+    expect(result.results.length).to.equal(1);
+    
+    const firstResult = result.results[0];
+    expect(firstResult.highlights).to.be.an('array');
+    expect(firstResult.highlights.length).to.equal(1);
+    
+    const highlight = firstResult.highlights[0];
+    expect(highlight).to.have.property('link');
+    expect(highlight.link).to.be.an('object');
+    expect(highlight.link.query_string).to.be.false;
+
+    expect(highlight).to.have.property('xpath');
+    expect(highlight.xpath).to.equal(testSearchBodies.quotesInSource.expectedResponse.results[0].highlights[0].xpath);
+
+    expect(highlight).to.have.property('text');
+    const expectedText = normalizeString(testSearchBodies.quotesInSource.expectedResponse.results[0].highlights[0].text || ""); // Ensure it's a string
+    const actualText = normalizeString(highlight.text || ""); // Ensure it's a string
+    expect(actualText).to.equal(expectedText);
+
+    expect(firstResult.highlightsTitle).to.equal(testSearchBodies.quotesInSource.expectedResponse.results[0].highlightsTitle);
+    expect(firstResult.tei_doc).to.equal(testSearchBodies.quoteInSource.expectedResponse.results[0].tei_doc);
+    expect(firstResult.title).to.equal(testSearchBodies.quotesInSource.expectedResponse.results[0].title);  
+    expect(firstResult.routeId).to.equal(testSearchBodies.quotesInSource.expectedResponse.results[0].routeId);
+    expect(firstResult.slug).to.equal(testSearchBodies.quotesInSource.expectedResponse.results[0].slug);
+    expect(firstResult.id).to.equal(testSearchBodies.quotesInSource.expectedResponse.results[0].id);
+  });
 
 /*
   it('should return error for invalid search', async () => {
@@ -320,3 +368,12 @@ async function setupTestIndex(client: Client, index: string) {
     console.error('Error setting up test index:', error);
   }
 }
+
+function normalizeString(str: string): string {
+    return str
+        .replace(/\n/g, ' ') // Sostituisce i ritorni a capo con uno spazio
+        .replace(/\t/g, ' ') // Sostituisce i tab con uno spazio
+        .replace(/ +/g, ' ') // Riduce gli spazi multipli a uno solo
+        .trim(); // Rimuove gli spazi all'inizio e alla fine
+}
+

@@ -257,34 +257,85 @@ export const testSearchBodies = {
       "results": [
         {
           "highlights": [
-              {
-                  "link": {
-                      "absolute": "/testo/140/test-quote-in-quote?",
-                      "query_string": false
-                  },
-                  "xpath": "tei:text/tei:body[1]/tei:div[1]",
-                  "text": "<span class='mrc__text-breadcrumbs'>libro I</span> <span class='mrc__text-attr_value'>Bibbia, Gen.; Flavio Giuseppe, Ant. iud.</span> <em class='mrc__text-emph'>Venditur</em> <em class='mrc__text-emph'>ergo</em>  hismaelitis mercatoribus petentibus, \n           <quote source=\"#origene-in.exod 1, 4, 14 | #ambrogio-ioseph 3, 14\">triginta\n            argenteis</quote>"
-              }
+            {
+              "link": {
+                "absolute": "/testo/140/test-quote-in-quote?",
+                "query_string": false
+              },
+              "xpath": "tei:text/tei:body[1]/tei:div[1]",
+              "text": "<span class='mrc__text-breadcrumbs'>libro I</span> <span class='mrc__text-attr_value'>Bibbia, Gen.; Flavio Giuseppe, Ant. iud.</span> <em class='mrc__text-emph'>Venditur</em> <em class='mrc__text-emph'>ergo</em>  hismaelitis mercatoribus petentibus, \n           <quote source=\"#origene-in.exod 1, 4, 14 | #ambrogio-ioseph 3, 14\">triginta\n            argenteis</quote>"
+            }
           ],
           "highlightsTitle": "Occorrenze: 1",
           "tei_doc": "playground/test_index_quote_in_quote_1729612003.xml",
           "title": "test quote in quote",
           "risorsa": "work",
           "metadata": [
-              {
-                  "items": [
-                      {
-                          "label": "sezione",
-                          "value": "work"
-                      }
-                  ]
-              }
+            {
+              "items": [
+                {
+                  "label": "sezione",
+                  "value": "work"
+                }
+              ]
+            }
           ],
           "type": "work",
           "routeId": "work",
           "slug": "test-quote-in-quote",
           "id": 140
-      }
+        }
+      ]
+    }
+  },
+  quotesInSource: {
+    body: {
+      "mrc_post_type": "work",
+      "mrc_work_mrc_tei_bibliography": "Bibbia, Gen.",
+      "query-text-authority": "1",
+      "results": {
+        "limit": 12,
+        "offset": 0,
+        "sort": "sort_ASC"
+      },
+      "searchId": "advanced_search"
+    },
+    expectedResponse: {
+      "limit": 12,
+      "offset": 0,
+      "sort": "sort_ASC",
+      "total_count": 1,
+      "results": [
+        {
+          "highlights": [
+            {
+              "link": {
+                "absolute": "/testo/140/test-quote-in-quote?",
+                "query_string": false
+              },
+              "xpath": "tei:text/tei:body[1]/tei:div[1]",
+              "text": "<span class='mrc__text-breadcrumbs'>libro I</span> <span class='mrc__text-attr_value'>Bibbia, Gen.; Flavio Giuseppe, Ant. iud.</span> Venditur ergo  hismaelitis mercatoribus petentibus, \n           triginta\n            argenteis<span class=\"mrc__text-divider\"></span><span class='mrc__text-attr_value'>Bibbia, Gen.</span> Delatus in Egiptum venalisque iterum, emptus est ab eunucho regio, qui dux exercitus et\n            militie magister erat. Sed nec ipse sui immemor nec divine opis expers sua servitus\n            fuit: in oculis domini sui incredibilem invenit gratiam, ita ut illum domui sue totique\n            familie preficeret<span class=\"mrc__text-divider\"></span><span class='mrc__text-attr_value'>Bibbia, Gen.; Flavio Giuseppe, Ant. iud.</span> uxor forme dulcedine capitur; erat\n            enim minime servili habitu, sed vultu insignis et etate florens et ingenuo suavis\n            aspectu. 14 Itaque cecis flammis inardescens mulier, quas etas,\n            otium, delitie et servi sui species et spadonis mariti satietas excitarent, non diu lesi\n            animi vulnus occuluit; quin amorem fassa integerrimi adolescentis amplexus petit. 15 Negat ille et, castitatis et fidei non oblitus, utriusque\n            clarissimum fit exemplum. 16 Illa cum sepe retentatis precibus\n            nil ageret, nequid intentatum linqueret, ad extremum vi manuque consensum extorquere\n            meditata est. 17 Igitur solum nacta secreta domus in parte,\n            improvisum arripit immiscetque vim precibus. Ille perhorrescens facinus animumque et\n            corpus intactum auferens, relicto pallio cuius oram impudica manus apprehenderat, abiit.\n              18 Mulier prefervida, se delusam cernens et contemptam rata,\n            muliebri desiderio vindicte mestitiaque repulse et pudore ac furiis animum\n            exagitantibus, amorem subito in odium vertit: questa familie, questa viro quod servus\n            hebreus genialem thalamum introgressus pudicitiam sibi paulominus extorsisset. Aderat et\n            ficto crimini astipulabatur pallium, quod clamore eius exterritum reliquisse illum\n            affirmabat"
+            }
+          ],
+          "highlightsTitle": "Occorrenze: 3",
+          "tei_doc": "playground/test_index_quote_in_quote_1729612003.xml",
+          "title": "test quote in quote",
+          "risorsa": "work",
+          "metadata": [
+            {
+              "items": [
+                {
+                  "label": "sezione",
+                  "value": "work"
+                }
+              ]
+            }
+          ],
+          "type": "work",
+          "routeId": "work",
+          "slug": "test-quote-in-quote",
+          "id": 140
+        }
       ]
     }
   },
