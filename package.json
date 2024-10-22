@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "NODE_ENV=test PORT=9100 ./node_modules/.bin/nyc ./node_modules/.bin/mocha --config=test/.mocharc.json",
-    "build": "cp ./serverless.yml ./dist/serverless.yml && tsc"
+    "build": "cp ./serverless.yml ./dist/serverless.yml && tsc",
+    "test:advanced-search": "npm test -- test/controllers/advancedSearch.controller.functional.test.ts"
   },
   "author": "",
   "license": "ISC",

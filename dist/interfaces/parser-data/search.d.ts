@@ -17,6 +17,24 @@ export interface SearchResultsItemData {
     image?: string;
     id: number;
     link: string;
+    highlightsTitle?: string;
+    highlights: Array<{
+        link: {
+            absolute?: string;
+            query_string?: boolean;
+        };
+        xpath?: string;
+        text?: string;
+    }>;
+    tei_doc?: string;
+    routeId?: string;
+    slug?: string;
+    metadata?: Array<{
+        items: Array<{
+            label: string;
+            value: string;
+        }>;
+    }>;
 }
 /**
  * Interface for the Search Facets component

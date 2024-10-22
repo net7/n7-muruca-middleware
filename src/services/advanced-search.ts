@@ -310,7 +310,7 @@ export class AdvancedSearchService {
         
         const q  = this.parseQueryGroups(advanced_conf.search_groups,data, inner_hits);
         xml_query_should.push(...q); 
-        if (xml_query_should.length > 0 ){
+        if (xml_query_should.length > 0 ){          
             const xml_query_nested = ASHelper.nestedQuery(advanced_conf.options.path, ASHelper.queryBool([], xml_query_should).query, inner_hits);
             return xml_query_nested;            
         } else return null;
@@ -329,7 +329,7 @@ export class AdvancedSearchService {
               }               
             } else if( query_conf.search_groups ) {
               const inner_array = [];              
-              const q = this.parseQueryGroups(query_conf.search_groups, data, inner_hits);
+              const q = this.parseQueryGroups(query_conf.search_groups, data, nested_innerhits);
               if(q.length > 0){
                 inner_array.push(...q);  
                 const query_bool = ASHelper.queryBool(inner_array).query;                   

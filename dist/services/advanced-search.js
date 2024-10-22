@@ -263,7 +263,7 @@ class AdvancedSearchService {
             }
             else if (query_conf.search_groups) {
                 const inner_array = [];
-                const q = this.parseQueryGroups(query_conf.search_groups, data, inner_hits);
+                const q = this.parseQueryGroups(query_conf.search_groups, data, nested_innerhits);
                 if (q.length > 0) {
                     inner_array.push(...q);
                     const query_bool = ASHelper.queryBool(inner_array).query;

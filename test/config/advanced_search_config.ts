@@ -9,38 +9,29 @@ const advancedConfig: ConfigAdvancedSearch = {
         "field": "language"
       }
     },
-    "sort": [
-      "slug.keyword",
-      "record-type-label.keyword"
-    ],
+    "sort": {
+      "section": ["record-type-label.keyword", "title.sort"],
+      "slug": ["slug.keyword"]    
+    },
     noHighlightLabels: ["description"],
     "options": {
       "include": ["title", "description", "contenuti.*", "storia", "scrittura", "origine", "editor", "xml_filename", "id", "slug", "record-type", "record-type-label"]
     },
     "base_query": {
       "field": "record-type",
-      "value": ["work", "book", "witness", "view_time_event", "biography", "itinerary", "iconography", "bibliography_wit"]
+      "value": ["work", "book", "witness", "view_time_event", "biography", "itinerary", "iconography", "bibliography_wit", "tools"]
     },
     "search_groups": {
-      /*"query": {
-        "type": "fulltext",
-        "field": [
-          "title",
-          "description"
-        ],
-        "addStar": true
-      },*/
-      /*"proximity": {
-        "type": "proximity",
-        "field": "title",
-        "query_params": {
-          "value": "query-distance-text",
-          "slop": "query-distance-value"
-        },
-      },*/
       "resource-type": {
         "type": "term_value",
-        "field": "record-type-label",
+        "field": "record-type-label.keyword",
+        "operator": "OR",
+        "noHighlight": true,
+        separator: ","
+      },
+      "mrc_post_type": {
+        "type": "term_value",
+        "field": "record-type",
         "operator": "OR",
         "noHighlight": true,
         separator: ","
@@ -54,9 +45,13 @@ const advancedConfig: ConfigAdvancedSearch = {
       },
       "query-fulltext": {
         "type": "fulltext",
-        "field": ["title", "description", "contenuti.*", "storia", "scrittura", "origine", "editor"],
+        "field": ["title", "description", "contenuti.*", "storia", "scrittura", "origine", "editor", "author.name", "curator.name"],
         "noHighlightFields": ["title"],
-        "addStar": false
+        "addStar": false,
+        stripDoubleQuotes: false,
+        highlightOptions: {
+          "number_of_fragments": 40
+        }
       },
       "query-title": {
         "type": "fulltext",
@@ -79,11 +74,11 @@ const advancedConfig: ConfigAdvancedSearch = {
         "addStar": false
       }
     },
-    "search_full_text": {
+   "search_full_text": {
       "inner_hits": {
         "sort": ["_doc"],
         "source": ["*.node", "*._path", '*.xml_text', '*._refs'],
-        "size": 35
+        "size": 45
       },
       "options": {
         "path": 'xml_transcription_texts_json'
@@ -95,13 +90,36 @@ const advancedConfig: ConfigAdvancedSearch = {
           "highlight": [
             { "field": 'xml_transcription_texts_json.xml_text', }
           ],
+          options: {
+            "proximity_search_param": {
+              field: "query-distance-value"
+            }
+          }
         },
         "mrc_work_mrc_tei_name": {
           "type": "fulltext",
-          "fields": ['*._attr.key'],
+          "fields": ['*._attr.key.keyword'],
+          options: {
+            exact_match: true
+          },
           "highlight": [
             {
-              "field": '*._attr.key',
+              "field": '*._attr.key.keyword',
+              "options": {
+                "pre_tags": [""],
+                "post_tags": [""]
+              }
+            }]
+        },
+        "mrc_work_mrc_tei_place": {
+          "type": "fulltext",
+          "fields": ['*._attr.key.keyword'],
+          options: {
+            exact_match: true
+          },
+          "highlight": [
+            {
+              "field": '*._attr.key.keyword',
               "options": {
                 "pre_tags": [""],
                 "post_tags": [""]
@@ -119,54 +137,48 @@ const advancedConfig: ConfigAdvancedSearch = {
                 "pre_tags": [""],
                 "post_tags": [""]
               }
-            }]
+            }
+          ]
         },
-        "query-bibl": {
-          "type": "fulltext",
+        "query-sources": {
+          "search_groups": {
+            "query-bibl": {
+              "type": "fulltext",
+              "fields": ['*.quote.xml_text'],
+              "highlight": [
+                {
+                  "field": '*.xml_text',
+                  "options": {
+                    "pre_tags": ["<em class='mrc__text-emph'>"],
+                    "post_tags": ["</em>"]
+                  }
+                }
+              ]
+            },
+            "mrc_work_mrc_tei_bibliography": {
+              "type": "fulltext",
+              "fields": ['*.quote._refs.*.keyword'],
+              /*  "options": {
+                            "nested": "xml_transcription_texts_json.quote"
+                          },*/
+              "highlight": [
+                {
+                  "field": '*.xml_text'
+                },
+                {
+                  "field": '*._refs.*',
+                  "options": {
+                    "pre_tags": [""],
+                    "post_tags": [""]
+                  }
+                }
+              ]
+            }
+          },
           "options": {
             "nested": "xml_transcription_texts_json.quote"
-          },
-          "fields": ['*.quote.xml_text'],
-          "highlight": [
-            {
-              "field": '*.quote.xml_text'
-            }]
-        },
-        "mrc_work_mrc_tei_bibliography": {
-          "type": "fulltext",
-          "fields": ['*._refs.*'],
-          "highlight": [
-            {
-              "field": '*._refs.*',
-              "options": {
-                "pre_tags": [""],
-                "post_tags": [""]
-              }
-            }]
-        },
-        /*"query_name_key": {
-            "type": "xml_attribute",
-            "fields": ['*.name._attr.key'],
-            "highlight": ['*.name._attr.key']
-            
-        },
-        "query-bibl": {
-            "type": "header-meta",
-            "collection": "petrarca",
-            "field": "bibl",
-            "perPage": 50
-        },
-        "query-distance-value": {
-            "type": "proximity",
-            "collection": "petrarca",
-            "perPage": 50,
-            "field": "title",
-            "query_params": {
-                "value": "query-distance-text",
-                "slop": "query-distance-value"		
-            }		
-        }*/
-
+          }
+        }
       }
     },
     "show_highlights": true,
@@ -193,14 +205,22 @@ const advancedConfig: ConfigAdvancedSearch = {
         "field": "record-type"
       },
       {
+        "label": "routeId",
+        "field": "record-type"
+      },
+      {
+        "label": "slug",
+        "field": "slug"
+      },
+      {
         "label": "id",
         "field": "id"
       },
-      {
+    /*  {
         "label": "link",
         "isLink": true,
         "field": "/{record-type}/{id}/{slug}"
-      }
+      }*/
     ],
     dynamic_options: {
       fields: [
@@ -218,7 +238,14 @@ const advancedConfig: ConfigAdvancedSearch = {
         {
           "key": "mrc_tei_name",
           "content_type": "mrc_work",
-          "type": "taxonomy"
+          "type": "taxonomy",
+          "value": "name"
+        },
+        {
+          "key": "mrc_tei_place",
+          "content_type": "mrc_work",
+          "type": "taxonomy",
+          "value": "name"
         }
       ]
     }

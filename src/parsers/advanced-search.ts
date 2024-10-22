@@ -275,13 +275,14 @@ export class AdvancedSearchParser implements Parser {
       
       if (/xml_text$/.test(prop)) {
         hit.highlight[prop].forEach(snippet => {
-          let prefix = "";
-          if (hit._source?._refs) {
-            const references = this.parseReferences(hit._source._refs);
-            prefix = "<span class='mrc__text-attr_value'>In: " + references + "</span> ";
+          if( !prop.includes("quote.quote")){
+            let prefix = "";
+            if (hit._source?._refs) {
+              const references = this.parseReferences(hit._source._refs);
+              prefix = "<span class='mrc__text-attr_value'>" + references + "</span> ";
+            }
+            unique_hl.xml_text.push(prefix + snippet);
           }
-          unique_hl.xml_text.push(prefix + snippet);
-          //h_snippets.push(prefix + snippet);
         });
       }
       else if (/.*\._attr\.\w*/.test(prop)) {
@@ -296,7 +297,7 @@ export class AdvancedSearchParser implements Parser {
           quotes.forEach(  quote => {
             if (quote['_refs']) {
               const references = this.parseReferences(quote['_refs']);
-              prefix = "<span class='mrc__text-attr_value'>In: " + references + "</span> ";
+              prefix = "<span class='mrc__text-attr_value'>" + references + "</span> ";
             }
             unique_hl.refs.push(prefix + CommonHelper.makeXmlTextSnippet(quote['xml_text'], 250, "[...]"));             
           })
@@ -450,8 +451,8 @@ export class AdvancedSearchParser implements Parser {
       return results;
     }
   
-    return recursiveSearch(elem, keys);  
-    
+    const a = recursiveSearch(elem, keys);  
+    return a;
   
   }
   
