@@ -33,7 +33,7 @@ async function addContent(resource, configurations, type, labels) {
         },
       },
       defaultStyle: {
-        font: "Helvetica",
+        font: "OpenSans",
         lineHeight: 1.5,
       },
     };
@@ -189,7 +189,7 @@ async function addMetadata(metadata, pdfContent, labels) {
             alignment: "right",
             margin: [0, 0, -40, 0],
             opacity: 0.4,
-            width: 595
+            width: 583
           });
         }  
       } else {
@@ -219,7 +219,7 @@ async function addMetadata(metadata, pdfContent, labels) {
             alignment: "right",
             margin: [0, 0, -40, 0],
             opacity: 0.4,
-            width: 595
+            width: 583
           });
         }
       }

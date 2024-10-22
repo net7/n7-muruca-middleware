@@ -9,12 +9,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createPdfBinary = exports.listAdd = exports.columnsAdd = exports.simpleAdd = exports.getTextObject = exports.cleanText = exports.convertImageToBase64 = void 0;
+exports.convertImageToBase64 = convertImageToBase64;
+exports.cleanText = cleanText;
+exports.getTextObject = getTextObject;
+exports.simpleAdd = simpleAdd;
+exports.columnsAdd = columnsAdd;
+exports.listAdd = listAdd;
+exports.createPdfBinary = createPdfBinary;
+const fonts_vfs_1 = require("./fonts/fonts-vfs");
 let pdfprinter = require("pdfmake");
 const jsdom = require("jsdom");
 const { document } = new jsdom.JSDOM().window;
+pdfprinter.vfs = fonts_vfs_1.pdfMakeVfs;
 // default font, should be included in any system
 let fonts = {
+    OpenSans: {
+        normal: Buffer.from(pdfprinter.vfs["OpenSans-Regular.ttf"], "base64"),
+        bold: Buffer.from(pdfprinter.vfs["OpenSans-Bold.ttf"], "base64"),
+        italics: Buffer.from(pdfprinter.vfs["OpenSans-Italic.ttf"], "base64"),
+        bolditalics: Buffer.from(pdfprinter.vfs["OpenSans-BoldItalic.ttf"], "base64"),
+    },
     Helvetica: {
         normal: "Helvetica",
         bold: "Helvetica-Bold",
@@ -55,7 +69,6 @@ function convertImageToBase64(url) {
         }
     });
 }
-exports.convertImageToBase64 = convertImageToBase64;
 /**
  * Get a parsed string from a text containing html tags.
  * @param {string} str
@@ -70,7 +83,6 @@ function cleanText(str, replaceSpaces = false) {
     element.innerHTML = str;
     return element.textContent || element.innerText;
 }
-exports.cleanText = cleanText;
 /**
  * Create text content in an object that can be used by pdfMake.
  * Every <i> tag and <em> tag will be transformed into an italics text.
@@ -82,8 +94,8 @@ exports.cleanText = cleanText;
  * @param {boolean} replaceSpaces - if true, multiple spaces will be replaced by a newline character
  * @returns {object} - the object with the text added
  */
-function getTextObject(text, pdfContent, isLink = false, replaceSpaces = false) {
-    return __awaiter(this, void 0, void 0, function* () {
+function getTextObject(text_1, pdfContent_1) {
+    return __awaiter(this, arguments, void 0, function* (text, pdfContent, isLink = false, replaceSpaces = false) {
         let toRtn = [];
         let splitText = text.split(/(<i>|<\/i>|<em>|<\/em>|<sup>|<\/sup>|<img.*?>|<strong>|<\/strong>)/g);
         for (let i = 0; i < splitText.length; i++) {
@@ -134,7 +146,6 @@ function getTextObject(text, pdfContent, isLink = false, replaceSpaces = false) 
         }
     });
 }
-exports.getTextObject = getTextObject;
 /**
  * Add text content in the form of a label and a text.
  * @param {object} pdfContent
@@ -143,8 +154,8 @@ exports.getTextObject = getTextObject;
  * @param {boolean} isLink
  * @returns {object} - the pdfContent object with the text added
  */
-function simpleAdd(pdfContent, label, rawText, isLink = false) {
-    return __awaiter(this, void 0, void 0, function* () {
+function simpleAdd(pdfContent_1, label_1, rawText_1) {
+    return __awaiter(this, arguments, void 0, function* (pdfContent, label, rawText, isLink = false) {
         pdfContent.content.push({
             text: label,
             bold: true,
@@ -154,7 +165,6 @@ function simpleAdd(pdfContent, label, rawText, isLink = false) {
         return pdfContent;
     });
 }
-exports.simpleAdd = simpleAdd;
 /**
  * Add text content in the form of a label and a text in two columns.
  * @param {object} pdfContent
@@ -164,12 +174,12 @@ exports.simpleAdd = simpleAdd;
  * @param {boolean} isLink
  * @returns {object} - the pdfContent object with the text added
  */
-function columnsAdd(pdfContent, label, text, margin = [0, 3], isLink = false) {
-    return __awaiter(this, void 0, void 0, function* () {
+function columnsAdd(pdfContent_1, label_1, text_1) {
+    return __awaiter(this, arguments, void 0, function* (pdfContent, label, text, margin = [0, 3], isLink = false) {
         pdfContent.content.push({
             columns: [
                 {
-                    width: 130,
+                    width: 140,
                     text: label,
                     bold: true,
                 },
@@ -179,7 +189,7 @@ function columnsAdd(pdfContent, label, text, margin = [0, 3], isLink = false) {
                     text: ""
                 },
                 {
-                    width: 365,
+                    width: 355,
                     text: yield getTextObject(text, pdfContent, isLink),
                 },
             ],
@@ -188,7 +198,6 @@ function columnsAdd(pdfContent, label, text, margin = [0, 3], isLink = false) {
         return pdfContent;
     });
 }
-exports.columnsAdd = columnsAdd;
 /**
  * Add a list to the pdfContent object. The list is an object, where the keys are the values of the list.
  * @param {object} pdfContent
@@ -219,7 +228,6 @@ function listAdd(pdfContent, label, list) {
     });
     return pdfContent;
 }
-exports.listAdd = listAdd;
 /**
  * Create the PDF file and create a binary file from it.
  * @param {object} pdfDoc
@@ -245,4 +253,3 @@ function createPdfBinary(pdfDoc) {
         }
     });
 }
-exports.createPdfBinary = createPdfBinary;
