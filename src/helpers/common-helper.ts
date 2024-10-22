@@ -64,11 +64,38 @@ export const CommonHelper = {
     },
     
     sanitizeHtml(input: string): string {
-      const parser = new DOMParser();
-      // Tenta di parsare il contenuto HTML come documento
-      const doc = parser.parseFromString(input, 'text/html');
-      
-      // Restituisce solo il contenuto "sanificato", privo di HTML non valido
-      return doc.body.innerHTML;
+        if (!input.trim()) {
+            return "<p>Contenuto vuoto.</p>";
+        }
+
+        const openTags: string[] = [];
+        
+        // Funzione per correggere i tag non chiusi
+        const fixUnclosedTags = (html: string) => {
+            return html.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/gi, (tag, tagName) => {
+                tagName = tagName.toLowerCase();
+                if (tag.charAt(1) !== '/') {  // Tag di apertura
+                    openTags.push(tagName);
+                    return tag;
+                } else {  // Tag di chiusura
+                    if (openTags.length > 0 && openTags[openTags.length - 1] === tagName) {
+                        openTags.pop();
+                        return tag;
+                    }
+                    // Se il tag di chiusura non corrisponde all'ultimo tag aperto, lo ignoriamo
+                    return '';
+                }
+            });
+        };
+
+        // Applica la correzione dei tag
+        let sanitized = fixUnclosedTags(input);
+        
+        // Chiudi eventuali tag rimasti aperti
+        while (openTags.length > 0) {
+            sanitized += `</${openTags.pop()}>`;
+        }
+
+        return sanitized || "";
     }
 }
