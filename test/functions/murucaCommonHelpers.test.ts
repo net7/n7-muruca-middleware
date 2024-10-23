@@ -52,8 +52,17 @@ describe('Common Helpers', function commonHelpersTest() {
       let hl: string[] = CommonHelper.getSnippetAroundTag(node_attr, snippet, xml_text);
       expect(hl[0].trim()).eq("Ventuno ventidue ventitré ventiquattro venticinque ventisei ventisette ventotto ventinove trenta Trentuno trentadue trentatré trentaquattro trentacinque trentasei trentasette trentotto trentanove quaranta Quarantuno quarantadue quarantatré quarantaquattro quarantacinque quarantasei quarantasette quarantotto quarantanove cinquanta <name type=''person' key='Ludwig van Kempen (Socrate)'><em class='mrc__text-emph'>Socrati</em></name> Uno due tre quattro cinque sei sette otto nove dieci Undici dodici tredici quattordici quindici sedici diciassette diciotto diciannove venti Ventuno ventidue ventitré ventiquattro venticinque ventisei ventisette ventotto ventinove trenta");
     });
+    
+    it('should return a snippet with a mutlivalue node attribute', async function () {
+      let node_name = "quote";
+      let node_attr = "key";
+      let snippet = 'Babilonia in Mesopotamia';
+      let xml_text = "Uno due tre quattro cinque sei sette otto nove dieci Undici dodici tredici quattordici quindici sedici diciassette diciotto diciannove venti Ventuno ventidue ventitré ventiquattro venticinque ventisei ventisette ventotto ventinove trenta Trentuno trentadue trentatré trentaquattro trentacinque trentasei trentasette trentotto trentanove quaranta Quarantuno quarantadue quarantatré quarantaquattro quarantacinque quarantasei quarantasette quarantotto quarantanove cinquanta <name type='place' key='Babilonia in Mesopotamia | Babilonia d\'Egitto (il Cairo)'>eois</name> Uno due tre quattro cinque sei sette otto nove dieci Undici dodici tredici quattordici quindici sedici diciassette diciotto diciannove venti Ventuno ventidue ventitré ventiquattro venticinque ventisei ventisette ventotto ventinove trenta Trentuno trentadue trentatré trentaquattro trentacinque trentasei trentasette trentotto trentanove quaranta Quarantuno quarantadue quarantatré quarantaquattro quarantacinque quarantasei quarantasette quarantotto quarantanove cinquanta";
+      let hl: string[] = CommonHelper.getSnippetAroundTag(node_attr, snippet, xml_text);
+      expect(hl[0].trim()).eq("Ventuno ventidue ventitré ventiquattro venticinque ventisei ventisette ventotto ventinove trenta Trentuno trentadue trentatré trentaquattro trentacinque trentasei trentasette trentotto trentanove quaranta Quarantuno quarantadue quarantatré quarantaquattro quarantacinque quarantasei quarantasette quarantotto quarantanove cinquanta <name type='place' key='Babilonia in Mesopotamia | Babilonia d\'Egitto (il Cairo)'><em class='mrc__text-emph'>eois</em></name> Uno due tre quattro cinque sei sette otto nove dieci Undici dodici tredici quattordici quindici sedici diciassette diciotto diciannove venti Ventuno ventidue ventitré ventiquattro venticinque ventisei ventisette ventotto ventinove trenta");
+    });
   });
-
+  
   context('Get xml tag stripped', function () {
     it('should return a text without tags', async function () {
       let node_name = "name";
