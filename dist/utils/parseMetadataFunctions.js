@@ -1,10 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseMetadataTaxonomy = exports.parseMetadataRecord = exports.parseMetadataValue = void 0;
+exports.parseMetadataObject = exports.parseMetadataTaxonomy = exports.parseMetadataRecord = exports.parseMetadataValue = void 0;
 const parseMetadataValue = (data, field) => {
     if (data[field]) {
         let value = data[field];
-        if (typeof data[field] === ('string' || 'number')) {
+        if ((typeof data[field] === 'object') && ('value' in data[field]) && ('label' in data[field])) {
+            value = (0, exports.parseMetadataObject)(data, field);
+        }
+        else if (typeof data[field] === ('string' || 'number')) {
             value = data[field];
         }
         else if (Array.isArray(data[field])) {
@@ -39,3 +42,11 @@ const parseMetadataTaxonomy = (data, field) => {
     return value;
 };
 exports.parseMetadataTaxonomy = parseMetadataTaxonomy;
+const parseMetadataObject = (data, field) => {
+    let value;
+    if (data[field]) {
+        value = data[field].label;
+    }
+    return value;
+};
+exports.parseMetadataObject = parseMetadataObject;
