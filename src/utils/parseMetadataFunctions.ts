@@ -5,7 +5,11 @@ export const parseMetadataValue = (data: any, field: string): string | OutputMet
     if(data[field]){
         let value = data[field];
 
-        if(typeof data[field] === ('string' || 'number')){
+        if ((typeof data[field] === 'object') && ('value' in data[field]) && ('label' in data[field])) {
+          value = parseMetadataObject(data, field);
+        }
+
+        else if(typeof data[field] === ('string' || 'number')){
             value = data[field];
         }
 
@@ -44,4 +48,13 @@ export const parseMetadataTaxonomy = (data: any, field: string): OutputMetadataI
          .join(", ")
     }
    return value;
+  }
+
+  export const parseMetadataObject = (data: any, field: string) => {
+    let value;
+
+    if (data[field]) {
+      value = data[field].label;
+    }
+    return value;
   }
