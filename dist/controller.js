@@ -51,13 +51,13 @@ class Controller {
          * @param res  Response
          */
         this.getHomeLayout = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _b;
+            var _a;
             const { baseUrl, parsers, configurations } = this.config;
             if (!request || !(request === null || request === void 0 ? void 0 : request.body)) {
                 return helpers_1.HttpHelper.returnErrorResponse('Empty body from request', 400);
             }
             const keyOrder = JSON.parse(request.body);
-            const locale = ((_b = request.query) === null || _b === void 0 ? void 0 : _b.locale) || '';
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const path = locale ? 'layout/home?lang=' + locale : 'layout/home';
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + path));
             const parser = new parsers.home();
@@ -76,10 +76,10 @@ class Controller {
          * @param res  Response
          */
         this.getSearchDescription = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _c;
+            var _a;
             const { baseUrl, parsers } = this.config;
             const { searchId } = request.params;
-            const locale = ((_c = request.query) === null || _c === void 0 ? void 0 : _c.locale) || '';
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const path = locale ? '?lang=' + locale : '';
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'layout/' + searchId + path));
             const parser = new parsers.searchDescription();
@@ -92,10 +92,10 @@ class Controller {
          * @param res  Response
          */
         this.getTimeline = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _d;
+            var _a;
             const { baseUrl, parsers } = this.config;
             const { id } = request.params;
-            const locale = ((_d = request.query) === null || _d === void 0 ? void 0 : _d.locale) || '';
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const path = locale ? '?lang=' + locale : '';
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/' + id + path));
             const parser = new parsers.timeline();
@@ -108,10 +108,10 @@ class Controller {
          * @param res  Response
          */
         this.getMap = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _e;
+            var _a;
             const { baseUrl, parsers } = this.config;
             const { id } = request.params;
-            const locale = ((_e = request.query) === null || _e === void 0 ? void 0 : _e.locale) || '';
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const path = locale ? '?lang=' + locale : '';
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/' + id + path));
             const parser = new parsers.map();
@@ -125,8 +125,8 @@ class Controller {
          * @param res response
          */
         this.getResource = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _f;
-            const locale = ((_f = request.query) === null || _f === void 0 ? void 0 : _f.locale) || '';
+            var _a;
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const controller = new controllers.getResourceController();
             const body = JSON.parse(request.body);
             const response = yield controller.searchResource(body, this.config, locale);
@@ -138,9 +138,9 @@ class Controller {
          * @param res  Response
          */
         this.search = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _g;
+            var _a;
             const { type } = request.params;
-            const locale = ((_g = request.query) === null || _g === void 0 ? void 0 : _g.locale) || '';
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const body = JSON.parse(request.body);
             const controller = new controllers.searchController();
             const response = yield controller.search(body, this.config, type, locale);
@@ -160,9 +160,9 @@ class Controller {
          * @param res  Response
          */
         this.advancedSearch = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _h;
+            var _a;
             const body = JSON.parse(request.body); // cf. SEARCH-RESULTS in Postman
-            const locale = ((_h = request.query) === null || _h === void 0 ? void 0 : _h.locale) || '';
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const controller = new controllers.advancedSearchController();
             const response = yield controller.search(body, this.config, locale);
             return res.send(response);
@@ -173,9 +173,9 @@ class Controller {
          * @param res  Response
          */
         this.advancedSearchTextSearch = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _j;
+            var _a;
             // const body = JSON.parse(request.body); // cf. SEARCH-RESULTS in Postman
-            const locale = ((_j = request.query) === null || _j === void 0 ? void 0 : _j.locale) || '';
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const controller = new controllers.advancedSearchController();
             return controller.advancedSearchTextSearch(request.query, this.config, locale);
         });
@@ -185,9 +185,9 @@ class Controller {
          * @param res  Response
          */
         this.teiPubGetNodePath = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _k;
+            var _a;
             const body = JSON.parse(request.body);
-            const locale = ((_k = request.query) === null || _k === void 0 ? void 0 : _k.locale) || '';
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const controller = new controllers.teiPublisherController(this.config);
             return controller.teiPubGetNodePath(body, locale);
         });
@@ -197,12 +197,12 @@ class Controller {
          * @param res  Response
          */
         this.advancedSearchOptions = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _l, _m;
+            var _a, _b;
             const { configurations, baseUrl, advancedSearchParametersPath } = this.config;
-            const advanced_search_options = (_l = configurations.advanced_search.advanced_search) === null || _l === void 0 ? void 0 : _l.dynamic_options;
+            const advanced_search_options = (_a = configurations.advanced_search.advanced_search) === null || _a === void 0 ? void 0 : _a.dynamic_options;
             if (advanced_search_options) {
                 const requestURL = baseUrl + advancedSearchParametersPath;
-                const locale = ((_m = request.query) === null || _m === void 0 ? void 0 : _m.locale) || '';
+                const locale = ((_b = request.query) === null || _b === void 0 ? void 0 : _b.locale) || '';
                 const path = locale ? '?lang=' + locale : '';
                 const data = yield helpers_1.HttpHelper.doPostRequest(requestURL + path, advanced_search_options);
                 const options = data.data;
@@ -218,9 +218,9 @@ class Controller {
          * @param res  Response
          */
         this.getFooter = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _o;
+            var _a;
             const { baseUrl, parsers, configurations } = this.config;
-            const locale = ((_o = request.query) === null || _o === void 0 ? void 0 : _o.locale) || '';
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const path = locale ? 'footer?lang=' + locale : 'footer';
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + path));
             const parser = new parsers.footer();
@@ -339,10 +339,10 @@ class Controller {
          * @param res  Response
          */
         this.getItinerary = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            var _p;
+            var _a;
             const { parsers, baseUrl, configurations } = this.config;
             const { id } = request.params;
-            const locale = ((_p = request.query) === null || _p === void 0 ? void 0 : _p.locale) || '';
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const path = locale ? '?lang=' + locale : '';
             const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'itinerary/' + id + path));
             const parser = new parsers.itinerary(configurations === null || configurations === void 0 ? void 0 : configurations.itineraries);

@@ -9,7 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setCustomHandler = exports.routeHandler = exports.initController = exports.neffRouter = void 0;
+exports.routeHandler = exports.neffRouter = void 0;
+exports.initController = initController;
+exports.setCustomHandler = setCustomHandler;
 const express_1 = require("express");
 const controller_1 = require("./controller");
 const router = (0, express_1.Router)();
@@ -19,7 +21,6 @@ function initController(options) {
     controller = new controller_1.Controller(options);
     return controller;
 }
-exports.initController = initController;
 /**
  * Override a handler for a pre-defined route.
  *
@@ -35,7 +36,6 @@ function setCustomHandler(
 route, handler) {
     defaultHandlers[route] = handler;
 }
-exports.setCustomHandler = setCustomHandler;
 /**
  * Create a route handler middleware that handles common logic for controller methods.
  * @param {Function} callback - The controller method to be executed.
