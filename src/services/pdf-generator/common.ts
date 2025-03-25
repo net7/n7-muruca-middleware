@@ -92,7 +92,7 @@ export async function getTextObject(
   );
   for (let i = 0; i < splitText.length; i++) {
     let current = splitText[i];
-    current = current.replace(/\n/g, "");
+    // current = current.replace(/\n/g, "");
 
     if (current === "<i>" || current === "<em>") {
       let italicText = splitText[++i];

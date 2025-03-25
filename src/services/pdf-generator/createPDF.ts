@@ -71,6 +71,9 @@ async function addContent(resource, configurations, type, labels) {
           pdfContent,
           labels
         );
+
+        // spacing
+        pdfContent.content.push(" ");
         break;
 
       case 'metadata':
@@ -181,7 +184,7 @@ async function addMetadata(metadata, pdfContent, labels) {
           (labels[metadata[i].label]) ? capitalize(labels[metadata[i].label]) : capitalize(metadata[i].label),
           metadata[i].value[0][0].value
         );
-        if (metadata[i].value?.length > 1) {
+        if ((metadata[i].value?.length > 1) || (metadata[i].value[0].length > 1)) {
           // divider image
           pdfContent.content.push({
             image:
@@ -209,6 +212,17 @@ async function addMetadata(metadata, pdfContent, labels) {
               (labels[metadata[i].value[j][k].label]) ? capitalize(labels[metadata[i].value[j][k].label]) : capitalize(metadata[i].value[j][k].label),
               metadata[i].value[j][k].value
             );
+            if (k < m - 1) {
+              // divider image
+              pdfContent.content.push({
+                image:
+                  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAAKCAQAAADmpvIuAAAAMElEQVR42u3BQQEAMAgEoIuy/iUWwUp28KlAAAAAAAAAYOSl1NV/AAAAAAAAAIC7GtqVk53qw1CjAAAAAElFTkSuQmCC",
+                alignment: "right",
+                margin: [0, 0, -40, 0],
+                opacity: 0.4,
+                width: 583
+              });
+            }
           }
         }
         if (j < n - 1) {
@@ -245,6 +259,16 @@ async function addCollection(collection, pdfContent) {
       capitalize(collection["header"].title),
       (items[0].text) ? items[0].text : (items[0].title) ? items[0].title : ""
     );
+    if (items.length > 1) {
+      pdfContent.content.push({
+        image:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAAKCAQAAADmpvIuAAAAMElEQVR42u3BQQEAMAgEoIuy/iUWwUp28KlAAAAAAAAAYOSl1NV/AAAAAAAAAIC7GtqVk53qw1CjAAAAAElFTkSuQmCC",
+        alignment: "right",
+        margin: [0, 0, -40, 0],
+        opacity: 0.4,
+        width: 583
+      });
+    }
 
     for (let i = 1, n = items?.length; i < n; i++) {
       pdfContent = await columnsAdd(
@@ -252,6 +276,18 @@ async function addCollection(collection, pdfContent) {
         "",
         (items[i].text) ? items[i].text : (items[i].title) ? items[i].title : ""
       );
+
+      if (i < n - 1) {
+        // divider image
+        pdfContent.content.push({
+          image:
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAAKCAQAAADmpvIuAAAAMElEQVR42u3BQQEAMAgEoIuy/iUWwUp28KlAAAAAAAAAYOSl1NV/AAAAAAAAAIC7GtqVk53qw1CjAAAAAElFTkSuQmCC",
+          alignment: "right",
+          margin: [0, 0, -40, 0],
+          opacity: 0.4,
+          width: 583
+        });
+      }
     }
   }
 
