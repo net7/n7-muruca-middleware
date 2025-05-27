@@ -153,7 +153,9 @@ router.get('/get_timeline/:id', (req, res) => defaultHandlers.getTimeline(req, r
 router.get('/get_translation/:lang', (req, res) => defaultHandlers.getTranslation(req, res));
 router.post('/search/:type', (req, res) => defaultHandlers.search(req, res));
 router.post('/advanced_search', (req, res) => defaultHandlers.advancedSearch(req, res));
-router.get('/search_text_hl', (req, res) => defaultHandlers.advancedSearchTextSearch(req, res));
+// router.get('/search_text_hl', (req, res) =>
+//   defaultHandlers.advancedSearchTextSearch(req, res),
+// );
 router.get('/advanced_search_options', (req, res) => defaultHandlers.advancedSearchOptions(req, res));
 router.post('/list/:type', (req, res) => defaultHandlers.getObjectsByType(req, res));
 // Exports
