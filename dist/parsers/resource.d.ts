@@ -1,25 +1,23 @@
-import { ConfBlock, ConfBlockTextViewer } from '../interfaces';
+import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs } from '../interfaces';
 import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputMetadata, OutputMetadataItem, OutputTextViewer } from '../interfaces/parser';
 export declare class ResourceParser implements Parser {
     parse({ data, options }: any, locale: any): any;
     localeParse(data: any): any;
-    /**
-     * Data filters
-     */
-    filter(data: any, field: string, page: any): any;
-    filterMetadata(field: string, metadataItem: OutputMetadataItem, recordType: string): OutputMetadataItem;
-    /**
-     * Parsers
-     */
     parseTitle(block: ConfBlock, data: any): string;
+    parseHeader(block: ConfBlock, data: any): OutputHeader;
+    parseBreadcrumbs(block: ConfBlock, data: any, type: string): OutputBreadcrumbs;
+    parseTabs(block: ConfBlockTabs, data: any): string[];
     parseMetadata(block: ConfBlock, data: any, type: string): OutputMetadata;
     parseMetadataSize(block: ConfBlock, data: any): OutputMetadata;
     parseMetadataDescription(block: ConfBlock, data: any): OutputMetadata;
-    parseHeader(block: ConfBlock, data: any): OutputHeader;
     parseImageViewer(block: ConfBlock, data: any): OutputImageViewer;
-    parseBreadcrumbs(block: ConfBlock, data: any, type: string): OutputBreadcrumbs;
-    parseCollection(block: ConfBlock, data: any): OutputCollection;
-    parseBibliography(block: ConfBlock, data: any): OutputBibliography;
     parseTextViewer(block: ConfBlockTextViewer, data: any): OutputTextViewer;
+    parseCollection(block: ConfBlock, data: any): OutputCollection;
     parseCollectionMaps(block: ConfBlock, data: any): OutputCollectionMap[];
+    extractQueryParams(queryParams: string): {};
+    parseBibliography(block: ConfBlock, data: any): OutputBibliography;
+    filterImageViewer(imageViewer: OutputImageViewer, block: ConfBlock, data: any): OutputImageViewer;
+    filterTextViewer(textViewer: OutputTextViewer, field: string, data: any): OutputTextViewer;
+    filterMetadataItem(field: string, metadataItem: OutputMetadataItem, recordType: string, data: any): OutputMetadataItem;
+    filterCollectionItem(collectionItem: any, item: any, field: string, data: any): any;
 }

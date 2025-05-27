@@ -9,7 +9,7 @@ export const parseMetadataValue = (data: any, field: string): string | OutputMet
           value = parseMetadataObject(data, field);
         }
 
-        else if(typeof data[field] === ('string' || 'number')){
+        else if (typeof data[field] === 'string' || typeof data[field] === 'number') {
             value = data[field];
         }
 

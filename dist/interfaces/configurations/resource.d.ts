@@ -1,5 +1,5 @@
 export interface ConfigResource {
-    [key: string]: ConfBlock | ConfBlockTextViewer;
+    [key: string]: ConfBlock | ConfBlockTextViewer | ConfBlockTabs;
 }
 export interface ConfBlock {
     title?: string;
@@ -13,8 +13,17 @@ export interface ConfBlock {
     fields: string[];
     /** @default TRUE show thumbnail in collection row. */
     hasImage?: boolean;
+    /** @default FALSE open item in a modals. */
+    openModal?: boolean;
 }
 export interface ConfBlockTextViewer {
     type: "text-viewer";
     field: string;
+}
+export interface ConfBlockTabs {
+    type: "tabs";
+    tabs: {
+        id: string;
+        fields: string[];
+    }[];
 }

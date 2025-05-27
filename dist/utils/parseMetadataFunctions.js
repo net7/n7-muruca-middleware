@@ -7,7 +7,7 @@ const parseMetadataValue = (data, field) => {
         if ((typeof data[field] === 'object') && ('value' in data[field]) && ('label' in data[field])) {
             value = (0, exports.parseMetadataObject)(data, field);
         }
-        else if (typeof data[field] === ('string' || 'number')) {
+        else if (typeof data[field] === 'string' || typeof data[field] === 'number') {
             value = data[field];
         }
         else if (Array.isArray(data[field])) {

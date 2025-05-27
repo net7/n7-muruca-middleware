@@ -123,11 +123,14 @@ export interface OutputBibliographyPayload{
   "id": string,
   "type": string,
   "action"?: string
+  "slug": string,
+  "routeId": string
 }
 
 export interface OutputTextViewer{
   "endpoint": string,
   "docs": OutputTextViewerDoc[],
+  "facsimile"?: any
 }
 
 export interface OutputTextViewerDoc{
@@ -138,6 +141,7 @@ export interface OutputTextViewerDoc{
   "translation"?: boolean,
   "xpath"?: boolean,
   "view"?: string
+  "apparatus"?: any
 }
 
 export interface OutputCollectionMap{

@@ -23,17 +23,14 @@ class ResourceParser {
                 case "header":
                     parsed.sections[block] = this.parseHeader(conf[block], data);
                     break;
-                case "image-viewer":
-                    parsed.sections[block] = this.parseImageViewer(conf[block], data);
-                    break;
                 case "breadcrumb":
                     parsed.sections[block] = this.parseBreadcrumbs(conf[block], data, type);
                     break;
+                case "tabs":
+                    parsed.sections[block] = this.parseTabs(conf[block], data);
+                    break;
                 case "metadata":
                     parsed.sections[block] = this.parseMetadata(conf[block], data, type);
-                    break;
-                case "collection":
-                    parsed.sections[block] = this.parseCollection(conf[block], data);
                     break;
                 case "metadata-size":
                     parsed.sections[block] = this.parseMetadataSize(conf[block], data);
@@ -41,14 +38,20 @@ class ResourceParser {
                 case "metadata-description":
                     parsed.sections[block] = this.parseMetadataDescription(conf[block], data);
                     break;
-                case "bibliography":
-                    parsed.sections[block] = this.parseBibliography(conf[block], data);
+                case "image-viewer":
+                    parsed.sections[block] = this.parseImageViewer(conf[block], data);
                     break;
                 case "text-viewer":
                     parsed.sections[block] = this.parseTextViewer(conf[block], data);
                     break;
+                case "collection":
+                    parsed.sections[block] = this.parseCollection(conf[block], data);
+                    break;
                 case "collection-places":
                     parsed.sections[block] = this.parseCollectionMaps(conf[block], data);
+                    break;
+                case "bibliography": // TO CHECK
+                    parsed.sections[block] = this.parseBibliography(conf[block], data);
                     break;
                 default:
                     break;
@@ -60,120 +63,8 @@ class ResourceParser {
         const locale = data;
         return locale;
     }
-    /**
-     * Data filters
-     */
-    filter(data, field, page) {
-        let filter;
-        if (/date/.test(field)) {
-            filter = { label: field, value: data[field]["range"] };
-        }
-        if (/edition/.test(field)) {
-            filter = {
-                label: field,
-                value: data[field][0]["title"] + " " + data[field][0]["description"],
-            };
-        }
-        if (/contenuti/.test(field)) {
-            filter = {
-                label: field,
-                value: [],
-            };
-            data[field]
-                ? data[field].map((c) => filter.value.push(Object.keys(c).map((f) => ({ value: c[f] }))))
-                : null;
-        }
-        if (/author|collocation|creator|subject/.test(field)) {
-            filter = {
-                label: field,
-                value: Object.keys(data[field])
-                    .map((n) => data[field][n].name)
-                    .join(", "),
-            };
-        }
-        if (/authors/.test(field)) {
-            filter = [];
-            switch (page) {
-                case "work":
-                    Object.keys(data[field]).map((auth) => {
-                        filter.push({
-                            label: "author",
-                            value: data[field][auth].name,
-                        });
-                    });
-                    break;
-                case "map":
-                    data[field].map((auth) => {
-                        filter.push({
-                            label: auth.role,
-                            value: Object.keys(auth.author)
-                                .map((a) => auth.author[a].name)
-                                .join(", "),
-                        });
-                    });
-                    break;
-            }
-        }
-        if (/spatialCoverage/.test(field)) {
-            filter = {
-                label: field,
-                value: Object.keys(data[field])
-                    .map((lang) => data[field][lang].title)
-                    .join(""),
-            };
-        }
-        if (/temporalCoverage/.test(field)) {
-            filter = {
-                label: field,
-                value: Object.keys(data[field])
-                    .map((lang) => data[field][lang])
-                    .join(""),
-            };
-        }
-        if (/linguaggio/.test(field)) {
-            filter = {
-                label: field.replace(/_/g, " "),
-                value: Object.keys(data[field])
-                    .map((lang) => data[field][lang]["name"])
-                    .join(", "),
-            };
-        }
-        if (/primary_sources|external_links/.test(field)) {
-            filter = {
-                label: field.replace(/_/g, " "),
-                value: Object.keys(data[field])
-                    .map((auth) => data[field][auth]["link"])
-                    .join(", "),
-            };
-        }
-        if (/riproduzione_link/.test(field)) {
-            filter = {
-                label: "riproduzione".replace(/_/g, " "),
-                value: `<a href="${data[field]}">${data["riproduzione"]
-                    ? data["riproduzione"].map((item) => item.title).join(", ")
-                    : null || "Vedi riproduzione"}</a>`,
-            };
-        }
-        if (/bibliografia/.test(field)) {
-            filter = [];
-            data[field].map((rif) => {
-                rif.rif_biblio.map((bibl) => {
-                    filter.push({
-                        label: bibl.title,
-                        value: `${bibl.description} ${rif.rif_biblio_position}`,
-                        link: `/${bibl.type}/${bibl.id}/#${bibl.slug}`,
-                    });
-                });
-            });
-        }
-        return filter;
-    }
-    filterMetadata(field, metadataItem, recordType) {
-        return metadataItem;
-    }
-    /**
-     * Parsers
-     */
+    // PARSERS
+    // These parsers can be overridden in the parsers section of middleware projects.
     parseTitle(block, data) {
         let title = "";
         block.fields.map((field) => {
@@ -182,6 +73,42 @@ class ResourceParser {
             }
         });
         return title;
+    }
+    parseHeader(block, data) {
+        const fields = block.fields;
+        const header = {
+            title: ''
+        };
+        if (data[fields[0]]) {
+            header.title = data[fields[0]];
+        }
+        if (data[fields[1]]) {
+            header.description = data[fields[1]];
+        }
+        return header;
+    }
+    parseBreadcrumbs(block, data, type) {
+        let breadcrumbs;
+        block.fields.forEach((field) => {
+            breadcrumbs = Array.isArray(data[field])
+                ? data[field].map(({ id, slug, title }) => ({
+                    title,
+                    link: `/${type}/${id}/${slug}`,
+                }))
+                : [];
+        });
+        return breadcrumbs;
+    }
+    parseTabs(block, data) {
+        const controller = [];
+        block.tabs.forEach((tab) => {
+            tab.fields.forEach((field) => {
+                if ((!data[field] || data[field] === "") && !controller.includes(tab.id)) {
+                    controller.push(tab.id);
+                }
+            });
+        });
+        return controller;
     }
     parseMetadata(block, data, type) {
         const m = {
@@ -194,7 +121,7 @@ class ResourceParser {
                                 label: field.replace(/_/g, " "),
                                 value: (0, parseMetadataFunctions_1.parseMetadataValue)(data, field)
                             };
-                            return this.filterMetadata(field, metadataItem, type);
+                            return this.filterMetadataItem(field, metadataItem, type, data);
                         }
                     })
                 }
@@ -234,19 +161,6 @@ class ResourceParser {
         };
         return metadataDescription;
     }
-    parseHeader(block, data) {
-        const fields = block.fields;
-        const header = {
-            title: ''
-        };
-        if (data[fields[0]]) {
-            header.title = data[fields[0]];
-        }
-        if (data[fields[1]]) {
-            header.description = data[fields[1]];
-        }
-        return header;
-    }
     parseImageViewer(block, data) {
         let imageViewer = { images: [], thumbs: [] };
         let gallery = block.fields[0]; // "gallery"
@@ -268,88 +182,17 @@ class ResourceParser {
             }));
             imageViewer.thumbs = data[gallery].map((g) => g.sizes.thumbnail);
         }
-        return imageViewer;
-    }
-    parseBreadcrumbs(block, data, type) {
-        let breadcrumbs = { link: "", title: "" };
-        block.fields.forEach((field) => {
-            breadcrumbs = Array.isArray(data[field])
-                ? data[field].map(({ id, slug, title }) => ({
-                    title,
-                    link: `/${type}/${id}/${slug}`,
-                }))
-                : [];
-        });
-        return breadcrumbs;
-    }
-    parseCollection(block, data) {
-        const collection = {
-            items: [],
-        };
-        block.fields.map((field) => {
-            var _a;
-            if (data[field]) {
-                collection.items = data[field].map((f) => ({
-                    title: f.title, //f.title.replace(/-/g, " "),
-                    slug: f.slug,
-                    id: f.id,
-                    routeId: f['record-type'],
-                }));
-                if ((_a = data[field]) === null || _a === void 0 ? void 0 : _a.image) { //TODO
-                    collection.items['image'] = data[field].image;
-                }
-            }
-        });
-        return collection;
-    }
-    parseBibliography(block, data) {
-        const c_b = {
-            items: [],
-        };
-        if (data["bibliographicCitation"] != null) {
-            block.fields.map((field) => {
-                data[field].map((rif) => {
-                    rif["rif_biblio"].map((biblio) => {
-                        const text = biblio.title != ""
-                            ? `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`
-                            : `${biblio.description}: ${rif.rif_biblio_position}`;
-                        c_b.items.push({
-                            payload: {
-                                // action: "resource-modal",
-                                id: biblio.id,
-                                type: "bibliography_wit",
-                            },
-                            text: `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`,
-                        });
-                    });
-                });
-            });
-        }
-        else if (data["timeline_bibliografia"] != null) {
-            data["timeline_bibliografia"].map((rif) => {
-                rif["mrc_timeline_bibliografia_rif_biblio"].map((biblio) => {
-                    c_b.items.push({
-                        payload: {
-                            action: "resource-modal",
-                            id: biblio.id,
-                            type: "bibliography_wit",
-                        },
-                        text: `${biblio.title}: ${biblio.description} ${rif["mrc_timeline_rif_biblio_position"]}`,
-                    });
-                });
-            });
-        }
-        return Object.assign({}, c_b);
+        return this.filterImageViewer(imageViewer, block, data);
     }
     parseTextViewer(block, data) {
         var _a, _b, _c;
-        let t_v = {
+        let textViewer = {
             "endpoint": "",
             "docs": []
         };
         if (data[block.field]) {
             if (!data[block.field]["filename"].endsWith("/")) {
-                t_v = {
+                textViewer = {
                     endpoint: data[block.field]["teipublisher"] +
                         "/exist/apps/tei-publisher",
                     docs: [
@@ -360,15 +203,56 @@ class ResourceParser {
                             channel: (_a = data[block.field]["channel"]) !== null && _a !== void 0 ? _a : false,
                             translation: (_b = data[block.field]["translation"]) !== null && _b !== void 0 ? _b : false,
                             xpath: (_c = data[block.field]["xpath"]) !== null && _c !== void 0 ? _c : false,
-                            view: data[block.field]["view"]
+                            view: data[block.field]["view"],
                         },
                     ],
                 };
+                // Check apparatus
+                if (data[block.field]['apparatus']) {
+                    textViewer.docs[0].apparatus = {
+                        odd: data[block.field]['apparatus']['odd'],
+                        channel: data[block.field]['apparatus']['channel'],
+                        view: data[block.field]['apparatus']["view"]
+                    };
+                }
+                // Check facsimile
+                if (data[block.field]['facsimile']) {
+                    textViewer['facsimile'] = {
+                        baseurl: data[block.field]['facsimile']['baseurl'],
+                        scans: []
+                    };
+                }
             }
         }
-        else
+        else {
             return;
-        return t_v;
+        }
+        return this.filterTextViewer(textViewer, block.field, data);
+    }
+    parseCollection(block, data) {
+        const collection = {
+            items: [],
+        };
+        block.fields.map((field) => {
+            if (data[field]) {
+                collection.items = data[field].map((f) => {
+                    const collectionItem = {
+                        title: f.title, //f.title.replace(/-/g, " "),
+                        slug: f.slug,
+                        id: f.id,
+                        routeId: f['record-type'],
+                    };
+                    if (f.thumbnail) {
+                        collectionItem['image'] = f.thumbnail;
+                    }
+                    if (f.params) {
+                        collectionItem['params'] = this.extractQueryParams(f.params);
+                    }
+                    return this.filterCollectionItem(collectionItem, f, field, data);
+                });
+            }
+        });
+        return collection;
     }
     parseCollectionMaps(block, data) {
         var _a;
@@ -392,6 +276,72 @@ class ResourceParser {
             }
         });
         return collectionMaps;
+    }
+    extractQueryParams(queryParams) {
+        const params = {};
+        queryParams.split('&').forEach((param) => {
+            const [key, value] = param.split('=');
+            params[key] = value;
+        });
+        return params;
+    }
+    ;
+    parseBibliography(block, data) {
+        const c_b = {
+            items: [],
+        };
+        if (data["bibliographicCitation"] != null) {
+            block.fields.map((field) => {
+                data[field].map((rif) => {
+                    rif["rif_biblio"].map((biblio) => {
+                        const text = biblio.title != ""
+                            ? `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`
+                            : `${biblio.description}: ${rif.rif_biblio_position}`;
+                        c_b.items.push({
+                            payload: {
+                                // action: "resource-modal",
+                                id: biblio.id,
+                                slug: biblio.slug,
+                                routeId: biblio['record-type'],
+                                type: "bibliography_wit",
+                            },
+                            text: `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`,
+                        });
+                    });
+                });
+            });
+        }
+        else if (data["timeline_bibliografia"] != null) {
+            data["timeline_bibliografia"].map((rif) => {
+                rif["mrc_timeline_bibliografia_rif_biblio"].map((biblio) => {
+                    c_b.items.push({
+                        payload: {
+                            action: "resource-modal",
+                            id: biblio.id,
+                            type: "bibliography_wit",
+                            slug: biblio.slug,
+                            routeId: biblio['record-type'],
+                        },
+                        text: `${biblio.title}: ${biblio.description} ${rif["mrc_timeline_rif_biblio_position"]}`,
+                    });
+                });
+            });
+        }
+        return Object.assign({}, c_b);
+    }
+    // OVERWRITEABLE FUNCTIONS
+    // These filters can be overridden in the parsers section of middleware projects, they allows to modify a specific part of the result of a parser.
+    filterImageViewer(imageViewer, block, data) {
+        return imageViewer;
+    }
+    filterTextViewer(textViewer, field, data) {
+        return textViewer;
+    }
+    filterMetadataItem(field, metadataItem, recordType, data) {
+        return metadataItem;
+    }
+    filterCollectionItem(collectionItem, item, field, data) {
+        return collectionItem;
     }
 }
 exports.ResourceParser = ResourceParser;
