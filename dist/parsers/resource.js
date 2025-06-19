@@ -185,7 +185,7 @@ class ResourceParser {
         return this.filterImageViewer(imageViewer, block, data);
     }
     parseTextViewer(block, data) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e;
         let textViewer = {
             "endpoint": "",
             "docs": []
@@ -218,8 +218,8 @@ class ResourceParser {
                 // Check facsimile
                 if (data[block.field]['facsimile']) {
                     textViewer['facsimile'] = {
-                        baseurl: data[block.field]['facsimile']['baseurl'],
-                        scans: []
+                        baseurl: (_d = data[block.field]['facsimile']['baseurl']) !== null && _d !== void 0 ? _d : data[block.field]['facsimile']['uri'],
+                        scans: (_e = data[block.field]['facsimile']['scans']) !== null && _e !== void 0 ? _e : []
                     };
                 }
             }

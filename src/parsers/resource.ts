@@ -250,8 +250,8 @@ export class ResourceParser implements Parser {
         // Check facsimile
         if (data[block.field]['facsimile']) {
           textViewer['facsimile'] = {
-            baseurl: data[block.field]['facsimile']['baseurl'],
-            scans: []
+            baseurl: data[block.field]['facsimile']['baseurl'] ?? data[block.field]['facsimile']['uri'],
+            scans: data[block.field]['facsimile']['scans'] ?? []
           }
         }
       }
