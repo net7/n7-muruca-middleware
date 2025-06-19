@@ -6,7 +6,11 @@ class TimelineParser {
         let timeline = {
             dataSet: [],
         };
-        data.map((item) => {
+        if (data.groups) {
+            timeline["groups"] = data.groups;
+        }
+        const events = data.events || [];
+        events.map((item) => {
             const dateStart = item.hasOwnProperty('timeline_year_start')
                 ? item.timeline_year_start
                 : item.timeline_date_start;
@@ -24,6 +28,9 @@ class TimelineParser {
                 start: this.formatDateUtcStandard(dateStart ? dateStart : missingDate),
                 end: this.formatDateUtcStandard(dateEnd ? dateEnd : missingDate),
                 // end: FIX ME
+                group: item.group,
+                className: item.class,
+                type: item.type,
             });
         });
         return timeline;
