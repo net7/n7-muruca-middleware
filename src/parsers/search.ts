@@ -113,11 +113,11 @@ export abstract class SearchParser implements Parser {
           const buckets = offset && offset > 0 ? bucketsData.buckets.slice(offset) : bucketsData.buckets;
           filteredTotal = bucketsData['distinct_doc_count'] || data['distinctTerms_' + id]?.value || 0;
 
-          buckets.forEach((bucket: Bucket) => {
+          buckets.forEach((bucket: Bucket, index: number) => {
             const [payload, text] = bucket.key.split('|||').map(part => part.trim());
             const searchQuery = (query || '').toLowerCase();
             if (payload.toLowerCase().includes(searchQuery) || text.toLowerCase().includes(searchQuery)) {
-              const facet = this.createFacet(bucket, text, payload, queryFacets[id]);
+              const facet = this.createFacet(bucket, text, payload, queryFacets[id], index);
               const modifiedFacet = this.applyFacetFilter(facet); // With this function you can handle different exceptions on the single facet
               values.push(modifiedFacet);
             }
@@ -136,10 +136,10 @@ export abstract class SearchParser implements Parser {
     return this.applyFacetResultsFilter(aggregationResult); // With this function you can handle different exceptions the total results
   }
 
-  private createFacet(bucket: Bucket, text: string, payload: string, queryFacet: any) {
+  private createFacet(bucket: Bucket, text: string, payload: string, queryFacet: any, index: number) {
     const facet = { text, counter: bucket.doc_count, payload };
     this.addExtraArgsToFacet(facet, bucket, queryFacet['extra']);
-    this.addRangeToFacet(facet, bucket, queryFacet['ranges']);
+    this.addRangeToFacet(facet, bucket, index, queryFacet['ranges']);
     return facet;
   }
 
@@ -158,14 +158,14 @@ export abstract class SearchParser implements Parser {
     }
   }
 
-addRangeToFacet(facet: any, bucket: Bucket, ranges?: any[]) {
+addRangeToFacet(facet: any, bucket: Bucket, index: number, ranges?: any[]) {
     if (ranges) {
       if (bucket.from) {
-        facet['text'] = ranges['from'];
+        facet['text'] = ranges[index]['from'];
         facet['payload'] = bucket.from;
       }
       if (bucket.to) {
-        facet['range'] = { text: ranges['to'], payload: bucket.to };
+        facet['range'] = { text: ranges[index]['to'], payload: bucket.to };
       }
     }
   }

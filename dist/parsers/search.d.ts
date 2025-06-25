@@ -10,7 +10,7 @@ export declare abstract class SearchParser implements Parser {
     protected parseFacets({ data, options }: Input): AggregationResult;
     private createFacet;
     private addExtraArgsToFacet;
-    addRangeToFacet(facet: any, bucket: Bucket, ranges?: any[]): void;
+    addRangeToFacet(facet: any, bucket: Bucket, index: number, ranges?: any[]): void;
     private sortFacetValues;
     private getBucket;
     protected applyFacetFilter(facet: any): any;
