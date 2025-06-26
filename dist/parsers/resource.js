@@ -50,7 +50,7 @@ class ResourceParser {
                 case "collection-places":
                     parsed.sections[block] = this.parseCollectionMaps(conf[block], data);
                     break;
-                case "bibliography": // TO CHECK
+                case "bibliography":
                     parsed.sections[block] = this.parseBibliography(conf[block], data);
                     break;
                 default:
@@ -290,6 +290,27 @@ class ResourceParser {
         const c_b = {
             items: [],
         };
+        if ((data["bibliografia"]) != null || (data["bibliography"]) != null) {
+            block.fields.map((field) => {
+                data[field].map((rif) => {
+                    rif['rif_biblio'].map((biblio) => {
+                        const textItems = [biblio.description, rif.rif_biblio_position]; // Here you can add biblio.title
+                        const text = textItems.filter(item => item).join(', ');
+                        let bibliographyItem = {
+                            payload: {
+                                id: biblio.id,
+                                slug: biblio.slug,
+                                routeId: biblio['record-type'],
+                                type: 'bibliography_wit',
+                            },
+                            text: text
+                        };
+                        bibliographyItem = this.filterBibliographyItem(bibliographyItem, rif, field, data);
+                        c_b.items.push(bibliographyItem);
+                    });
+                });
+            });
+        }
         if (data["bibliographicCitation"] != null) {
             block.fields.map((field) => {
                 data[field].map((rif) => {
@@ -305,7 +326,7 @@ class ResourceParser {
                                 routeId: biblio['record-type'],
                                 type: "bibliography_wit",
                             },
-                            text: `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`,
+                            text: text,
                         });
                     });
                 });
@@ -342,6 +363,9 @@ class ResourceParser {
     }
     filterCollectionItem(collectionItem, item, field, data) {
         return collectionItem;
+    }
+    filterBibliographyItem(bibliographyItem, rif, field, data) {
+        return bibliographyItem;
     }
 }
 exports.ResourceParser = ResourceParser;

@@ -65,7 +65,7 @@ export class ResourceParser implements Parser {
             parsed.sections[block] = this.parseCollectionMaps(conf[block], data);
             break;
   
-          case "bibliography": // TO CHECK
+          case "bibliography":
             parsed.sections[block] = this.parseBibliography(conf[block], data);
             break;
   
@@ -324,7 +324,27 @@ export class ResourceParser implements Parser {
     const c_b: OutputBibliography = {
       items: [],
     };
-
+    if ((data["bibliografia"]) != null || (data["bibliography"]) != null) {
+      block.fields.map((field) => {
+        data[field].map((rif) => {
+          rif['rif_biblio'].map((biblio) => {
+            const textItems = [biblio.description, rif.rif_biblio_position]; // Here you can add biblio.title
+            const text = textItems.filter(item => item).join(', ');
+            let bibliographyItem = {
+              payload: {
+                id: biblio.id,
+                slug: biblio.slug,
+                routeId: biblio['record-type'],
+                type: 'bibliography_wit',
+              },
+              text: text
+            }
+            bibliographyItem = this.filterBibliographyItem(bibliographyItem, rif, field, data);
+            c_b.items.push(bibliographyItem);
+          });
+        });
+      });
+    }
     if (data["bibliographicCitation"] != null) {
       block.fields.map((field) => {
         data[field].map((rif) => {
@@ -341,7 +361,7 @@ export class ResourceParser implements Parser {
                 routeId: biblio['record-type'],
                 type: "bibliography_wit",
               },
-              text: `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`,
+              text: text,
             });
           });
         });
@@ -382,5 +402,9 @@ export class ResourceParser implements Parser {
 
   filterCollectionItem(collectionItem: any, item: any, field: string, data: any): any{
     return collectionItem;
+  }
+
+  filterBibliographyItem(bibliographyItem: any, rif: any, field: string, data: any): any{
+    return bibliographyItem;
   }
 }

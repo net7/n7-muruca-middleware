@@ -20,4 +20,5 @@ export declare class ResourceParser implements Parser {
     filterTextViewer(textViewer: OutputTextViewer, field: string, data: any): OutputTextViewer;
     filterMetadataItem(field: string, metadataItem: OutputMetadataItem, recordType: string, data: any): OutputMetadataItem;
     filterCollectionItem(collectionItem: any, item: any, field: string, data: any): any;
+    filterBibliographyItem(bibliographyItem: any, rif: any, field: string, data: any): any;
 }
