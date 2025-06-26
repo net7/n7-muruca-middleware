@@ -2,6 +2,7 @@ import { HttpHelper } from './helpers';
 import { SearchResultsData } from './interfaces';
 import * as controllers from './controllers';
 import { Request, Response } from 'express';
+import { NETWORK_MOCK } from './mocks/network-layout-mock';
 
 export class Controller {
   private config: any;
@@ -103,6 +104,25 @@ export class Controller {
     const parser = new parsers.timeline();
     const response = parser.parse({ data });
     return res.send(response);
+  };
+
+  /**
+   * Fetch data for the network component.
+   * @param request GET request
+   * @param res  Response
+   */
+  getNetwork = async (request: Request, res: Response) => {
+    // const { baseUrl, parsers } = this.config;
+    // const { id } = request.params;
+    // const locale = request.query?.locale || '';
+    // const path = locale ? '?lang=' + locale : '';
+    // const data = JSON.parse(
+    //   await HttpHelper.doRequest(baseUrl + 'views/' + id + path),
+    // );
+    // const parser = new parsers.timeline();
+    // const response = parser.parse({ data });
+    // return res.send(response);
+    return NETWORK_MOCK;
   };
 
   /**
@@ -404,6 +424,7 @@ export class Controller {
       getHomeLayout: this.getHomeLayout.bind(this),
       getSearchDescription: this.getSearchDescription.bind(this),
       getTimeline: this.getTimeline.bind(this),
+      getNetwork: this.getNetwork.bind(this),
       getMap: this.getMap.bind(this),
       getResource: this.getResource.bind(this),
       search: this.search.bind(this),
