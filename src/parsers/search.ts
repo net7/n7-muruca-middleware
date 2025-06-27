@@ -36,7 +36,7 @@ export abstract class SearchParser implements Parser {
     let items = [];
     
     data.forEach(({ _source: source }) => {
-      const item = {} as SearchResultsItemData;
+      let item = {} as SearchResultsItemData;
       conf.results.forEach((val: { label: string; field: any }) => {
         
         switch (val.label) {
@@ -54,11 +54,16 @@ export abstract class SearchParser implements Parser {
             break;
         }
       });
+      item = this.filterResultItem(item, source, type);
       items.push(item);
     })
 
       return items;
   };
+
+  protected filterResultItem(item, source, type) {
+    return item;
+  }
 
   protected parseResultsDefault(source, field: string): any{
     return source[field] || null;

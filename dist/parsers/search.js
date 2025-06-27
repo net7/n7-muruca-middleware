@@ -27,7 +27,7 @@ class SearchParser {
         var { searchId, conf } = options;
         let items = [];
         data.forEach(({ _source: source }) => {
-            const item = {};
+            let item = {};
             conf.results.forEach((val) => {
                 switch (val.label) {
                     case 'metadata':
@@ -42,11 +42,15 @@ class SearchParser {
                         break;
                 }
             });
+            item = this.filterResultItem(item, source, type);
             items.push(item);
         });
         return items;
     }
     ;
+    filterResultItem(item, source, type) {
+        return item;
+    }
     parseResultsDefault(source, field) {
         return source[field] || null;
     }
