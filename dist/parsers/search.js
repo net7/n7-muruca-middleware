@@ -42,13 +42,13 @@ class SearchParser {
                         break;
                 }
             });
-            item = this.filterResultItem(item, source, type);
+            item = this.filterResultItem(item, source, type, source['record-type']);
             items.push(item);
         });
         return items;
     }
     ;
-    filterResultItem(item, source, type) {
+    filterResultItem(item, source, type, itemType) {
         return item;
     }
     parseResultsDefault(source, field) {

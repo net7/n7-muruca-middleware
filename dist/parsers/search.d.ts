@@ -4,7 +4,7 @@ export declare abstract class SearchParser implements Parser {
     parse({ data, options }: Input, queryParams?: any): AggregationResult | SearchResultsData;
     protected parseResults({ data, options }: Input, queryParams: any, type: any): SearchResultsData;
     protected parseResultsItems({ data, options }: Input, type: any, queryParams?: any): SearchResultsItemData[];
-    protected filterResultItem(item: any, source: any, type: any): any;
+    protected filterResultItem(item: any, source: any, type: any, itemType: any): any;
     protected parseResultsDefault(source: any, field: string): any;
     protected searchResultsMetadata(source: any, field: any, label: any, type: any): any[];
     protected filterResultsMetadata(field: string, metadataItem: OutputMetadataItem, source?: any): OutputMetadataItem;
