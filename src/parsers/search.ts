@@ -13,6 +13,8 @@ export abstract class SearchParser implements Parser {
       : this.parseFacets({ data, options });
   }
 
+  // RESULTS
+
   protected parseResults({ data, options }: Input, queryParams = null, type) {
     if (options && 'limit' in options) {
       var { offset, limit, sort, total_count } = options;
@@ -61,14 +63,6 @@ export abstract class SearchParser implements Parser {
       return items;
   };
 
-  protected filterResultItem(item, source, type, itemType) {
-    return item;
-  }
-
-  protected parseResultsDefault(source, field: string): any{
-    return source[field] || null;
-  }
-
   protected searchResultsMetadata(source, field, label, type) {
     const items = [];
     field.map((f) => {
@@ -90,10 +84,19 @@ export abstract class SearchParser implements Parser {
     return items;
   }
 
+  protected parseResultsDefault(source, field: string): any{
+    return source[field] || null;
+  }
+
+  protected filterResultItem(item, source, type, itemType) {
+    return item;
+  }
+
   protected filterResultsMetadata(field: string, metadataItem: OutputMetadataItem, source?: any ): OutputMetadataItem{
-    
     return metadataItem;
   }
+
+  // FACETS
 
   protected parseFacets({ data, options }: Input): AggregationResult {
     let globalSum = 0;
@@ -140,47 +143,7 @@ export abstract class SearchParser implements Parser {
     aggregationResult.total_count = globalSum;
     return this.applyFacetResultsFilter(aggregationResult); // With this function you can handle different exceptions the total results
   }
-
-  private createFacet(bucket: Bucket, text: string, payload: string, queryFacet: any, index: number) {
-    const facet = { text, counter: bucket.doc_count, payload };
-    this.addExtraArgsToFacet(facet, bucket, queryFacet['extra']);
-    this.addRangeToFacet(facet, bucket, index, queryFacet['ranges']);
-    return facet;
-  }
-
-  private addExtraArgsToFacet(facet: any, bucket: Bucket, extra?: any) {
-    if (extra) {
-      const extraArgs = {};
-      for (const key in extra) {
-        const bucketData = bucket[key];
-        if (bucketData && bucketData['buckets']) {
-          extraArgs[key] = bucketData['buckets'].length === 1 ? bucketData['buckets'][0]?.key : bucketData['buckets'].map(b => b.key);
-        } else {
-          extraArgs[key] = null;
-        }
-      }
-      facet['args'] = extraArgs;
-    }
-  }
-
-addRangeToFacet(facet: any, bucket: Bucket, index: number, ranges?: any[]) {
-    if (ranges) {
-      if (bucket.from) {
-        facet['text'] = ranges[index]['from'];
-        facet['payload'] = bucket.from;
-      }
-      if (bucket.to) {
-        facet['range'] = { text: ranges[index]['to'], payload: bucket.to };
-      }
-    }
-  }
-
-  private sortFacetValues(values: any[], sortValues?: any) {
-    if (sortValues) {
-      values.sort((a, b) => sortValues.indexOf(a['payload']) - sortValues.indexOf(b['payload']));
-    }
-  }
-
+  
   private getBucket(data, docCount = null, distinctDocCount = null) {
     const keys = Object.keys(data);
 
@@ -209,13 +172,52 @@ addRangeToFacet(facet: any, bucket: Bucket, index: number, ranges?: any[]) {
     }
   }
 
+  private createFacet(bucket: Bucket, text: string, payload: string, queryFacet: any, index: number) {
+    const facet = { text, counter: bucket.doc_count, payload };
+    this.addExtraArgsToFacet(facet, bucket, queryFacet['extra']);
+    this.addRangeToFacet(facet, bucket, index, queryFacet['ranges']);
+    return facet;
+  }
+  
   protected applyFacetFilter(facet: any): any {
     return facet
   }
-
+  
+  private sortFacetValues(values: any[], sortValues?: any) {
+    if (sortValues) {
+      values.sort((a, b) => sortValues.indexOf(a['payload']) - sortValues.indexOf(b['payload']));
+    }
+  }
+  
   protected applyFacetResultsFilter(result: AggregationResult): AggregationResult {
     return result;
   }
 
+  private addExtraArgsToFacet(facet: any, bucket: Bucket, extra?: any) {
+    if (extra) {
+      const extraArgs = {};
+      for (const key in extra) {
+        const bucketData = bucket[key];
+        if (bucketData && bucketData['buckets']) {
+          extraArgs[key] = bucketData['buckets'].length === 1 ? bucketData['buckets'][0]?.key : bucketData['buckets'].map(b => b.key);
+        } else {
+          extraArgs[key] = null;
+        }
+      }
+      facet['args'] = extraArgs;
+    }
+  }
+
+  addRangeToFacet(facet: any, bucket: Bucket, index: number, ranges?: any[]) {
+    if (ranges) {
+      if (bucket.from) {
+        facet['text'] = ranges[index]['from'];
+        facet['payload'] = bucket.from;
+      }
+      if (bucket.to) {
+        facet['range'] = { text: ranges[index]['to'], payload: bucket.to };
+      }
+    }
+  }
 }
 
