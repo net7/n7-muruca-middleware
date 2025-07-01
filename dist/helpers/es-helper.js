@@ -214,6 +214,7 @@ exports.ESHelper = {
         return main_query;
     },
     buildSortObj(conf, searchId, sort) {
+        var _a;
         const sort_object = [];
         if (sort != undefined) {
             const conf_sort = conf[searchId].sort;
@@ -224,6 +225,12 @@ exports.ESHelper = {
                     const after = sort.slice(lastIndex + 1);
                     if (conf_sort[before]) {
                         sort_object.push({ [conf_sort[before].field]: after });
+                    }
+                    const sec_sort = (_a = conf[searchId]) === null || _a === void 0 ? void 0 : _a.secundarySort;
+                    if (sec_sort) {
+                        sec_sort.forEach((sortKey) => {
+                            sort_object.push({ [sortKey]: after });
+                        });
                     }
                 }
             }

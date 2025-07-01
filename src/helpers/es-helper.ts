@@ -248,13 +248,19 @@ export const ESHelper = {
           if (conf_sort[before]) {
             sort_object.push({ [conf_sort[before].field]: after }); 
           } 
+          const sec_sort = conf[searchId]?.secundarySort;
+          if (sec_sort) {
+            sec_sort.forEach((sortKey) => {
+              sort_object.push({ [sortKey]: after });
+            });
+          }
         }
       }
     }
     sort_object.push({ 'slug.keyword': 'ASC' });
     return sort_object;
   },
-  
+
   buildAggs(facets_request, query_facets) {
     const main_query = {
       aggregations: {},

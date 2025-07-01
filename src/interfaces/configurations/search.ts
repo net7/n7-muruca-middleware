@@ -13,6 +13,7 @@ export interface SearchStruct {
   };
   /** sort title. Ex: {title: {field: title.sort}}*/
   sort: SortConfObjects;
+  secundarySort?: string[];
   lang: {
     query: {
       type: string;
