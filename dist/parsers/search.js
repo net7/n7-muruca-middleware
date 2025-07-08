@@ -9,6 +9,7 @@ class SearchParser {
             ? this.parseResults({ data, options }, queryParams, type)
             : this.parseFacets({ data, options });
     }
+    // RESULTS
     parseResults({ data, options }, queryParams = null, type) {
         if (options && 'limit' in options) {
             var { offset, limit, sort, total_count } = options;
@@ -27,7 +28,7 @@ class SearchParser {
         var { searchId, conf } = options;
         let items = [];
         data.forEach(({ _source: source }) => {
-            const item = {};
+            let item = {};
             conf.results.forEach((val) => {
                 switch (val.label) {
                     case 'metadata':
@@ -42,14 +43,12 @@ class SearchParser {
                         break;
                 }
             });
+            item = this.filterResultItem(item, source, type, source['record-type']);
             items.push(item);
         });
         return items;
     }
     ;
-    parseResultsDefault(source, field) {
-        return source[field] || null;
-    }
     searchResultsMetadata(source, field, label, type) {
         const items = [];
         field.map((f) => {
@@ -63,9 +62,16 @@ class SearchParser {
         });
         return items;
     }
+    parseResultsDefault(source, field) {
+        return source[field] || null;
+    }
+    filterResultItem(item, source, type, itemType) {
+        return item;
+    }
     filterResultsMetadata(field, metadataItem, source) {
         return metadataItem;
     }
+    // FACETS
     parseFacets({ data, options }) {
         let globalSum = 0;
         const { facets, conf, searchId } = options;
@@ -105,11 +111,47 @@ class SearchParser {
         aggregationResult.total_count = globalSum;
         return this.applyFacetResultsFilter(aggregationResult); // With this function you can handle different exceptions the total results
     }
+    getBucket(data, docCount = null, distinctDocCount = null) {
+        var _a, _b, _c;
+        const keys = Object.keys(data);
+        if (keys.includes('buckets')) {
+            data['doc_count'] = (_a = data['doc_count']) !== null && _a !== void 0 ? _a : docCount;
+            if (distinctDocCount) {
+                data['distinct_doc_count'] = distinctDocCount;
+            }
+            return data;
+        }
+        for (const key of keys) {
+            if (key !== 'distinctTerms' && typeof data[key] === 'object') {
+                const currentDocCount = data[key]['doc_count'] || data['doc_count'];
+                const currentDistinctDocCount = (_b = data['distinctTerms']) === null || _b === void 0 ? void 0 : _b.value;
+                const bucketData = this.getBucket(data[key], currentDocCount, currentDistinctDocCount);
+                if (bucketData && bucketData.buckets) {
+                    bucketData['doc_count'] = (_c = bucketData['doc_count']) !== null && _c !== void 0 ? _c : docCount;
+                    if (distinctDocCount) {
+                        bucketData['distinct_doc_count'] = distinctDocCount;
+                    }
+                    return bucketData;
+                }
+            }
+        }
+    }
     createFacet(bucket, text, payload, queryFacet, index) {
         const facet = { text, counter: bucket.doc_count, payload };
         this.addExtraArgsToFacet(facet, bucket, queryFacet['extra']);
         this.addRangeToFacet(facet, bucket, index, queryFacet['ranges']);
         return facet;
+    }
+    applyFacetFilter(facet) {
+        return facet;
+    }
+    sortFacetValues(values, sortValues) {
+        if (sortValues) {
+            values.sort((a, b) => sortValues.indexOf(a['payload']) - sortValues.indexOf(b['payload']));
+        }
+    }
+    applyFacetResultsFilter(result) {
+        return result;
     }
     addExtraArgsToFacet(facet, bucket, extra) {
         var _a;
@@ -137,42 +179,6 @@ class SearchParser {
                 facet['range'] = { text: ranges[index]['to'], payload: bucket.to };
             }
         }
-    }
-    sortFacetValues(values, sortValues) {
-        if (sortValues) {
-            values.sort((a, b) => sortValues.indexOf(a['payload']) - sortValues.indexOf(b['payload']));
-        }
-    }
-    getBucket(data, docCount = null, distinctDocCount = null) {
-        var _a, _b, _c;
-        const keys = Object.keys(data);
-        if (keys.includes('buckets')) {
-            data['doc_count'] = (_a = data['doc_count']) !== null && _a !== void 0 ? _a : docCount;
-            if (distinctDocCount) {
-                data['distinct_doc_count'] = distinctDocCount;
-            }
-            return data;
-        }
-        for (const key of keys) {
-            if (key !== 'distinctTerms' && typeof data[key] === 'object') {
-                const currentDocCount = data[key]['doc_count'] || data['doc_count'];
-                const currentDistinctDocCount = (_b = data['distinctTerms']) === null || _b === void 0 ? void 0 : _b.value;
-                const bucketData = this.getBucket(data[key], currentDocCount, currentDistinctDocCount);
-                if (bucketData && bucketData.buckets) {
-                    bucketData['doc_count'] = (_c = bucketData['doc_count']) !== null && _c !== void 0 ? _c : docCount;
-                    if (distinctDocCount) {
-                        bucketData['distinct_doc_count'] = distinctDocCount;
-                    }
-                    return bucketData;
-                }
-            }
-        }
-    }
-    applyFacetFilter(facet) {
-        return facet;
-    }
-    applyFacetResultsFilter(result) {
-        return result;
     }
 }
 exports.SearchParser = SearchParser;
