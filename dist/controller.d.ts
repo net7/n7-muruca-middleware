@@ -39,6 +39,12 @@ export declare class Controller {
      */
     getTimeline: (request: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
     /**
+     * Fetch data for the network component.
+     * @param request GET request
+     * @param res  Response
+     */
+    getNetwork: (request: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+    /**
      * Fetch data for the map component.
      * @param request GET request
      * @param res  Response
@@ -131,6 +137,7 @@ export declare class Controller {
         getHomeLayout: any;
         getSearchDescription: any;
         getTimeline: any;
+        getNetwork: any;
         getMap: any;
         getResource: any;
         search: any;

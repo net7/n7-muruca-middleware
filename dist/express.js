@@ -89,6 +89,9 @@ const defaultHandlers = {
     getTimeline: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         yield routeHandler(req, res, controller.getTimeline);
     }),
+    getNetwork: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        yield routeHandler(req, res, controller.getNetwork);
+    }),
     getMap: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         yield routeHandler(req, res, controller.getMap);
     }),
@@ -150,6 +153,7 @@ router.get('/get_itineraries', (req, res) => defaultHandlers.getItineraries(req,
 router.get('/get_itinerary/:id', (req, res) => defaultHandlers.getItinerary(req, res));
 router.get('/get_map/:id', (req, res) => defaultHandlers.getMap(req, res));
 router.get('/get_timeline/:id', (req, res) => defaultHandlers.getTimeline(req, res));
+router.get('/get_network', (req, res) => defaultHandlers.getNetwork(req, res));
 router.get('/get_translation/:lang', (req, res) => defaultHandlers.getTranslation(req, res));
 router.post('/search/:type', (req, res) => defaultHandlers.search(req, res));
 router.post('/advanced_search', (req, res) => defaultHandlers.advancedSearch(req, res));

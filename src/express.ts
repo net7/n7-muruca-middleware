@@ -82,6 +82,9 @@ const defaultHandlers: {
   getTimeline: async (req, res) => {
     await routeHandler(req, res, controller.getTimeline);
   },
+  getNetwork: async (req, res) => {
+    await routeHandler(req, res, controller.getNetwork);
+  },
   getMap: async (req, res) => {
     await routeHandler(req, res, controller.getMap);
   },
@@ -159,6 +162,9 @@ router.get('/get_itinerary/:id', (req, res) =>
 router.get('/get_map/:id', (req, res) => defaultHandlers.getMap(req, res));
 router.get('/get_timeline/:id', (req, res) =>
   defaultHandlers.getTimeline(req, res),
+);
+router.get('/get_network', (req, res) =>
+  defaultHandlers.getNetwork(req, res),
 );
 router.get('/get_translation/:lang', (req, res) =>
   defaultHandlers.getTranslation(req, res),

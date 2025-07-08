@@ -106,6 +106,23 @@ export class Controller {
   };
 
   /**
+   * Fetch data for the network component.
+   * @param request GET request
+   * @param res  Response
+   */
+  getNetwork = async (request: Request, res: Response) => {
+     const { baseUrl, parsers } = this.config;
+     const locale = request.query?.locale || '';
+     const path = locale ? '?lang=' + locale : '';
+     const data = JSON.parse(
+       await HttpHelper.doRequest(baseUrl + 'views/network'+ path),
+     );
+     const parser = new parsers.network();
+     const response = parser.parse({ data });
+     return res.send(response);
+  };
+
+  /**
    * Fetch data for the map component.
    * @param request GET request
    * @param res  Response
@@ -404,6 +421,7 @@ export class Controller {
       getHomeLayout: this.getHomeLayout.bind(this),
       getSearchDescription: this.getSearchDescription.bind(this),
       getTimeline: this.getTimeline.bind(this),
+      getNetwork: this.getNetwork.bind(this),
       getMap: this.getMap.bind(this),
       getResource: this.getResource.bind(this),
       search: this.search.bind(this),
