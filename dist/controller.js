@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Controller = void 0;
 const helpers_1 = require("./helpers");
 const controllers = require("./controllers");
-const network_layout_mock_1 = require("./mocks/network-layout-mock");
 class Controller {
     constructor(config) {
         /**
@@ -109,17 +108,14 @@ class Controller {
          * @param res  Response
          */
         this.getNetwork = (request, res) => __awaiter(this, void 0, void 0, function* () {
-            // const { baseUrl, parsers } = this.config;
-            // const { id } = request.params;
-            // const locale = request.query?.locale || '';
-            // const path = locale ? '?lang=' + locale : '';
-            // const data = JSON.parse(
-            //   await HttpHelper.doRequest(baseUrl + 'views/' + id + path),
-            // );
-            // const parser = new parsers.timeline();
-            // const response = parser.parse({ data });
-            // return res.send(response);
-            return network_layout_mock_1.NETWORK_MOCK;
+            var _a;
+            const { baseUrl, parsers } = this.config;
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
+            const path = locale ? '?lang=' + locale : '';
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/network' + path));
+            const parser = new parsers.network();
+            const response = parser.parse({ data });
+            return res.send(response);
         });
         /**
          * Fetch data for the map component.

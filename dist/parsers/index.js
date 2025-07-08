@@ -28,3 +28,4 @@ __exportStar(require("./search-description"), exports);
 __exportStar(require("./translation"), exports);
 __exportStar(require("./itinerary"), exports);
 __exportStar(require("./resource"), exports);
+__exportStar(require("./network"), exports);
