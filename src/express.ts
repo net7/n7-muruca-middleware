@@ -163,7 +163,7 @@ router.get('/get_map/:id', (req, res) => defaultHandlers.getMap(req, res));
 router.get('/get_timeline/:id', (req, res) =>
   defaultHandlers.getTimeline(req, res),
 );
-router.get('/get_network', (req, res) =>
+router.get('/get_network/:id', (req, res) =>
   defaultHandlers.getNetwork(req, res),
 );
 router.get('/get_translation/:lang', (req, res) =>

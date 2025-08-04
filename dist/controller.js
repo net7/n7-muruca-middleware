@@ -110,9 +110,10 @@ class Controller {
         this.getNetwork = (request, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const { baseUrl, parsers } = this.config;
+            const { id } = request.params;
             const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const path = locale ? '?lang=' + locale : '';
-            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/network' + path));
+            const data = JSON.parse(yield helpers_1.HttpHelper.doRequest(baseUrl + 'views/network/' + id + path));
             const parser = new parsers.network();
             const response = parser.parse({ data });
             return res.send(response);

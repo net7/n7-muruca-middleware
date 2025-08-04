@@ -112,10 +112,11 @@ export class Controller {
    */
   getNetwork = async (request: Request, res: Response) => {
      const { baseUrl, parsers } = this.config;
+     const { id } = request.params;
      const locale = request.query?.locale || '';
      const path = locale ? '?lang=' + locale : '';
      const data = JSON.parse(
-       await HttpHelper.doRequest(baseUrl + 'views/network'+ path),
+       await HttpHelper.doRequest(baseUrl + 'views/network/' + id + path),
      );
      const parser = new parsers.network();
      const response = parser.parse({ data });
