@@ -354,7 +354,7 @@ export class ResourceParser implements Parser {
                 id: biblio.id,
                 slug: biblio.slug,
                 routeId: biblio['record-type'],
-                type: 'bibliography_wit',
+                type: 'bibliography',
               },
               text: text
             }
@@ -376,7 +376,7 @@ export class ResourceParser implements Parser {
                 id: biblio.id,
                 slug: biblio.slug,
                 routeId: biblio['record-type'],
-                type: 'bibliography_wit',
+                type: 'bibliography',
               },
               text: text
             }
@@ -392,7 +392,7 @@ export class ResourceParser implements Parser {
             payload: {
               action: "resource-modal",
               id: biblio.id,
-              type: "bibliography_wit",
+              type: "bibliography",
               slug: biblio.slug,
               routeId: biblio['record-type'],
             },
