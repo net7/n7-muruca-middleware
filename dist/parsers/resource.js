@@ -331,19 +331,20 @@ class ResourceParser {
             block.fields.map((field) => {
                 data[field].map((rif) => {
                     rif["rif_biblio"].map((biblio) => {
-                        const text = biblio.title != ""
-                            ? `${biblio.title} ${biblio.description} ${rif.rif_biblio_position}`
-                            : `${biblio.description}: ${rif.rif_biblio_position}`;
-                        c_b.items.push({
+                        const textItems = [biblio.title, biblio.description, rif.rif_biblio_position];
+                        const text = textItems.filter(item => item).join(', ');
+                        let bibliographyItem = {
                             payload: {
                                 // action: "resource-modal",
                                 id: biblio.id,
                                 slug: biblio.slug,
                                 routeId: biblio['record-type'],
-                                type: "bibliography_wit",
+                                type: 'bibliography_wit',
                             },
-                            text: text,
-                        });
+                            text: text
+                        };
+                        bibliographyItem = this.filterBibliographyItem(bibliographyItem, rif, field, data);
+                        c_b.items.push(bibliographyItem);
                     });
                 });
             });
