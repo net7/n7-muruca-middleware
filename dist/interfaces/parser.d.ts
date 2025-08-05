@@ -73,6 +73,12 @@ export interface OutputImageViewer {
     "images": OutputImageViewerItem[];
     "thumbs": string[];
 }
+export interface OutputImageViewerIIIF {
+    'iiif-manifests': OutputImageViewerIIIFItems[];
+}
+export interface OutputImageViewerIIIFItems {
+    manifestUrl: string;
+}
 export interface OutputImageViewerItem {
     "type": string;
     "url": string;

@@ -1,5 +1,5 @@
 import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs } from '../interfaces';
-import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
+import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerIIIF, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
 import { parseMetadataValue } from '../utils/parseMetadataFunctions';
 
 export class ResourceParser implements Parser {
@@ -51,6 +51,10 @@ export class ResourceParser implements Parser {
           
           case "image-viewer":
             parsed.sections[block] = this.parseImageViewer(conf[block], data);
+            break;
+
+          case "image-viewer-iiif":
+            parsed.sections[block] = this.parseImageViewerIIIF(conf[block], data);
             break;
 
           case "text-viewer":
@@ -214,6 +218,21 @@ export class ResourceParser implements Parser {
     }
     return this.filterImageViewer(imageViewer, block, data);
   }
+
+  parseImageViewerIIIF(block: ConfBlock, data: any): OutputImageViewerIIIF {
+    let iiifViewer = {
+      'iiif-manifests': []
+    }
+    block.fields.forEach((field) => {
+      if(data[field] && data[field] != ""){
+       iiifViewer['iiif-manifests'].push({ manifestUrl: data[field] })
+      }
+    });
+    if (iiifViewer['iiif-manifests'].length) {
+      return this.filterImageViewerIIIF(iiifViewer, block, data);
+    }
+  }
+
 
   parseTextViewer(block: ConfBlockTextViewer, data: any): OutputTextViewer{
     let textViewer = {
@@ -390,6 +409,10 @@ export class ResourceParser implements Parser {
 
   filterImageViewer(imageViewer: OutputImageViewer, block: ConfBlock, data: any): OutputImageViewer {
     return imageViewer;
+  }
+
+  filterImageViewerIIIF(iiifViewer: OutputImageViewerIIIF, block: ConfBlock, data: any): OutputImageViewerIIIF {
+    return iiifViewer;
   }
 
   filterTextViewer(textViewer: OutputTextViewer, field: string, data: any): OutputTextViewer {

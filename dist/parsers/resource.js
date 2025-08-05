@@ -41,6 +41,9 @@ class ResourceParser {
                 case "image-viewer":
                     parsed.sections[block] = this.parseImageViewer(conf[block], data);
                     break;
+                case "image-viewer-iiif":
+                    parsed.sections[block] = this.parseImageViewerIIIF(conf[block], data);
+                    break;
                 case "text-viewer":
                     parsed.sections[block] = this.parseTextViewer(conf[block], data);
                     break;
@@ -183,6 +186,19 @@ class ResourceParser {
             imageViewer.thumbs = data[gallery].map((g) => g.sizes.thumbnail);
         }
         return this.filterImageViewer(imageViewer, block, data);
+    }
+    parseImageViewerIIIF(block, data) {
+        let iiifViewer = {
+            'iiif-manifests': []
+        };
+        block.fields.forEach((field) => {
+            if (data[field] && data[field] != "") {
+                iiifViewer['iiif-manifests'].push({ manifestUrl: data[field] });
+            }
+        });
+        if (iiifViewer['iiif-manifests'].length) {
+            return this.filterImageViewerIIIF(iiifViewer, block, data);
+        }
     }
     parseTextViewer(block, data) {
         var _a, _b, _c, _d, _e;
@@ -354,6 +370,9 @@ class ResourceParser {
     // These filters can be overridden in the parsers section of middleware projects, they allows to modify a specific part of the result of a parser.
     filterImageViewer(imageViewer, block, data) {
         return imageViewer;
+    }
+    filterImageViewerIIIF(iiifViewer, block, data) {
+        return iiifViewer;
     }
     filterTextViewer(textViewer, field, data) {
         return textViewer;
