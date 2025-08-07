@@ -19,6 +19,7 @@ class AdvancedSearchParser {
             key: 'Voci di autorità',
         };
         this.text_separator = '<span class="mrc__text-divider"></span>';
+        this.xml_json_property = "xml_transcription_texts_json";
     }
     parse({ data, options }) {
         const { type } = options;
@@ -267,7 +268,6 @@ class AdvancedSearchParser {
       parse ES highlight property (may be an array of strings)
     */
     parseHighlights(hit) {
-        var _a;
         const unique_hl = {
             xml_text: [],
             attr: [],
@@ -281,16 +281,18 @@ class AdvancedSearchParser {
             if (/xml_text$/.test(prop)) {
                 hit.highlight[prop].forEach((snippet) => {
                     var _a;
-                    let prefix = '';
-                    if ((_a = hit._source) === null || _a === void 0 ? void 0 : _a._refs) {
-                        const references = this.parseReferences(hit._source._refs);
-                        prefix =
-                            "<span class='mrc__text-attr_value'>In: " +
-                                references +
-                                '</span> ';
+                    if (!prop.includes("quote.quote")) {
+                        let prefix = '';
+                        if ((_a = hit._source) === null || _a === void 0 ? void 0 : _a._refs) {
+                            const references = this.parseReferences(hit._source._refs);
+                            prefix =
+                                "<span class='mrc__text-attr_value'>In: " +
+                                    references +
+                                    '</span> ';
+                        }
+                        unique_hl.xml_text.push(prefix + snippet);
+                        //h_snippets.push(prefix + snippet);
                     }
-                    unique_hl.xml_text.push(prefix + snippet);
-                    //h_snippets.push(prefix + snippet);
                 });
             }
             else if (/.*\._attr\.\w*/.test(prop)) {
@@ -298,9 +300,17 @@ class AdvancedSearchParser {
                 //h_snippets.push(...this.parseAttributeHighlight(hit, prop));
             }
             else if (/.*\._refs\.\w*/.test(prop)) {
-                if ((_a = hit._source) === null || _a === void 0 ? void 0 : _a.xml_text) {
-                    unique_hl.refs.push(helpers_1.CommonHelper.makeXmlTextSnippet(hit._source.xml_text, 250));
-                    //h_snippets.push(CommonHelper.makeXmlTextSnippet(hit._source.xml_text))
+                const quotes = this.findXmlTextByPath(hit, prop);
+                let prefix = "";
+                if (quotes && quotes.length > 0) {
+                    quotes.forEach(quote => {
+                        if (quote['_refs']) {
+                            const references = this.parseReferences(quote['_refs']);
+                            prefix = "<span class='mrc__text-attr_value'>" + references + "</span> ";
+                        }
+                        unique_hl.refs.push(prefix + helpers_1.CommonHelper.makeXmlTextSnippet(quote['xml_text'], 250, "[...]"));
+                    });
+                    //h_snippets.push(CommonHelper.makeXmlTextSnippet(hit._source.xml_text))*/
                 }
             }
         }
@@ -321,8 +331,13 @@ class AdvancedSearchParser {
         let references = '';
         refs.forEach((element) => {
             let r = '';
-            for (const prop in element) {
-                r = r == '' ? element[prop] : r + ', ' + element[prop];
+            if (element['label']) {
+                r = element['label'];
+            }
+            else {
+                for (const prop in element) {
+                    r = r == '' ? element[prop] : r + ', ' + element[prop];
+                }
             }
             references = references == '' ? r : references + '; ' + r;
         });
@@ -396,6 +411,48 @@ class AdvancedSearchParser {
             });
         }
         return uniqueSnippets;
+    }
+    findXmlTextByPath(data, prop) {
+        const keys = prop.substring("xml_transcription_texts_json.".length).split(".");
+        //tolgo il primo elemento perché corrisponde alla root
+        keys.shift();
+        const targetValue = data['highlight'][prop][0].toString();
+        let elem = data["_source"];
+        function recursiveSearch(currentData, remainingKeys) {
+            let results = [];
+            if (remainingKeys.length === 0) {
+                return null;
+            }
+            // Se currentData è un array, itero su ciascun elemento dell'array
+            if (Array.isArray(currentData)) {
+                for (const item of currentData) {
+                    results = results.concat(recursiveSearch(item, remainingKeys));
+                }
+                return results;
+            }
+            if (!remainingKeys.length) {
+                return results;
+            }
+            const key = remainingKeys[0];
+            // Se siamo al livello in cui si trova _refs, cerco il targetValue
+            if (key === "_refs" && Array.isArray(currentData[key])) {
+                for (const item of currentData[key]) {
+                    if (item.label === targetValue) {
+                        // Se corrisponde, aggiungiamo il valore di xml_text
+                        if (currentData.xml_text) {
+                            results.push(currentData);
+                        }
+                    }
+                }
+            }
+            // Continua a cercare ricorsivamente se non siamo ancora all'ultima chiave
+            if (remainingKeys.length > 1 && currentData[key]) {
+                results = results.concat(recursiveSearch(currentData[key], remainingKeys.slice(1)));
+            }
+            return results;
+        }
+        const a = recursiveSearch(elem, keys);
+        return a;
     }
 }
 exports.AdvancedSearchParser = AdvancedSearchParser;

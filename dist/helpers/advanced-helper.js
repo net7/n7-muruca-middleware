@@ -51,9 +51,9 @@ const simpleQueryString = (queryField, default_operator = 'AND', replaceBoolean 
         ? queryField.fields.split(',')
         : queryField.fields;
     _name =
-        _name == '' && typeof queryField.fields == 'string'
+        _name == "" && typeof queryField.fields == 'string'
             ? queryField.fields
-            : _name;
+            : queryField.fields.join("_");
     let term = queryField.value;
     if (replaceBoolean && term && term != '') {
         term = term
@@ -154,7 +154,7 @@ const queryRange = (termFields, termValue) => {
     return (0, exports.queryBool)(ranges).query;
 };
 exports.queryRange = queryRange;
-const buildHighlights = (queryField, noHighlightFields = null) => {
+const buildHighlights = (queryField, noHighlightFields = null, highlightOptions = null) => {
     const fields = typeof queryField === 'string' ? queryField.split(',') : queryField;
     const highlight = {};
     if (Array.isArray(fields)) {
@@ -165,7 +165,7 @@ const buildHighlights = (queryField, noHighlightFields = null) => {
                     highlight[element.field] = (element === null || element === void 0 ? void 0 : element.options) || {};
                 }
                 else {
-                    highlight[element] = {};
+                    highlight[element] = highlightOptions || {};
                 }
             }
         });
@@ -475,7 +475,7 @@ const nestedQuery = (path, query, inner_hits = null) => {
 exports.nestedQuery = nestedQuery;
 const checkMatchedQuery = (prop, matched_queries) => {
     if (matched_queries.filter((q) => {
-        const test = new RegExp('(.*.)?' + q + '$', 'g');
+        const test = new RegExp('(.*\.)?' + q + '$', 'g');
         return test.test(prop);
     }).length <= 0) {
         return false;

@@ -30,13 +30,13 @@ export const CommonHelper = {
     const tag_regex =
       '<[^>]+?' +
       this.escapeRegExp(node_attr) +
-      '=["\']' +
+      '=["\'][^>]*?' +
       this.escapeRegExp(snippet) +
-      '["\'][^>]*?>[^<>]+?</[^>]+?>';
+      '[^>]*?["\'][^>]*?>[^<>]+?<\/[^>]+?>';
     const regex_str =
-      '(?:(?:\\s?[^\\s\n\r\t]+\\s+){0,30})' +
+      '(?:(?:\\s?[^\\s\\n\\r\\t]+\\s+){0,30})' +
       tag_regex +
-      '(?:(?:\\s*[^\\s\n\r\t]+\\s){0,30})';
+      '(?:(?:\\s*[^\\s\\n\\r\\t]+\\s){0,30})';
     const regex = new RegExp(regex_str, 'g');
     const matches = text.match(regex);
     const snippets = [];
@@ -44,10 +44,10 @@ export const CommonHelper = {
       matches.forEach((element) => {
         const regex = new RegExp(
           '(<[^>]+?' +
-            this.escapeRegExp(node_attr) +
-            '=["\']' +
-            this.escapeRegExp(snippet) +
-            '["\'].*?>)(.+?)(</[^>]+?>)',
+          this.escapeRegExp(node_attr) +
+          '=["\'][^>]*?' +
+          this.escapeRegExp(snippet) +
+          '[^>]*?["\'].*?>)(.+?)(<\/[^>]+?>)',
           'g',
         );
         element = element.replace(
@@ -69,7 +69,7 @@ export const CommonHelper = {
       this.escapeRegExp(node_attr) +
       '=["\']' +
       this.escapeRegExp(snippet) +
-      '["\'][^>]*?>[^<>]+?</' +
+      '["\'][^>]*?>[^<>]+?<\/' +
       node_name +
       '>)';
     const regex = new RegExp(regex_str, 'g');
@@ -77,10 +77,50 @@ export const CommonHelper = {
     return text_hl;
   },
 
-  makeXmlTextSnippet(xml, size = 100) {
+  makeXmlTextSnippet(xml, size = 100, ellipsis = "") {
     let text = this.stripTags(xml);
     const regex_str = '^(.{' + size + '}[^\\s]*).*';
     const regex = new RegExp(regex_str, 'g');
-    return text.replace(regex, '$1');
+    let snippet = text.replace(regex, "$1");
+    if (ellipsis !== "" && snippet.length < text.length) {
+      snippet += " " + ellipsis;
+    }
+    return snippet
   },
+
+  sanitizeHtml(input: string): string {
+    if (!input.trim()) {
+      return "<p>Contenuto vuoto.</p>";
+    }
+
+    const openTags: string[] = [];
+
+    // Funzione per correggere i tag non chiusi
+    const fixUnclosedTags = (html: string) => {
+      return html.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/gi, (tag, tagName) => {
+        tagName = tagName.toLowerCase();
+        if (tag.charAt(1) !== '/') {  // Tag di apertura
+          openTags.push(tagName);
+          return tag;
+        } else {  // Tag di chiusura
+          if (openTags.length > 0 && openTags[openTags.length - 1] === tagName) {
+            openTags.pop();
+            return tag;
+          }
+          // Se il tag di chiusura non corrisponde all'ultimo tag aperto, lo ignoriamo
+          return '';
+        }
+      });
+    };
+
+    // Applica la correzione dei tag
+    let sanitized = fixUnclosedTags(input);
+
+    // Chiudi eventuali tag rimasti aperti
+    while (openTags.length > 0) {
+      sanitized += `</${openTags.pop()}>`;
+    }
+
+    return sanitized || "";
+  }
 };

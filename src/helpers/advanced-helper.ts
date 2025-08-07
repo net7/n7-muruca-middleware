@@ -68,10 +68,10 @@ export const simpleQueryString = (
       ? queryField.fields.split(',')
       : queryField.fields;
 
-  _name =
-    _name == '' && typeof queryField.fields == 'string'
-      ? queryField.fields
-      : _name;
+  _name = 
+    _name == "" &&  typeof queryField.fields == 'string' 
+    ? queryField.fields 
+    : queryField.fields.join("_");
 
   let term = queryField.value;
   if (replaceBoolean && term && term != '') {
@@ -193,6 +193,7 @@ export const queryRange = (termFields: [], termValue: any) => {
 export const buildHighlights = (
   queryField: any,
   noHighlightFields: string[] = null,
+  highlightOptions:any = null
 ) => {
   const fields =
     typeof queryField === 'string' ? queryField.split(',') : queryField;
@@ -206,7 +207,7 @@ export const buildHighlights = (
         if (element.field && element.field != '') {
           highlight[element.field] = element?.options || {};
         } else {
-          highlight[element] = {};
+          highlight[element] = highlightOptions || {};
         }
       }
     });
@@ -522,7 +523,7 @@ export const nestedQuery = (
 export const checkMatchedQuery = (prop, matched_queries) => {
   if (
     matched_queries.filter((q) => {
-      const test = new RegExp('(.*.)?' + q + '$', 'g');
+      const test = new RegExp('(.*\.)?' + q + '$', 'g');
       return test.test(prop);
     }).length <= 0
   ) {
