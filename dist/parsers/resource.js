@@ -164,7 +164,7 @@ class ResourceParser {
                             label: field.replace(/_/g, " "),
                             value: (0, parseMetadataFunctions_1.parseMetadataValue)(item, field)
                         };
-                        return this.filterMetadataAccordionItem(metadataAccordionItem, field, data);
+                        return this.filterMetadataAccordionItem(metadataAccordionItem, field, item);
                     }
                 });
                 accordion.group.push(metadata);

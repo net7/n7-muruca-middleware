@@ -190,7 +190,7 @@ export class ResourceParser implements Parser {
               label: field.replace(/_/g, " "),
               value: parseMetadataValue(item, field)
             };
-            return this.filterMetadataAccordionItem(metadataAccordionItem, field, data);
+            return this.filterMetadataAccordionItem(metadataAccordionItem, field, item);
           }
         })
         accordion.group.push(metadata);
