@@ -8,6 +8,7 @@ export declare class ResourceParser implements Parser {
     parseBreadcrumbs(block: ConfBlock, data: any, type: string): OutputBreadcrumbs;
     parseTabs(block: ConfBlockTabs, data: any): string[];
     parseMetadata(block: ConfBlock, data: any, type: string): OutputMetadata;
+    parseMetadataAccordion(block: ConfBlock, data: any, type: string): any;
     parseMetadataSize(block: ConfBlock, data: any): OutputMetadata;
     parseMetadataDescription(block: ConfBlock, data: any): OutputMetadata;
     parseImageViewer(block: ConfBlock, data: any): OutputImageViewer;
@@ -23,4 +24,7 @@ export declare class ResourceParser implements Parser {
     filterMetadataItem(field: string, metadataItem: OutputMetadataItem, recordType: string, data: any): OutputMetadataItem;
     filterCollectionItem(collectionItem: any, item: any, field: string, data: any): any;
     filterBibliographyItem(bibliographyItem: any, rif: any, field: string, data: any): any;
+    filterAccordionHeader(accordionHeader: any, item: any): any;
+    filterMetadataAccordionItem(metadataAccordionItem: any, field: string, data: any): any;
+    creatMetadataAccordionList(item: any): string[];
 }

@@ -41,6 +41,10 @@ export class ResourceParser implements Parser {
             parsed.sections[block] = this.parseMetadata(conf[block], data, type);
             break;
 
+          case "metadata-accordion":
+            parsed.sections[block] = this.parseMetadataAccordion(conf[block], data, type);
+            break;
+
           case "metadata-size":
             parsed.sections[block] = this.parseMetadataSize(conf[block], data);
             break;
@@ -157,6 +161,44 @@ export class ResourceParser implements Parser {
     m.group[0].items = m.group[0].items.filter((n: any) => n); 
 
     return m;
+  }
+
+  parseMetadataAccordion(block: ConfBlock, data: any, type: string): any {
+    const a = {
+      data: [],
+    };
+    block.fields.forEach((field) => {
+      if (!data[field] || !data[field].length) return
+      data[field].forEach((item) => {
+        let accordion = {
+          title: item.title,
+          group: [],
+          accordionId: `${item['record-type']}-${item.id}`,
+          options: {
+            isOpen: false
+          }
+        }
+        accordion = this.filterAccordionHeader(accordion, item);
+        let metadata = {
+          title: '',
+          items: []
+        }
+        let metadataList = this.creatMetadataAccordionList(item);
+        metadata.items = metadataList.map((field) => {
+          if (item[field]) {
+            let metadataAccordionItem = {
+              label: field.replace(/_/g, " "),
+              value: parseMetadataValue(item, field)
+            };
+            return this.filterMetadataAccordionItem(metadataAccordionItem, field, data);
+          }
+        })
+        accordion.group.push(metadata);
+        a.data.push(accordion);
+      });
+    });
+    if (!a.data.length) return;
+    return a;
   }
  
   parseMetadataSize(block: ConfBlock, data: any): OutputMetadata{
@@ -429,5 +471,17 @@ export class ResourceParser implements Parser {
 
   filterBibliographyItem(bibliographyItem: any, rif: any, field: string, data: any): any{
     return bibliographyItem;
+  }
+
+  filterAccordionHeader(accordionHeader: any, item: any) {
+    return accordionHeader;
+  }
+
+  filterMetadataAccordionItem(metadataAccordionItem: any, field: string, data: any): any{
+    return metadataAccordionItem;
+  }
+
+  creatMetadataAccordionList(item: any) {
+    return ['title'];
   }
 }
