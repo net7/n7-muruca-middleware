@@ -10,6 +10,7 @@ export declare class AdvancedSearchParser implements Parser {
         data: any;
         options: any;
     }): Promise<any[]>;
+    protected filterAdvancedResultItem(itemResult: any, source: any): any;
     /**
      * Parse Hits of a document
      * @param inn_hits

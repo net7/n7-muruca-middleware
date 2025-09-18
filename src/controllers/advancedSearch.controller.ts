@@ -33,6 +33,7 @@ export class advancedSearchController {
         query_res,
         body,
         teiPublisherUri,
+        config
       );
       return response;
     } else return { error: 'error' };

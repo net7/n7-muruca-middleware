@@ -12,7 +12,8 @@ export class AdvancedSearchService {
     this.configurations = configurations;
   }
 
-  parseResponse = async (query_res: any, query_params, teiPublisherUri) => {
+  parseResponse = async (query_res: any, query_params, teiPublisherUri, config) => {
+    const { parsers } = config;
     const { searchId } = query_params;
     const { limit, offset, sort } = query_params.results
       ? query_params.results
@@ -20,8 +21,13 @@ export class AdvancedSearchService {
     const data = query_res.hits.hits;
     let total_count = query_res.hits.total.value;
 
-    const parser = new AdvancedSearchParser();
-
+    let parser;
+    if (parsers['advancedSearch']) {
+      parser = new parsers.advancedSearch();
+    } else {
+      parser = new AdvancedSearchParser();
+    }
+    
     const response: SearchResultsData = {
       limit,
       offset,

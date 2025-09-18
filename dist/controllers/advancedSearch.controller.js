@@ -26,7 +26,7 @@ class advancedSearchController {
             //console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
             if (query_res) {
-                const response = yield service.parseResponse(query_res, body, teiPublisherUri);
+                const response = yield service.parseResponse(query_res, body, teiPublisherUri, config);
                 return response;
             }
             else

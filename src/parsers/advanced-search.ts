@@ -119,11 +119,16 @@ export class AdvancedSearchParser implements Parser {
               itemResult[val.label].push({ items: items });
             }
           });
+          itemResult = this.filterAdvancedResultItem(itemResult, source);
           items.push(itemResult);
         },
       ),
     );
     return items;
+  }
+
+  protected filterAdvancedResultItem(itemResult: any, source: any) {
+    return itemResult;
   }
 
   /**

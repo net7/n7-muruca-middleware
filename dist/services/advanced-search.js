@@ -14,14 +14,21 @@ const ASHelper = require("../helpers/advanced-helper");
 const parsers_1 = require("../parsers");
 class AdvancedSearchService {
     constructor(configurations) {
-        this.parseResponse = (query_res, query_params, teiPublisherUri) => __awaiter(this, void 0, void 0, function* () {
+        this.parseResponse = (query_res, query_params, teiPublisherUri, config) => __awaiter(this, void 0, void 0, function* () {
+            const { parsers } = config;
             const { searchId } = query_params;
             const { limit, offset, sort } = query_params.results
                 ? query_params.results
                 : 'null';
             const data = query_res.hits.hits;
             let total_count = query_res.hits.total.value;
-            const parser = new parsers_1.AdvancedSearchParser();
+            let parser;
+            if (parsers['advancedSearch']) {
+                parser = new parsers.advancedSearch();
+            }
+            else {
+                parser = new parsers_1.AdvancedSearchParser();
+            }
             const response = {
                 limit,
                 offset,

@@ -2,7 +2,7 @@ import { SearchResultsData } from '../interfaces';
 export declare class AdvancedSearchService {
     private configurations;
     constructor(configurations: any);
-    parseResponse: (query_res: any, query_params: any, teiPublisherUri: any) => Promise<SearchResultsData>;
+    parseResponse: (query_res: any, query_params: any, teiPublisherUri: any, config: any) => Promise<SearchResultsData>;
     extractXmlTextHl: (query_res: any) => any[];
     buildAdvancedQuery: (query_params: any) => any;
     buildFulltextQuery(query_conf: any, query_param: any): any;

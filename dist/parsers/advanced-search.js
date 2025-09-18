@@ -126,10 +126,14 @@ class AdvancedSearchParser {
                         itemResult[val.label].push({ items: items });
                     }
                 });
+                itemResult = this.filterAdvancedResultItem(itemResult, source);
                 items.push(itemResult);
             })));
             return items;
         });
+    }
+    filterAdvancedResultItem(itemResult, source) {
+        return itemResult;
     }
     /**
      * Parse Hits of a document
