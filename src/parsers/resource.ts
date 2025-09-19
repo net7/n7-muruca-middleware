@@ -366,6 +366,11 @@ export class ResourceParser implements Parser {
           slug: data.slug,
           id: data.id,
           routeId: 'text',
+          metadata: [{
+            items: [
+              {label: data.title, value: ''}
+            ]
+          }],
         };
         if(data.thumbnail) {
           collectionItem['image'] = data.thumbnail;
@@ -377,10 +382,15 @@ export class ResourceParser implements Parser {
         collection.items.push(collectionItem);
       } else {
         let collectionItem = {
-          title: 'Edizione del testo in preparazione',
+          title: 'Edizione digitale in preparazione',
           slug: data.slug,
           id: data.id,
           routeId: '',
+          metadata: [{
+            items: [
+              {label: data.title, value: ''}
+            ]
+          }],
         };
         collectionItem = this.filterCollectionDigitalEditionItem(collectionItem, field, data);
         collection.items.push(collectionItem);
