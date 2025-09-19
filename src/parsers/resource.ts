@@ -69,6 +69,10 @@ export class ResourceParser implements Parser {
             parsed.sections[block] = this.parseCollection(conf[block], data);
             break;
 
+          case "collection-digital-edition":
+            parsed.sections[block] = this.parseCollectionDigitalEdition(conf[block], data);
+            break;
+
           case "collection-places": 
             parsed.sections[block] = this.parseCollectionMaps(conf[block], data);
             break;
@@ -350,6 +354,41 @@ export class ResourceParser implements Parser {
     return collection;
   }
 
+  parseCollectionDigitalEdition(block: ConfBlock, data: any): OutputCollection {
+    const collection : OutputCollection = {
+      items: [],
+    };
+
+    block.fields.map((field: string) => {
+      if (data[field]) {
+        let collectionItem = {
+          title: 'Edizione digitale',
+          slug: data.slug,
+          id: data.id,
+          routeId: 'text',
+        };
+        if(data.thumbnail) {
+          collectionItem['image'] = data.thumbnail;
+        }
+        if (data.params) {
+          collectionItem['params'] = this.extractQueryParams(data.params);
+        }
+        collectionItem =  this.filterCollectionDigitalEditionItem(collectionItem, field, data);
+        collection.items.push(collectionItem);
+      } else {
+        let collectionItem = {
+          title: 'Edizione del testo in preparazione',
+          slug: data.slug,
+          id: data.id,
+          routeId: '',
+        };
+        collectionItem = this.filterCollectionDigitalEditionItem(collectionItem, field, data);
+        collection.items.push(collectionItem);
+      }
+    });
+    return collection;
+  }
+
   parseCollectionMaps(block: ConfBlock, data: any):  OutputCollectionMap[] {
     const collectionMaps = [];
     block?.fields?.forEach((field) => {
@@ -466,6 +505,10 @@ export class ResourceParser implements Parser {
   }
 
   filterCollectionItem(collectionItem: any, item: any, field: string, data: any): any{
+    return collectionItem;
+  }
+
+  filterCollectionDigitalEditionItem(collectionItem: any, field: string, data: any) {
     return collectionItem;
   }
 

@@ -15,6 +15,7 @@ export declare class ResourceParser implements Parser {
     parseImageViewerIIIF(block: ConfBlock, data: any): OutputImageViewerIIIF;
     parseTextViewer(block: ConfBlockTextViewer, data: any): OutputTextViewer;
     parseCollection(block: ConfBlock, data: any): OutputCollection;
+    parseCollectionDigitalEdition(block: ConfBlock, data: any): OutputCollection;
     parseCollectionMaps(block: ConfBlock, data: any): OutputCollectionMap[];
     extractQueryParams(queryParams: string): {};
     parseBibliography(block: ConfBlock, data: any): OutputBibliography;
@@ -23,6 +24,7 @@ export declare class ResourceParser implements Parser {
     filterTextViewer(textViewer: OutputTextViewer, field: string, data: any): OutputTextViewer;
     filterMetadataItem(field: string, metadataItem: OutputMetadataItem, recordType: string, data: any): OutputMetadataItem;
     filterCollectionItem(collectionItem: any, item: any, field: string, data: any): any;
+    filterCollectionDigitalEditionItem(collectionItem: any, field: string, data: any): any;
     filterBibliographyItem(bibliographyItem: any, rif: any, field: string, data: any): any;
     filterAccordionHeader(accordionHeader: any, item: any): any;
     filterMetadataAccordionItem(metadataAccordionItem: any, field: string, data: any): any;

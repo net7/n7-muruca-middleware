@@ -53,6 +53,9 @@ class ResourceParser {
                 case "collection":
                     parsed.sections[block] = this.parseCollection(conf[block], data);
                     break;
+                case "collection-digital-edition":
+                    parsed.sections[block] = this.parseCollectionDigitalEdition(conf[block], data);
+                    break;
                 case "collection-places":
                     parsed.sections[block] = this.parseCollectionMaps(conf[block], data);
                     break;
@@ -312,6 +315,40 @@ class ResourceParser {
         });
         return collection;
     }
+    parseCollectionDigitalEdition(block, data) {
+        const collection = {
+            items: [],
+        };
+        block.fields.map((field) => {
+            if (data[field]) {
+                let collectionItem = {
+                    title: 'Edizione digitale',
+                    slug: data.slug,
+                    id: data.id,
+                    routeId: 'text',
+                };
+                if (data.thumbnail) {
+                    collectionItem['image'] = data.thumbnail;
+                }
+                if (data.params) {
+                    collectionItem['params'] = this.extractQueryParams(data.params);
+                }
+                collectionItem = this.filterCollectionDigitalEditionItem(collectionItem, field, data);
+                collection.items.push(collectionItem);
+            }
+            else {
+                let collectionItem = {
+                    title: 'Edizione del testo in preparazione',
+                    slug: data.slug,
+                    id: data.id,
+                    routeId: '',
+                };
+                collectionItem = this.filterCollectionDigitalEditionItem(collectionItem, field, data);
+                collection.items.push(collectionItem);
+            }
+        });
+        return collection;
+    }
     parseCollectionMaps(block, data) {
         var _a;
         const collectionMaps = [];
@@ -424,6 +461,9 @@ class ResourceParser {
         return metadataItem;
     }
     filterCollectionItem(collectionItem, item, field, data) {
+        return collectionItem;
+    }
+    filterCollectionDigitalEditionItem(collectionItem, field, data) {
         return collectionItem;
     }
     filterBibliographyItem(bibliographyItem, rif, field, data) {
