@@ -3,98 +3,107 @@ import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, Output
 import { parseMetadataValue } from '../utils/parseMetadataFunctions';
 
 export class ResourceParser implements Parser {
-    parse({ data, options }: any, locale) {
-      if (!("type" in options)) {
-        return;
-      }
-  
-      const { conf, type } = options;
-  
-      const parsed: any = {
-        title: "",
-        sections: {},
-      };
 
-      if(data?.error){
-        return parsed;
-      }
+  locale: any;
 
-      for (const block in conf) {
-        switch (conf[block].type) {
-          case "title":
-            parsed.title = this.parseTitle(conf[block], data);
-            break;
-  
-          case "header":
-            parsed.sections[block] = this.parseHeader(conf[block], data);
-            break;
+  parse({ data, options }: any, locale) {
+    if (!("type" in options)) {
+      return;
+    }
 
-          case "breadcrumb":
-            parsed.sections[block] = this.parseBreadcrumbs(conf[block], data, type);
-            break;
-            
-          case "tabs":
-            parsed.sections[block] = this.parseTabs(conf[block], data)
-            break;
-            
-          case "metadata":
-            parsed.sections[block] = this.parseMetadata(conf[block], data, type);
-            break;
+    this.locale = locale;
 
-          case "metadata-accordion":
-            parsed.sections[block] = this.parseMetadataAccordion(conf[block], data, type);
-            break;
+    const { conf, type } = options;
 
-          case "metadata-size":
-            parsed.sections[block] = this.parseMetadataSize(conf[block], data);
-            break;
+    const parsed: any = {
+      title: "",
+      sections: {},
+    };
 
-          case "metadata-description":
-            parsed.sections[block] = this.parseMetadataDescription(conf[block], data);
-            break;
-          
-          case "image-viewer":
-            parsed.sections[block] = this.parseImageViewer(conf[block], data);
-            break;
-
-          case "image-viewer-iiif":
-            parsed.sections[block] = this.parseImageViewerIIIF(conf[block], data);
-            break;
-
-          case "text-viewer":
-            parsed.sections[block] = this.parseTextViewer(conf[block], data)
-            break;
-
-          case "collection":
-            parsed.sections[block] = this.parseCollection(conf[block], data);
-            break;
-
-          case "collection-digital-edition":
-            parsed.sections[block] = this.parseCollectionDigitalEdition(conf[block], data);
-            break;
-
-          case "collection-places": 
-            parsed.sections[block] = this.parseCollectionMaps(conf[block], data);
-            break;
-  
-          case "bibliography":
-            parsed.sections[block] = this.parseBibliography(conf[block], data);
-            break;
-  
-          default:
-            break;
-        }
-      }
+    if(data?.error){
       return parsed;
     }
-    
-    localeParse(data: any) {
-      const locale = data;
-      return locale;
+
+    for (const block in conf) {
+      switch (conf[block].type) {
+        case "title":
+          parsed.title = this.parseTitle(conf[block], data);
+          break;
+
+        case "header":
+          parsed.sections[block] = this.parseHeader(conf[block], data);
+          break;
+
+        case "breadcrumb":
+          parsed.sections[block] = this.parseBreadcrumbs(conf[block], data, type);
+          break;
+          
+        case "tabs":
+          parsed.sections[block] = this.parseTabs(conf[block], data)
+          break;
+          
+        case "metadata":
+          parsed.sections[block] = this.parseMetadata(conf[block], data, type);
+          break;
+
+        case "metadata-accordion":
+          parsed.sections[block] = this.parseMetadataAccordion(conf[block], data, type);
+          break;
+
+        case "metadata-size":
+          parsed.sections[block] = this.parseMetadataSize(conf[block], data);
+          break;
+
+        case "metadata-description":
+          parsed.sections[block] = this.parseMetadataDescription(conf[block], data);
+          break;
+        
+        case "image-viewer":
+          parsed.sections[block] = this.parseImageViewer(conf[block], data);
+          break;
+
+        case "image-viewer-iiif":
+          parsed.sections[block] = this.parseImageViewerIIIF(conf[block], data);
+          break;
+
+        case "text-viewer":
+          parsed.sections[block] = this.parseTextViewer(conf[block], data)
+          break;
+
+        case "collection":
+          parsed.sections[block] = this.parseCollection(conf[block], data);
+          break;
+
+        case "collection-digital-edition":
+          parsed.sections[block] = this.parseCollectionDigitalEdition(conf[block], data);
+          break;
+
+        case "collection-places": 
+          parsed.sections[block] = this.parseCollectionMaps(conf[block], data);
+          break;
+
+        case "bibliography":
+          parsed.sections[block] = this.parseBibliography(conf[block], data);
+          break;
+
+        default:
+          break;
+      }
     }
+    return parsed;
+  }
+  
+  localeParse(data: any) {
+    const locale = data;
+    return locale;
+  }
   
   // PARSERS
   // These parsers can be overridden in the parsers section of middleware projects.
+
+  parseLocale() {
+    return (this.locale === 'it') ? '' : this.locale;
+  }
 
   parseTitle(block: ConfBlock, data: any): string{
    let title: string = "";

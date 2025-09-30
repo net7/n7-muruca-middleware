@@ -1,8 +1,10 @@
 import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs } from '../interfaces';
 import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerIIIF, OutputMetadata, OutputMetadataItem, OutputTextViewer } from '../interfaces/parser';
 export declare class ResourceParser implements Parser {
+    locale: any;
     parse({ data, options }: any, locale: any): any;
     localeParse(data: any): any;
+    parseLocale(): any;
     parseTitle(block: ConfBlock, data: any): string;
     parseHeader(block: ConfBlock, data: any): OutputHeader;
     parseBreadcrumbs(block: ConfBlock, data: any, type: string): OutputBreadcrumbs;

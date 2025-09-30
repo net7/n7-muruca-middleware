@@ -7,6 +7,7 @@ class ResourceParser {
         if (!("type" in options)) {
             return;
         }
+        this.locale = locale;
         const { conf, type } = options;
         const parsed = {
             title: "",
@@ -74,6 +75,9 @@ class ResourceParser {
     }
     // PARSERS
     // These parsers can be overridden in the parsers section of middleware projects.
+    parseLocale() {
+        return (this.locale === 'it') ? '' : this.locale;
+    }
     parseTitle(block, data) {
         let title = "";
         block.fields.map((field) => {
