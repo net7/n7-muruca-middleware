@@ -20,6 +20,10 @@ export interface ConfBlockTextViewer {
     type: "text-viewer";
     field: string;
 }
+export interface ConfBlockParallelTextViewer {
+    type: "parallel-text-viewer";
+    field: string;
+}
 export interface ConfBlockTabs {
     type: "tabs";
     tabs: {

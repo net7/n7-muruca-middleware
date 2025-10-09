@@ -141,6 +141,12 @@ export interface OutputTextViewer{
   "facsimile"?: any
 }
 
+export interface OutputParallelTextViewer { // DA FARE
+  "endpoint": string,
+  "docs": OutputTextViewerDoc[],
+  "facsimile"?: any
+}
+
 export interface OutputTextViewerDoc{
   "xml": string,
   "odd": string,

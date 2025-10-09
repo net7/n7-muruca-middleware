@@ -117,6 +117,11 @@ export interface OutputTextViewer {
     "docs": OutputTextViewerDoc[];
     "facsimile"?: any;
 }
+export interface OutputParallelTextViewer {
+    "endpoint": string;
+    "docs": OutputTextViewerDoc[];
+    "facsimile"?: any;
+}
 export interface OutputTextViewerDoc {
     "xml": string;
     "odd": string;

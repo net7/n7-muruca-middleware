@@ -16,6 +16,7 @@ export declare class ResourceParser implements Parser {
     parseImageViewer(block: ConfBlock, data: any): OutputImageViewer;
     parseImageViewerIIIF(block: ConfBlock, data: any): OutputImageViewerIIIF;
     parseTextViewer(block: ConfBlockTextViewer, data: any): OutputTextViewer;
+    parseParallelTextViewer(block: any, data: any): any;
     parseCollection(block: ConfBlock, data: any): OutputCollection;
     parseCollectionDigitalEdition(block: ConfBlock, data: any): OutputCollection;
     parseCollectionMaps(block: ConfBlock, data: any): OutputCollectionMap[];
@@ -24,6 +25,7 @@ export declare class ResourceParser implements Parser {
     filterImageViewer(imageViewer: OutputImageViewer, block: ConfBlock, data: any): OutputImageViewer;
     filterImageViewerIIIF(iiifViewer: OutputImageViewerIIIF, block: ConfBlock, data: any): OutputImageViewerIIIF;
     filterTextViewer(textViewer: OutputTextViewer, field: string, data: any): OutputTextViewer;
+    filterParallelTextViewer(parallelTextViewer: any, field: string, data: any): any;
     filterMetadataItem(field: string, metadataItem: OutputMetadataItem, recordType: string, data: any): OutputMetadataItem;
     filterCollectionItem(collectionItem: any, item: any, field: string, data: any): any;
     filterCollectionDigitalEditionItem(collectionItem: any, field: string, data: any): any;

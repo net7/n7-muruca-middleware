@@ -1,6 +1,7 @@
-import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs } from '../interfaces';
+import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs, ConfBlockParallelTextViewer } from '../interfaces';
 import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerIIIF, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
 import { parseMetadataValue } from '../utils/parseMetadataFunctions';
+import { mockParallelTextViewer } from './mock-parallel-text-viewer';
 
 export class ResourceParser implements Parser {
 
@@ -68,6 +69,10 @@ export class ResourceParser implements Parser {
 
         case "text-viewer":
           parsed.sections[block] = this.parseTextViewer(conf[block], data)
+          break;
+
+        case "parallel-text-viewer":
+          parsed.sections[block] = this.parseParallelTextViewer(conf[block], mockParallelTextViewer)
           break;
 
         case "collection":
@@ -298,9 +303,7 @@ export class ResourceParser implements Parser {
     if (data[block.field]) {
       if (!data[block.field]["filename"].endsWith("/")) {
         textViewer = {
-          endpoint:
-            data[block.field]["teipublisher"] +
-            "/exist/apps/tei-publisher",
+          endpoint: data[block.field]["teipublisher"] + "/exist/apps/tei-publisher",
           docs: [
             {
               xml: data[block.field]["filename"],
@@ -334,6 +337,80 @@ export class ResourceParser implements Parser {
     }
 
     return this.filterTextViewer(textViewer, block.field, data);
+  }
+
+  parseParallelTextViewer(block: any, data: any): any { // DA METTERE INTERFACES
+    let parallelTextViewer: any = {
+      endpoint: "",
+      docs: [],
+      mainDoc: {
+        odd: "",
+        view: "",
+        doc_id: "",
+      },
+      panels: []
+    };
+
+    if (data[block.field]) {
+      if (!data[block.field]["filename"].endsWith("/")) {
+        const panelsList = data[block.field]["panels"];
+
+        parallelTextViewer = {
+          endpoint: data[block.field]["teipublisher"],
+          mainDoc: {
+            doc_id: 'mainDoc',
+            odd: data[block.field]["odd"] ?? false,
+            view : data[block.field]["view"] ?? false,
+            channel: data[block.field]["channel"] ?? false,
+            translation : data[block.field]["translation"] ?? false,
+            xpath : data[block.field]["xpath"] ?? false,
+          },
+          docs: [
+            {
+              xml: data[block.field]["filename"],
+              id: 'mainDoc',
+            }
+          ],
+        }
+
+        // Check grid
+        if (data[block.field]["grid"]) {
+          parallelTextViewer['grid'] = data[block.field]["grid"];
+        }
+
+        // Check panels
+        if (block.panels && block.panels) {
+          parallelTextViewer['panels'] = [];
+          let panelIndex = 2;
+          block.panels.forEach((panel) => {
+            if (panel.type && panel.type === 'facsimile') {
+              const panelObj = {
+                ...panelsList[panel.field],
+                id: panel.id,
+              }
+              parallelTextViewer['panels'].push(panelObj);
+            } else {
+              const { filename, ...panelRest } = panelsList[panel.field];
+              const panelObj = {
+                ...panelRest,
+                id: panel.id,
+                doc_id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc',
+              }
+              parallelTextViewer['panels'].push(panelObj);
+              if (panelsList[panel.field]['filename']) {
+                parallelTextViewer['docs'].push({
+                  xml: (panelsList[panel.field]['filename']) ? panelsList[panel.field]['filename'] : data[block.field]["filename"],
+                  id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc'
+                });
+              }
+              if (panelsList[panel.field]['filename']) panelIndex++;
+            }
+          });
+        }
+      }
+    } 
+
+    return this.filterParallelTextViewer(parallelTextViewer, block.field, data);
   }
 
   parseCollection(block: ConfBlock, data: any): OutputCollection {
@@ -517,6 +594,10 @@ export class ResourceParser implements Parser {
 
   filterTextViewer(textViewer: OutputTextViewer, field: string, data: any): OutputTextViewer {
     return textViewer;
+  }
+
+  filterParallelTextViewer(parallelTextViewer: any, field: string, data: any): any { // DA METTERE INTERFACES
+    return parallelTextViewer;
   }
 
   filterMetadataItem(field: string, metadataItem: OutputMetadataItem, recordType: string, data: any ): OutputMetadataItem{

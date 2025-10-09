@@ -1,7 +1,19 @@
 "use strict";
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResourceParser = void 0;
 const parseMetadataFunctions_1 = require("../utils/parseMetadataFunctions");
+const mock_parallel_text_viewer_1 = require("./mock-parallel-text-viewer");
 class ResourceParser {
     parse({ data, options }, locale) {
         if (!("type" in options)) {
@@ -50,6 +62,9 @@ class ResourceParser {
                     break;
                 case "text-viewer":
                     parsed.sections[block] = this.parseTextViewer(conf[block], data);
+                    break;
+                case "parallel-text-viewer":
+                    parsed.sections[block] = this.parseParallelTextViewer(conf[block], mock_parallel_text_viewer_1.mockParallelTextViewer);
                     break;
                 case "collection":
                     parsed.sections[block] = this.parseCollection(conf[block], data);
@@ -258,8 +273,7 @@ class ResourceParser {
         if (data[block.field]) {
             if (!data[block.field]["filename"].endsWith("/")) {
                 textViewer = {
-                    endpoint: data[block.field]["teipublisher"] +
-                        "/exist/apps/tei-publisher",
+                    endpoint: data[block.field]["teipublisher"] + "/exist/apps/tei-publisher",
                     docs: [
                         {
                             xml: data[block.field]["filename"],
@@ -293,6 +307,70 @@ class ResourceParser {
             return;
         }
         return this.filterTextViewer(textViewer, block.field, data);
+    }
+    parseParallelTextViewer(block, data) {
+        var _a, _b, _c, _d, _e;
+        let parallelTextViewer = {
+            endpoint: "",
+            docs: [],
+            mainDoc: {
+                odd: "",
+                view: "",
+                doc_id: "",
+            },
+            panels: []
+        };
+        if (data[block.field]) {
+            if (!data[block.field]["filename"].endsWith("/")) {
+                const panelsList = data[block.field]["panels"];
+                parallelTextViewer = {
+                    endpoint: data[block.field]["teipublisher"],
+                    mainDoc: {
+                        doc_id: 'mainDoc',
+                        odd: (_a = data[block.field]["odd"]) !== null && _a !== void 0 ? _a : false,
+                        view: (_b = data[block.field]["view"]) !== null && _b !== void 0 ? _b : false,
+                        channel: (_c = data[block.field]["channel"]) !== null && _c !== void 0 ? _c : false,
+                        translation: (_d = data[block.field]["translation"]) !== null && _d !== void 0 ? _d : false,
+                        xpath: (_e = data[block.field]["xpath"]) !== null && _e !== void 0 ? _e : false,
+                    },
+                    docs: [
+                        {
+                            xml: data[block.field]["filename"],
+                            id: 'mainDoc',
+                        }
+                    ],
+                };
+                // Check grid
+                if (data[block.field]["grid"]) {
+                    parallelTextViewer['grid'] = data[block.field]["grid"];
+                }
+                // Check panels
+                if (block.panels && block.panels) {
+                    parallelTextViewer['panels'] = [];
+                    let panelIndex = 2;
+                    block.panels.forEach((panel) => {
+                        if (panel.type && panel.type === 'facsimile') {
+                            const panelObj = Object.assign(Object.assign({}, panelsList[panel.field]), { id: panel.id });
+                            parallelTextViewer['panels'].push(panelObj);
+                        }
+                        else {
+                            const _a = panelsList[panel.field], { filename } = _a, panelRest = __rest(_a, ["filename"]);
+                            const panelObj = Object.assign(Object.assign({}, panelRest), { id: panel.id, doc_id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc' });
+                            parallelTextViewer['panels'].push(panelObj);
+                            if (panelsList[panel.field]['filename']) {
+                                parallelTextViewer['docs'].push({
+                                    xml: (panelsList[panel.field]['filename']) ? panelsList[panel.field]['filename'] : data[block.field]["filename"],
+                                    id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc'
+                                });
+                            }
+                            if (panelsList[panel.field]['filename'])
+                                panelIndex++;
+                        }
+                    });
+                }
+            }
+        }
+        return this.filterParallelTextViewer(parallelTextViewer, block.field, data);
     }
     parseCollection(block, data) {
         const collection = {
@@ -470,6 +548,9 @@ class ResourceParser {
     }
     filterTextViewer(textViewer, field, data) {
         return textViewer;
+    }
+    filterParallelTextViewer(parallelTextViewer, field, data) {
+        return parallelTextViewer;
     }
     filterMetadataItem(field, metadataItem, recordType, data) {
         return metadataItem;

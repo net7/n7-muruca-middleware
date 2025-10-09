@@ -23,6 +23,11 @@ export interface ConfBlockTextViewer{
     field: string,
 }
 
+export interface ConfBlockParallelTextViewer{ // DA FARE
+    type: "parallel-text-viewer" ,
+    field: string,
+}
+
 export interface ConfBlockTabs{
     type: "tabs" ,
     tabs: {
