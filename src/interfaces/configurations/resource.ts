@@ -30,6 +30,7 @@ export interface ConfBlockParallelTextViewer{
         id: string,
         field: string,
         type?: string
+        title?: string,
     }[]
 }
 

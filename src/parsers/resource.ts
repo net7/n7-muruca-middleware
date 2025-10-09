@@ -385,6 +385,9 @@ export class ResourceParser implements Parser {
               const panelObj = {
                 ...panelsList[panel.field],
                 id: panel.id,
+                enable: true,
+                type: panel.type,
+                title: (panel.title) ? panel.title : null,
               }
               parallelTextViewer['panels'].push(panelObj);
             } else {
@@ -393,6 +396,9 @@ export class ResourceParser implements Parser {
                 ...panelRest,
                 id: panel.id,
                 doc_id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc',
+                enable: true,
+                type: 'text',
+                title: (panel.title) ? panel.title : null,
               }
               parallelTextViewer['panels'].push(panelObj);
               if (panelsList[panel.field]['filename']) {
