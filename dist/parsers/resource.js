@@ -348,12 +348,12 @@ class ResourceParser {
                     let panelIndex = 2;
                     block.panels.forEach((panel) => {
                         if (panel.type && panel.type === 'facsimile') {
-                            const panelObj = Object.assign(Object.assign({}, panelsList[panel.field]), { id: panel.id, enable: true, type: panel.type, title: (panel.title) ? panel.title : null });
+                            const panelObj = Object.assign(Object.assign({}, panelsList[panel.field]), { id: panel.id, enabled: true, type: panel.type, title: (panel.title) ? panel.title : null });
                             parallelTextViewer['panels'].push(panelObj);
                         }
                         else {
                             const _a = panelsList[panel.field], { filename } = _a, panelRest = __rest(_a, ["filename"]);
-                            const panelObj = Object.assign(Object.assign({}, panelRest), { id: panel.id, doc_id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc', enable: true, type: 'text', title: (panel.title) ? panel.title : null });
+                            const panelObj = Object.assign(Object.assign({}, panelRest), { id: panel.id, doc_id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc', enabled: true, type: 'text', title: (panel.title) ? panel.title : null });
                             parallelTextViewer['panels'].push(panelObj);
                             if (panelsList[panel.field]['filename']) {
                                 parallelTextViewer['docs'].push({

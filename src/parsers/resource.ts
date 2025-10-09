@@ -385,7 +385,7 @@ export class ResourceParser implements Parser {
               const panelObj = {
                 ...panelsList[panel.field],
                 id: panel.id,
-                enable: true,
+                enabled: true,
                 type: panel.type,
                 title: (panel.title) ? panel.title : null,
               }
@@ -396,7 +396,7 @@ export class ResourceParser implements Parser {
                 ...panelRest,
                 id: panel.id,
                 doc_id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc',
-                enable: true,
+                enabled: true,
                 type: 'text',
                 title: (panel.title) ? panel.title : null,
               }
