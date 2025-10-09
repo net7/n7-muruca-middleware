@@ -117,11 +117,6 @@ export interface OutputTextViewer {
     "docs": OutputTextViewerDoc[];
     "facsimile"?: any;
 }
-export interface OutputParallelTextViewer {
-    "endpoint": string;
-    "docs": OutputTextViewerDoc[];
-    "facsimile"?: any;
-}
 export interface OutputTextViewerDoc {
     "xml": string;
     "odd": string;
@@ -131,6 +126,35 @@ export interface OutputTextViewerDoc {
     "xpath"?: boolean;
     "view"?: string;
     "apparatus"?: any;
+}
+export interface OutputParallelTextViewer {
+    "endpoint": string;
+    "docs": OutputParallelTextViewerDoc[];
+    "mainDoc": OutputParallelTextViewerMainDoc;
+    "panels"?: OutputParallelTextViewerPanel[];
+}
+export interface OutputParallelTextViewerDoc {
+    "xml": string;
+    "id": string;
+}
+export interface OutputParallelTextViewerMainDoc {
+    "odd": string;
+    "doc_id": string;
+    "view"?: string;
+    "id"?: string;
+    "channel"?: string;
+    "translation"?: boolean;
+    "xpath"?: boolean;
+}
+export interface OutputParallelTextViewerPanel {
+    "id"?: string;
+    "doc_id"?: string;
+    "baseurl"?: string;
+    "odd": string;
+    "view"?: string;
+    "channel"?: string;
+    "translation"?: boolean;
+    "xpath"?: boolean;
 }
 export interface OutputCollectionMap {
     "title": string;

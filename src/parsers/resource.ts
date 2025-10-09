@@ -1,5 +1,5 @@
 import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs, ConfBlockParallelTextViewer } from '../interfaces';
-import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerIIIF, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputTextViewer, ParsedData } from '../interfaces/parser';
+import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerIIIF, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputParallelTextViewer, OutputTextViewer, ParsedData } from '../interfaces/parser';
 import { parseMetadataValue } from '../utils/parseMetadataFunctions';
 import { mockParallelTextViewer } from './mock-parallel-text-viewer';
 
@@ -339,7 +339,7 @@ export class ResourceParser implements Parser {
     return this.filterTextViewer(textViewer, block.field, data);
   }
 
-  parseParallelTextViewer(block: any, data: any): any { // DA METTERE INTERFACES
+  parseParallelTextViewer(block: ConfBlockParallelTextViewer, data: any): OutputParallelTextViewer {
     let parallelTextViewer: any = {
       endpoint: "",
       docs: [],
@@ -596,7 +596,7 @@ export class ResourceParser implements Parser {
     return textViewer;
   }
 
-  filterParallelTextViewer(parallelTextViewer: any, field: string, data: any): any { // DA METTERE INTERFACES
+  filterParallelTextViewer(parallelTextViewer: OutputParallelTextViewer, field: string, data: any): OutputParallelTextViewer {
     return parallelTextViewer;
   }
 

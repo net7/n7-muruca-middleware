@@ -4,7 +4,7 @@ export interface ConfigResource {
 
 export interface ConfBlock{
     title?: string
-    type: "title" | "header" | "metadata" | "metadata-size" | "metadata-description" | "collection" | "bibliography" |  "text-viewer" | "image-viewer" | "map" | "breadcrumb",
+    type: "title" | "header" | "metadata" | "metadata-size" | "metadata-description" | "collection" | "bibliography" |  "text-viewer" | "parallel-text-viewer" | "image-viewer" | "map" | "breadcrumb",
     /** The field to read resource API
      * if type = header{
      * first field is title
@@ -23,9 +23,14 @@ export interface ConfBlockTextViewer{
     field: string,
 }
 
-export interface ConfBlockParallelTextViewer{ // DA FARE
+export interface ConfBlockParallelTextViewer{
     type: "parallel-text-viewer" ,
     field: string,
+    panels?: {
+        id: string,
+        field: string,
+        type?: string
+    }[]
 }
 
 export interface ConfBlockTabs{
