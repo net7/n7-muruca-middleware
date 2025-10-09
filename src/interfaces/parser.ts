@@ -156,6 +156,7 @@ export interface OutputParallelTextViewer {
   "endpoint": string,
   "docs": OutputParallelTextViewerDoc[],
   "mainDoc": OutputParallelTextViewerMainDoc,
+  "grid"?: any,
   "panels"?: OutputParallelTextViewerPanel[]
 }
 
