@@ -5,8 +5,7 @@ export declare const mockParallelTextViewer: {
         teipublisher: string;
         view: string;
         panels: {
-            postille_xml: {
-                filename: string;
+            apparatus: {
                 odd: string;
                 view: string;
             };
@@ -14,8 +13,9 @@ export declare const mockParallelTextViewer: {
                 odd: string;
                 view: string;
             };
-            facsimile: {
-                baseurl: string;
+            bibbia: {
+                odd: string;
+                view: string;
             };
         };
     };

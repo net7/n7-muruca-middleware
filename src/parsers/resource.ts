@@ -340,15 +340,13 @@ export class ResourceParser implements Parser {
   }
 
   parseParallelTextViewer(block: ConfBlockParallelTextViewer, data: any): OutputParallelTextViewer {
-    let parallelTextViewer: any = {
+    let parallelTextViewer: OutputParallelTextViewer = {
       endpoint: "",
       docs: [],
       mainDoc: {
         odd: "",
-        view: "",
         doc_id: "",
       },
-      panels: []
     };
 
     if (data[block.field]) {

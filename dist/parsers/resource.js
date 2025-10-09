@@ -315,10 +315,8 @@ class ResourceParser {
             docs: [],
             mainDoc: {
                 odd: "",
-                view: "",
                 doc_id: "",
             },
-            panels: []
         };
         if (data[block.field]) {
             if (!data[block.field]["filename"].endsWith("/")) {
