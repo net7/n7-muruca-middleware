@@ -351,69 +351,56 @@ export class ResourceParser implements Parser {
 
     if (data[block.field]) {
       if (!data[block.field]["filename"].endsWith("/")) {
-        const panelsList = data[block.field]["panels"];
+        const dataBE = data[block.field];
+        const configMDW = block;
+        const panelsList = dataBE["panels"];
 
+        // Struttura base
         parallelTextViewer = {
-          endpoint: data[block.field]["teipublisher"],
+          endpoint: dataBE['teipublisher'],
           mainDoc: {
             doc_id: 'mainDoc',
-            odd: data[block.field]["odd"] ?? false,
-            view : data[block.field]["view"] ?? false,
-            channel: data[block.field]["channel"] ?? false,
-            translation : data[block.field]["translation"] ?? false,
-            xpath : data[block.field]["xpath"] ?? false,
+            odd: dataBE["odd"] ?? false,
+            view : dataBE["view"] ?? false,
+            channel: dataBE["channel"] ?? false,
+            translation : dataBE["translation"] ?? false,
+            xpath : dataBE["xpath"] ?? false,
           },
-          docs: [
-            {
-              xml: data[block.field]["filename"],
-              id: 'mainDoc',
-            }
-          ],
+          docs: [{ xml: dataBE["filename"], id: 'mainDoc' }],
         }
 
         // Check grid
-        if (data[block.field]["grid"]) {
-          parallelTextViewer['grid'] = data[block.field]["grid"];
+        if (dataBE["grid"]) {
+          parallelTextViewer['grid'] = dataBE["grid"];
         }
 
         // Check panels
-        if (block.panels && block.panels) {
-          parallelTextViewer['panels'] = [];
+        if (configMDW.panels && configMDW.panels.length) {
           let panelIndex = 2;
-          block.panels.forEach((panel) => {
-            if (panel.type && panel.type === 'facsimile') {
-              const panelObj = {
-                ...panelsList[panel.field],
-                id: panel.id,
-                enabled: true,
-                type: panel.type,
-                title: (panel.title) ? panel.title : null,
-              }
-              parallelTextViewer['panels'].push(panelObj);
-            } else {
-              const { filename, ...panelRest } = panelsList[panel.field];
-              const panelObj = {
-                ...panelRest,
-                id: panel.id,
-                doc_id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc',
-                enabled: true,
-                type: 'text',
-                title: (panel.title) ? panel.title : null,
-              }
-              parallelTextViewer['panels'].push(panelObj);
-              if (panelsList[panel.field]['filename']) {
-                parallelTextViewer['docs'].push({
-                  xml: (panelsList[panel.field]['filename']) ? panelsList[panel.field]['filename'] : data[block.field]["filename"],
-                  id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc'
-                });
-              }
-              if (panelsList[panel.field]['filename']) panelIndex++;
+          parallelTextViewer['panels'] = configMDW.panels.map((panel) => {
+            const { filename, ...panelRest } = panelsList[panel.field];
+            const panelObj = {
+              ...panelRest,
+              id: panel.id,
+              enabled: true,
+              type: (panel.type && panel.type === 'facsimile') ? panel.type : 'text',
+              title: (panel.title) ? panel.title : null,
             }
+            // doc_id se non è facsimile
+            if ((!panel.type || panel.type !== 'facsimile')) {
+              panelObj['doc_id'] = (filename) ? `document${panelIndex}` : 'mainDoc';
+              if (filename) {
+                // Lo aggiungo anche nei docs se presente filename
+                parallelTextViewer['docs'].push({ xml: filename, id: `document${panelIndex}` });
+                panelIndex++;
+              }
+            }
+            return panelObj;
           });
+
         }
       }
     } 
-
     return this.filterParallelTextViewer(parallelTextViewer, block.field, data);
   }
 

@@ -320,50 +320,42 @@ class ResourceParser {
         };
         if (data[block.field]) {
             if (!data[block.field]["filename"].endsWith("/")) {
-                const panelsList = data[block.field]["panels"];
+                const dataBE = data[block.field];
+                const configMDW = block;
+                const panelsList = dataBE["panels"];
+                // Struttura base
                 parallelTextViewer = {
-                    endpoint: data[block.field]["teipublisher"],
+                    endpoint: dataBE['teipublisher'],
                     mainDoc: {
                         doc_id: 'mainDoc',
-                        odd: (_a = data[block.field]["odd"]) !== null && _a !== void 0 ? _a : false,
-                        view: (_b = data[block.field]["view"]) !== null && _b !== void 0 ? _b : false,
-                        channel: (_c = data[block.field]["channel"]) !== null && _c !== void 0 ? _c : false,
-                        translation: (_d = data[block.field]["translation"]) !== null && _d !== void 0 ? _d : false,
-                        xpath: (_e = data[block.field]["xpath"]) !== null && _e !== void 0 ? _e : false,
+                        odd: (_a = dataBE["odd"]) !== null && _a !== void 0 ? _a : false,
+                        view: (_b = dataBE["view"]) !== null && _b !== void 0 ? _b : false,
+                        channel: (_c = dataBE["channel"]) !== null && _c !== void 0 ? _c : false,
+                        translation: (_d = dataBE["translation"]) !== null && _d !== void 0 ? _d : false,
+                        xpath: (_e = dataBE["xpath"]) !== null && _e !== void 0 ? _e : false,
                     },
-                    docs: [
-                        {
-                            xml: data[block.field]["filename"],
-                            id: 'mainDoc',
-                        }
-                    ],
+                    docs: [{ xml: dataBE["filename"], id: 'mainDoc' }],
                 };
                 // Check grid
-                if (data[block.field]["grid"]) {
-                    parallelTextViewer['grid'] = data[block.field]["grid"];
+                if (dataBE["grid"]) {
+                    parallelTextViewer['grid'] = dataBE["grid"];
                 }
                 // Check panels
-                if (block.panels && block.panels) {
-                    parallelTextViewer['panels'] = [];
+                if (configMDW.panels && configMDW.panels.length) {
                     let panelIndex = 2;
-                    block.panels.forEach((panel) => {
-                        if (panel.type && panel.type === 'facsimile') {
-                            const panelObj = Object.assign(Object.assign({}, panelsList[panel.field]), { id: panel.id, enabled: true, type: panel.type, title: (panel.title) ? panel.title : null });
-                            parallelTextViewer['panels'].push(panelObj);
-                        }
-                        else {
-                            const _a = panelsList[panel.field], { filename } = _a, panelRest = __rest(_a, ["filename"]);
-                            const panelObj = Object.assign(Object.assign({}, panelRest), { id: panel.id, doc_id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc', enabled: true, type: 'text', title: (panel.title) ? panel.title : null });
-                            parallelTextViewer['panels'].push(panelObj);
-                            if (panelsList[panel.field]['filename']) {
-                                parallelTextViewer['docs'].push({
-                                    xml: (panelsList[panel.field]['filename']) ? panelsList[panel.field]['filename'] : data[block.field]["filename"],
-                                    id: (panelsList[panel.field]['filename']) ? `document${panelIndex}` : 'mainDoc'
-                                });
-                            }
-                            if (panelsList[panel.field]['filename'])
+                    parallelTextViewer['panels'] = configMDW.panels.map((panel) => {
+                        const _a = panelsList[panel.field], { filename } = _a, panelRest = __rest(_a, ["filename"]);
+                        const panelObj = Object.assign(Object.assign({}, panelRest), { id: panel.id, enabled: true, type: (panel.type && panel.type === 'facsimile') ? panel.type : 'text', title: (panel.title) ? panel.title : null });
+                        // doc_id se non è facsimile
+                        if ((!panel.type || panel.type !== 'facsimile')) {
+                            panelObj['doc_id'] = (filename) ? `document${panelIndex}` : 'mainDoc';
+                            if (filename) {
+                                // Lo aggiungo anche nei docs se presente filename
+                                parallelTextViewer['docs'].push({ xml: filename, id: `document${panelIndex}` });
                                 panelIndex++;
+                            }
                         }
+                        return panelObj;
                     });
                 }
             }
