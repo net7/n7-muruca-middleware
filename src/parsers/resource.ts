@@ -356,7 +356,7 @@ export class ResourceParser implements Parser {
 
         // Struttura base
         parallelTextViewer = {
-          endpoint: dataBE['teipublisher'] + "/exist/apps/tei-publisher",
+          endpoint: dataBE['teipublisher'],
           mainDoc: {
             doc_id: 'mainDoc',
             odd: dataBE["odd"] ?? false,
