@@ -324,7 +324,7 @@ class ResourceParser {
                 const panelsList = dataBE["panels"];
                 // Struttura base
                 parallelTextViewer = {
-                    endpoint: dataBE['teipublisher'],
+                    endpoint: dataBE['teipublisher'] + "/exist/apps/tei-publisher",
                     mainDoc: {
                         doc_id: 'mainDoc',
                         odd: (_a = dataBE["odd"]) !== null && _a !== void 0 ? _a : false,
