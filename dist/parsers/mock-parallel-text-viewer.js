@@ -9,16 +9,16 @@ exports.mockParallelTextViewer = {
         view: "page",
         panels: {
             apparatus: {
-                odd: "muruca_apparatus_stand-off",
-                view: "single"
+            // odd: "muruca_apparatus_stand-off",
+            // view:"single"
             },
             autorities_xml: {
-                odd: "authority",
-                view: "single"
+            // odd: "authority",
+            // view:"single"
             },
             bibbia: {
-                odd: "biblical",
-                view: "single"
+            // odd: "biblical",
+            // view:"single"
             },
         }
     },
