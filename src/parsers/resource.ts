@@ -1,7 +1,6 @@
 import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs, ConfBlockParallelTextViewer } from '../interfaces';
 import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerIIIF, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputParallelTextViewer, OutputTextViewer, ParsedData } from '../interfaces/parser';
 import { parseMetadataValue } from '../utils/parseMetadataFunctions';
-import { mockParallelTextViewer } from './mock-parallel-text-viewer';
 
 export class ResourceParser implements Parser {
 
@@ -72,7 +71,7 @@ export class ResourceParser implements Parser {
           break;
 
         case "parallel-text-viewer":
-          parsed.sections[block] = this.parseParallelTextViewer(conf[block], mockParallelTextViewer)
+          parsed.sections[block] = this.parseParallelTextViewer(conf[block], data)
           break;
 
         case "collection":
@@ -384,7 +383,7 @@ export class ResourceParser implements Parser {
               id: panel.id,
               enabled: true,
               type: (panel.type && panel.type === 'facsimile') ? panel.type : 'text',
-              title: (panel.title) ? panel.title : null,
+              title: (panel.title) ? panel.title : panel.id,
             }
             // doc_id se non è facsimile
             if ((!panel.type || panel.type !== 'facsimile')) {

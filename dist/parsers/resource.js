@@ -13,7 +13,6 @@ var __rest = (this && this.__rest) || function (s, e) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResourceParser = void 0;
 const parseMetadataFunctions_1 = require("../utils/parseMetadataFunctions");
-const mock_parallel_text_viewer_1 = require("./mock-parallel-text-viewer");
 class ResourceParser {
     parse({ data, options }, locale) {
         if (!("type" in options)) {
@@ -64,7 +63,7 @@ class ResourceParser {
                     parsed.sections[block] = this.parseTextViewer(conf[block], data);
                     break;
                 case "parallel-text-viewer":
-                    parsed.sections[block] = this.parseParallelTextViewer(conf[block], mock_parallel_text_viewer_1.mockParallelTextViewer);
+                    parsed.sections[block] = this.parseParallelTextViewer(conf[block], data);
                     break;
                 case "collection":
                     parsed.sections[block] = this.parseCollection(conf[block], data);
@@ -345,7 +344,7 @@ class ResourceParser {
                     let panelIndex = 2;
                     parallelTextViewer['panels'] = configMDW.panels.map((panel) => {
                         const _a = panelsList[panel.field], { filename } = _a, panelRest = __rest(_a, ["filename"]);
-                        const panelObj = Object.assign(Object.assign({}, panelRest), { id: panel.id, enabled: true, type: (panel.type && panel.type === 'facsimile') ? panel.type : 'text', title: (panel.title) ? panel.title : null });
+                        const panelObj = Object.assign(Object.assign({}, panelRest), { id: panel.id, enabled: true, type: (panel.type && panel.type === 'facsimile') ? panel.type : 'text', title: (panel.title) ? panel.title : panel.id });
                         // doc_id se non è facsimile
                         if ((!panel.type || panel.type !== 'facsimile')) {
                             panelObj['doc_id'] = (filename) ? `document${panelIndex}` : 'mainDoc';
