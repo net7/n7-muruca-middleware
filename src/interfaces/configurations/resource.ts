@@ -34,6 +34,11 @@ export interface ConfBlockParallelTextViewer{
     }[]
 }
 
+export interface ConfBlockNetworkResource{
+    type: "network-resource" ,
+    field: string,
+}
+
 export interface ConfBlockTabs{
     type: "tabs" ,
     tabs: {

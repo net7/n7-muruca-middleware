@@ -1,4 +1,4 @@
-import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs, ConfBlockParallelTextViewer } from '../interfaces';
+import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs, ConfBlockParallelTextViewer, ConfBlockNetworkResource } from '../interfaces';
 import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerIIIF, OutputMetadata, OutputMetadataItem, OutputParallelTextViewer, OutputTextViewer } from '../interfaces/parser';
 export declare class ResourceParser implements Parser {
     locale: any;
@@ -22,6 +22,7 @@ export declare class ResourceParser implements Parser {
     parseCollectionMaps(block: ConfBlock, data: any): OutputCollectionMap[];
     extractQueryParams(queryParams: string): {};
     parseBibliography(block: ConfBlock, data: any): OutputBibliography;
+    parseNetworkResource(block: ConfBlockNetworkResource, data: any): any;
     filterImageViewer(imageViewer: OutputImageViewer, block: ConfBlock, data: any): OutputImageViewer;
     filterImageViewerIIIF(iiifViewer: OutputImageViewerIIIF, block: ConfBlock, data: any): OutputImageViewerIIIF;
     filterTextViewer(textViewer: OutputTextViewer, field: string, data: any): OutputTextViewer;

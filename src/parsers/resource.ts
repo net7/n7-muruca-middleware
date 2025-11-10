@@ -1,4 +1,4 @@
-import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs, ConfBlockParallelTextViewer } from '../interfaces';
+import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs, ConfBlockParallelTextViewer, ConfBlockNetworkResource } from '../interfaces';
 import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerIIIF, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputParallelTextViewer, OutputTextViewer, ParsedData } from '../interfaces/parser';
 import { parseMetadataValue } from '../utils/parseMetadataFunctions';
 
@@ -88,6 +88,10 @@ export class ResourceParser implements Parser {
 
         case "bibliography":
           parsed.sections[block] = this.parseBibliography(conf[block], data);
+          break;
+
+        case "network-resource":
+          parsed.sections[block] = this.parseNetworkResource(conf[block], data);
           break;
 
         default:
@@ -569,6 +573,10 @@ export class ResourceParser implements Parser {
       });
     }
     return {...c_b};
+  }
+
+  parseNetworkResource(block: ConfBlockNetworkResource, data: any) {
+    return data[block.field];
   }
 
   // OVERWRITEABLE FUNCTIONS

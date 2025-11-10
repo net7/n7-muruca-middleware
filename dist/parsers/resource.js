@@ -77,6 +77,9 @@ class ResourceParser {
                 case "bibliography":
                     parsed.sections[block] = this.parseBibliography(conf[block], data);
                     break;
+                case "network-resource":
+                    parsed.sections[block] = this.parseNetworkResource(conf[block], data);
+                    break;
                 default:
                     break;
             }
@@ -526,6 +529,9 @@ class ResourceParser {
             });
         }
         return Object.assign({}, c_b);
+    }
+    parseNetworkResource(block, data) {
+        return data[block.field];
     }
     // OVERWRITEABLE FUNCTIONS
     // These filters can be overridden in the parsers section of middleware projects, they allows to modify a specific part of the result of a parser.
