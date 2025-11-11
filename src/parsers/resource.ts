@@ -576,7 +576,7 @@ export class ResourceParser implements Parser {
   }
 
   parseNetworkResource(block: ConfBlockNetworkResource, data: any) {
-    if (!data[block.field] || !data[block.field].length) return;
+    if (!data[block.field] || !data[block.field].nodes || !data[block.field].nodes.length) return;
     return data[block.field];
   }
 
