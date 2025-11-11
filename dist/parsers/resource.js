@@ -531,7 +531,7 @@ class ResourceParser {
         return Object.assign({}, c_b);
     }
     parseNetworkResource(block, data) {
-        if (!data[block.field] || !data[block.field].length)
+        if (!data[block.field] || !data[block.field].nodes || !data[block.field].nodes.length)
             return;
         return data[block.field];
     }
