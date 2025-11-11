@@ -531,6 +531,8 @@ class ResourceParser {
         return Object.assign({}, c_b);
     }
     parseNetworkResource(block, data) {
+        if (!data[block.field] || !data[block.field].length)
+            return;
         return data[block.field];
     }
     // OVERWRITEABLE FUNCTIONS
