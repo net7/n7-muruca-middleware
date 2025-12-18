@@ -34,7 +34,8 @@ export class GetResourceService {
   getResource = async (body: any, conf: any, locale: string) => {
     const { type, id } = body;
     const { baseUrl } = conf;
-    const url = baseUrl + type + '/' + id;
+    //const url = baseUrl + type + '/' + id;
+    const url = baseUrl + encodeURIComponent(type) + '/' + encodeURIComponent(id);
     const path = locale ? '?lang=' + locale : '';
     const data = JSON.parse(await HttpHelper.doRequest(url + path));
 
