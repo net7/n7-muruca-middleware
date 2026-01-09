@@ -430,8 +430,36 @@ exports.ESHelper = {
                 order: {
                     [sort]: sort == '_count' ? 'desc' : 'asc',
                 },
+                // Script that handles both single values and arrays correctly
+                // When the script returns a Collection, Elasticsearch automatically
+                // creates a bucket for each element in the collection
+                // Always return a Collection to ensure correct doc_count for arrays
                 script: {
-                    source: `if(doc['${term.search}'].size() > 0 ) doc['${term.search}'].value + '${AGGR_SEPARATOR}' + doc['${term.title}'].value`,
+                    source: `
+            def searchField = doc['${term.search}'];
+            def titleField = doc['${term.title}'];
+            
+            if (searchField.size() == 0) {
+              return [];
+            }
+            
+            // Always return a Collection (list) to handle both arrays and single values
+            // Elasticsearch will create a bucket for each element in the collection
+            def results = [];
+            int searchSize = searchField.size();
+            int titleSize = titleField.size();
+            int maxSize = searchSize > titleSize ? searchSize : titleSize;
+            
+            for (int i = 0; i < maxSize; i++) {
+              def searchVal = i < searchSize ? searchField[i].toString() : '';
+              def titleVal = i < titleSize ? titleField[i].toString() : searchVal;
+              if (searchVal != '') {
+                results.add(searchVal + '${AGGR_SEPARATOR}' + titleVal);
+              }
+            }
+            
+            return results;
+          `,
                     lang: 'painless',
                 },
             },
