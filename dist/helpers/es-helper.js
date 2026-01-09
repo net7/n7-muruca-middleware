@@ -258,10 +258,10 @@ exports.ESHelper = {
             const sort = query_facets[key].sort != undefined
                 ? '_' + query_facets[key].sort
                 : '_count';
-            const { nested, extra, ranges, global } = query_facets[key];
+            const { nested, extra, ranges, global, countUniqueDocs } = query_facets[key];
             if (nested) {
                 if (query_facets[key]['nestedFields']) {
-                    const build_aggs = this.buildNested(query_facets[key]['nestedFields'], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]['innerFilterField'], extra, minDocCount, sort);
+                    const build_aggs = this.buildNested(query_facets[key]['nestedFields'], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]['innerFilterField'], extra, minDocCount, sort, countUniqueDocs || false);
                     main_query.aggregations[key] = build_aggs;
                 }
                 else {
@@ -356,7 +356,7 @@ exports.ESHelper = {
         }
         return null;
     },
-    buildNested(terms, search, title, size = null, filterTerm = '', filterField = '', extraFields = null, minDocCount = 1, sort = '_count') {
+    buildNested(terms, search, title, size = null, filterTerm = '', filterField = '', extraFields = null, minDocCount = 1, sort = '_count', countUniqueDocs = false) {
         if (terms.length > 1) {
             let term = terms.splice(0, 1);
             terms[0] = term + '.' + terms[0];
@@ -365,7 +365,7 @@ exports.ESHelper = {
                     path: term[0],
                 },
                 aggs: {
-                    [term]: this.buildNested(terms, search, title, size, filterTerm, filterField, extraFields, minDocCount, sort),
+                    [term]: this.buildNested(terms, search, title, size, filterTerm, filterField, extraFields, minDocCount, sort, countUniqueDocs),
                 },
             };
         }
@@ -392,12 +392,18 @@ exports.ESHelper = {
                 },
                 distinctTerms: this.distinctTerms(search),
             };
+            // Add reverse_nested aggregation to count unique parent documents
+            if (countUniqueDocs) {
+                nestedAgg[terms[0]]['aggs'] = nestedAgg[terms[0]]['aggs'] || {};
+                nestedAgg[terms[0]]['aggs']['unique_docs'] = {
+                    reverse_nested: {},
+                };
+            }
             if (extraFields) {
-                const extraAggs = {};
+                nestedAgg[terms[0]]['aggs'] = nestedAgg[terms[0]]['aggs'] || {};
                 for (const key in extraFields) {
-                    extraAggs[key] = { terms: { field: extraFields[key] } };
+                    nestedAgg[terms[0]]['aggs'][key] = { terms: { field: extraFields[key] } };
                 }
-                nestedAgg[terms[0]]['aggs'] = extraAggs;
             }
             if (filterTerm && filterTerm != '') {
                 nestedObj.aggs['filter_term'] = {

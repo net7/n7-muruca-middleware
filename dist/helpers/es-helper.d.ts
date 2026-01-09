@@ -15,7 +15,7 @@ export declare const ESHelper: {
             must_not: any[];
         };
     };
-    buildNested(terms: any, search: any, title: any, size?: any, filterTerm?: string, filterField?: string, extraFields?: any, minDocCount?: number, sort?: string): {
+    buildNested(terms: any, search: any, title: any, size?: any, filterTerm?: string, filterField?: string, extraFields?: any, minDocCount?: number, sort?: string, countUniqueDocs?: boolean): {
         nested: {
             path: any;
         };

@@ -210,4 +210,7 @@ export interface Bucket {
   doc_count: number;
   from?: any;
   to?: any;
+  unique_docs?: {
+    doc_count: number;
+  };
 }

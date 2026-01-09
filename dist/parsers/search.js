@@ -137,7 +137,10 @@ class SearchParser {
         }
     }
     createFacet(bucket, text, payload, queryFacet, index) {
-        const facet = { text, counter: bucket.doc_count, payload };
+        var _a, _b;
+        // Use reverse_nested count if available (for countUniqueDocs option)
+        const docCount = (_b = (_a = bucket.unique_docs) === null || _a === void 0 ? void 0 : _a.doc_count) !== null && _b !== void 0 ? _b : bucket.doc_count;
+        const facet = { text, counter: docCount, payload };
         this.addExtraArgsToFacet(facet, bucket, queryFacet['extra']);
         this.addRangeToFacet(facet, bucket, index, queryFacet['ranges']);
         return facet;

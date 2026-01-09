@@ -285,7 +285,7 @@ export const ESHelper = {
         query_facets[key].sort != undefined
           ? '_' + query_facets[key].sort
           : '_count';
-      const { nested, extra, ranges, global } = query_facets[key];
+      const { nested, extra, ranges, global, countUniqueDocs } = query_facets[key];
       if (nested) {
         if (query_facets[key]['nestedFields']) {
           const build_aggs = this.buildNested(
@@ -298,6 +298,7 @@ export const ESHelper = {
             extra,
             minDocCount,
             sort,
+            countUniqueDocs || false,
           );
           main_query.aggregations[key] = build_aggs;
         } else {
@@ -418,6 +419,7 @@ export const ESHelper = {
     extraFields = null,
     minDocCount = 1,
     sort = '_count',
+    countUniqueDocs = false,
   ) {
     if (terms.length > 1) {
       let term = terms.splice(0, 1);
@@ -438,6 +440,7 @@ export const ESHelper = {
             extraFields,
             minDocCount,
             sort,
+            countUniqueDocs,
           ),
         },
       };
@@ -466,12 +469,19 @@ export const ESHelper = {
         distinctTerms: this.distinctTerms(search),
       };
 
+      // Add reverse_nested aggregation to count unique parent documents
+      if (countUniqueDocs) {
+        nestedAgg[terms[0]]['aggs'] = nestedAgg[terms[0]]['aggs'] || {};
+        nestedAgg[terms[0]]['aggs']['unique_docs'] = {
+          reverse_nested: {},
+        };
+      }
+
       if (extraFields) {
-        const extraAggs = {};
+        nestedAgg[terms[0]]['aggs'] = nestedAgg[terms[0]]['aggs'] || {};
         for (const key in extraFields) {
-          extraAggs[key] = { terms: { field: extraFields[key] } };
+          nestedAgg[terms[0]]['aggs'][key] = { terms: { field: extraFields[key] } };
         }
-        nestedAgg[terms[0]]['aggs'] = extraAggs;
       }
 
       if (filterTerm && filterTerm != '') {
