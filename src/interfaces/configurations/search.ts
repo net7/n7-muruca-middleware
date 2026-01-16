@@ -77,6 +77,8 @@ export interface SearchAggregation {
   ranges?: RangeAggregation[] | RangeOption
   /** @default false sets if the aggregations is global (not based on current query) */
   global?: boolean;
+  /** @default false if true, counts unique parent documents instead of nested values (requires nested: true) */
+  countUniqueDocs?: boolean;
 }
 
 export interface SearchFilter {
