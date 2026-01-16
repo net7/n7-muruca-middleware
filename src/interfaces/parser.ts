@@ -82,6 +82,7 @@ export interface OutputMetadataGroup{
 export interface OutputMetadataItem{
   "label" : string,
   "value" : string |  Array<Array<OutputMetadataItem>>;
+  "anchorId" ?: string;
 }
 
 export interface OutputImageViewer{

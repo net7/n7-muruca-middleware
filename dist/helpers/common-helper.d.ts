@@ -7,4 +7,5 @@ export declare const CommonHelper: {
     HighlightTagInXml(node_name: any, node_attr: any, snippet: any, text: any): any;
     makeXmlTextSnippet(xml: any, size?: number, ellipsis?: string): any;
     sanitizeHtml(input: string): string;
+    customSlugify(str: string): string;
 };

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommonHelper = void 0;
+const slugify_1 = require("slugify");
 exports.CommonHelper = {
     buildLink(linkToParse, data) {
         const regExpUrl = /{(.*?)}/g;
@@ -107,5 +108,14 @@ exports.CommonHelper = {
             sanitized += `</${openTags.pop()}>`;
         }
         return sanitized || "";
+    },
+    customSlugify(str) {
+        if (!str || str === '')
+            return '';
+        const slugifiedString = str.replace(/\//g, '-');
+        return (0, slugify_1.default)(slugifiedString, {
+            lower: true,
+            remove: /[^\p{L}\p{N}\s-]/gu
+        });
     }
 };

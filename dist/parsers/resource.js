@@ -12,6 +12,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResourceParser = void 0;
+const helpers_1 = require("../helpers");
 const parseMetadataFunctions_1 = require("../utils/parseMetadataFunctions");
 class ResourceParser {
     parse({ data, options }, locale) {
@@ -149,7 +150,8 @@ class ResourceParser {
                         if (data[field]) {
                             let metadataItem = {
                                 label: field.replace(/_/g, " "),
-                                value: (0, parseMetadataFunctions_1.parseMetadataValue)(data, field)
+                                value: (0, parseMetadataFunctions_1.parseMetadataValue)(data, field),
+                                anchorId: helpers_1.CommonHelper.customSlugify(field),
                             };
                             return this.filterMetadataItem(field, metadataItem, type, data);
                         }
@@ -186,7 +188,8 @@ class ResourceParser {
                     if (item[field]) {
                         let metadataAccordionItem = {
                             label: field.replace(/_/g, " "),
-                            value: (0, parseMetadataFunctions_1.parseMetadataValue)(item, field)
+                            value: (0, parseMetadataFunctions_1.parseMetadataValue)(item, field),
+                            anchorId: helpers_1.CommonHelper.customSlugify(field),
                         };
                         return this.filterMetadataAccordionItem(metadataAccordionItem, field, item);
                     }

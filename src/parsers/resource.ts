@@ -1,3 +1,4 @@
+import { CommonHelper } from '../helpers';
 import { ConfBlock, ConfBlockTextViewer, ConfBlockTabs, ConfBlockParallelTextViewer, ConfBlockNetworkResource } from '../interfaces';
 import Parser, { OutputBibliography, OutputBreadcrumbs, OutputCollection, OutputCollectionMap, OutputHeader, OutputImageViewer, OutputImageViewerIIIF, OutputImageViewerItem, OutputMetadata, OutputMetadataItem, OutputParallelTextViewer, OutputTextViewer, ParsedData } from '../interfaces/parser';
 import { parseMetadataValue } from '../utils/parseMetadataFunctions';
@@ -171,7 +172,8 @@ export class ResourceParser implements Parser {
             if (data[field]) {
               let metadataItem = {
                 label: field.replace(/_/g, " "),
-                value: parseMetadataValue(data, field)
+                value: parseMetadataValue(data, field),
+                anchorId: CommonHelper.customSlugify(field),
                 };
               return this.filterMetadataItem(field, metadataItem, type, data);
             }
@@ -209,7 +211,8 @@ export class ResourceParser implements Parser {
           if (item[field]) {
             let metadataAccordionItem = {
               label: field.replace(/_/g, " "),
-              value: parseMetadataValue(item, field)
+              value: parseMetadataValue(item, field),
+              anchorId: CommonHelper.customSlugify(field),
             };
             return this.filterMetadataAccordionItem(metadataAccordionItem, field, item);
           }

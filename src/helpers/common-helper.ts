@@ -1,3 +1,5 @@
+import slugify from 'slugify';
+
 export const CommonHelper = {
   buildLink(linkToParse, data) {
     const regExpUrl = /{(.*?)}/g;
@@ -122,5 +124,15 @@ export const CommonHelper = {
     }
 
     return sanitized || "";
+  },
+
+  customSlugify(str: string): string {
+    if (!str || str === '') return '';
+
+    const slugifiedString = str.replace(/\//g, '-');
+    return slugify(slugifiedString, {
+      lower: true,
+      remove: /[^\p{L}\p{N}\s-]/gu
+    });
   }
 };
