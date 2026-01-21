@@ -23,7 +23,7 @@ class searchController {
             }
             const params = helpers_1.ESHelper.buildQuery(body, configurations.search, type); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
             // make query
-            console.log(JSON.stringify(params));
+            // console.log(JSON.stringify(params));
             const query_res = yield helpers_1.ESHelper.makeSearch(searchLangIndex, params, elasticsearch_1.Client, elasticUri);
             if ((_a = query_res === null || query_res === void 0 ? void 0 : query_res.error) === null || _a === void 0 ? void 0 : _a.root_cause)
                 return {
