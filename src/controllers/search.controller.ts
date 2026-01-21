@@ -11,7 +11,7 @@ export class searchController {
     }
     const params = ESHelper.buildQuery(body, configurations.search, type); // return main_query (cf. Basic Query Theatheor body JSON su Postman)
     // make query
-    console.log(JSON.stringify(params));
+    // console.log(JSON.stringify(params));
     const query_res: any = await ESHelper.makeSearch(
       searchLangIndex,
       params,
