@@ -12,7 +12,7 @@ export declare abstract class SearchParser implements Parser {
     private getBucket;
     private createFacet;
     protected applyFacetFilter(facet: any): any;
-    private sortFacetValues;
+    protected sortFacetValues(values: any[], sortValues?: any): void;
     protected applyFacetResultsFilter(result: AggregationResult): AggregationResult;
     private addExtraArgsToFacet;
     addRangeToFacet(facet: any, bucket: Bucket, index: number, ranges?: any[]): void;

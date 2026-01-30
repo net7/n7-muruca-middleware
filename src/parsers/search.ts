@@ -185,7 +185,7 @@ export abstract class SearchParser implements Parser {
     return facet
   }
   
-  private sortFacetValues(values: any[], sortValues?: any) {
+  protected sortFacetValues(values: any[], sortValues?: any) {
     if (sortValues) {
       values.sort((a, b) => sortValues.indexOf(a['payload']) - sortValues.indexOf(b['payload']));
     }
