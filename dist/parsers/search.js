@@ -102,7 +102,7 @@ class SearchParser {
                         }
                         facetSum++;
                     });
-                    this.sortFacetValues(values, queryFacets[id]['sortValues']);
+                    this.sortFacetValues(values, queryFacets[id]['sortValues'], id);
                 }
             }
             globalSum += facetSum;
@@ -148,7 +148,7 @@ class SearchParser {
     applyFacetFilter(facet) {
         return facet;
     }
-    sortFacetValues(values, sortValues) {
+    sortFacetValues(values, sortValues, id) {
         if (sortValues) {
             values.sort((a, b) => sortValues.indexOf(a['payload']) - sortValues.indexOf(b['payload']));
         }

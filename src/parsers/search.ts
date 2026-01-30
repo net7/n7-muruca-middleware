@@ -132,7 +132,7 @@ export abstract class SearchParser implements Parser {
             facetSum++;
           });
 
-          this.sortFacetValues(values, queryFacets[id]['sortValues']);
+          this.sortFacetValues(values, queryFacets[id]['sortValues'], id);
         }
       }
 
@@ -185,7 +185,7 @@ export abstract class SearchParser implements Parser {
     return facet
   }
   
-  protected sortFacetValues(values: any[], sortValues?: any) {
+  protected sortFacetValues(values: any[], sortValues?: any, id?: string) {
     if (sortValues) {
       values.sort((a, b) => sortValues.indexOf(a['payload']) - sortValues.indexOf(b['payload']));
     }
