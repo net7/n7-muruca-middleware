@@ -81,6 +81,9 @@ class ResourceParser {
                 case "network-resource":
                     parsed.sections[block] = this.parseNetworkResource(conf[block], data);
                     break;
+                case "embedded-content":
+                    parsed.sections[block] = this.parseEmbeddedContent(conf[block], data);
+                    break;
                 default:
                     break;
             }
@@ -537,6 +540,12 @@ class ResourceParser {
         if (!data[block.field] || !data[block.field].nodes || !data[block.field].nodes.length)
             return;
         return data[block.field];
+    }
+    parseEmbeddedContent(block, data) {
+        // DA VERIFICARE
+        if (!data[block.fields[0]])
+            return;
+        return data[block.fields[0]];
     }
     // OVERWRITEABLE FUNCTIONS
     // These filters can be overridden in the parsers section of middleware projects, they allows to modify a specific part of the result of a parser.

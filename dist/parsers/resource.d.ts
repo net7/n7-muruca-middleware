@@ -23,6 +23,7 @@ export declare class ResourceParser implements Parser {
     extractQueryParams(queryParams: string): {};
     parseBibliography(block: ConfBlock, data: any): OutputBibliography;
     parseNetworkResource(block: ConfBlockNetworkResource, data: any): any;
+    parseEmbeddedContent(block: any, data: any): any;
     filterImageViewer(imageViewer: OutputImageViewer, block: ConfBlock, data: any): OutputImageViewer;
     filterImageViewerIIIF(iiifViewer: OutputImageViewerIIIF, block: ConfBlock, data: any): OutputImageViewerIIIF;
     filterTextViewer(textViewer: OutputTextViewer, field: string, data: any): OutputTextViewer;

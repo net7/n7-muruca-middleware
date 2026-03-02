@@ -475,6 +475,7 @@ const nestedQuery = (path, query, inner_hits = null) => {
 exports.nestedQuery = nestedQuery;
 const checkMatchedQuery = (prop, matched_queries) => {
     if (matched_queries.filter((q) => {
+        q = q.replace("*", "");
         const test = new RegExp('(.*\.)?' + q + '$', 'g');
         return test.test(prop);
     }).length <= 0) {

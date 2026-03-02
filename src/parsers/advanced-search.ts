@@ -474,7 +474,10 @@ export class AdvancedSearchParser implements Parser {
       // Se siamo al livello in cui si trova _refs, cerco il targetValue
       if (key === "_refs" && Array.isArray(currentData[key])) {
         for (const item of currentData[key]) {
-          if (item.label === targetValue) {
+          const matchesProperty = Object.values(item).some((value) =>
+            value != null && value.toString() === targetValue
+          );
+          if (matchesProperty) {
             // Se corrisponde, aggiungiamo il valore di xml_text
             if (currentData.xml_text) {
               results.push(currentData);

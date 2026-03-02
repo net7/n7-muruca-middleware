@@ -95,6 +95,10 @@ export class ResourceParser implements Parser {
           parsed.sections[block] = this.parseNetworkResource(conf[block], data);
           break;
 
+        case "embedded-content":
+          parsed.sections[block] = this.parseEmbeddedContent(conf[block], data);
+          break;
+
         default:
           break;
       }
@@ -581,6 +585,11 @@ export class ResourceParser implements Parser {
   parseNetworkResource(block: ConfBlockNetworkResource, data: any) {
     if (!data[block.field] || !data[block.field].nodes || !data[block.field].nodes.length) return;
     return data[block.field];
+  }
+  parseEmbeddedContent(block: any, data: any) { 
+    // DA VERIFICARE
+    if (!data[block.fields[0]]) return;
+    return data[block.fields[0]];
   }
 
   // OVERWRITEABLE FUNCTIONS
