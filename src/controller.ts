@@ -215,7 +215,7 @@ export class Controller {
       this.config,
       locale as string,
     );
-    return res.send(response);
+    return res.send(response.body);
   };
 
   /**

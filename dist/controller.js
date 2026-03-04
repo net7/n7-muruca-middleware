@@ -194,7 +194,7 @@ class Controller {
             const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const controller = new controllers.advancedSearchController();
             const response = yield controller.advancedSearchTextSearch(request.query, this.config, locale);
-            return res.send(response);
+            return res.send(response.body);
         });
         /**
          * Fetch data for tei-publisher component.
