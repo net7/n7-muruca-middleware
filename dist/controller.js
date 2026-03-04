@@ -193,7 +193,13 @@ class Controller {
             // const body = JSON.parse(request.body); // cf. SEARCH-RESULTS in Postman
             const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
             const controller = new controllers.advancedSearchController();
-            return controller.advancedSearchTextSearch(request.query, this.config, locale);
+            const response = yield controller.advancedSearchTextSearch(request.query, this.config, locale);
+            return res.send(response);
+            // return controller.advancedSearchTextSearch(
+            //   request.query,
+            //   this.config,
+            //   locale as string,
+            // );
         });
         /**
          * Fetch data for tei-publisher component.

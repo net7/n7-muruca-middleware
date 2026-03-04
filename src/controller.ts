@@ -210,11 +210,12 @@ export class Controller {
     // const body = JSON.parse(request.body); // cf. SEARCH-RESULTS in Postman
     const locale = request.query?.locale || '';
     const controller = new controllers.advancedSearchController();
-    return controller.advancedSearchTextSearch(
+    const response = await controller.advancedSearchTextSearch(
       request.query,
       this.config,
       locale as string,
     );
+    return res.send(response);
   };
 
   /**

@@ -74,7 +74,7 @@ export declare class Controller {
      * @param request POST request
      * @param res  Response
      */
-    advancedSearchTextSearch: (request: Request, res: Response) => Promise<import("./interfaces/helper").HTTPResponse>;
+    advancedSearchTextSearch: (request: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
     /**
      * Fetch data for tei-publisher component.
      * @param request POST request
