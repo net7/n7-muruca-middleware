@@ -35,7 +35,14 @@ export class XmlService {
       }
     });
     nodesToreplace.forEach((nodes) => {
-      document.replaceChild(nodes[0].firstChild, nodes[1]);
+      const newNode = nodes[0].documentElement;
+      if (!newNode) return;
+      const parent = nodes[1].parentNode;
+      if (parent) {
+        parent.replaceChild(newNode, nodes[1]);
+      } else {
+        document.replaceChild(newNode, nodes[1]);
+      }
     });
     return document.toString();
   }
