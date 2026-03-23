@@ -311,12 +311,13 @@ export class AdvancedSearchService {
   };
 
   buildFulltextQuery(query_conf, query_param) {
-    const query_string = ASHelper.buildQueryString(query_param, {
+    const value = query_conf.forcePhrase ? `"${query_param}"` : query_param;
+    const query_string = ASHelper.buildQueryString(value, {
       allowWildCard: query_conf.addStar,
       stripDoubleQuotes:
         query_conf.stripDoubleQuotes != undefined
           ? query_conf.stripDoubleQuotes
-          : true,
+          : !query_conf.forcePhrase,
     });
     const ft_query = ASHelper.queryString(
       { fields: query_conf.field, value: query_string },

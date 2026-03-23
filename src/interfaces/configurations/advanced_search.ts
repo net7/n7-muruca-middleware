@@ -115,6 +115,12 @@ export interface TextSettingsAdvancedSearch {
   stripDoubleQuotes?: boolean;
   /**
    * @default false
+   *  Set to true to implement exact match even for non-text config
+   *
+   */
+  forcePhrase?: boolean;
+  /**
+   * @default false
    *  allow fuzzy search
    *
    */
