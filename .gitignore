@@ -6,3 +6,4 @@ node_modules
 # misc
 .nyc_output
 .idea
+CLAUDE.md

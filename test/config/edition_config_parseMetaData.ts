@@ -36,13 +36,13 @@ export const expectedResults =   {
     {
       title: 'Metadata',
       items:  [
-        { label: 'creator', value: 'Paul Valéry' },
-        { label: 'subject', value: 'Filosofia, Testo' },
-        { label: 'number', value: 23 },
-        { label: 'numbers', value: [ 23, 45, 67 ] },
-        { label: 'string', value: 'prova' },
-        { label: 'strings', value: [ 'prova', 'array', 'di', 'stringhe' ] },
-        { label: 'object', value: { foo: 'bar' } }
+        { label: 'creator', value: 'Paul Valéry', anchorId: 'creator' },
+        { label: 'subject', value: 'Filosofia, Testo', anchorId: 'subject' },
+        { label: 'number', value: 23, anchorId: 'number' },
+        { label: 'numbers', value: [ 23, 45, 67 ], anchorId: 'numbers' },
+        { label: 'string', value: 'prova', anchorId: 'string' },
+        { label: 'strings', value: [ 'prova', 'array', 'di', 'stringhe' ], anchorId: 'strings' },
+        { label: 'object', value: { foo: 'bar' }, anchorId: 'object' }
       ]
     }
   ]

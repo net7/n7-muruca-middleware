@@ -84,16 +84,18 @@ describe('XML Text parser', function commonHelpersTest() {
   };
 
   context('Get Highlight texts from ES result', function () {
-    it('should return empty array', async function () {
+    it('should return empty object', async function () {
       let hl: {} = parser.parseHighlight({});
       expect(hl).to.not.have.property('highlight');
+      expect(hl).to.not.have.property('textSnippet');
       expect(hl).to.not.have.property('_source');
     });
 
-    it('should return the xml text value', async function () {
-      let hl: {} = parser.parseHighlight(hlNode);
-      expect(hl).to.have.property('highlight');
-      expect(hl).to.have.property('highlight').eq(hl_text);
+    it('should store raw ES snippet in textSnippet for xml_text matches', async function () {
+      let hl: any = parser.parseHighlight(hlNode);
+      expect(hl).to.have.property('textSnippet');
+      expect(hl.textSnippet).eq(hl_text);
+      expect(hl).to.not.have.property('highlight');
     });
 
     it('should return xml text with attribute highlighted', async function () {
@@ -122,85 +124,44 @@ describe('XML Text parser', function commonHelpersTest() {
     });
   });
 
-  context('Get A formatted node', function () {
-    it('should return an xml tag with attributes', async function () {
-      const node = {
-        highlight: hl_text,
-        _attr: {
-          source: xml_source,
-        },
-        node: 'quote',
-      };
-      let xml_node = parser.buildXmlNode(node);
-      expect(xml_node).eq(
-        "<quote source='" + xml_source + "' >" + hl_text + '</quote>',
-      );
+  // buildXmlNode is commented out — replaced by in-place DOM modification in replaceHlNodes.
+  // context('Get A formatted node', function () { ... });
+
+  context('applyHighlightsToXml', function () {
+    it('should return content unchanged when snippet has no em tags', function () {
+      const result = parser.applyHighlightsToXml(xml_text, 'no highlights here');
+      expect(result).eq(xml_text);
     });
 
-    it('should return an xml tag without attributes', async function () {
-      const node = {
-        highlight: hl_text,
-        node: 'quote',
-      };
-      let xml_node = parser.buildXmlNode(node);
-      expect(xml_node).eq('<quote>' + hl_text + '</quote>');
+    it('should apply em to matched term in plain text', function () {
+      const snippet = "Hic, <em class='mrc__text-emph'>adolescens</em>, materno avo";
+      const result = parser.applyHighlightsToXml(xml_text, snippet);
+      expect(result).to.include("<em class='mrc__text-emph'>adolescens</em>");
     });
 
-    it('should return an xml tag with more attributes', async function () {
-      const node = {
-        highlight: hl_text,
-        node: 'quote',
-        _attr: {
-          source: xml_source,
-          rend: 'italics',
-        },
-      };
-      let xml_node = parser.buildXmlNode(node);
-      expect(xml_node).eq(
-        "<quote source='" +
-          xml_source +
-          "'  rend='italics' >" +
-          hl_text +
-          '</quote>',
-      );
+    it('should not apply em inside XML tag attributes', function () {
+      const xmlWithTag = 'text <name type="place" key="Palatino">Palatino</name> more text';
+      const snippet = "text <em class='mrc__text-emph'>Palatino</em> more";
+      const result = parser.applyHighlightsToXml(xmlWithTag, snippet);
+      // em applied to text node content, not inside the tag attribute key="Palatino"
+      expect(result).to.include('<name type="place" key="Palatino">');
+      expect(result).to.include("<em class='mrc__text-emph'>Palatino</em>");
     });
 
-    it('should return an xml tag with xml_text', async function () {
-      const node = {
-        xml_text: hl_text,
-        node: 'quote',
-        _attr: {
-          source: xml_source,
-          rend: 'italics',
-        },
-      };
-      let xml_node = parser.buildXmlNode(node);
-      expect(xml_node).eq(
-        "<quote source='" +
-          xml_source +
-          "'  rend='italics'  class='mrc__text-emph' >" +
-          hl_text +
-          '</quote>',
-      );
+    it('should preserve all child XML tags unchanged', function () {
+      const snippet = "Hic, <em class='mrc__text-emph'>adolescens</em>, materno avo";
+      const result = parser.applyHighlightsToXml(xml_text, snippet);
+      expect(result).to.include('<name type="place" key="Roma (Urbe), Palatino">Palatino</name>');
+      expect(result).to.include('<name type="place" key="Roma (Urbe)">Romam</name>');
     });
 
-    it('should return an xml tag with xml_text and mrc_highlight attribute', async function () {
-      const node = {
-        xml_text: hl_text,
-        node: 'quote',
-        _attr: {
-          source: xml_source,
-          rend: 'italics',
-        },
-      };
-      let xml_node = parser.buildXmlNode(node, false);
-      expect(xml_node).eq(
-        "<quote source='" +
-          xml_source +
-          "'  rend='italics' >" +
-          hl_text +
-          '</quote>',
-      );
+    it('should apply em to multiple terms from snippet', function () {
+      const multiTermXml = 'alpha beta gamma';
+      const snippet = "<em class='mrc__text-emph'>alpha</em> text <em class='mrc__text-emph'>gamma</em>";
+      const result = parser.applyHighlightsToXml(multiTermXml, snippet);
+      expect(result).to.include("<em class='mrc__text-emph'>alpha</em>");
+      expect(result).to.include("<em class='mrc__text-emph'>gamma</em>");
+      expect(result).to.include('beta');
     });
   });
 });
