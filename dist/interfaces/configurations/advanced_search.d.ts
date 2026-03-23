@@ -100,12 +100,6 @@ export interface TextSettingsAdvancedSearch {
     stripDoubleQuotes?: boolean;
     /**
      * @default false
-     *  Set to true to implement exact match even for non-text config
-     *
-     */
-    forcePhrase?: boolean;
-    /**
-     * @default false
      *  allow fuzzy search
      *
      */
@@ -127,6 +121,12 @@ export interface CommonSettingsAdvancedSearch {
     };
     /** additional highlight options */
     highlightOptions?: String[] | Object;
+    /**
+   * @default false
+   *  Set to true to implement exact match even for non-text config
+   *
+   */
+    forcePhrase?: boolean;
 }
 export interface ResultsFormatData {
     /** label for metadata */
