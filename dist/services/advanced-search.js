@@ -213,6 +213,12 @@ class AdvancedSearchService {
                             }
                             must_array.push(range_query);
                             break;
+                        case 'term_range_or':
+                            if (!query_params[groupId] || !Array.isArray(query_params[groupId]))
+                                break;
+                            const range_or_query = ASHelper.queryRangeOr(query_key.field, query_params[groupId]);
+                            must_array.push(range_or_query);
+                            break;
                         case 'ternary':
                             break;
                         default:

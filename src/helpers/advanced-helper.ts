@@ -190,6 +190,26 @@ export const queryRange = (termFields: [], termValue: any) => {
   return queryBool(ranges).query;
 };
 
+/**
+ * Builds an OR query across multiple date ranges.
+ * Each entry in dateRanges is { from: string, to: string }.
+ * Generates: bool.should[ bool.must[gte, lte], ... ] with minimum_should_match: 1
+ */
+export const queryRangeOr = (field: string, dateRanges: Array<{ from: string; to: string }>) => {
+  const shouldClauses = dateRanges.map(({ from, to }) =>
+    queryBool([
+      { range: { [field]: { gte: from } } },
+      { range: { [field]: { lte: to } } },
+    ]).query,
+  );
+  return {
+    bool: {
+      should: shouldClauses,
+      minimum_should_match: 1,
+    },
+  };
+};
+
 export const buildHighlights = (
   queryField: any,
   noHighlightFields: string[] = null,

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildSortParam = exports.checkMatchedQuery = exports.nestedQuery = exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.highlightValue = exports.buildHighlights = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.simpleQueryString = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
+exports.buildSortParam = exports.checkMatchedQuery = exports.nestedQuery = exports.extractNestedFields = exports.mergeTeiPublisherResults = exports.queryExists = exports.buildLink = exports.buildTextViewerResults = exports.buildTeiHeaderResults = exports.highlightValue = exports.buildHighlights = exports.queryRangeOr = exports.queryRange = exports.queryTerm = exports.buildQueryString = exports.spanNear = exports.simpleQueryString = exports.queryString = exports.matchPhrase = exports.queryBool = void 0;
 const queryBool = (mustList = [], shouldList = [], filterList = [], notList = []) => {
     const x = {
         query: {
@@ -154,6 +154,24 @@ const queryRange = (termFields, termValue) => {
     return (0, exports.queryBool)(ranges).query;
 };
 exports.queryRange = queryRange;
+/**
+ * Builds an OR query across multiple date ranges.
+ * Each entry in dateRanges is { from: string, to: string }.
+ * Generates: bool.should[ bool.must[gte, lte], ... ] with minimum_should_match: 1
+ */
+const queryRangeOr = (field, dateRanges) => {
+    const shouldClauses = dateRanges.map(({ from, to }) => (0, exports.queryBool)([
+        { range: { [field]: { gte: from } } },
+        { range: { [field]: { lte: to } } },
+    ]).query);
+    return {
+        bool: {
+            should: shouldClauses,
+            minimum_should_match: 1,
+        },
+    };
+};
+exports.queryRangeOr = queryRangeOr;
 const buildHighlights = (queryField, noHighlightFields = null, highlightOptions = null) => {
     const fields = typeof queryField === 'string' ? queryField.split(',') : queryField;
     const highlight = {};
