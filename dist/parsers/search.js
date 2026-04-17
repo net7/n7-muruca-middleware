@@ -105,6 +105,16 @@ class SearchParser {
                     this.sortFacetValues(values, queryFacets[id]['sortValues'], id);
                 }
             }
+            if (queryFacets[id].searchNoValue && data[id + '_missing'] !== undefined) {
+                const missingCount = data[id + '_missing'].doc_count;
+                if (missingCount > 0) {
+                    values.push({
+                        text: queryFacets[id].searchNoValueLabel || '__NO_VALUE__',
+                        counter: missingCount,
+                        payload: '__NO_VALUE__',
+                    });
+                }
+            }
             globalSum += facetSum;
             aggregationResult.facets[id] = { total_count: filteredTotal || facetSum, filtered_total_count: filteredTotal || values.length, values };
         });
