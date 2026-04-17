@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.1.0] - 14-04-2026
+
+- added `term_range_or` search group type for OR logic across multiple date/range intervals
+- added `queryRangeOr` helper in `advanced-helper`
+
 ## [3.0.0] - 06-12-2023
 
 - install express
