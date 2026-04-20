@@ -343,7 +343,9 @@ class AdvancedSearchService {
         //   : data[groupId];
         let queries;
         if (value && value != '') {
-            queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value }, 'AND', false, '');
+            queries = query_conf.useQueryString
+                ? ASHelper.queryString({ fields: query_conf.fields, value: value }, 'AND')
+                : ASHelper.simpleQueryString({ fields: query_conf.fields, value: value }, 'AND', false, '');
         }
         if ((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.nested) {
             if (query_conf.highlight) {
