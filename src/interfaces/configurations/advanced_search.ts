@@ -171,6 +171,12 @@ export interface TextSearch {
   fields: String[];
   /** the fields to highlight */
   highlight?: String[] | Object[];
+  /**
+   * Use query_string instead of simple_query_string.
+   * Enables full Lucene wildcard syntax including '?' (single character)
+   * and '*' (any characters). Defaults to false (simple_query_string).
+   */
+  useQueryString?: boolean;
   /** extra options for query */
   options?: {
     /*Nested field to search in */
