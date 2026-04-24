@@ -82,6 +82,8 @@ class SearchParser {
         };
         facets.forEach(({ id, query, offset }) => {
             var _a;
+            if (!queryFacets[id])
+                return;
             let facetSum = 0;
             let filteredTotal = 0;
             const values = [];

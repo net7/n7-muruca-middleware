@@ -109,6 +109,7 @@ export abstract class SearchParser implements Parser {
     };
 
     facets.forEach(({ id, query, offset }) => {
+      if (!queryFacets[id]) return;
       let facetSum = 0;
       let filteredTotal = 0;
       const values: any[] = [];
