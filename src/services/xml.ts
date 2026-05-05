@@ -9,16 +9,19 @@ export class XmlService {
             document
         } = parseHTML(xml);
         */
-    // &nbsp; and other named HTML entities are not valid in XML: replace before strict parsing
-    const sanitized = xml.replace(/&(?!lt;|gt;|amp;|quot;|apos;)(\w+);/g, (match, name) => {
-      const entities: Record<string, string> = {
-        nbsp: '&#160;', ensp: '&#8194;', emsp: '&#8195;', thinsp: '&#8201;',
-        ndash: '&#8211;', mdash: '&#8212;', lsquo: '&#8216;', rsquo: '&#8217;',
-        ldquo: '&#8220;', rdquo: '&#8221;', laquo: '&#171;', raquo: '&#187;',
-        hellip: '&#8230;', bull: '&#8226;', middot: '&#183;',
-      };
-      return entities[name] ?? match;
-    });
+    // &nbsp; and other named HTML entities are not valid in XML.
+    // Applied both on input (before DOMParser) and on output (document.toString re-introduces them).
+    const namedEntities: Record<string, string> = {
+      nbsp: '&#160;', ensp: '&#8194;', emsp: '&#8195;', thinsp: '&#8201;',
+      ndash: '&#8211;', mdash: '&#8212;', lsquo: '&#8216;', rsquo: '&#8217;',
+      ldquo: '&#8220;', rdquo: '&#8221;', laquo: '&#171;', raquo: '&#187;',
+      hellip: '&#8230;', bull: '&#8226;', middot: '&#183;',
+    };
+    const sanitizeEntities = (str: string) =>
+      str.replace(/&(?!lt;|gt;|amp;|quot;|apos;)(\w+);/g, (match, name) =>
+        namedEntities[name] ?? match,
+      );
+    const sanitized = sanitizeEntities(xml);
     const { document } = new DOMParser().parseFromString(
       sanitized,
       'text/xml',
@@ -60,7 +63,7 @@ export class XmlService {
         );
       }
     });
-    return document.toString();
+    return sanitizeEntities(document.toString());
   }
 
   decodeEntity(str) {
