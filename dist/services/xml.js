@@ -11,7 +11,18 @@ class XmlService {
                 document
             } = parseHTML(xml);
             */
-        const { document } = new linkedom_1.DOMParser().parseFromString(xml, 'text/xml').defaultView;
+        // &nbsp; and other named HTML entities are not valid in XML: replace before strict parsing
+        const sanitized = xml.replace(/&(?!lt;|gt;|amp;|quot;|apos;)(\w+);/g, (match, name) => {
+            var _a;
+            const entities = {
+                nbsp: '&#160;', ensp: '&#8194;', emsp: '&#8195;', thinsp: '&#8201;',
+                ndash: '&#8211;', mdash: '&#8212;', lsquo: '&#8216;', rsquo: '&#8217;',
+                ldquo: '&#8220;', rdquo: '&#8221;', laquo: '&#171;', raquo: '&#187;',
+                hellip: '&#8230;', bull: '&#8226;', middot: '&#183;',
+            };
+            return (_a = entities[name]) !== null && _a !== void 0 ? _a : match;
+        });
+        const { document } = new linkedom_1.DOMParser().parseFromString(sanitized, 'text/xml').defaultView;
         const parser = new parsers_1.XmlSearchParser();
         // deepest nodes first: children are modified before their parents,
         // so parent innerHTML updates preserve child changes
