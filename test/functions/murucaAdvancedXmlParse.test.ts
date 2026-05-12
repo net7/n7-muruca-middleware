@@ -92,6 +92,52 @@ describe('XML search parse results', function murucaHomeCtrlTest() {
     });
   });
 
+  context('Count term occurrences', function () {
+    it('should return 0 for empty array', function () {
+      expect((parser as any).countOccurrences([])).to.eq(0);
+    });
+
+    it('should return 0 for undefined', function () {
+      expect((parser as any).countOccurrences(undefined)).to.eq(0);
+    });
+
+    it('should return 0 when snippets have no em tags', function () {
+      const snippets = ['plain text no highlights', 'another plain text'];
+      expect((parser as any).countOccurrences(snippets)).to.eq(0);
+    });
+
+    it('should count 1 occurrence in a single snippet', function () {
+      const snippets = ["Lorem <em class='mrc__text-emph'>ipsum</em> dolor"];
+      expect((parser as any).countOccurrences(snippets)).to.eq(1);
+    });
+
+    it('should count multiple occurrences within the same snippet', function () {
+      const snippets = [
+        "se furoris ducem <em class='mrc__text-emph'>magister</em> equitum, dictatore <em class='mrc__text-emph'>magister</em> equitum, fallor <em class='mrc__text-emph'>magister</em> equitum",
+      ];
+      expect((parser as any).countOccurrences(snippets)).to.eq(3);
+    });
+
+    it('should sum occurrences across multiple snippets', function () {
+      const snippets = [
+        "se furoris ducem <em class='mrc__text-emph'>magister</em> equitum exhibebat,",
+        "dictatore, <em class='mrc__text-emph'>magister</em> equitum, ",
+        "fallor unquam accidit, <em class='mrc__text-emph'>magister</em> equitum dictatoris",
+      ];
+      expect((parser as any).countOccurrences(snippets)).to.eq(3);
+    });
+
+    it('should not count other em tags with different attributes', function () {
+      const snippets = ['<em>not our tag</em>', '<em class="mrc__text-emph">double quotes</em>'];
+      expect((parser as any).countOccurrences(snippets)).to.eq(0);
+    });
+
+    it('should correctly count from real inner_hits highlight data', function () {
+      const result = parser.buildHighlightObj(inner_hits);
+      expect(result).to.have.property('totCount').to.eq(5);
+    });
+  });
+
   context('Format references', function () {
     it('should return formatted references', async function () {
       const elements = [

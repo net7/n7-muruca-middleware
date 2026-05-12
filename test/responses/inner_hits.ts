@@ -104,4 +104,64 @@ export default [
     sort: [3719],
     matched_queries: ['xml_transcription_texts_json.xml_text'],
   },
+  {
+    "_source": {
+      "node": "p",
+      "xml_text": "Вопросивыи. Но возвѣсти ми о неиже и о сущихъ отъ нея в предложении пространнѣ, и коимъ образомъ же и дѣломъ состоится, и количествомъ мѣрится, и качеством познавается, и елики части и предѣлы в себѣ имать. тако же и о риторицѣ и <w type=\"lexicon\" lemmaRef=\"lista_lemmi.xml#lgk-sost-f\">логицѣ</w> и о существѣ и естествѣ, и како тѣми в познании бываетъ чьстнѣишая философия, и отъ тоя како происходитъ вышеестественная богословия. о всемъ благоповѣстно и словодатно и рѣчеточно изяснивъ предложи и открывъ покажи.",
+      "w": [
+          {
+              "node": "w",
+              "xml_text": "логицѣ",
+              "_path": [
+                  {
+                      "node": "text"
+                  },
+                  {
+                      "node": "body",
+                      "position": 0
+                  },
+                  {
+                      "node": "p",
+                      "position": 17
+                  },
+                  {
+                      "node": "w",
+                      "position": 0
+                  }
+              ],
+              "_refs": [
+                  {
+                      "id": "lgk-sost-f",
+                      "label": "логика",
+                      "title": "логика"
+                  }
+              ]
+          }
+          ],
+          "_path": [
+              {
+                  "node": "text"
+              },
+              {
+                  "node": "body",
+                  "position": 0
+              },
+              {
+                  "node": "p",
+                  "position": 17
+              }
+          ]
+      },
+      "highlight": {
+          "xml_transcription_texts_json.w._attr.key.keyword": [
+              "логика"
+          ]
+      },
+      "sort": [
+          47988
+      ],
+      "matched_queries": [
+          "*._attr.key.keyword"
+      ]
+    }
 ];

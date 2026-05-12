@@ -329,6 +329,9 @@ export class AdvancedSearchService {
     const xml_query_should = [];
     const inner_hits = advanced_conf.inner_hits;
     inner_hits['name'] = 'xml_text';
+    if (inner_hits.highlight) {
+      inner_hits.highlight.number_of_fragments = 100;
+    }
 
     const q = this.parseQueryGroups(
       advanced_conf.search_groups,
