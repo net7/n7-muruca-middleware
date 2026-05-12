@@ -109,6 +109,7 @@ export abstract class SearchParser implements Parser {
     };
 
     facets.forEach(({ id, query, offset }) => {
+      if (!queryFacets[id]) return;
       let facetSum = 0;
       let filteredTotal = 0;
       const values: any[] = [];
@@ -133,6 +134,17 @@ export abstract class SearchParser implements Parser {
           });
 
           this.sortFacetValues(values, queryFacets[id]['sortValues'], id);
+        }
+      }
+
+      if (queryFacets[id].searchNoValue && data[id + '_missing'] !== undefined) {
+        const missingCount = data[id + '_missing'].doc_count;
+        if (missingCount > 0) {
+          values.push({
+            text: queryFacets[id].searchNoValueLabel || '__NO_VALUE__',
+            counter: missingCount,
+            payload: '__NO_VALUE__',
+          });
         }
       }
 

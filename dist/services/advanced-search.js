@@ -213,6 +213,12 @@ class AdvancedSearchService {
                             }
                             must_array.push(range_query);
                             break;
+                        case 'term_range_or':
+                            if (!query_params[groupId] || !Array.isArray(query_params[groupId]))
+                                break;
+                            const range_or_query = ASHelper.queryRangeOr(query_key.field, query_params[groupId]);
+                            must_array.push(range_or_query);
+                            break;
                         case 'ternary':
                             break;
                         default:
@@ -239,11 +245,12 @@ class AdvancedSearchService {
         this.configurations = configurations;
     }
     buildFulltextQuery(query_conf, query_param) {
-        const query_string = ASHelper.buildQueryString(query_param, {
+        const value = query_conf.forcePhrase ? `"${query_param}"` : query_param;
+        const query_string = ASHelper.buildQueryString(value, {
             allowWildCard: query_conf.addStar,
             stripDoubleQuotes: query_conf.stripDoubleQuotes != undefined
                 ? query_conf.stripDoubleQuotes
-                : true,
+                : !query_conf.forcePhrase,
         });
         const ft_query = ASHelper.queryString({ fields: query_conf.field, value: query_string }, 'AND');
         return ft_query;
@@ -339,7 +346,9 @@ class AdvancedSearchService {
         //   : data[groupId];
         let queries;
         if (value && value != '') {
-            queries = ASHelper.simpleQueryString({ fields: query_conf.fields, value: value }, 'AND', false, '');
+            queries = query_conf.useQueryString
+                ? ASHelper.queryString({ fields: query_conf.fields, value: value }, 'AND')
+                : ASHelper.simpleQueryString({ fields: query_conf.fields, value: value }, 'AND', false, '');
         }
         if ((_a = query_conf.options) === null || _a === void 0 ? void 0 : _a.nested) {
             if (query_conf.highlight) {

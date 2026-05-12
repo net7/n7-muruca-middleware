@@ -162,20 +162,32 @@ export const ESHelper = {
                       },
                     };
                     data[filterId].map((value) => {
-                      should.bool.should.push({
-                        match: {
-                          [query_key.field]: value,
-                        },
-                      });
+                      if (value === '__NO_VALUE__') {
+                        should.bool.should.push({
+                          bool: { must_not: { exists: { field: query_key.field } } },
+                        });
+                      } else {
+                        should.bool.should.push({
+                          match: {
+                            [query_key.field]: value,
+                          },
+                        });
+                      }
                     });
                     main_query.query.bool.must.push(should);
                   } else {
                     data[filterId].map((value) => {
-                      main_query.query.bool.must.push({
-                        match: {
-                          [query_key.field]: value,
-                        },
-                      });
+                      if (value === '__NO_VALUE__') {
+                        main_query.query.bool.must.push({
+                          bool: { must_not: { exists: { field: query_key.field } } },
+                        });
+                      } else {
+                        main_query.query.bool.must.push({
+                          match: {
+                            [query_key.field]: value,
+                          },
+                        });
+                      }
                     });
                   }
                 } else {
@@ -187,21 +199,34 @@ export const ESHelper = {
                       ? [data[filterId]]
                       : data[filterId];
                   values.forEach(($val) => {
-                    const nested = {
-                      nested: {
-                        path: path,
-                        query: {
-                          bool: {
-                            must: [
-                              {
-                                term: { [query_facets[filterId].search]: $val },
-                              },
-                            ],
+                    if ($val === '__NO_VALUE__') {
+                      main_query.query.bool.must.push({
+                        bool: {
+                          must_not: {
+                            nested: {
+                              path: path,
+                              query: { exists: { field: query_facets[filterId].search } },
+                            },
                           },
                         },
-                      },
-                    };
-                    main_query.query.bool.must.push(nested);
+                      });
+                    } else {
+                      const nested = {
+                        nested: {
+                          path: path,
+                          query: {
+                            bool: {
+                              must: [
+                                {
+                                  term: { [query_facets[filterId].search]: $val },
+                                },
+                              ],
+                            },
+                          },
+                        },
+                      };
+                      main_query.query.bool.must.push(nested);
+                    }
                   });
                 }
                 break;
@@ -363,6 +388,28 @@ export const ESHelper = {
         if (!term_aggr.aggs) {
           const distTerm = this.distinctTerms(query_facets[key]['search']);
           main_query.aggregations['distinctTerms_' + key] = distTerm;
+        }
+      }
+
+      if (query_facets[key].searchNoValue && !ranges) {
+        if (nested) {
+          const nestedPath = query_facets[key].nestedFields.join('.');
+          main_query.aggregations[key + '_missing'] = {
+            filter: {
+              bool: {
+                must_not: {
+                  nested: {
+                    path: nestedPath,
+                    query: { exists: { field: query_facets[key].search } },
+                  },
+                },
+              },
+            },
+          };
+        } else {
+          main_query.aggregations[key + '_missing'] = {
+            missing: { field: query_facets[key].search },
+          };
         }
       }
     }

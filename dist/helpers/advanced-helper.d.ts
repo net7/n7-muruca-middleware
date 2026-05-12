@@ -42,6 +42,27 @@ export declare const queryRange: (termFields: [], termValue: any) => {
         must_not: any[];
     };
 };
+/**
+ * Builds an OR query across multiple date ranges.
+ * Each entry in dateRanges is { from: string, to: string }.
+ * Generates: bool.should[ bool.must[gte, lte], ... ] with minimum_should_match: 1
+ */
+export declare const queryRangeOr: (field: string, dateRanges: Array<{
+    from: string;
+    to: string;
+}>) => {
+    bool: {
+        should: {
+            bool: {
+                must: any[];
+                should: any[];
+                filter: any[];
+                must_not: any[];
+            };
+        }[];
+        minimum_should_match: number;
+    };
+};
 export declare const buildHighlights: (queryField: any, noHighlightFields?: string[], highlightOptions?: any) => {};
 export declare const highlightValue: (field: any, prePostTag: any, highlightQuery: any) => {};
 export declare const buildTeiHeaderResults: (headerResults: any) => {

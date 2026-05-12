@@ -121,6 +121,12 @@ export interface CommonSettingsAdvancedSearch {
     };
     /** additional highlight options */
     highlightOptions?: String[] | Object;
+    /**
+   * @default false
+   *  Set to true to implement exact match even for non-text config
+   *
+   */
+    forcePhrase?: boolean;
 }
 export interface ResultsFormatData {
     /** label for metadata */
@@ -147,6 +153,12 @@ export interface TextSearch {
     fields: String[];
     /** the fields to highlight */
     highlight?: String[] | Object[];
+    /**
+     * Use query_string instead of simple_query_string.
+     * Enables full Lucene wildcard syntax including '?' (single character)
+     * and '*' (any characters). Defaults to false (simple_query_string).
+     */
+    useQueryString?: boolean;
     /** extra options for query */
     options?: {
         nested?: string;

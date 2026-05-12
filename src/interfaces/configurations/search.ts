@@ -79,6 +79,10 @@ export interface SearchAggregation {
   global?: boolean;
   /** @default false if true, counts unique parent documents instead of nested values (requires nested: true) */
   countUniqueDocs?: boolean;
+  /** @default false if true, adds an extra option to filter documents with no value in this field */
+  searchNoValue?: boolean;
+  /** The label to display for the "no value" option. Requires searchNoValue: true */
+  searchNoValueLabel?: string;
 }
 
 export interface SearchFilter {

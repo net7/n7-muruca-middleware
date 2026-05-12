@@ -11,7 +11,17 @@ class XmlService {
                 document
             } = parseHTML(xml);
             */
-        const { document } = new linkedom_1.DOMParser().parseFromString(xml, 'text/xml').defaultView;
+        // &nbsp; and other named HTML entities are not valid in XML.
+        // Applied both on input (before DOMParser) and on output (document.toString re-introduces them).
+        const namedEntities = {
+            nbsp: '&#160;', ensp: '&#8194;', emsp: '&#8195;', thinsp: '&#8201;',
+            ndash: '&#8211;', mdash: '&#8212;', lsquo: '&#8216;', rsquo: '&#8217;',
+            ldquo: '&#8220;', rdquo: '&#8221;', laquo: '&#171;', raquo: '&#187;',
+            hellip: '&#8230;', bull: '&#8226;', middot: '&#183;',
+        };
+        const sanitizeEntities = (str) => str.replace(/&(?!lt;|gt;|amp;|quot;|apos;)(\w+);/g, (match, name) => { var _a; return (_a = namedEntities[name]) !== null && _a !== void 0 ? _a : match; });
+        const sanitized = sanitizeEntities(xml);
+        const { document } = new linkedom_1.DOMParser().parseFromString(sanitized, 'text/xml').defaultView;
         const parser = new parsers_1.XmlSearchParser();
         // deepest nodes first: children are modified before their parents,
         // so parent innerHTML updates preserve child changes
@@ -41,7 +51,7 @@ class XmlService {
                 targetNode.setAttribute('class', existingClass ? existingClass + ' mrc__text-emph' : 'mrc__text-emph');
             }
         });
-        return document.toString();
+        return sanitizeEntities(document.toString());
     }
     decodeEntity(str) {
         let txt = new linkedom_1.DOMParser().parseFromString('<tmp>' + str + '</tmp>', 'text/xml');
