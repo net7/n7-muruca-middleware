@@ -1,7 +1,7 @@
 import { capitalize } from "lodash";
 import { getResourceController } from "../../controllers";
 import { HttpHelper } from "../../helpers";
-import { PDFContent } from "../../interfaces/configurations/getPDF";
+import { PDFBanner, PDFBannerText, PDFContent } from "../../interfaces/configurations/getPDF";
 import { columnsAdd, convertImageToBase64, createPdfBinary, getTextObject } from "./common";
 
 export class PDFGenerator {
@@ -331,13 +331,86 @@ export class PDFGenerator {
     return pdfContent;
   }
 
+  protected async buildBannerContent(banner: PDFBanner, locale: string, isFooter = false): Promise<any[]> {
+    const resolveText = (t: PDFBannerText) =>
+      typeof t === 'string' ? t : (t[locale] ?? t[Object.keys(t)[0]] ?? '');
+
+    const alignment = banner.align ?? 'left';
+    const logoWidth = banner.logoWidth ?? 40;
+    const textStack: any[] = [];
+    if (banner.title) textStack.push({ text: resolveText(banner.title), bold: true });
+    if (banner.text)  textStack.push({ text: resolveText(banner.text), fontSize: 9 });
+
+    let block: any;
+    if (banner.logoPosition === 'top') {
+      // Logo sopra, testo sotto — stack verticale
+      const items: any[] = [];
+      if (banner.logo) items.push({ image: banner.logo, width: logoWidth, alignment, margin: [0, 0, 0, 5] });
+      if (textStack.length) {
+        const textCol = { stack: textStack, width: banner.textWidth };
+        if (banner.textWidth) {
+          if (alignment === 'center') {
+            items.push({ columns: [{ width: '*', text: '' }, textCol, { width: '*', text: '' }] });
+          } else if (alignment === 'right') {
+            items.push({ columns: [{ width: '*', text: '' }, textCol] });
+          } else {
+            items.push(textCol);
+          }
+        } else {
+          items.push({ stack: textStack, alignment });
+        }
+      }
+      block = items.length ? { stack: items } : null;
+    } else {
+      // Logo a sinistra, testo a destra — colonne (default)
+      const innerColumns: any[] = [];
+      if (banner.logo) innerColumns.push({ image: banner.logo, width: logoWidth, margin: [0, banner.logoMarginTop ?? 0, 0, 0] });
+      if (textStack.length) innerColumns.push({ stack: textStack, width: banner.textWidth ?? 'auto' });
+      if (!innerColumns.length) return [];
+      const innerBlock = { columns: innerColumns, width: 'auto', columnGap: 10 };
+      if (alignment === 'center') {
+        block = { columns: [{ width: '*', text: '' }, innerBlock, { width: '*', text: '' }] };
+      } else if (alignment === 'right') {
+        block = { columns: [{ width: '*', text: '' }, innerBlock] };
+      } else {
+        block = innerBlock;
+      }
+    }
+
+    if (!block) return [];
+    const margin = [40, 20, 40, 10];
+    return [{ ...block, margin }];
+  }
+
   async createPDF(req, res, config, labels, resource?) {
     try {
       const locale = req.query?.locale || '';
       const body = JSON.parse(req.body);
       const result = resource ?? await new getResourceController().searchResource(body, config, locale as string);
       const pdfContent = await this.addContent(result, config, body.type, labels, locale as string);
-      const binary = await createPdfBinary(pdfContent);
+
+      let headerFn: ((page: number, pageCount: number, pageSize: any) => any) | undefined;
+      let footerFn: ((page: number, pageCount: number, pageSize: any) => any) | undefined;
+      const banner = pdfContent.pageBanner;
+      if (banner) {
+        const makeFn = (content: any[], isFooter: boolean) => (page: number, _: number, pageSize: any) => {
+          if (banner.pages === 'first' && page !== 1) return null;
+          const contentClone: any[] = JSON.parse(JSON.stringify(content));
+          if (banner.separator) {
+            const sep = { canvas: [{ type: 'line', x1: 0, y1: 0, x2: pageSize.width, y2: 0, lineWidth: 0.5, lineColor: '#000000' }], margin: isFooter ? [0, 0, 0, 0] : [0, 8, 0, 0] };
+            return { stack: isFooter ? [sep, ...contentClone] : [...contentClone, sep] };
+          }
+          return { stack: contentClone };
+        };
+        if (banner.position === 'top'    || banner.position === 'both') {
+          headerFn = makeFn(await this.buildBannerContent(banner, locale as string, false), false);
+        }
+        if (banner.position === 'bottom' || banner.position === 'both') {
+          footerFn = makeFn(await this.buildBannerContent(banner, locale as string, true), true);
+        }
+      }
+
+      const binary = await createPdfBinary(pdfContent, headerFn, footerFn, banner?.bannerHeight, banner?.footerBannerHeight);
       const title = result.sections?.header?.title || 'Scheda PDF';
       const encodedTitle = encodeURIComponent(`${title}.pdf`);
 

@@ -302,11 +302,27 @@ export function listAdd(pdfContent, label, list) {
  * @param {object} pdfDoc
  * @param {Function} callback
  */
-export function createPdfBinary(pdfDoc) {
+export function createPdfBinary(pdfDoc, headerFn?, footerFn?, bannerHeight?: number, footerBannerHeight?: number) {
   return new Promise((resolve, reject) => {
     try {
       const printer = new pdfprinter(fonts);
-      const doc = printer.createPdfKitDocument(pdfDoc);
+      const defaultBannerMargin = 70;
+      const effectiveHeaderMargin = bannerHeight ?? defaultBannerMargin;
+      const effectiveFooterMargin = footerBannerHeight ?? bannerHeight ?? defaultBannerMargin;
+      const baseMargins = [40, 40, 40, 40];
+      const pageMargins = [
+        baseMargins[0],
+        headerFn ? effectiveHeaderMargin : baseMargins[1],
+        baseMargins[2],
+        footerFn ? effectiveFooterMargin : baseMargins[3],
+      ];
+      const docDefinition = {
+        ...pdfDoc,
+        pageMargins,
+        ...(headerFn ? { header: headerFn } : {}),
+        ...(footerFn ? { footer: footerFn } : {}),
+      };
+      const doc = printer.createPdfKitDocument(docDefinition);
       const chunks = [];
 
       doc.on("data", function (chunk) {

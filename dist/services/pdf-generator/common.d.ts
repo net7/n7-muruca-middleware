@@ -57,4 +57,4 @@ export declare function listAdd(pdfContent: any, label: any, list: any): any;
  * @param {object} pdfDoc
  * @param {Function} callback
  */
-export declare function createPdfBinary(pdfDoc: any): Promise<unknown>;
+export declare function createPdfBinary(pdfDoc: any, headerFn?: any, footerFn?: any, bannerHeight?: number, footerBannerHeight?: number): Promise<unknown>;

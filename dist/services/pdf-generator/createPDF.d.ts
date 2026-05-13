@@ -1,4 +1,4 @@
-import { PDFContent } from "../../interfaces/configurations/getPDF";
+import { PDFBanner, PDFContent } from "../../interfaces/configurations/getPDF";
 export declare class PDFGenerator {
     firstSection: boolean;
     afterTabTitle: boolean;
@@ -49,6 +49,7 @@ export declare class PDFGenerator {
     addImgViewer(imgViewer: any, pdfContent: any): Promise<any>;
     addIIIF(iiif: any, pdfContent: any): Promise<any>;
     addCollection(collection: any, pdfContent: any): Promise<any>;
+    protected buildBannerContent(banner: PDFBanner, locale: string, isFooter?: boolean): Promise<any[]>;
     createPDF(req: any, res: any, config: any, labels: any, resource?: any): Promise<import("../../interfaces/helper").HTTPResponse | {
         statusCode: number;
         headers: {

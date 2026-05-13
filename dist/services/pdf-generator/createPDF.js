@@ -105,7 +105,7 @@ class PDFGenerator {
                         bold: true,
                     },
                     nestedTitle: {
-                        fontSize: 11,
+                        fontSize: 12,
                         bold: true,
                     },
                     nestedMetadata: {
@@ -318,6 +318,68 @@ class PDFGenerator {
             return pdfContent;
         });
     }
+    buildBannerContent(banner_1, locale_1) {
+        return __awaiter(this, arguments, void 0, function* (banner, locale, isFooter = false) {
+            var _a, _b, _c, _d;
+            const resolveText = (t) => { var _a, _b; return typeof t === 'string' ? t : ((_b = (_a = t[locale]) !== null && _a !== void 0 ? _a : t[Object.keys(t)[0]]) !== null && _b !== void 0 ? _b : ''); };
+            const alignment = (_a = banner.align) !== null && _a !== void 0 ? _a : 'left';
+            const logoWidth = (_b = banner.logoWidth) !== null && _b !== void 0 ? _b : 40;
+            const textStack = [];
+            if (banner.title)
+                textStack.push({ text: resolveText(banner.title), bold: true });
+            if (banner.text)
+                textStack.push({ text: resolveText(banner.text), fontSize: 9 });
+            let block;
+            if (banner.logoPosition === 'top') {
+                // Logo sopra, testo sotto — stack verticale
+                const items = [];
+                if (banner.logo)
+                    items.push({ image: banner.logo, width: logoWidth, alignment, margin: [0, 0, 0, 5] });
+                if (textStack.length) {
+                    const textCol = { stack: textStack, width: banner.textWidth };
+                    if (banner.textWidth) {
+                        if (alignment === 'center') {
+                            items.push({ columns: [{ width: '*', text: '' }, textCol, { width: '*', text: '' }] });
+                        }
+                        else if (alignment === 'right') {
+                            items.push({ columns: [{ width: '*', text: '' }, textCol] });
+                        }
+                        else {
+                            items.push(textCol);
+                        }
+                    }
+                    else {
+                        items.push({ stack: textStack, alignment });
+                    }
+                }
+                block = items.length ? { stack: items } : null;
+            }
+            else {
+                // Logo a sinistra, testo a destra — colonne (default)
+                const innerColumns = [];
+                if (banner.logo)
+                    innerColumns.push({ image: banner.logo, width: logoWidth, margin: [0, (_c = banner.logoMarginTop) !== null && _c !== void 0 ? _c : 0, 0, 0] });
+                if (textStack.length)
+                    innerColumns.push({ stack: textStack, width: (_d = banner.textWidth) !== null && _d !== void 0 ? _d : 'auto' });
+                if (!innerColumns.length)
+                    return [];
+                const innerBlock = { columns: innerColumns, width: 'auto', columnGap: 10 };
+                if (alignment === 'center') {
+                    block = { columns: [{ width: '*', text: '' }, innerBlock, { width: '*', text: '' }] };
+                }
+                else if (alignment === 'right') {
+                    block = { columns: [{ width: '*', text: '' }, innerBlock] };
+                }
+                else {
+                    block = innerBlock;
+                }
+            }
+            if (!block)
+                return [];
+            const margin = [40, 20, 40, 10];
+            return [Object.assign(Object.assign({}, block), { margin })];
+        });
+    }
     createPDF(req, res, config, labels, resource) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
@@ -326,7 +388,28 @@ class PDFGenerator {
                 const body = JSON.parse(req.body);
                 const result = resource !== null && resource !== void 0 ? resource : yield new controllers_1.getResourceController().searchResource(body, config, locale);
                 const pdfContent = yield this.addContent(result, config, body.type, labels, locale);
-                const binary = yield (0, common_1.createPdfBinary)(pdfContent);
+                let headerFn;
+                let footerFn;
+                const banner = pdfContent.pageBanner;
+                if (banner) {
+                    const makeFn = (content, isFooter) => (page, _, pageSize) => {
+                        if (banner.pages === 'first' && page !== 1)
+                            return null;
+                        const contentClone = JSON.parse(JSON.stringify(content));
+                        if (banner.separator) {
+                            const sep = { canvas: [{ type: 'line', x1: 0, y1: 0, x2: pageSize.width, y2: 0, lineWidth: 0.5, lineColor: '#000000' }], margin: isFooter ? [0, 0, 0, 0] : [0, 8, 0, 0] };
+                            return { stack: isFooter ? [sep, ...contentClone] : [...contentClone, sep] };
+                        }
+                        return { stack: contentClone };
+                    };
+                    if (banner.position === 'top' || banner.position === 'both') {
+                        headerFn = makeFn(yield this.buildBannerContent(banner, locale, false), false);
+                    }
+                    if (banner.position === 'bottom' || banner.position === 'both') {
+                        footerFn = makeFn(yield this.buildBannerContent(banner, locale, true), true);
+                    }
+                }
+                const binary = yield (0, common_1.createPdfBinary)(pdfContent, headerFn, footerFn, banner === null || banner === void 0 ? void 0 : banner.bannerHeight, banner === null || banner === void 0 ? void 0 : banner.footerBannerHeight);
                 const title = ((_c = (_b = result.sections) === null || _b === void 0 ? void 0 : _b.header) === null || _c === void 0 ? void 0 : _c.title) || 'Scheda PDF';
                 const encodedTitle = encodeURIComponent(`${title}.pdf`);
                 const headerData = {
