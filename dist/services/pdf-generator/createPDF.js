@@ -31,6 +31,18 @@ class PDFGenerator {
             margin: [0, 0, 0, 0],
         };
     }
+    flatNestedSeparator() {
+        return {
+            canvas: [{
+                    type: 'line',
+                    x1: 0, y1: 0,
+                    x2: 515, y2: 0,
+                    lineWidth: 0.5,
+                    lineColor: '#dddddd',
+                }],
+            margin: [0, 10, 0, 10],
+        };
+    }
     nestedSeparator(pdfContent) {
         const lw = pdfContent.labelWidth;
         const offsetPx = typeof lw === 'number' ? lw + 5 : Math.round(parseFloat(lw) / 100 * 515) + 5;
@@ -71,7 +83,7 @@ class PDFGenerator {
     }
     addContent(resource_1, configurations_1, type_1, labels_1) {
         return __awaiter(this, arguments, void 0, function* (resource, configurations, type, labels, locale = '') {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
             const config = configurations.configurations.resources[type];
             const defaults = {
                 content: [],
@@ -88,6 +100,14 @@ class PDFGenerator {
                         color: '#7e8f9b',
                         bold: true,
                     },
+                    tabTitle: {
+                        fontSize: 14,
+                        bold: true,
+                    },
+                    nestedTitle: {
+                        fontSize: 11,
+                        bold: true,
+                    },
                     nestedMetadata: {
                         fontSize: 11,
                     },
@@ -97,10 +117,6 @@ class PDFGenerator {
                     link: {
                         color: '#5397c7',
                         decoration: '',
-                    },
-                    tabTitle: {
-                        fontSize: 14,
-                        bold: true,
                     },
                 },
                 defaultStyle: {
@@ -116,8 +132,11 @@ class PDFGenerator {
             const tabMap = {};
             if (pdfContent.showTabTitles && pdfContent.tabs) {
                 for (const tab of pdfContent.tabs) {
+                    const label = typeof tab.label === 'string'
+                        ? tab.label
+                        : ((_f = (_e = tab.label[locale]) !== null && _e !== void 0 ? _e : tab.label[Object.keys(tab.label)[0]]) !== null && _f !== void 0 ? _f : '');
                     for (const sectionId of tab.sections) {
-                        tabMap[sectionId] = tab.label;
+                        tabMap[sectionId] = label;
                     }
                 }
             }
@@ -125,14 +144,14 @@ class PDFGenerator {
             const sections = resource.sections;
             for (let section in sections) {
                 const data = sections[section];
-                if (((_e = config[section]) === null || _e === void 0 ? void 0 : _e.excludePDF) && ((_f = config[section]) === null || _f === void 0 ? void 0 : _f.excludePDF) === true) {
+                if (((_g = config[section]) === null || _g === void 0 ? void 0 : _g.excludePDF) && ((_h = config[section]) === null || _h === void 0 ? void 0 : _h.excludePDF) === true) {
                     continue;
                 }
                 if (tabMap[section] && tabMap[section] !== currentTabLabel) {
                     currentTabLabel = tabMap[section];
                     pdfContent = this.addTabTitle(currentTabLabel, pdfContent);
                 }
-                switch ((_g = config[section]) === null || _g === void 0 ? void 0 : _g.type) {
+                switch ((_j = config[section]) === null || _j === void 0 ? void 0 : _j.type) {
                     case 'header':
                         if (!data)
                             break;
@@ -141,12 +160,12 @@ class PDFGenerator {
                     case 'metadata-subtitle':
                         if (!data)
                             break;
-                        pdfContent = yield this.addSubtitle(data.group[0].items, pdfContent, labels, (_h = config[section]) === null || _h === void 0 ? void 0 : _h.pdf);
+                        pdfContent = yield this.addSubtitle(data.group[0].items, pdfContent, labels, (_k = config[section]) === null || _k === void 0 ? void 0 : _k.pdf);
                         break;
                     case 'metadata':
                         if (!data)
                             break;
-                        pdfContent = yield this.addMetadata(data.group[0].items, pdfContent, labels, (_j = config[section]) === null || _j === void 0 ? void 0 : _j.pdf, locale);
+                        pdfContent = yield this.addMetadata(data.group[0].items, pdfContent, labels, (_l = config[section]) === null || _l === void 0 ? void 0 : _l.pdf, locale);
                         break;
                     // case 'image-viewer':
                     //   if (!data) break;
@@ -217,16 +236,34 @@ class PDFGenerator {
                 else {
                     // Metadato annidato
                     for (let g = 0; g < item.value.length; g++) {
-                        const filteredItems = item.value[g]
-                            .filter((subItem) => subItem.value && subItem.value !== '')
-                            .map((subItem) => ({ label: this.getLabel(subItem, labels), value: subItem.value }));
-                        if (filteredItems.length) {
-                            const outerLabel = g === 0 ? this.getLabel(item, labels) : '';
-                            pdfContent = yield (0, common_1.columnsAdd)(pdfContent, outerLabel, filteredItems, Object.assign(Object.assign({}, pdfSectionConfig), { nestedMargin }), "nestedMetadata", false);
+                        const rawItems = item.value[g]
+                            .filter((subItem) => subItem.value && subItem.value !== '');
+                        if (rawItems.length) {
+                            // Annidato flat
+                            if (pdfContent.flattenNested) {
+                                if (g === 0) {
+                                    const outerLabel = this.getLabel(item, labels);
+                                    if (outerLabel) {
+                                        pdfContent.content.push({ text: outerLabel, style: 'nestedTitle', margin: [0, isFirst ? 0 : 5, 0, 5] });
+                                    }
+                                }
+                                for (let s = 0; s < rawItems.length; s++) {
+                                    const subItem = rawItems[s];
+                                    const subMargin = s === 0 ? [0, 0, 0, 0] : [0, 5, 0, 0];
+                                    pdfContent = yield (0, common_1.columnsAdd)(pdfContent, this.getLabel(subItem, labels), subItem.value, pdfSectionConfig, undefined, false, subMargin);
+                                }
+                            }
+                            else {
+                                // Annidato incolonnato
+                                const filteredItems = rawItems
+                                    .map((subItem) => ({ label: this.getLabel(subItem, labels), value: subItem.value }));
+                                const outerLabel = g === 0 ? this.getLabel(item, labels) : '';
+                                pdfContent = yield (0, common_1.columnsAdd)(pdfContent, outerLabel, filteredItems, Object.assign(Object.assign({}, pdfSectionConfig), { nestedMargin }), "nestedMetadata", false);
+                            }
                             isFirst = false;
                         }
                         if (g < item.value.length - 1) {
-                            pdfContent.content.push(this.nestedSeparator(pdfContent));
+                            pdfContent.content.push(pdfContent.flattenNested ? this.flatNestedSeparator() : this.nestedSeparator(pdfContent));
                         }
                     }
                 }

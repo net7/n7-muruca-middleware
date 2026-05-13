@@ -9,9 +9,12 @@ export interface PDFContent {
     labelWidth?: string | number;
     nestedLabelWidth?: string | number;
     noSectionSeparator?: boolean;
+    flattenNested?: boolean;
     showTabTitles?: boolean;
     tabs?: {
-        label: string;
+        label: string | {
+            [locale: string]: string;
+        };
         sections: string[];
     }[];
 }

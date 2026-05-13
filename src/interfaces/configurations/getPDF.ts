@@ -5,6 +5,7 @@ export interface PDFContent {
     labelWidth?: string | number;
     nestedLabelWidth?: string | number;
     noSectionSeparator?: boolean;
+    flattenNested?: boolean;
     showTabTitles?: boolean;
-    tabs?: { label: string; sections: string[] }[];
+    tabs?: { label: string | { [locale: string]: string }; sections: string[] }[];
 }

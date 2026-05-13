@@ -22,6 +22,19 @@ export class PDFGenerator {
     };
   }
 
+  protected flatNestedSeparator() {
+    return {
+      canvas: [{
+        type: 'line',
+        x1: 0, y1: 0,
+        x2: 515, y2: 0,
+        lineWidth: 0.5,
+        lineColor: '#dddddd',
+      }],
+      margin: [0, 10, 0, 10],
+    };
+  }
+
   protected nestedSeparator(pdfContent) {
     const lw = pdfContent.labelWidth;
     const offsetPx = typeof lw === 'number' ? lw + 5 : Math.round(parseFloat(lw) / 100 * 515) + 5;
@@ -83,6 +96,10 @@ export class PDFGenerator {
           fontSize: 14,
           bold: true,
         },
+        nestedTitle: {
+          fontSize: 12,
+          bold: true,
+        },
         nestedMetadata: {
           fontSize: 11,
         },
@@ -118,8 +135,11 @@ export class PDFGenerator {
     const tabMap: Record<string, string> = {};
     if (pdfContent.showTabTitles && pdfContent.tabs) {
       for (const tab of pdfContent.tabs) {
+        const label = typeof tab.label === 'string'
+          ? tab.label
+          : (tab.label[locale] ?? tab.label[Object.keys(tab.label)[0]] ?? '');
         for (const sectionId of tab.sections) {
-          tabMap[sectionId] = tab.label;
+          tabMap[sectionId] = label;
         }
       }
     }
@@ -219,16 +239,35 @@ export class PDFGenerator {
       } else {
         // Metadato annidato
         for (let g = 0; g < item.value.length; g++) {
-          const filteredItems = item.value[g]
-            .filter((subItem: any) => subItem.value && subItem.value !== '')
-            .map((subItem: any) => ({ label: this.getLabel(subItem, labels), value: subItem.value }));
-          if (filteredItems.length) {
-            const outerLabel = g === 0 ? this.getLabel(item, labels) : '';
-            pdfContent = await columnsAdd(pdfContent, outerLabel, filteredItems, { ...pdfSectionConfig, nestedMargin }, "nestedMetadata", false);
+          const rawItems = item.value[g]
+            .filter((subItem: any) => subItem.value && subItem.value !== '');
+          if (rawItems.length) {
+            // Annidato flat
+            if (pdfContent.flattenNested) {
+              if (g === 0) {
+                const outerLabel = this.getLabel(item, labels);
+                if (outerLabel) {
+                  pdfContent.content.push({ text: outerLabel, style: 'nestedTitle', margin: [0, isFirst ? 0 : 5, 0, 5] });
+                }
+              }
+              for (let s = 0; s < rawItems.length; s++) {
+                const subItem = rawItems[s];
+                const subMargin = s === 0 ? [0, 0, 0, 0] : [0, 5, 0, 0];
+                pdfContent = await columnsAdd(pdfContent, this.getLabel(subItem, labels), subItem.value, pdfSectionConfig, undefined, false, subMargin);
+              }
+            } else {
+              // Annidato incolonnato
+              const filteredItems = rawItems
+                .map((subItem: any) => ({ label: this.getLabel(subItem, labels), value: subItem.value }));
+              const outerLabel = g === 0 ? this.getLabel(item, labels) : '';
+              pdfContent = await columnsAdd(pdfContent, outerLabel, filteredItems, { ...pdfSectionConfig, nestedMargin }, "nestedMetadata", false);
+            }
             isFirst = false;
           }
           if (g < item.value.length - 1) {
-            pdfContent.content.push(this.nestedSeparator(pdfContent));
+            pdfContent.content.push(
+              pdfContent.flattenNested ? this.flatNestedSeparator() : this.nestedSeparator(pdfContent)
+            );
           }
         }
       }

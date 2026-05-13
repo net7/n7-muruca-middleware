@@ -14,6 +14,18 @@ export declare class PDFGenerator {
         }[];
         margin: number[];
     };
+    protected flatNestedSeparator(): {
+        canvas: {
+            type: string;
+            x1: number;
+            y1: number;
+            x2: number;
+            y2: number;
+            lineWidth: number;
+            lineColor: string;
+        }[];
+        margin: number[];
+    };
     protected nestedSeparator(pdfContent: any): {
         canvas: {
             type: string;
