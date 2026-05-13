@@ -149,6 +149,26 @@ class Controller {
             return res.send(response);
         });
         /**
+         * Generate and return a PDF for the given resource.
+         * @param request POST request
+         * @param res  Response
+         */
+        this.getPDF = (request, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const locale = ((_a = request.query) === null || _a === void 0 ? void 0 : _a.locale) || '';
+            const pdfController = new controllers.getPDFController();
+            const labels = yield pdfController.getLabels(request, res, this.config, locale);
+            const result = yield pdfController.getPDF(request, res, this.config, locale, labels);
+            if (result.statusCode !== 200 || typeof result.body !== 'string') {
+                console.error('getPDF error:', result.body);
+                res.status(result.statusCode || 500).send({ error: String(result.body) });
+                return;
+            }
+            const buffer = Buffer.from(result.body, 'base64');
+            res.set(result.headers);
+            res.status(result.statusCode).send(buffer);
+        });
+        /**
          * Submit a query and fetch the results.
          * @param request POST request
          * @param res  Response
@@ -385,6 +405,7 @@ class Controller {
             getNetwork: this.getNetwork.bind(this),
             getMap: this.getMap.bind(this),
             getResource: this.getResource.bind(this),
+            getPDF: this.getPDF.bind(this),
             search: this.search.bind(this),
             advancedSearch: this.advancedSearch.bind(this),
             getTranslation: this.getTranslation.bind(this),

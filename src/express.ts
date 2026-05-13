@@ -127,6 +127,9 @@ const defaultHandlers: {
   getItinerary: async (req, res) => {
     await routeHandler(req, res, controller.getItinerary);
   },
+  getPDF: async (req, res) => {
+    await routeHandler(req, res, controller.getPDF);
+  },
 };
 
 /* -------------- *
@@ -181,6 +184,9 @@ router.get('/advanced_search_options', (req, res) =>
 );
 router.post('/list/:type', (req, res) =>
   defaultHandlers.getObjectsByType(req, res),
+);
+router.post('/getPDF', (req, res) => 
+  defaultHandlers.getPDF(req, res)
 );
 
 // Exports

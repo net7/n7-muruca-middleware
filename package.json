@@ -24,6 +24,7 @@
     "lodash": "^4.17.21",
     "nock": "^13.3.0",
     "node-fetch": "^3.2.8",
+    "pdfmake": "^0.2.23",
     "request": "^2.88.2",
     "slugify": "^1.6.6",
     "sort-object": "^3.0.3",

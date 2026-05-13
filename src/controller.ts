@@ -160,6 +160,26 @@ export class Controller {
   };
 
   /**
+   * Generate and return a PDF for the given resource.
+   * @param request POST request
+   * @param res  Response
+   */
+  getPDF = async (request: Request, res: Response) => {
+    const locale = request.query?.locale || '';
+    const pdfController = new controllers.getPDFController();
+    const labels = await pdfController.getLabels(request, res, this.config, locale as string);
+    const result = await pdfController.getPDF(request, res, this.config, locale as string, labels);
+    if (result.statusCode !== 200 || typeof result.body !== 'string') {
+      console.error('getPDF error:', result.body);
+      res.status(result.statusCode || 500).send({ error: String(result.body) });
+      return;
+    }
+    const buffer = Buffer.from(result.body, 'base64');
+    res.set(result.headers as any);
+    res.status(result.statusCode).send(buffer);
+  };
+
+  /**
    * Submit a query and fetch the results.
    * @param request POST request
    * @param res  Response
@@ -426,6 +446,7 @@ export class Controller {
       getNetwork: this.getNetwork.bind(this),
       getMap: this.getMap.bind(this),
       getResource: this.getResource.bind(this),
+      getPDF: this.getPDF.bind(this),
       search: this.search.bind(this),
       advancedSearch: this.advancedSearch.bind(this),
       getTranslation: this.getTranslation.bind(this),

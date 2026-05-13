@@ -58,6 +58,12 @@ export declare class Controller {
      */
     getResource: (request: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
     /**
+     * Generate and return a PDF for the given resource.
+     * @param request POST request
+     * @param res  Response
+     */
+    getPDF: (request: Request, res: Response) => Promise<void>;
+    /**
      * Submit a query and fetch the results.
      * @param request POST request
      * @param res  Response
@@ -140,6 +146,7 @@ export declare class Controller {
         getNetwork: any;
         getMap: any;
         getResource: any;
+        getPDF: any;
         search: any;
         advancedSearch: any;
         getTranslation: any;
