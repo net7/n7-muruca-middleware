@@ -347,7 +347,7 @@ export class PDFGenerator {
       const items: any[] = [];
       if (banner.logo) items.push({ image: banner.logo, width: logoWidth, alignment, margin: [0, 0, 0, 5] });
       if (textStack.length) {
-        const textCol = { stack: textStack, width: banner.textWidth };
+        const textCol = { stack: textStack, width: banner.textWidth, alignment: 'center' };
         if (banner.textWidth) {
           if (alignment === 'center') {
             items.push({ columns: [{ width: '*', text: '' }, textCol, { width: '*', text: '' }] });
@@ -357,7 +357,7 @@ export class PDFGenerator {
             items.push(textCol);
           }
         } else {
-          items.push({ stack: textStack, alignment });
+          items.push({ stack: textStack, alignment: 'center' });
         }
       }
       block = items.length ? { stack: items } : null;
