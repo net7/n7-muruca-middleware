@@ -234,7 +234,7 @@ export class AdvancedSearchParser implements Parser {
             xpath: this.getNodeXpath(hit._source._path, hit._source.node),
           };
         }
-        totCount += result.length;
+        totCount += this.countOccurrences(result);
         highlights_obj[last_div_path].texts.push(...result);
       }
     });
@@ -243,6 +243,20 @@ export class AdvancedSearchParser implements Parser {
       totCount: totCount,
       highlights_obj: highlights_obj,
     };
+  }
+
+  private countOccurrences(snippets: string[] | undefined): number {
+    if (!snippets || snippets.length === 0) return 0;
+    const HL_TAG = "<em class='mrc__text-emph'>";
+    return snippets.reduce((total, snippet) => {
+      let count = 0;
+      let idx = 0;
+      while ((idx = snippet.indexOf(HL_TAG, idx)) !== -1) {
+        count++;
+        idx += HL_TAG.length;
+      }
+      return total + count;
+    }, 0);
   }
 
   //parse Highlights of a single node (es: a `p` node )

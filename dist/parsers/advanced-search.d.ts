@@ -30,6 +30,7 @@ export declare class AdvancedSearchParser implements Parser {
         totCount: number;
         highlights_obj: {};
     };
+    private countOccurrences;
     parseHighlightNode(hit: any): any[];
     getNodeBreadcrumb(path: any): string;
     parseHighlights(hit: any): any[];
