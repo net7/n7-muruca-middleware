@@ -110,6 +110,10 @@ export class PDFGenerator {
           color: '#5397c7',
           decoration: '',
         },
+        bannerLink: {
+          color: '#5397c7',
+          decoration: '',
+        },
       },
       defaultStyle: {
         font: "OpenSans",
@@ -128,6 +132,7 @@ export class PDFGenerator {
         ...defaults.styles,
         ...config.pdf?.styles,
         link: { ...defaults.styles.link, ...config.pdf?.styles?.link },
+        bannerLink: { ...defaults.styles.bannerLink, ...config.pdf?.styles?.bannerLink },
       },
       defaultStyle: { ...defaults.defaultStyle, ...config.pdf?.defaultStyle },
     };
@@ -331,15 +336,24 @@ export class PDFGenerator {
     return pdfContent;
   }
 
-  protected async buildBannerContent(banner: PDFBanner, locale: string, isFooter = false): Promise<any[]> {
+  protected async buildBannerContent(banner: PDFBanner, locale: string, isFooter = false, pdfContent?: PDFContent): Promise<any[]> {
     const resolveText = (t: PDFBannerText) =>
       typeof t === 'string' ? t : (t[locale] ?? t[Object.keys(t)[0]] ?? '');
+
+    const bannerLinkStyle = pdfContent?.styles?.bannerLink ?? { color: '#5397c7', decoration: '' };
+    const contentCtx = { styles: { link: bannerLinkStyle }, content: [] };
 
     const alignment = banner.align ?? 'left';
     const logoWidth = banner.logoWidth ?? 40;
     const textStack: any[] = [];
-    if (banner.title) textStack.push({ text: resolveText(banner.title), bold: true });
-    if (banner.text)  textStack.push({ text: resolveText(banner.text), fontSize: 9 });
+    if (banner.title) {
+      const parsed = await getTextObject(resolveText(banner.title), contentCtx);
+      textStack.push({ text: parsed.text, bold: true });
+    }
+    if (banner.text) {
+      const parsed = await getTextObject(resolveText(banner.text), contentCtx);
+      textStack.push({ text: parsed.text, fontSize: 9 });
+    }
 
     let block: any;
     if (banner.logoPosition === 'top') {
@@ -403,10 +417,10 @@ export class PDFGenerator {
           return { stack: contentClone };
         };
         if (banner.position === 'top'    || banner.position === 'both') {
-          headerFn = makeFn(await this.buildBannerContent(banner, locale as string, false), false);
+          headerFn = makeFn(await this.buildBannerContent(banner, locale as string, false, pdfContent), false);
         }
         if (banner.position === 'bottom' || banner.position === 'both') {
-          footerFn = makeFn(await this.buildBannerContent(banner, locale as string, true), true);
+          footerFn = makeFn(await this.buildBannerContent(banner, locale as string, true, pdfContent), true);
         }
       }
 

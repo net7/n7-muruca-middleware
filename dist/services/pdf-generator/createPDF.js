@@ -83,7 +83,7 @@ class PDFGenerator {
     }
     addContent(resource_1, configurations_1, type_1, labels_1) {
         return __awaiter(this, arguments, void 0, function* (resource, configurations, type, labels, locale = '') {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
             const config = configurations.configurations.resources[type];
             const defaults = {
                 content: [],
@@ -118,6 +118,10 @@ class PDFGenerator {
                         color: '#5397c7',
                         decoration: '',
                     },
+                    bannerLink: {
+                        color: '#5397c7',
+                        decoration: '',
+                    },
                 },
                 defaultStyle: {
                     font: "OpenSans",
@@ -128,13 +132,13 @@ class PDFGenerator {
                 nestedLabelWidth: '20%',
                 noSectionSeparator: false
             };
-            let pdfContent = Object.assign(Object.assign(Object.assign({}, defaults), config.pdf), { styles: Object.assign(Object.assign(Object.assign({}, defaults.styles), (_a = config.pdf) === null || _a === void 0 ? void 0 : _a.styles), { link: Object.assign(Object.assign({}, defaults.styles.link), (_c = (_b = config.pdf) === null || _b === void 0 ? void 0 : _b.styles) === null || _c === void 0 ? void 0 : _c.link) }), defaultStyle: Object.assign(Object.assign({}, defaults.defaultStyle), (_d = config.pdf) === null || _d === void 0 ? void 0 : _d.defaultStyle) });
+            let pdfContent = Object.assign(Object.assign(Object.assign({}, defaults), config.pdf), { styles: Object.assign(Object.assign(Object.assign({}, defaults.styles), (_a = config.pdf) === null || _a === void 0 ? void 0 : _a.styles), { link: Object.assign(Object.assign({}, defaults.styles.link), (_c = (_b = config.pdf) === null || _b === void 0 ? void 0 : _b.styles) === null || _c === void 0 ? void 0 : _c.link), bannerLink: Object.assign(Object.assign({}, defaults.styles.bannerLink), (_e = (_d = config.pdf) === null || _d === void 0 ? void 0 : _d.styles) === null || _e === void 0 ? void 0 : _e.bannerLink) }), defaultStyle: Object.assign(Object.assign({}, defaults.defaultStyle), (_f = config.pdf) === null || _f === void 0 ? void 0 : _f.defaultStyle) });
             const tabMap = {};
             if (pdfContent.showTabTitles && pdfContent.tabs) {
                 for (const tab of pdfContent.tabs) {
                     const label = typeof tab.label === 'string'
                         ? tab.label
-                        : ((_f = (_e = tab.label[locale]) !== null && _e !== void 0 ? _e : tab.label[Object.keys(tab.label)[0]]) !== null && _f !== void 0 ? _f : '');
+                        : ((_h = (_g = tab.label[locale]) !== null && _g !== void 0 ? _g : tab.label[Object.keys(tab.label)[0]]) !== null && _h !== void 0 ? _h : '');
                     for (const sectionId of tab.sections) {
                         tabMap[sectionId] = label;
                     }
@@ -144,14 +148,14 @@ class PDFGenerator {
             const sections = resource.sections;
             for (let section in sections) {
                 const data = sections[section];
-                if (((_g = config[section]) === null || _g === void 0 ? void 0 : _g.excludePDF) && ((_h = config[section]) === null || _h === void 0 ? void 0 : _h.excludePDF) === true) {
+                if (((_j = config[section]) === null || _j === void 0 ? void 0 : _j.excludePDF) && ((_k = config[section]) === null || _k === void 0 ? void 0 : _k.excludePDF) === true) {
                     continue;
                 }
                 if (tabMap[section] && tabMap[section] !== currentTabLabel) {
                     currentTabLabel = tabMap[section];
                     pdfContent = this.addTabTitle(currentTabLabel, pdfContent);
                 }
-                switch ((_j = config[section]) === null || _j === void 0 ? void 0 : _j.type) {
+                switch ((_l = config[section]) === null || _l === void 0 ? void 0 : _l.type) {
                     case 'header':
                         if (!data)
                             break;
@@ -160,12 +164,12 @@ class PDFGenerator {
                     case 'metadata-subtitle':
                         if (!data)
                             break;
-                        pdfContent = yield this.addSubtitle(data.group[0].items, pdfContent, labels, (_k = config[section]) === null || _k === void 0 ? void 0 : _k.pdf);
+                        pdfContent = yield this.addSubtitle(data.group[0].items, pdfContent, labels, (_m = config[section]) === null || _m === void 0 ? void 0 : _m.pdf);
                         break;
                     case 'metadata':
                         if (!data)
                             break;
-                        pdfContent = yield this.addMetadata(data.group[0].items, pdfContent, labels, (_l = config[section]) === null || _l === void 0 ? void 0 : _l.pdf, locale);
+                        pdfContent = yield this.addMetadata(data.group[0].items, pdfContent, labels, (_o = config[section]) === null || _o === void 0 ? void 0 : _o.pdf, locale);
                         break;
                     // case 'image-viewer':
                     //   if (!data) break;
@@ -319,16 +323,22 @@ class PDFGenerator {
         });
     }
     buildBannerContent(banner_1, locale_1) {
-        return __awaiter(this, arguments, void 0, function* (banner, locale, isFooter = false) {
-            var _a, _b, _c, _d;
+        return __awaiter(this, arguments, void 0, function* (banner, locale, isFooter = false, pdfContent) {
+            var _a, _b, _c, _d, _e, _f;
             const resolveText = (t) => { var _a, _b; return typeof t === 'string' ? t : ((_b = (_a = t[locale]) !== null && _a !== void 0 ? _a : t[Object.keys(t)[0]]) !== null && _b !== void 0 ? _b : ''); };
-            const alignment = (_a = banner.align) !== null && _a !== void 0 ? _a : 'left';
-            const logoWidth = (_b = banner.logoWidth) !== null && _b !== void 0 ? _b : 40;
+            const bannerLinkStyle = (_b = (_a = pdfContent === null || pdfContent === void 0 ? void 0 : pdfContent.styles) === null || _a === void 0 ? void 0 : _a.bannerLink) !== null && _b !== void 0 ? _b : { color: '#5397c7', decoration: '' };
+            const contentCtx = { styles: { link: bannerLinkStyle }, content: [] };
+            const alignment = (_c = banner.align) !== null && _c !== void 0 ? _c : 'left';
+            const logoWidth = (_d = banner.logoWidth) !== null && _d !== void 0 ? _d : 40;
             const textStack = [];
-            if (banner.title)
-                textStack.push({ text: resolveText(banner.title), bold: true });
-            if (banner.text)
-                textStack.push({ text: resolveText(banner.text), fontSize: 9 });
+            if (banner.title) {
+                const parsed = yield (0, common_1.getTextObject)(resolveText(banner.title), contentCtx);
+                textStack.push({ text: parsed.text, bold: true });
+            }
+            if (banner.text) {
+                const parsed = yield (0, common_1.getTextObject)(resolveText(banner.text), contentCtx);
+                textStack.push({ text: parsed.text, fontSize: 9 });
+            }
             let block;
             if (banner.logoPosition === 'top') {
                 // Logo sopra, testo sotto — stack verticale
@@ -358,9 +368,9 @@ class PDFGenerator {
                 // Logo a sinistra, testo a destra — colonne (default)
                 const innerColumns = [];
                 if (banner.logo)
-                    innerColumns.push({ image: banner.logo, width: logoWidth, margin: [0, (_c = banner.logoMarginTop) !== null && _c !== void 0 ? _c : 0, 0, 0] });
+                    innerColumns.push({ image: banner.logo, width: logoWidth, margin: [0, (_e = banner.logoMarginTop) !== null && _e !== void 0 ? _e : 0, 0, 0] });
                 if (textStack.length)
-                    innerColumns.push({ stack: textStack, width: (_d = banner.textWidth) !== null && _d !== void 0 ? _d : 'auto' });
+                    innerColumns.push({ stack: textStack, width: (_f = banner.textWidth) !== null && _f !== void 0 ? _f : 'auto' });
                 if (!innerColumns.length)
                     return [];
                 const innerBlock = { columns: innerColumns, width: 'auto', columnGap: 10 };
@@ -403,10 +413,10 @@ class PDFGenerator {
                         return { stack: contentClone };
                     };
                     if (banner.position === 'top' || banner.position === 'both') {
-                        headerFn = makeFn(yield this.buildBannerContent(banner, locale, false), false);
+                        headerFn = makeFn(yield this.buildBannerContent(banner, locale, false, pdfContent), false);
                     }
                     if (banner.position === 'bottom' || banner.position === 'both') {
-                        footerFn = makeFn(yield this.buildBannerContent(banner, locale, true), true);
+                        footerFn = makeFn(yield this.buildBannerContent(banner, locale, true, pdfContent), true);
                     }
                 }
                 const binary = yield (0, common_1.createPdfBinary)(pdfContent, headerFn, footerFn, banner === null || banner === void 0 ? void 0 : banner.bannerHeight, banner === null || banner === void 0 ? void 0 : banner.footerBannerHeight);
