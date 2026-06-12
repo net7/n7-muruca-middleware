@@ -338,7 +338,11 @@ export class AdvancedSearchService {
     const xml_query_should = [];
     const inner_hits = { ...advanced_conf.inner_hits };
     inner_hits['name'] = 'xml_text';
-    inner_hits.number_of_fragments = 100;
+    // default for xml-text queries; a config may still override it
+    // (e.g. 0 = whole-node highlighting for exact occurrence counting)
+    if (inner_hits.number_of_fragments === undefined) {
+      inner_hits.number_of_fragments = 100;
+    }
 
     const q = this.parseQueryGroups(
       advanced_conf.search_groups,
