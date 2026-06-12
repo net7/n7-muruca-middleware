@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.3.0] - 12-06-2026
+
+- fixed shared configuration mutation in `buildXmlTextQuery`: per-request state leaked into the
+  module-cached config and made every advanced search after the first fail with
+  `x_content_parse_exception`
+- `number_of_fragments` set in the search configuration is now respected in xml-text queries
+  (100 remains the default)
+- advanced search "Occorrenze" now counts highlighted occurrences instead of highlight fragments
+- nbsp/entities fixes in `XmlService` output
+- added pdf-generator with banner/tag configuration
+
 ## [3.1.0] - 14-04-2026
 
 - added `term_range_or` search group type for OR logic across multiple date/range intervals
