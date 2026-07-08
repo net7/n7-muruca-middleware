@@ -123,7 +123,11 @@ export abstract class SearchParser implements Parser {
           filteredTotal = bucketsData['distinct_doc_count'] || data['distinctTerms_' + id]?.value || 0;
 
           buckets.forEach((bucket: Bucket, index: number) => {
-            const [payload, text] = bucket.key.split('|||').map(part => part.trim());
+            const keyParts = bucket.key.split('|||').map(part => part.trim());
+            // 'title' sort mode prefixes the key with a lowercase sort key: [sortKey, text, payload]
+            const [payload, text] = queryFacets[id].sort === 'title'
+              ? [keyParts[2], keyParts[1]]
+              : [keyParts[0], keyParts[1]];
             const searchQuery = (query || '').toLowerCase();
             if (payload.toLowerCase().includes(searchQuery) || text.toLowerCase().includes(searchQuery)) {
               const facet = this.createFacet(bucket, text, payload, queryFacets[id], index);

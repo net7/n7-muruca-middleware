@@ -15,13 +15,13 @@ export declare const ESHelper: {
             must_not: any[];
         };
     };
-    buildNested(terms: any, search: any, title: any, size?: any, filterTerm?: string, filterField?: string, extraFields?: any, minDocCount?: number, sort?: string, countUniqueDocs?: boolean): {
+    buildNested(terms: any, search: any, title: any, size?: any, filterTerm?: string, filterField?: string, extraFields?: any, minDocCount?: number, sort?: string, countUniqueDocs?: boolean, sortMode?: string): {
         nested: {
             path: any;
         };
         aggs: {};
     };
-    buildTerm(term: any, size: any, extra?: any, sort?: string, global?: boolean, filterQuery?: any): {};
+    buildTerm(term: any, size: any, extra?: any, sort?: string, global?: boolean, filterQuery?: any, sortMode?: string): {};
     distinctTerms(term: any): {
         cardinality: {
             field: any;

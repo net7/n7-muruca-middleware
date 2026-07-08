@@ -53,8 +53,8 @@ export interface SearchAggregation {
     search: string;
     /**the field to display as label. Ex: autore.name.keyword */
     title: string;
-    /** set the alphatical sort order on aggregation term */
-    sort?: 'key';
+    /** set the alphabetical sort order on aggregation term. 'key' sorts by the search field value, 'title' sorts case-insensitively by the title field value */
+    sort?: 'key' | 'title';
     /** set manual order for facets. Ex: ["not defined", "before 1600", "1600-1650" ] */
     sortValues?: string[];
     /** The fields used for search inside the facet. Ex: ["taxonomies.place.name"] */

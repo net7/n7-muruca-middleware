@@ -95,7 +95,11 @@ class SearchParser {
                     const buckets = offset && offset > 0 ? bucketsData.buckets.slice(offset) : bucketsData.buckets;
                     filteredTotal = bucketsData['distinct_doc_count'] || ((_a = data['distinctTerms_' + id]) === null || _a === void 0 ? void 0 : _a.value) || 0;
                     buckets.forEach((bucket, index) => {
-                        const [payload, text] = bucket.key.split('|||').map(part => part.trim());
+                        const keyParts = bucket.key.split('|||').map(part => part.trim());
+                        // 'title' sort mode prefixes the key with a lowercase sort key: [sortKey, text, payload]
+                        const [payload, text] = queryFacets[id].sort === 'title'
+                            ? [keyParts[2], keyParts[1]]
+                            : [keyParts[0], keyParts[1]];
                         const searchQuery = (query || '').toLowerCase();
                         if (payload.toLowerCase().includes(searchQuery) || text.toLowerCase().includes(searchQuery)) {
                             const facet = this.createFacet(bucket, text, payload, queryFacets[id], index);

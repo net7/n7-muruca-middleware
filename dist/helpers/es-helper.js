@@ -283,13 +283,12 @@ exports.ESHelper = {
             const minDocCount = query_facets[key].showEmpty != undefined && query_facets[key].showEmpty
                 ? 0
                 : 1;
-            const sort = query_facets[key].sort != undefined
-                ? '_' + query_facets[key].sort
-                : '_count';
+            const sortMode = query_facets[key].sort;
+            const sort = sortMode != undefined ? '_key' : '_count';
             const { nested, extra, ranges, global, countUniqueDocs } = query_facets[key];
             if (nested) {
                 if (query_facets[key]['nestedFields']) {
-                    const build_aggs = this.buildNested(query_facets[key]['nestedFields'], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]['innerFilterField'], extra, minDocCount, sort, countUniqueDocs || false);
+                    const build_aggs = this.buildNested(query_facets[key]['nestedFields'], query_facets[key].search, query_facets[key].title, size, filterTerm, query_facets[key]['innerFilterField'], extra, minDocCount, sort, countUniqueDocs || false, sortMode);
                     main_query.aggregations[key] = build_aggs;
                 }
                 else {
@@ -343,7 +342,7 @@ exports.ESHelper = {
                     query_facets[key]['generalFilter']) {
                     filterQuery = this.buildAggsFilter(filterTerm, query_facets[key]);
                 }
-                let term_aggr = this.buildTerm(query_facets[key], size, extra, sort, global, filterQuery);
+                let term_aggr = this.buildTerm(query_facets[key], size, extra, sort, global, filterQuery, sortMode);
                 main_query.aggregations[key] = term_aggr;
                 if (!term_aggr.aggs) {
                     const distTerm = this.distinctTerms(query_facets[key]['search']);
@@ -406,7 +405,7 @@ exports.ESHelper = {
         }
         return null;
     },
-    buildNested(terms, search, title, size = null, filterTerm = '', filterField = '', extraFields = null, minDocCount = 1, sort = '_count', countUniqueDocs = false) {
+    buildNested(terms, search, title, size = null, filterTerm = '', filterField = '', extraFields = null, minDocCount = 1, sort = '_count', countUniqueDocs = false, sortMode) {
         if (terms.length > 1) {
             let term = terms.splice(0, 1);
             terms[0] = term + '.' + terms[0];
@@ -415,7 +414,7 @@ exports.ESHelper = {
                     path: term[0],
                 },
                 aggs: {
-                    [term]: this.buildNested(terms, search, title, size, filterTerm, filterField, extraFields, minDocCount, sort, countUniqueDocs),
+                    [term]: this.buildNested(terms, search, title, size, filterTerm, filterField, extraFields, minDocCount, sort, countUniqueDocs, sortMode),
                 },
             };
         }
@@ -426,6 +425,14 @@ exports.ESHelper = {
                 },
                 aggs: {},
             };
+            const scriptSource = sortMode === 'title'
+                ? `if(doc['${search}'].size() > 0 ) {
+              def t = doc['${title}'].value;
+              def lower = t.toLowerCase();
+              def prefix = lower.length() > 0 && Character.isLetterOrDigit(lower.codePointAt(0)) ? '0' : '1';
+              return prefix + lower + '${AGGR_SEPARATOR}' + t + '${AGGR_SEPARATOR}' + doc['${search}'].value;
+            }`
+                : `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '${AGGR_SEPARATOR}' + doc['${title}'].value`;
             const nestedAgg = {
                 [terms[0]]: {
                     terms: {
@@ -435,7 +442,7 @@ exports.ESHelper = {
                             [sort]: sort == '_count' ? 'desc' : 'asc',
                         },
                         script: {
-                            source: `if(doc['${search}'].size() > 0 ) doc['${search}'].value + '${AGGR_SEPARATOR}' + doc['${title}'].value`,
+                            source: scriptSource,
                             lang: 'painless',
                         },
                     },
@@ -472,8 +479,13 @@ exports.ESHelper = {
             return nestedObj;
         }
     },
-    buildTerm(term, size, extra = null, sort = '_count', global = false, filterQuery = null) {
+    buildTerm(term, size, extra = null, sort = '_count', global = false, filterQuery = null, sortMode) {
         let term_query = {};
+        const addResult = sortMode === 'title'
+            ? `def titleLower = titleVal.toLowerCase();
+                def sortPrefix = titleLower.length() > 0 && Character.isLetterOrDigit(titleLower.codePointAt(0)) ? '0' : '1';
+                results.add(sortPrefix + titleLower + '${AGGR_SEPARATOR}' + titleVal + '${AGGR_SEPARATOR}' + searchVal);`
+            : `results.add(searchVal + '${AGGR_SEPARATOR}' + titleVal);`;
         const term_aggr = {
             terms: {
                 size: size,
@@ -488,26 +500,26 @@ exports.ESHelper = {
                     source: `
             def searchField = doc['${term.search}'];
             def titleField = doc['${term.title}'];
-            
+
             if (searchField.size() == 0) {
               return [];
             }
-            
+
             // Always return a Collection (list) to handle both arrays and single values
             // Elasticsearch will create a bucket for each element in the collection
             def results = [];
             int searchSize = searchField.size();
             int titleSize = titleField.size();
             int maxSize = searchSize > titleSize ? searchSize : titleSize;
-            
+
             for (int i = 0; i < maxSize; i++) {
               def searchVal = i < searchSize ? searchField[i].toString() : '';
               def titleVal = i < titleSize ? titleField[i].toString() : searchVal;
               if (searchVal != '') {
-                results.add(searchVal + '${AGGR_SEPARATOR}' + titleVal);
+                ${addResult}
               }
             }
-            
+
             return results;
           `,
                     lang: 'painless',
