@@ -1,7 +1,9 @@
 import Parser, { Input, AggregationResult, Bucket, OutputMetadataItem } from '../interfaces/parser';
 import { SearchResultsData, SearchResultsItemData } from '../interfaces';
 export declare abstract class SearchParser implements Parser {
-    parse({ data, options }: Input, queryParams?: any): AggregationResult | SearchResultsData;
+    locale: any;
+    parse({ data, options }: Input, queryParams?: any, locale?: any): AggregationResult | SearchResultsData;
+    parseLocale(): any;
     protected parseResults({ data, options }: Input, queryParams: any, type: any): SearchResultsData;
     protected parseResultsItems({ data, options }: Input, type: any, queryParams?: any): SearchResultsItemData[];
     protected searchResultsMetadata(source: any, field: any, label: any, type: any): any[];

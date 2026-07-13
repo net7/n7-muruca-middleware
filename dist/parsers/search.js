@@ -3,11 +3,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SearchParser = void 0;
 const parseMetadataFunctions_1 = require("../utils/parseMetadataFunctions");
 class SearchParser {
-    parse({ data, options }, queryParams = null) {
+    parse({ data, options }, queryParams = null, locale = null) {
+        this.locale = locale;
         const { type } = options;
         return type === 'results'
             ? this.parseResults({ data, options }, queryParams, type)
             : this.parseFacets({ data, options });
+    }
+    parseLocale() {
+        return (this.locale === 'it') ? '' : this.locale;
     }
     // RESULTS
     parseResults({ data, options }, queryParams = null, type) {

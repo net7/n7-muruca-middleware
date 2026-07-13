@@ -53,7 +53,7 @@ class searchController {
                     facets,
                     conf: configurations.search,
                 },
-            }, body);
+            }, body, locale);
             return response;
         });
     }

@@ -49,6 +49,7 @@ export class searchController {
         },
       },
       body,
+      locale,
     );
     return response;
   };

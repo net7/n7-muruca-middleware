@@ -6,11 +6,19 @@ import {
 import { parseMetadataValue } from '../utils/parseMetadataFunctions';
 
 export abstract class SearchParser implements Parser {
-  parse({ data, options }: Input, queryParams = null) {
+
+  locale: any;
+
+  parse({ data, options }: Input, queryParams = null, locale = null) {
+    this.locale = locale;
     const { type } = options as SearchOptions;
     return type === 'results'
       ? this.parseResults({ data, options }, queryParams, type)
       : this.parseFacets({ data, options });
+  }
+
+  parseLocale() {
+    return (this.locale === 'it') ? '' : this.locale;
   }
 
   // RESULTS
