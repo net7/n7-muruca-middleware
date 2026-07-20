@@ -155,16 +155,27 @@ export const ESHelper = {
                   : false;
 
                 if (data[filterId] && query_nested === false) {
+                  const filterValues =
+                    typeof data[filterId] === 'string'
+                      ? [data[filterId]]
+                      : data[filterId];
                   if (query_key.operator == 'OR') {
                     const should = {
                       bool: {
                         should: [],
                       },
                     };
-                    data[filterId].map((value) => {
+                    filterValues.map((value) => {
                       if (value === '__NO_VALUE__') {
                         should.bool.should.push({
                           bool: { must_not: { exists: { field: query_key.field } } },
+                        });
+                      } else if (value === '__HAS_VALUE__') {
+                        should.bool.should.push({
+                          bool: {
+                            must: [{ exists: { field: query_key.field } }],
+                            must_not: [{ term: { [query_key.field]: '' } }],
+                          },
                         });
                       } else {
                         should.bool.should.push({
@@ -176,10 +187,17 @@ export const ESHelper = {
                     });
                     main_query.query.bool.must.push(should);
                   } else {
-                    data[filterId].map((value) => {
+                    filterValues.map((value) => {
                       if (value === '__NO_VALUE__') {
                         main_query.query.bool.must.push({
                           bool: { must_not: { exists: { field: query_key.field } } },
+                        });
+                      } else if (value === '__HAS_VALUE__') {
+                        main_query.query.bool.must.push({
+                          bool: {
+                            must: [{ exists: { field: query_key.field } }],
+                            must_not: [{ term: { [query_key.field]: '' } }],
+                          },
                         });
                       } else {
                         main_query.query.bool.must.push({
@@ -206,6 +224,18 @@ export const ESHelper = {
                             nested: {
                               path: path,
                               query: { exists: { field: query_facets[filterId].search } },
+                            },
+                          },
+                        },
+                      });
+                    } else if ($val === '__HAS_VALUE__') {
+                      main_query.query.bool.must.push({
+                        nested: {
+                          path: path,
+                          query: {
+                            bool: {
+                              must: [{ exists: { field: query_facets[filterId].search } }],
+                              must_not: [{ term: { [query_facets[filterId].search]: '' } }],
                             },
                           },
                         },
