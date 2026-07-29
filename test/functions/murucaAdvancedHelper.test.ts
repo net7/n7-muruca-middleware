@@ -121,5 +121,17 @@ describe('Advanced search helpers', function commonHelpersTest() {
       });
       expect(spanNear.span_near).to.have.property('in_order').eq(false);
     });
+
+    it('should strip accents from wildcard values so they match asciifolded indexed terms', async function () {
+      let spanNear = ASHelper.spanNear({
+        fields: 'text',
+        value: 'età perché città',
+        distance: +'3',
+      });
+      const values = spanNear.span_near.clauses.map(
+        (clause: any) => clause.span_multi.match.wildcard.text.value,
+      );
+      expect(values).to.deep.eq(['eta', 'perche', 'citta']);
+    });
   });
 });

@@ -72,6 +72,12 @@ const simpleQueryString = (queryField, default_operator = 'AND', replaceBoolean 
     return x;
 };
 exports.simpleQueryString = simpleQueryString;
+// wildcard queries are matched against the indexed terms as-is, bypassing the field's
+// analyzer entirely - so if the field is indexed with an accent-folding filter (e.g.
+// asciifolding, common on xml_transcription_analyzer-style fields), a wildcard clause
+// built from the raw, accented query term never matches. Folding it here mirrors what
+// the analyzer already did at index time.
+const stripAccents = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const spanNear = (queryField) => {
     const in_order = typeof queryField.in_order !== 'undefined' ? queryField.in_order : true;
     const x = {
@@ -88,7 +94,7 @@ const spanNear = (queryField) => {
                 match: {
                     wildcard: {
                         [queryField.fields]: {
-                            value: element,
+                            value: stripAccents(element),
                             case_insensitive: true,
                         },
                     },
